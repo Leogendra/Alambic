@@ -50,5 +50,6 @@ final groupServiceProvider = Provider(
   (ref) => GroupService(
     groups: ref.watch(groupRepositoryProvider),
     clock: ref.watch(clockProvider),
+    scheduleChangeListener: ref.watch(scheduleChangeListenerProvider),
   ),
 );

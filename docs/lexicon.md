@@ -10,7 +10,11 @@ A front / back flashcard (`Flashcard`; *carte*). Each face holds plain text and/
 
 ### Direction
 
-One of the two ways to review a card (`CardDirection`; *sens*): front → back (`frontToBack`) or back → front (`backToFront`). Each direction has its own state, [step](#step), [due date](#due-date) and history. Its states are inactive, pending (in a distillation queue), active and acquired.
+One of the two ways to review a card (`CardDirection`; *sens*): front → back (`frontToBack`) or back → front (`backToFront`). Each direction has its own state, [step](#step), [due date](#due-date) and history. Its states are inactive (not studied), [unstarted](#unstarted), pending (in a distillation queue), active and acquired.
+
+### Unstarted
+
+State of a studied direction that has not entered review yet (`DirectionState.unstarted`; *pas commencée*). Every new card starts there; it has no due date until the user starts it, all at once or through a distillation.
 
 ### Group
 

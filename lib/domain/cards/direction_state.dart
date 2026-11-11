@@ -3,6 +3,10 @@ enum DirectionState {
   /// Not studied (for example the reverse of a card created one-way).
   inactive,
 
+  /// Studied but not started yet: a new card waits for the user to choose how
+  /// it enters review, all at once or through a distillation.
+  unstarted,
+
   /// Waiting in the queue of a distillation.
   pending,
 

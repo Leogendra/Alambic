@@ -32,6 +32,7 @@ class SampleServices {
       groups = GroupService(
         groups: GroupRepository(database),
         clock: clock.call,
+        scheduleChangeListener: const IgnoredScheduleChanges(),
       );
 
   final RemanenceDatabase database;
@@ -56,7 +57,7 @@ class SampleServices {
 }
 
 /// A "Capitales" group of four cards, a "Espagnol" group of two, and one
-/// card outside any group. Returns the id of "Capitales".
+/// card outside any group, all started. Returns the id of "Capitales".
 Future<int> seedSampleData(SampleServices services) async {
   final capitals = await services.groups.create('Capitales');
   final spanish = await services.groups.create('Espagnol');
@@ -67,6 +68,9 @@ Future<int> seedSampleData(SampleServices services) async {
   await services.card('manger', 'comer', groupId: spanish);
   await services.card('boire', 'beber', groupId: spanish);
   await services.card('Mitochondrie', 'Centrale énergétique de la cellule');
+  for (final groupId in [capitals, spanish, null]) {
+    await services.cards.startGroup(groupId);
+  }
   return capitals;
 }
 

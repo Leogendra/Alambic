@@ -48,6 +48,21 @@ void main() {
     ]);
     expect(summaries.map((summary) => summary.cardCount), [1, 4, 2]);
     expect(summaries.map((summary) => summary.activeCount), [1, 4, 2]);
+    expect(summaries.map((summary) => summary.newCount), [0, 0, 0]);
+  });
+
+  test('counts the new cards until they are started', () async {
+    await services.card('Laos', 'Vientiane');
+    final summary = overview.summarizeOne(
+      null,
+      await CardRepository(database).getAll(),
+      await PresetRepository(database).loadCatalog(),
+      sampleNow,
+    );
+    expect(summary.newCount, 1);
+    expect(summary.unstartedCount, 1);
+    expect(summary.activeCount, 0);
+    expect(summary.dueCount, 0);
   });
 
   test('counts the cards due today, suspended ones excluded', () async {
@@ -59,10 +74,9 @@ void main() {
     expect(await dueCounts(sampleNow), [1, 3, 2]);
   });
 
-  test('cards created after the slot are not due before tomorrow', () async {
+  test('cards started after the slot are due at once', () async {
     services.clock.now = DateTime(2026, 11, 10, 15);
     await seedSampleData(services);
-    expect(await dueCounts(DateTime(2026, 11, 10, 16)), [0, 0, 0]);
-    expect(await dueCounts(DateTime(2026, 11, 11, 8)), [1, 4, 2]);
+    expect(await dueCounts(DateTime(2026, 11, 10, 16)), [1, 4, 2]);
   });
 }

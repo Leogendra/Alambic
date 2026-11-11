@@ -43,7 +43,7 @@ void main() {
         ),
       );
 
-  test('deleting a group moves its cards to "Sans groupe"', () async {
+  test('deleting a group deletes its cards', () async {
     final groupId = await database
         .into(database.cardGroups)
         .insert(
@@ -56,10 +56,10 @@ void main() {
     await (database.delete(
       database.cardGroups,
     )..where((group) => group.id.equals(groupId))).go();
-    final card = await (database.select(
+    final cards = await (database.select(
       database.flashcards,
-    )..where((card) => card.id.equals(cardId))).getSingle();
-    expect(card.groupId, isNull);
+    )..where((card) => card.id.equals(cardId))).get();
+    expect(cards, isEmpty);
   });
 
   test('deleting a card deletes its directions and their history', () async {

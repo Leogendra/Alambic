@@ -9,7 +9,8 @@ class GroupSummary {
     required this.cardCount,
     required this.dueCount,
     required this.activeCount,
-    required this.pendingCount,
+    required this.newCount,
+    required this.unstartedCount,
   });
 
   final CardGroup? group;
@@ -22,8 +23,12 @@ class GroupSummary {
   /// Cards with at least one studied (active or acquired) direction.
   final int activeCount;
 
-  /// Cards with a direction waiting in a distillation queue.
-  final int pendingCount;
+  /// Cards not fully introduced: a direction waits to be started or waits in
+  /// a distillation queue.
+  final int newCount;
+
+  /// Cards with a direction waiting to be started.
+  final int unstartedCount;
 
   int? get groupId => group?.id;
 }

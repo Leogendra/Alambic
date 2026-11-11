@@ -16,13 +16,13 @@ As soon as some text is typed, the group list gives way to the cards whose front
 
 ### Group page
 
-The page of a group (or of "No group") recalls the number of cards, the preset, its notification mode and its schedule. Three counters follow: due cards, active cards (at least one active or acquired direction), cards pending distillation. The card list is in creation order, which is the group order. Each card shows its front, its back, the status of the front → back direction ("new", "step 2 of 6", "suspended", "pending distillation", "acquired") and its next due date ("Due", "at 15:17", "tomorrow", "in 3 d"). The "+" button creates a card directly in the group.
+The page of a group (or of "No group") recalls the number of cards, the preset, its notification mode and its schedule. Three counters follow: due cards, active cards (at least one active or acquired direction) and new cards (a direction unstarted or pending distillation). When cards wait to be started, a panel offers "Start all" ([Feature 3](3-cards.md#starting-new-cards)). The card list is in creation order, which is the group order. Each card shows its front, its back, the status of the front → back direction ("not started", "new", "step 2 of 6", "suspended", "pending distillation", "acquired") and its next due date ("Due", "at 15:17", "tomorrow", "in 3 d"). The "+" button creates a card directly in the group.
 
 ### Group settings
 
 A group's settings are its name, its preset and its deletion. The preset is picked from the preset list, or inherits the global preset. The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
 
-Deleting a group asks for confirmation and moves its cards to "No group"; no card is deleted.
+Deleting a group asks for confirmation, announcing how many cards go with it, then deletes the group with its cards and their history.
 
 ### Counts
 
@@ -32,15 +32,15 @@ Counters are computed by `GroupOverview` from all cards, the preset catalog and 
 
 - [x] The tab lists "No group" first, then the groups, with number of cards, preset and number of due cards.
 - [x] Search finds cards by their front or back, case-insensitively.
-- [x] A group page shows the due / active / pending counters and the card list with their status and due date.
+- [x] A group page shows the due / active / new counters and the card list with their status and due date.
 - [x] A group is created, renamed, changes preset or inherits the global preset.
-- [x] Deleting a group keeps its cards, moved to "No group".
+- [x] Deleting a group deletes its cards and their history.
 - [x] A suspended card does not count as due.
 
 ## Test strategy
 
 - Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the preset slot, with a suspended card.
-- The group service is tested for creation, renaming, refusal of an empty name and deletion without losing cards.
+- The group service is tested for creation, renaming, refusal of an empty name and deletion with its cards.
 - The tab (list and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock.
 
 ## File mapping

@@ -40,7 +40,16 @@ class GroupOverview {
     cardCount: cards.length,
     dueCount: cards.where((card) => isCardDue(card, now)).length,
     activeCount: cards.where(_isStudied).length,
-    pendingCount: cards.where(_isPending).length,
+    newCount: cards
+        .where(
+          (card) =>
+              _hasState(card, DirectionState.unstarted) ||
+              _hasState(card, DirectionState.pending),
+        )
+        .length,
+    unstartedCount: cards
+        .where((card) => _hasState(card, DirectionState.unstarted))
+        .length,
   );
 
   /// A card is due when one of its directions is.
@@ -58,7 +67,6 @@ class GroupOverview {
         direction.state == DirectionState.acquired,
   );
 
-  bool _isPending(CardWithDirections card) => card.directions.any(
-    (direction) => direction.state == DirectionState.pending,
-  );
+  bool _hasState(CardWithDirections card, DirectionState state) =>
+      card.directions.any((direction) => direction.state == state);
 }

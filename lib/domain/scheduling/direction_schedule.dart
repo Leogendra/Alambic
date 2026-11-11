@@ -15,6 +15,13 @@ class DirectionSchedule {
     dueAt: null,
   );
 
+  /// A direction waiting to be started: no step, no due date.
+  static const DirectionSchedule unstarted = DirectionSchedule(
+    state: DirectionState.unstarted,
+    step: null,
+    dueAt: null,
+  );
+
   final DirectionState state;
   final int? step;
   final DateTime? dueAt;

@@ -24,9 +24,9 @@ The step is the index, in the preset sequence, of the interval currently waited.
 
 If the sequence was shortened, or the card moved to a shorter preset, the engine clamps the step to the last existing step before computing. The stored step is only corrected at the next answer.
 
-### Due date of a new direction
+### Starting a direction
 
-A direction entering review (card creation, activation of the reverse direction) is due at the next preset slot: today if the slot has not passed yet, tomorrow otherwise. The two-directions rule applies too: a card created with both directions has its back → front direction scheduled the day after the front → back one.
+A new direction is never scheduled by itself: it stays unstarted until the user starts it ([Feature 3](3-cards.md#starting-new-cards)). Starting it, or resetting its progress, makes it due today at the preset slot, even when that slot has already passed: the direction is due at once. The two-directions rule applies too: a card started in both directions has its back → front direction due the day after the front → back one.
 
 ### Due
 
@@ -53,6 +53,7 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 
 ## Acceptance criteria
 
+- [x] A started direction is due today at the preset slot, its reverse the next day.
 - [x] Correct moves one step forward; the first correct answer waits the first interval.
 - [x] Again applies the preset behaviour: one step back without going below the first, back to the start, or same step. A never-reviewed direction answered Again waits the first interval.
 - [x] After the last step, Correct applies the preset end-of-sequence behaviour: repeat the last interval, mark acquired (no more due date), or loop to the start.
@@ -68,7 +69,7 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 - Each engine rule is proven by a domain unit test, without a database: moving forward, each failure behaviour, each end of sequence, clamped step.
 - Dates are fixed in the tests (November 2026): no test reads the clock or waits.
 - The day boundaries (3:59am and 4am, end of month, slot before 4am) are tested explicitly on the calendar.
-- The reverse-direction shift is tested at creation and after an answer.
+- The reverse-direction shift is tested at start and after an answer.
 
 ## File mapping
 

@@ -82,28 +82,29 @@ void main() {
     expect(schedule.dueAt, isNull);
   });
 
-  group('first schedule', () {
+  group('start schedule', () {
     test('is today at the slot when it is still ahead', () {
-      final schedule = scheduler.firstSchedule(
+      final schedule = scheduler.startSchedule(
         preset: standardPreset,
         now: DateTime(2026, 11, 10, 9),
         oppositeDueAt: null,
       );
       expect(schedule.dueAt, DateTime(2026, 11, 10, 12));
       expect(schedule.step, isNull);
+      expect(schedule.state, DirectionState.active);
     });
 
-    test('is tomorrow when the slot has passed', () {
-      final schedule = scheduler.firstSchedule(
+    test('stays today when the slot has passed, so it is due at once', () {
+      final schedule = scheduler.startSchedule(
         preset: standardPreset,
         now: DateTime(2026, 11, 10, 15),
         oppositeDueAt: null,
       );
-      expect(schedule.dueAt, DateTime(2026, 11, 11, 12));
+      expect(schedule.dueAt, DateTime(2026, 11, 10, 12));
     });
 
     test('of the reverse direction avoids the day of the front one', () {
-      final schedule = scheduler.firstSchedule(
+      final schedule = scheduler.startSchedule(
         preset: standardPreset,
         now: DateTime(2026, 11, 10, 9),
         oppositeDueAt: DateTime(2026, 11, 10, 12),

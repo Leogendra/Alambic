@@ -39,6 +39,7 @@ class CardStatusFormatter {
   String directionStatus(CardWithDirections card, CardDirection direction) =>
       switch (direction.state) {
         DirectionState.inactive => strings.cardStatusInactive,
+        DirectionState.unstarted => strings.cardStatusUnstarted,
         DirectionState.pending => strings.cardStatusPending,
         DirectionState.acquired => strings.cardStatusAcquired,
         DirectionState.active => _stepLabel(card, direction),

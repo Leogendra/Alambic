@@ -1023,7 +1023,7 @@ class $FlashcardsTable extends Flashcards
     type: DriftSqlType.int,
     requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES card_groups (id) ON DELETE SET NULL',
+      'REFERENCES card_groups (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _frontTextMeta = const VerificationMeta(
@@ -2312,7 +2312,7 @@ abstract class _$RemanenceDatabase extends GeneratedDatabase {
         'card_groups',
         limitUpdateKind: UpdateKind.delete,
       ),
-      result: [TableUpdate('flashcards', kind: UpdateKind.update)],
+      result: [TableUpdate('flashcards', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(

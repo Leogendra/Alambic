@@ -594,5 +594,34 @@
   },
   "homeTimelineNext": "Prochain",
   "homeDueGroups": "Groupes à réviser",
-  "homeNewCards": "Cartes à commencer"
+  "homeNewCards": "Cartes à commencer",
+  "notificationChannelName": "Révisions",
+  "notificationChannelDescription": "Les cartes à réviser, avec leurs boutons de réponse.",
+  "notificationNewCard": "Nouvelle carte",
+  "notificationExtra": "Réviser bientôt · sans effet sur le planning",
+  "notificationAnswer": "Réponse : {answer}",
+  "@notificationAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationFailed": "Compté raté · retour au cran {step}, revue {when}",
+  "@notificationFailed": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationBonus": "Révision bonus · sans effet",
+  "settingsExactAlarms": "Rappels à l'heure exacte",
+  "settingsExactAlarmsOn": "Les rappels tombent à la minute près.",
+  "settingsExactAlarmsOff": "Les rappels peuvent arriver avec quelques minutes de retard. Autorise les alarmes exactes pour qu'ils tombent à l'heure.",
+  "settingsExactAlarmsAllow": "Autoriser",
+  "settingsExactAlarmsAllowed": "Activés"
 }

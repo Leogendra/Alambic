@@ -1,0 +1,124 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:remanence/application/cards/card_draft.dart';
+import 'package:remanence/application/cards/card_providers.dart';
+import 'package:remanence/application/notifications/notification_providers.dart';
+import 'package:remanence/application/notifications/review_notification_key.dart';
+import 'package:remanence/application/reviews/review_providers.dart';
+import 'package:remanence/data/database/remanence_database.dart';
+import 'package:remanence/data/repositories/card_repository.dart';
+import 'package:remanence/domain/cards/direction_sense.dart';
+import 'package:remanence/domain/reviews/review_outcome.dart';
+import 'package:remanence/domain/reviews/review_source.dart';
+
+import '../support/fake_notifications.dart';
+import '../support/fixed_clock.dart';
+import '../support/sample_data.dart';
+import '../support/test_database.dart';
+
+void main() {
+  late RemanenceDatabase database;
+  late NotificationHarness harness;
+
+  setUp(() {
+    database = openTestDatabase();
+    harness = NotificationHarness(database, FixedClock(sampleNow));
+  });
+
+  tearDown(() async {
+    harness.dispose();
+    await database.close();
+  });
+
+  /// A started card, due today at 12:00 (and its reverse tomorrow).
+  Future<int> startedCard({bool alsoReverse = false}) async {
+    final cards = harness.read(cardServiceProvider);
+    final cardId = await cards.create(
+      CardDraft(
+        frontText: 'Mongolie',
+        backText: 'Oulan-Bator',
+        groupId: null,
+        presetId: null,
+        alsoReverse: alsoReverse,
+      ),
+    );
+    await cards.startGroup(null);
+    return cardId;
+  }
+
+  Future<int> frontOf(int cardId) async =>
+      (await CardRepository(database).getDirections(cardId))
+          .firstWhere(
+            (direction) => direction.sense == DirectionSense.frontToBack,
+          )
+          .id;
+
+  List<DateTime> scheduledMoments() =>
+      harness.alarms.scheduled.values.toList()..sort();
+
+  test('wakes the app up once per due moment', () async {
+    await startedCard(alsoReverse: true);
+    await startedCard();
+    expect(scheduledMoments(), [
+      DateTime(2026, 11, 10, 12),
+      DateTime(2026, 11, 11, 12),
+    ]);
+    expect(harness.alarms.exactById.values, everyElement(isTrue));
+  });
+
+  test(
+    'a card reviewed before its slot drops the wake-up of the slot',
+    () async {
+      final cardId = await startedCard();
+      harness.clock.now = DateTime(2026, 11, 10, 9, 30);
+      await harness
+          .read(reviewServiceProvider)
+          .answer(
+            await frontOf(cardId),
+            ReviewOutcome.correct,
+            source: ReviewSource.session,
+          );
+      expect(scheduledMoments(), [DateTime(2026, 11, 11, 12)]);
+    },
+  );
+
+  test('withdraws the notification of a card reviewed in the app', () async {
+    final cardId = await startedCard();
+    final key = ReviewNotificationKey(directionId: await frontOf(cardId));
+    harness.clock.now = DateTime(2026, 11, 10, 12);
+    await harness.read(notificationDispatcherProvider).dispatchDue();
+    expect(harness.presenter.prompts.keys, [key]);
+    await harness
+        .read(reviewServiceProvider)
+        .answer(
+          key.directionId,
+          ReviewOutcome.correct,
+          source: ReviewSource.session,
+        );
+    expect(harness.presenter.prompts, isEmpty);
+  });
+
+  test('plans nothing for a suspended card', () async {
+    final cardId = await startedCard();
+    await harness
+        .read(cardServiceProvider)
+        .setSuspended(cardId, suspended: true);
+    expect(harness.alarms.scheduled, isEmpty);
+  });
+
+  test('falls back to inexact alarms without the permission', () async {
+    await startedCard();
+    harness.alarms.exactAllowed = false;
+    await harness.read(notificationPlannerProvider).replan(force: true);
+    expect(harness.alarms.exactById.values, everyElement(isFalse));
+  });
+
+  test('schedules only what changed, unless forced', () async {
+    await startedCard();
+    final planner = harness.read(notificationPlannerProvider);
+    final count = harness.alarms.scheduleCount;
+    await planner.replan();
+    expect(harness.alarms.scheduleCount, count);
+    await planner.replan(force: true);
+    expect(harness.alarms.scheduleCount, count + 1);
+  });
+}

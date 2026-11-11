@@ -76,6 +76,11 @@ class CardRepository {
     _database.cardDirections,
   )..where((direction) => direction.id.equals(directionId))).getSingle();
 
+  /// `null` once the card was deleted.
+  Future<CardDirection?> findDirection(int directionId) => (_database.select(
+    _database.cardDirections,
+  )..where((direction) => direction.id.equals(directionId))).getSingleOrNull();
+
   Future<List<CardDirection>> getDirections(int cardId) => (_database.select(
     _database.cardDirections,
   )..where((direction) => direction.cardId.equals(cardId))).get();

@@ -24,6 +24,7 @@ Les versions sont fixées à l'identique dans `pubspec.yaml` (pas de `^`) et dan
 - Analyse : `flutter analyze`. Formatage : `dart format lib test`.
 - Tests : `flutter test`. Régénérer les golden tests après un changement visuel voulu : `flutter test --update-goldens`.
 - APK de debug : `flutter build apk --debug`. Installation sur un téléphone branché : `flutter install` ou `flutter run`.
+- Les tests qui touchent la base ouvrent une vraie base SQLite en mémoire, avec `closeStreamsSynchronously` pour que les tests d'écran ne finissent pas sur des minuteries en attente.
 
 ## Conventions
 
@@ -35,5 +36,6 @@ Les versions sont fixées à l'identique dans `pubspec.yaml` (pas de `^`) et dan
 ## Pièges
 
 - `flutter_local_notifications` 23 exige `compileSdk` 37. Avec AGP 9, le SDK 37 s'installe sous le nom `android-37.0` : `compileSdk = 37` échoue avec « Failed to find target with hash string 'android-37' ». Il faut la syntaxe `compileSdk { version = release(37) { minorApiLevel = 0 } }` de `android/app/build.gradle.kts`.
+- Le projet est dans un dossier OneDrive, qui pose l'attribut lecture seule sur les dossiers. Windows l'ignore pour un dossier, mais `flutter gen-l10n` refuse alors d'écrire (« doesn't allow reading and writing »). Correctif : `attrib -R lib\l10n` et `attrib -R lib\l10n\generated`.
 - Dans les golden tests, Flutter remplace les ombres par un contour noir : le bouton flottant apparaît cerclé de noir sur les images de référence. Ce n'est pas un défaut de l'app.
 - Les golden tests dépendent du rendu de la plateforme qui les a générés (Windows ici). Les régénérer sur une autre plateforme produit des écarts de quelques pixels.

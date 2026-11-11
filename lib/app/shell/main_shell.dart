@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../features/settings/settings_screen.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// Root screen: four tabs and the "+" button that creates a card.
@@ -24,7 +25,7 @@ class _MainShellState extends State<MainShell> {
             const SizedBox.shrink(),
             const SizedBox.shrink(),
             Center(child: Text(strings.statisticsComingSoon)),
-            const SizedBox.shrink(),
+            const SettingsScreen(),
           ],
         ),
       ),

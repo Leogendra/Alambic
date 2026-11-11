@@ -10,7 +10,7 @@ import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
 import 'card_draft.dart';
 
-/// Creates, edits and manages cards, and schedules the directions they start.
+/// Creates, edits and manages cards, and starts their directions.
 class CardService {
   const CardService({
     required this._cards,
@@ -26,8 +26,8 @@ class CardService {
   final Clock _clock;
   final ScheduleChangeListener _scheduleChangeListener;
 
-  /// Stores a new card. Its front → back direction is due at the next preset
-  /// slot; the reverse one is active only with [CardDraft.alsoReverse].
+  /// Stores a new card. It is never due by itself: its front → back direction,
+  /// and the reverse one with [CardDraft.alsoReverse], wait to be started.
   Future<int> create(CardDraft draft) async {
     _checkComplete(draft);
     final cardId = await _cards.transaction(() async {
@@ -39,7 +39,7 @@ class CardService {
         presetId: draft.presetId,
         createdAt: now,
       );
-      await _insertDirections(cardId, draft.alsoReverse, now);
+      await _insertDirections(cardId, draft.alsoReverse);
       return cardId;
     });
     await _scheduleChangeListener.onSchedulesChanged();
@@ -59,15 +59,16 @@ class CardService {
           presetId: draft.presetId,
           createdAt: now,
         );
-        await _insertDirections(cardId, draft.alsoReverse, now);
+        await _insertDirections(cardId, draft.alsoReverse);
       }
     });
     await _scheduleChangeListener.onSchedulesChanged();
     return drafts.length;
   }
 
-  /// Updates the content of a card. Checking "also reverse" starts the reverse
-  /// direction; unchecking it stops it, keeping its history.
+  /// Updates the content of a card. Checking "also reverse" adds the reverse
+  /// direction, waiting to be started; unchecking it stops it, keeping its
+  /// history.
   Future<void> update(int cardId, CardDraft draft) async {
     _checkComplete(draft);
     await _cards.transaction(() async {
@@ -88,8 +89,36 @@ class CardService {
     await _scheduleChangeListener.onSchedulesChanged();
   }
 
-  /// Forgets the progression of both directions: every active direction starts
-  /// again as a new one. The history is kept.
+  /// Starts every unstarted direction of the cards of [groupId], or of "No
+  /// group" for `null`: they all become due today. Returns how many cards
+  /// started.
+  Future<int> startGroup(int? groupId) async {
+    final startedCards = await _cards.transaction(() async {
+      var count = 0;
+      for (final card in await _cards.getCardsOfGroup(groupId)) {
+        if (await _startUnstarted(card.card.id)) {
+          count++;
+        }
+      }
+      return count;
+    });
+    if (startedCards > 0) {
+      await _scheduleChangeListener.onSchedulesChanged();
+    }
+    return startedCards;
+  }
+
+  /// Starts one unstarted direction: it becomes due today.
+  Future<void> startDirection(int directionId) async {
+    await _cards.transaction(() async {
+      final direction = await _cards.getDirection(directionId);
+      await _startUnstarted(direction.cardId, onlyDirectionId: directionId);
+    });
+    await _scheduleChangeListener.onSchedulesChanged();
+  }
+
+  /// Forgets the progression of both directions: every active or acquired
+  /// direction starts again from scratch, due today. The history is kept.
   Future<void> resetProgress(int cardId) async {
     await _cards.transaction(() async {
       final preset = await _presetOfCard(cardId);
@@ -97,7 +126,7 @@ class CardService {
       for (final direction in await _sortedDirections(cardId)) {
         if (direction.state == DirectionState.active ||
             direction.state == DirectionState.acquired) {
-          final schedule = _scheduler.firstSchedule(
+          final schedule = _scheduler.startSchedule(
             preset: preset,
             now: _clock(),
             oppositeDueAt: previousDue,
@@ -115,33 +144,43 @@ class CardService {
     await _scheduleChangeListener.onSchedulesChanged();
   }
 
-  Future<void> _insertDirections(
-    int cardId,
-    bool alsoReverse,
-    DateTime now,
-  ) async {
-    final preset = await _presetOfCard(cardId);
-    final front = _scheduler.firstSchedule(
-      preset: preset,
-      now: now,
-      oppositeDueAt: null,
-    );
+  Future<void> _insertDirections(int cardId, bool alsoReverse) async {
     await _cards.insertDirection(
       cardId: cardId,
       sense: DirectionSense.frontToBack,
-      schedule: front,
+      schedule: DirectionSchedule.unstarted,
     );
     await _cards.insertDirection(
       cardId: cardId,
       sense: DirectionSense.backToFront,
       schedule: alsoReverse
-          ? _scheduler.firstSchedule(
-              preset: preset,
-              now: now,
-              oppositeDueAt: front.dueAt,
-            )
+          ? DirectionSchedule.unstarted
           : DirectionSchedule.inactive,
     );
+  }
+
+  /// Starts the unstarted directions of a card, front → back first, keeping
+  /// the two directions on different days. Returns whether one started.
+  Future<bool> _startUnstarted(int cardId, {int? onlyDirectionId}) async {
+    final preset = await _presetOfCard(cardId);
+    var started = false;
+    for (final direction in await _sortedDirections(cardId)) {
+      final isTarget =
+          onlyDirectionId == null || direction.id == onlyDirectionId;
+      if (isTarget && direction.state == DirectionState.unstarted) {
+        final opposite = (await _cards.getDirections(cardId))
+            .where((other) => other.id != direction.id && other.isScheduled)
+            .firstOrNull;
+        final schedule = _scheduler.startSchedule(
+          preset: preset,
+          now: _clock(),
+          oppositeDueAt: opposite?.dueAt,
+        );
+        await _cards.applySchedule(direction.id, schedule);
+        started = true;
+      }
+    }
+    return started;
   }
 
   Future<void> _applyReverseChoice(int cardId, bool alsoReverse) async {
@@ -151,16 +190,8 @@ class CardService {
     );
     final isStudied = reverse.state != DirectionState.inactive;
     if (alsoReverse && !isStudied) {
-      final front = directions.firstWhere(
-        (direction) => direction.sense == DirectionSense.frontToBack,
-      );
-      final schedule = _scheduler.firstSchedule(
-        preset: await _presetOfCard(cardId),
-        now: _clock(),
-        oppositeDueAt: front.dueAt,
-      );
-      await _cards.applySchedule(reverse.id, schedule);
-    } else if (!alsoReverse && reverse.state == DirectionState.active) {
+      await _cards.applySchedule(reverse.id, DirectionSchedule.unstarted);
+    } else if (!alsoReverse && isStudied) {
       await _cards.deactivateDirection(reverse.id);
     }
   }

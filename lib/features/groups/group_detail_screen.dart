@@ -92,12 +92,13 @@ class _GroupBody extends ConsumerWidget {
               value: summary.activeCount,
               label: strings.groupStatActive,
             ),
-            GroupStatTile(
-              value: summary.pendingCount,
-              label: strings.groupStatPending,
-            ),
+            GroupStatTile(value: summary.newCount, label: strings.groupStatNew),
           ],
         ),
+        if (summary.unstartedCount > 0) ...[
+          const SizedBox(height: 16),
+          _StartPanel(summary: summary),
+        ],
         if (summary.dueCount > 0) ...[
           const SizedBox(height: 16),
           FilledButton(
@@ -114,6 +115,53 @@ class _GroupBody extends ConsumerWidget {
         const SizedBox(height: 24),
         SectionLabel(strings.groupCardsSection),
         _CardList(groupId: summary.groupId),
+      ],
+    );
+  }
+}
+
+/// Offers to start the new cards of the group, which are not scheduled yet.
+class _StartPanel extends ConsumerWidget {
+  const _StartPanel({required this.summary});
+
+  final GroupSummary summary;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    return SurfacePanel(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              strings.groupStartTitle(summary.unstartedCount),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              strings.groupStartHint,
+              style: TextStyle(
+                fontSize: 14,
+                color: RemanenceColors.of(context).textSecondary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.tonal(
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final started = await ref
+                    .read(cardServiceProvider)
+                    .startGroup(summary.groupId);
+                messenger.showSnackBar(
+                  SnackBar(content: Text(strings.groupStarted(started))),
+                );
+              },
+              child: Text(strings.groupStartAll),
+            ),
+          ],
+        ),
       ],
     );
   }

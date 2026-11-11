@@ -31,7 +31,7 @@ class GroupRepository {
             ..where((group) => group.id.equals(groupId)))
           .write(CardGroupsCompanion(presetId: Value(presetId)));
 
-  /// The cards of the group move to "No group".
+  /// Its cards, their directions and their history are deleted with it.
   Future<void> delete(int groupId) => (_database.delete(
     _database.cardGroups,
   )..where((group) => group.id.equals(groupId))).go();

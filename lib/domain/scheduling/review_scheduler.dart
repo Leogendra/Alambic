@@ -50,22 +50,18 @@ class ReviewScheduler {
     }
   }
 
-  /// Schedule of a direction entering study: due at the next preset slot,
-  /// today if the slot is still ahead, tomorrow otherwise.
-  DirectionSchedule firstSchedule({
+  /// Schedule of a direction entering review: due today at the preset slot,
+  /// so it is due right away even when the slot has already passed.
+  DirectionSchedule startSchedule({
     required Preset preset,
     required DateTime now,
     required DateTime? oppositeDueAt,
   }) {
-    final today = calendar.dayOf(now);
-    final todaySlot = calendar.momentAt(today, preset.dailySlot);
-    final candidate = todaySlot.isBefore(now)
-        ? calendar.momentAt(calendar.addDays(today, 1), preset.dailySlot)
-        : todaySlot;
+    final todaySlot = calendar.momentAt(calendar.dayOf(now), preset.dailySlot);
     return DirectionSchedule(
       state: DirectionState.active,
       step: null,
-      dueAt: _spacedFromOpposite(candidate, preset, oppositeDueAt),
+      dueAt: _spacedFromOpposite(todaySlot, preset, oppositeDueAt),
     );
   }
 

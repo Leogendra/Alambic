@@ -21,7 +21,7 @@ All data lives in a local SQLite database managed by drift, `RemanenceDatabase`.
 The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset), `card_groups`, `flashcards`, `card_directions` (one direction per card and orientation), `review_records` (the history) and `extra_reminders` (the "Review soon" reminders). Foreign keys are enabled at each opening, which gives two deletion rules:
 
 - deleting a card deletes its directions, their history and their reminders;
-- deleting a group moves its cards to "No group" instead of deleting them.
+- deleting a group deletes its cards, and with them their directions and history.
 
 The global preset lives in the database rather than in the preferences, because it is part of the review data: it must be readable from background tasks and travel with the export.
 
@@ -34,7 +34,7 @@ When the database is created, the Standard and Intensive presets are inserted an
 - [x] The app follows the system light or dark theme, in DM Sans with the `#1447FF` accent.
 - [x] The main navigation shows four tabs and a "+" button.
 - [x] A fresh database contains the Standard and Intensive presets, Standard being the global preset.
-- [x] Deleting a group moves its cards to "No group"; deleting a card deletes its directions and their history.
+- [x] Deleting a group deletes its cards; deleting a card deletes its directions and their history.
 
 ## Test strategy
 

@@ -1,12 +1,18 @@
 import '../../data/repositories/group_repository.dart';
 import '../clock.dart';
+import '../scheduling/schedule_change_listener.dart';
 
 /// Creation and settings of groups.
 class GroupService {
-  const GroupService({required this._groups, required this._clock});
+  const GroupService({
+    required this._groups,
+    required this._clock,
+    required this._scheduleChangeListener,
+  });
 
   final GroupRepository _groups;
   final Clock _clock;
+  final ScheduleChangeListener _scheduleChangeListener;
 
   /// Returns the id of the new group.
   Future<int> create(String name) {
@@ -24,8 +30,11 @@ class GroupService {
   Future<void> setPreset(int groupId, int? presetId) =>
       _groups.setPreset(groupId, presetId);
 
-  /// Deletes the group; its cards move to "No group".
-  Future<void> delete(int groupId) => _groups.delete(groupId);
+  /// Deletes the group with all its cards and their history.
+  Future<void> delete(int groupId) async {
+    await _groups.delete(groupId);
+    await _scheduleChangeListener.onSchedulesChanged();
+  }
 
   void _checkName(String name) {
     if (name.trim().isEmpty) {

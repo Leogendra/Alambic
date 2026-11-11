@@ -16,12 +16,21 @@ The front and the back are required. Text is stored without leading and trailing
 
 Every card has two [directions](../lexicon.md#direction) in the database from its creation, whatever the choice made:
 
-- front → back is active and due at the next slot of its preset ([Feature 1](1-scheduling.md#due-date-of-a-new-direction));
-- back → front is active only when "Also in the other direction" is checked, and is then due the day after the front; otherwise it is inactive.
+- front → back is [unstarted](../lexicon.md#unstarted);
+- back → front is unstarted too when "Also in the other direction" is checked, inactive otherwise.
 
 Creating the reverse direction upfront, even inactive, avoids having to build it later: checking the option while editing, or a back-side distillation, only has to change its state.
 
-While editing, checking the option schedules the reverse direction as a new direction; unchecking it makes it inactive, without erasing its history.
+While editing, checking the option makes the reverse direction unstarted; unchecking it makes it inactive, without erasing its history.
+
+### Starting new cards
+
+A new card is never due by itself. The user decides how its directions enter review, so that a block of fifty pasted cards does not land on the same day by accident. Two ways exist:
+
+- the classic start: "Start all" on the page of a group (or of "No group") starts every unstarted direction of the block at once, and they are all due today ([Feature 1](1-scheduling.md#starting-a-direction));
+- the distillation, which introduces the directions a few at a time, is described in its own feature.
+
+A single direction can also be started on its own from the card sheet.
 
 ### Bulk add
 
@@ -37,21 +46,21 @@ The screen announces the number of ready cards and lists the skipped lines befor
 
 ### Card management
 
-The card service also handles suspension (a suspended card is never due, in either direction), progress reset (each active or acquired direction starts again as a new one, history kept) and deletion. Every operation that touches due dates notifies the notification planning.
+The card service also handles suspension (a suspended card is never due, in either direction), progress reset (each active or acquired direction starts again from scratch, due today, history kept) and deletion. Every operation that touches due dates notifies the notification planning.
 
 ## Acceptance criteria
 
 - [x] A card is created with a text front and back; an empty face is refused.
-- [x] Without the option, only the front → back direction is active, due at the next preset slot.
-- [x] With the option, the back → front direction is active too, due the next day.
-- [x] Editing a card changes its text, its group, its preset, and starts or stops the reverse direction.
+- [x] A new card is not due: its front → back direction is unstarted, and so is the back → front one with the option; without it, the reverse is inactive.
+- [x] "Start all" on a group page makes every unstarted direction of the group due today, the reverse of a card the next day.
+- [x] Editing a card changes its text, its group, its preset, and adds or stops the reverse direction.
 - [x] Bulk add creates one card per valid line, in order, and reports the skipped lines by number.
 - [x] The bulk-add separator is editable; changing it rereads every line.
 - [x] Resetting reschedules the active directions as new ones, keeping the history.
 
 ## Test strategy
 
-- The service is tested on an in-memory database with a fixed clock: state and due date of each direction after creation, editing and reset, read back from the database.
+- The service is tested on an in-memory database with a fixed clock: state and due date of each direction after creation, start, editing and reset, read back from the database.
 - Each test also checks that the notification planning was notified, through a listener that counts calls.
 - Parsing the pasted lines is tested as pure logic: spaces, empty lines, missing separator, empty face, multi-character separator.
 - The bulk-add screen is tested end to end on an in-memory database: report before adding, separator change, cards created in the group with both directions.

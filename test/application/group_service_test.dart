@@ -29,12 +29,11 @@ void main() {
     expect(() => services.groups.create('  '), throwsArgumentError);
   });
 
-  test('deleting a group keeps its cards in "Sans groupe"', () async {
+  test('deleting a group deletes its cards', () async {
     final capitals = await seedSampleData(services);
     await services.groups.delete(capitals);
-    final withoutGroup = await CardRepository(database)
-        .watchCardsOfGroup(null)
-        .first;
-    expect(withoutGroup, hasLength(5));
+    final cards = await CardRepository(database).getAll();
+    expect(cards, hasLength(3));
+    expect(cards.where((card) => card.card.groupId == capitals), isEmpty);
   });
 }

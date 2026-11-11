@@ -48,7 +48,11 @@ void main() {
     cardId,
   )).firstWhere((direction) => direction.sense == DirectionSense.frontToBack);
 
-  Future<int> dueCard() => samples.card('Mongolie', 'Oulan-Bator');
+  Future<int> dueCard() async {
+    final cardId = await samples.card('Mongolie', 'Oulan-Bator');
+    await samples.cards.startGroup(null);
+    return cardId;
+  }
 
   test('a correct answer on a due card moves it to the next step', () async {
     final cardId = await dueCard();

@@ -231,7 +231,25 @@
   "groupNameLabel": "Nom",
   "groupStatDue": "Dues",
   "groupStatActive": "Actives",
-  "groupStatPending": "En attente",
+  "groupStatNew": "Nouvelles",
+  "groupStartTitle": "{count, plural, =1{1 nouvelle carte} other{{count} nouvelles cartes}}",
+  "@groupStartTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupStartHint": "Une nouvelle carte n'est pas planifiée tant qu'elle n'est pas commencée. Tout commencer les rend toutes à réviser dès aujourd'hui.",
+  "groupStartAll": "Tout commencer",
+  "groupStarted": "{count, plural, =1{1 carte à réviser dès maintenant} other{{count} cartes à réviser dès maintenant}}",
+  "@groupStarted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "groupCardsSection": "Cartes",
   "groupEmpty": "Aucune carte. Ajoute-en avec le bouton + ou l'ajout en masse.",
   "groupSettingsTitle": "Réglages du groupe",
@@ -246,7 +264,7 @@
       }
     }
   },
-  "groupDeleteConfirmBody": "{count, plural, =0{Le groupe est vide.} =1{Sa carte est rangée dans « Sans groupe ».} other{Ses {count} cartes sont rangées dans « Sans groupe ».}}",
+  "groupDeleteConfirmBody": "{count, plural, =0{Le groupe est vide.} =1{Sa carte et son historique seront supprimés.} other{Ses {count} cartes et leur historique seront supprimés.}}",
   "@groupDeleteConfirmBody": {
     "placeholders": {
       "count": {
@@ -267,6 +285,7 @@
     }
   },
   "cardStatusNew": "nouvelle",
+  "cardStatusUnstarted": "pas commencée",
   "cardStatusPending": "en attente de distillation",
   "cardStatusSuspended": "suspendue",
   "cardStatusAcquired": "acquise",
@@ -416,5 +435,96 @@
         "type": "int"
       }
     }
-  }
+  },
+  "directionFrontToBack": "Recto → verso",
+  "directionBackToFront": "Verso → recto",
+  "cardSheetShownDirection": "Sens affiché",
+  "cardSheetTapToReview": "Touche la carte pour la réviser maintenant.",
+  "cardSheetStepOf": "Cran {step} sur {count}",
+  "@cardSheetStepOf": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardSheetNextReview": "Prochaine révision",
+  "cardSheetDueNow": "À réviser maintenant",
+  "cardSheetAcquired": "Acquis : ce sens ne revient plus.",
+  "cardSheetUnstarted": "Pas encore commencé : ce sens n'est pas planifié.",
+  "cardSheetStart": "Commencer ce sens",
+  "cardSheetInactive": "Ce sens n'est pas révisé. Coche « Aussi dans l'autre sens » en modifiant la carte.",
+  "cardSheetPending": "En attente de distillation.",
+  "cardSheetSuspended": "Carte suspendue : elle ne revient plus tant qu'elle n'est pas réactivée.",
+  "cardSheetReviewSoon": "Réviser bientôt",
+  "cardSheetSuspend": "Suspendre",
+  "cardSheetResume": "Réactiver",
+  "cardSheetReset": "Réinitialiser",
+  "cardSheetResetConfirmTitle": "Réinitialiser la progression ?",
+  "cardSheetResetConfirmBody": "Les sens commencés repartent du début et sont à réviser aujourd'hui. L'historique est conservé.",
+  "cardSheetHistory": "Historique {direction}",
+  "@cardSheetHistory": {
+    "placeholders": {
+      "direction": {
+        "type": "String"
+      }
+    }
+  },
+  "cardSheetHistoryEmpty": "Aucune révision pour l'instant.",
+  "cardSheetEdit": "Modifier",
+  "cardSheetDelete": "Supprimer la carte",
+  "cardSheetDeleteConfirm": "Supprimer cette carte et son historique ?",
+  "cardSheetReminder": "Rappel prévu {date}",
+  "@cardSheetReminder": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cardSheetReminderRemove": "Retirer le rappel",
+  "historyBonus": "bonus",
+  "historyTo": "→ {interval}",
+  "@historyTo": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "historyBackTo": "recule à {interval}",
+  "@historyBackTo": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewSoonBody": "Un rappel en plus pour « {front} ». La réponse est notée dans l'historique mais ne change pas le planning.",
+  "@reviewSoonBody": {
+    "placeholders": {
+      "front": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewSoonDay": "Jour",
+  "reviewSoonTomorrow": "Demain",
+  "reviewSoonDayAfter": "Après-demain",
+  "reviewSoonWeekend": "Ce week-end",
+  "reviewSoonOtherDate": "Autre date",
+  "reviewSoonTime": "Heure",
+  "reviewSoonAdd": "Ajouter le rappel",
+  "reviewSoonAdded": "Rappel ajouté : {date}",
+  "@reviewSoonAdded": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewSoonPast": "Ce moment est déjà passé."
 }

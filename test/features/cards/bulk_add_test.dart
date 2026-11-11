@@ -74,7 +74,7 @@ void main() {
     ]);
     expect(
       cards.first.direction(DirectionSense.backToFront)!.state,
-      DirectionState.active,
+      DirectionState.unstarted,
     );
   });
 }

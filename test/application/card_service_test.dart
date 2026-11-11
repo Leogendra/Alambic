@@ -50,36 +50,60 @@ void main() {
       (await cards.getDirections(cardId))
           .firstWhere((direction) => direction.sense == sense);
 
-  test('a new card is due at the next preset slot, front only', () async {
+  test('a new card waits to be started, front only', () async {
     final cardId = await service.create(draft());
     final front = await direction(cardId, DirectionSense.frontToBack);
     final reverse = await direction(cardId, DirectionSense.backToFront);
-    expect(front.state, DirectionState.active);
-    expect(front.dueAt, DateTime(2026, 11, 10, 12));
+    expect(front.state, DirectionState.unstarted);
+    expect(front.dueAt, isNull);
     expect(front.step, isNull);
     expect(reverse.state, DirectionState.inactive);
-    expect(reverse.dueAt, isNull);
     expect((await cards.getCard(cardId)).frontText, 'Mongolie');
     expect(listener.changeCount, 1);
   });
 
-  test('"also reverse" starts the reverse direction the next day', () async {
+  test('"also reverse" makes the reverse direction wait too', () async {
     final cardId = await service.create(draft(alsoReverse: true));
     final reverse = await direction(cardId, DirectionSense.backToFront);
-    expect(reverse.state, DirectionState.active);
-    expect(reverse.dueAt, DateTime(2026, 11, 11, 12));
+    expect(reverse.state, DirectionState.unstarted);
+    expect(reverse.dueAt, isNull);
   });
 
-  test('checking "also reverse" when editing starts the reverse', () async {
+  test('starting a group makes its new cards due today', () async {
+    clock.now = DateTime(2026, 11, 10, 15);
+    final cardId = await service.create(draft(alsoReverse: true));
+    final started = await service.startGroup(null);
+    final front = await direction(cardId, DirectionSense.frontToBack);
+    final reverse = await direction(cardId, DirectionSense.backToFront);
+    expect(started, 1);
+    expect(front.state, DirectionState.active);
+    expect(front.dueAt, DateTime(2026, 11, 10, 12));
+    expect(reverse.dueAt, DateTime(2026, 11, 11, 12));
+    expect(await service.startGroup(null), 0);
+  });
+
+  test('starting one direction leaves the other waiting', () async {
+    final cardId = await service.create(draft(alsoReverse: true));
+    final reverse = await direction(cardId, DirectionSense.backToFront);
+    await service.startDirection(reverse.id);
+    final front = await direction(cardId, DirectionSense.frontToBack);
+    expect(front.state, DirectionState.unstarted);
+    expect(
+      (await direction(cardId, DirectionSense.backToFront)).dueAt,
+      DateTime(2026, 11, 10, 12),
+    );
+  });
+
+  test('checking "also reverse" when editing adds a waiting reverse', () async {
     final cardId = await service.create(draft());
     await service.update(cardId, draft(alsoReverse: true));
     final reverse = await direction(cardId, DirectionSense.backToFront);
-    expect(reverse.state, DirectionState.active);
-    expect(reverse.dueAt, DateTime(2026, 11, 11, 12));
+    expect(reverse.state, DirectionState.unstarted);
   });
 
   test('unchecking "also reverse" stops the reverse direction', () async {
     final cardId = await service.create(draft(alsoReverse: true));
+    await service.startGroup(null);
     await service.update(cardId, draft());
     final reverse = await direction(cardId, DirectionSense.backToFront);
     expect(reverse.state, DirectionState.inactive);
@@ -97,8 +121,9 @@ void main() {
     expect(() => service.create(incomplete), throwsArgumentError);
   });
 
-  test('resetting forgets the step and schedules again', () async {
+  test('resetting forgets the step and makes the card due today', () async {
     final cardId = await service.create(draft(alsoReverse: true));
+    await service.startGroup(null);
     final front = await direction(cardId, DirectionSense.frontToBack);
     await cards.applySchedule(
       front.id,
@@ -113,7 +138,7 @@ void main() {
     final resetFront = await direction(cardId, DirectionSense.frontToBack);
     final resetReverse = await direction(cardId, DirectionSense.backToFront);
     expect(resetFront.step, isNull);
-    expect(resetFront.dueAt, DateTime(2026, 11, 21, 12));
-    expect(resetReverse.dueAt, DateTime(2026, 11, 22, 12));
+    expect(resetFront.dueAt, DateTime(2026, 11, 20, 12));
+    expect(resetReverse.dueAt, DateTime(2026, 11, 21, 12));
   });
 }

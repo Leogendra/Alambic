@@ -145,6 +145,9 @@ class CardRepository {
                 .get(),
       );
 
+  Future<List<CardWithDirections>> getCardsOfGroup(int? groupId) =>
+      watchCardsOfGroup(groupId).first;
+
   /// Cards whose front or back contains [text], ignoring case.
   Stream<List<CardWithDirections>> watchSearch(String text) {
     final pattern = '%${text.trim()}%';

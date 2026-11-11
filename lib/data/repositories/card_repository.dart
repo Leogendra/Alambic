@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/direction_sense.dart';
-import '../../domain/cards/direction_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/scheduling/direction_schedule.dart';
 import '../database/remanence_database.dart';
@@ -117,14 +116,8 @@ class CardRepository {
         ),
       );
 
-  Future<void> deactivateDirection(int directionId) => applySchedule(
-    directionId,
-    const DirectionSchedule(
-      state: DirectionState.inactive,
-      step: null,
-      dueAt: null,
-    ),
-  );
+  Future<void> deactivateDirection(int directionId) =>
+      applySchedule(directionId, DirectionSchedule.inactive);
 
   Future<void> markNotified(int directionId, DateTime notifiedAt) =>
       (_database.update(_database.cardDirections)

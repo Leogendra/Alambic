@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../features/cards/card_editor_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../l10n/generated/app_localizations.dart';
 
@@ -31,7 +32,12 @@ class _MainShellState extends State<MainShell> {
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: strings.addCardTooltip,
-        onPressed: () {},
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            fullscreenDialog: true,
+            builder: (context) => const CardEditorScreen(),
+          ),
+        ),
         child: const Icon(Icons.add),
       ),
       bottomNavigationBar: NavigationBar(

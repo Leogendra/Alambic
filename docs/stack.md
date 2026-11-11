@@ -37,7 +37,7 @@ Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so
 ## Pitfalls
 
 - `flutter_local_notifications` 23 requires `compileSdk` 37. With AGP 9, SDK 37 installs under the name `android-37.0`: `compileSdk = 37` fails with "Failed to find target with hash string 'android-37'". The `compileSdk { version = release(37) { minorApiLevel = 0 } }` syntax of `android/app/build.gradle.kts` is needed.
-- The project (D:) and the pub cache (C:) are on different drives. The Kotlin incremental caches of the plugins then fail with "Could not close incremental caches". `kotlin.incremental=false` in `android/gradle.properties` avoids it; after a failed build, `android/gradlew --stop` and the removal of `build/<plugin>/` may be needed.
+- On Windows, the pub cache must be on the same drive as the project. Otherwise the Kotlin incremental caches of the plugins fail with "Could not close incremental caches", since the plugin sources live in the pub cache. The default cache is on C:; with the project on D:, set the `PUB_CACHE` environment variable to a folder on D: and run `flutter pub get` again.
 - `android_alarm_manager_plus` does not fall back to an inexact alarm without the exact alarm permission: it logs an error and drops the alarm. Ask for an exact alarm only when `canScheduleExactNotifications` allows it.
 - Notification buttons without user interface are always delivered to the background handler of `flutter_local_notifications`, even when the app is open.
 - In golden tests, Flutter replaces shadows with a black outline: the floating button appears circled in black on the reference images. This is not an app defect.

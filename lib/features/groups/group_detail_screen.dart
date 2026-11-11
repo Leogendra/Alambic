@@ -8,11 +8,13 @@ import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/groups/group_summary.dart';
+import '../../application/reviews/review_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../cards/bulk_add_screen.dart';
 import '../cards/card_list_tile.dart';
 import '../cards/card_navigation.dart';
 import '../cards/card_status_formatter_provider.dart';
+import '../session/session_launcher.dart';
 import 'group_settings_screen.dart';
 import 'group_stat_tile.dart';
 
@@ -96,6 +98,19 @@ class _GroupBody extends ConsumerWidget {
             ),
           ],
         ),
+        if (summary.dueCount > 0) ...[
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: () => startSession(
+              context,
+              ref
+                  .read(dueItemsProvider)
+                  .where((item) => item.groupId == summary.groupId)
+                  .toList(),
+            ),
+            child: Text(strings.groupReviewDue(summary.dueCount)),
+          ),
+        ],
         const SizedBox(height: 24),
         SectionLabel(strings.groupCardsSection),
         _CardList(groupId: summary.groupId),

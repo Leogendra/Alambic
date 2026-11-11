@@ -1,3 +1,4 @@
+import '../../app/formatting/due_labels.dart';
 import '../../data/repositories/card_with_directions.dart';
 import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/direction_sense.dart';
@@ -63,18 +64,8 @@ class CardStatusFormatter {
   }
 
   /// "Due", "at 15:17", "tomorrow" or "in 3 d" for a future due date.
-  String dueDateLabel(DateTime dueAt) {
-    final days = _daysBetween(calendar.dayOf(now), calendar.dayOf(dueAt));
-    if (!dueAt.isAfter(now)) {
-      return strings.dueNow;
-    } else if (days <= 0) {
-      return strings.dueAtTime(_time(dueAt));
-    } else if (days == 1) {
-      return strings.dueTomorrow;
-    } else {
-      return strings.dueInDays(days);
-    }
-  }
+  String dueDateLabel(DateTime dueAt) =>
+      strings.dueDateLabel(dueAt, now: now, calendar: calendar);
 
   bool Function(CardDirection) _isDue(CardWithDirections card) =>
       (direction) => duePolicy.isDueToday(
@@ -92,12 +83,4 @@ class CardStatusFormatter {
       return strings.cardStatusStep(step + 1, preset.sequenceLength);
     }
   }
-
-  /// Whole days between two scheduling days, robust to daylight saving.
-  static int _daysBetween(DateTime from, DateTime to) =>
-      (to.difference(from).inHours / 24).round();
-
-  static String _time(DateTime moment) =>
-      '${moment.hour.toString().padLeft(2, '0')}:'
-      '${moment.minute.toString().padLeft(2, '0')}';
 }

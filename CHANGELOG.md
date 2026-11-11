@@ -12,4 +12,5 @@ All visible changes to Remanence are listed here. Format: [Keep a Changelog 1.0.
 - Creation and editing of text cards, in a group or not, with the "Also in the other direction" option and a card-specific preset. A new card is not scheduled until it is started: "Start all" on a group page makes its new cards due today.
 - Groups tab: "No group", list of groups with their due cards, card search, group page and group settings (name, preset, deletion of the group with its cards).
 - Bulk add: paste one card per line into a group, with an editable separator (`;` by default) and a report of the skipped lines.
+- Card sheet: both faces, step, next review and history of each direction, with Review soon (one-off reminder), Suspend / Resume, Reset and starting a direction.
 - In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.

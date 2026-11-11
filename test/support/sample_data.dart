@@ -3,6 +3,8 @@ import 'package:remanence/application/cards/card_draft.dart';
 import 'package:remanence/application/cards/card_service.dart';
 import 'package:remanence/application/clock.dart';
 import 'package:remanence/application/groups/group_service.dart';
+import 'package:remanence/application/reminders/reminder_service.dart';
+import 'package:remanence/application/reviews/review_service.dart';
 import 'package:remanence/application/scheduling/ignored_schedule_changes.dart';
 import 'package:remanence/application/time/minute_ticker.dart';
 import 'package:remanence/data/data_providers.dart';
@@ -10,6 +12,9 @@ import 'package:remanence/data/database/remanence_database.dart';
 import 'package:remanence/data/repositories/card_repository.dart';
 import 'package:remanence/data/repositories/group_repository.dart';
 import 'package:remanence/data/repositories/preset_repository.dart';
+import 'package:remanence/data/repositories/reminder_repository.dart';
+import 'package:remanence/data/repositories/review_repository.dart';
+import 'package:remanence/domain/scheduling/due_policy.dart';
 import 'package:remanence/domain/scheduling/review_scheduler.dart';
 import 'package:remanence/domain/scheduling/scheduling_calendar.dart';
 
@@ -33,12 +38,29 @@ class SampleServices {
         groups: GroupRepository(database),
         clock: clock.call,
         scheduleChangeListener: const IgnoredScheduleChanges(),
+      ),
+      reviews = ReviewService(
+        cards: CardRepository(database),
+        presets: PresetRepository(database),
+        reviews: ReviewRepository(database),
+        scheduler: const ReviewScheduler(SchedulingCalendar()),
+        duePolicy: const DuePolicy(SchedulingCalendar()),
+        clock: clock.call,
+        scheduleChangeListener: const IgnoredScheduleChanges(),
+      ),
+      reminders = ReminderService(
+        reminders: ReminderRepository(database),
+        calendar: const SchedulingCalendar(),
+        clock: clock.call,
+        scheduleChangeListener: const IgnoredScheduleChanges(),
       );
 
   final RemanenceDatabase database;
   final FixedClock clock;
   final CardService cards;
   final GroupService groups;
+  final ReviewService reviews;
+  final ReminderService reminders;
 
   Future<int> card(
     String front,

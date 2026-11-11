@@ -10,7 +10,7 @@ Review [due](../lexicon.md#due) cards in the app, one by one, with the same two 
 
 ### Flow
 
-A session starts from a list of due directions, sorted by [due date](../lexicon.md#due-date) (oldest first). A group page starts it on the group's due cards ("Review the N due"); the home screen will start it on every due card.
+A session starts from a list of due directions, sorted by [due date](../lexicon.md#due-date) (oldest first). A group page starts it on the group's due cards ("Review the N due"), the Home tab on every due card ("Review all now"), and the card sheet on a single direction.
 
 For each card, the screen shows the asked face, with the group and the preset on top, and the mention "back → front" for the reverse direction. Tapping the card or "Show answer" reveals the other face, then the "Again" and "Correct" buttons. Under each button stands the effect of the answer: "tomorrow", "in 6 d", "at 15:17", "acquired", or "no effect" for a bonus review. A progress bar and a "3 / 12" counter follow the progress; the cross leaves the session, the answers already given staying recorded.
 
@@ -36,7 +36,7 @@ The end screen gives the number of cards, the duration, and the number of correc
 - [x] Answering a due card reschedules it and writes the answer to the history.
 - [x] Answering a card that is not due is a bonus review: history only.
 - [x] The end screen counts the answers and offers to review the missed cards as a bonus review.
-- [x] A group page starts a session on its due cards.
+- [x] A group page starts a session on its due cards, Home on every due card.
 
 ## Test strategy
 

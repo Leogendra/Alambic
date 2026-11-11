@@ -38,11 +38,13 @@ class ReminderRepository {
           .watch();
 
   /// Every reminder not shown yet, earliest first.
-  Future<List<ExtraReminder>> getAllUpcoming() =>
+  Stream<List<ExtraReminder>> watchAllUpcoming() =>
       (_database.select(_database.extraReminders)
             ..where((reminder) => reminder.notifiedAt.isNull())
             ..orderBy([(reminder) => OrderingTerm.asc(reminder.remindAt)]))
-          .get();
+          .watch();
+
+  Future<List<ExtraReminder>> getAllUpcoming() => watchAllUpcoming().first;
 
   Future<void> markNotified(int reminderId, DateTime notifiedAt) =>
       (_database.update(_database.extraReminders)

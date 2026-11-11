@@ -342,7 +342,7 @@ class _ActionButton extends StatelessWidget {
     final colors = RemanenceColors.of(context);
     final enabled = onPressed != null;
     final foreground = !enabled
-        ? colors.textTertiary
+        ? colors.textSecondary.withValues(alpha: 0.5)
         : isAccent
         ? colors.accentText
         : colors.textPrimary;

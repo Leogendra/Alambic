@@ -30,3 +30,9 @@ final groupCardsProvider =
 final allCardsProvider = StreamProvider<List<CardWithDirections>>(
   (ref) => ref.watch(cardRepositoryProvider).watchAll(),
 );
+
+/// Cards whose front or back contains the searched text.
+final cardSearchProvider =
+    StreamProvider.family<List<CardWithDirections>, String>(
+      (ref, text) => ref.watch(cardRepositoryProvider).watchSearch(text),
+    );

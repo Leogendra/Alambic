@@ -196,5 +196,97 @@
   },
   "commonChange": "Changer",
   "cardIncomplete": "Le recto et le verso doivent être remplis.",
-  "groupPickerTitle": "Ranger dans un groupe"
+  "groupPickerTitle": "Ranger dans un groupe",
+  "groupsTitle": "Groupes",
+  "groupsSearchHint": "Rechercher dans les cartes",
+  "groupsNoResult": "Aucune carte trouvée",
+  "cardCount": "{count, plural, =0{aucune carte} =1{1 carte} other{{count} cartes}}",
+  "@cardCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupLine": "{cards} · {preset}",
+  "@groupLine": {
+    "placeholders": {
+      "cards": {
+        "type": "String"
+      },
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "noGroupLine": "{cards} · preset global",
+  "@noGroupLine": {
+    "placeholders": {
+      "cards": {
+        "type": "String"
+      }
+    }
+  },
+  "newGroupTitle": "Nouveau groupe",
+  "groupNameLabel": "Nom",
+  "groupStatDue": "Dues",
+  "groupStatActive": "Actives",
+  "groupStatPending": "En attente",
+  "groupCardsSection": "Cartes",
+  "groupEmpty": "Aucune carte. Ajoute-en avec le bouton + ou l'ajout en masse.",
+  "groupSettingsTitle": "Réglages du groupe",
+  "groupSettingsRepetition": "Répétition",
+  "groupSettingsPresetHint": "Le groupe suit le preset en entier. Pour l'ajuster, duplique-le dans Réglages › Presets.",
+  "groupDelete": "Supprimer le groupe",
+  "groupDeleteConfirmTitle": "Supprimer « {name} » ?",
+  "@groupDeleteConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "groupDeleteConfirmBody": "{count, plural, =0{Le groupe est vide.} =1{Sa carte est rangée dans « Sans groupe ».} other{Ses {count} cartes sont rangées dans « Sans groupe ».}}",
+  "@groupDeleteConfirmBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupSettingsTooltip": "Réglages du groupe",
+  "cardStatusStep": "cran {step} sur {count}",
+  "@cardStatusStep": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardStatusNew": "nouvelle",
+  "cardStatusPending": "en attente de distillation",
+  "cardStatusSuspended": "suspendue",
+  "cardStatusAcquired": "acquise",
+  "cardStatusInactive": "non révisée",
+  "dueNow": "Due",
+  "dueAtTime": "à {time}",
+  "@dueAtTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dueTomorrow": "demain",
+  "dueInDays": "dans {days} j",
+  "@dueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  }
 }

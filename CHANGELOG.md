@@ -10,3 +10,4 @@ Toutes les évolutions visibles de Remanence sont notées ici. Format : [Keep a 
 - Presets Standard (1 j à 6 mois) et Intensif (10 min à 1 sem), créés au premier lancement.
 - Liste et éditeur de presets dans Réglages : créer, modifier, dupliquer un preset, et choisir le preset global.
 - Création et modification de cartes texte, rangées dans un groupe ou non, avec l'option « Aussi dans l'autre sens » et un preset propre à la carte.
+- Onglet Groupes : « Sans groupe », liste des groupes avec leurs cartes dues, recherche dans les cartes, page d'un groupe et réglages (nom, preset, suppression).

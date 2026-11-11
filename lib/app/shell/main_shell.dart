@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../features/cards/card_editor_screen.dart';
+import '../../features/cards/card_navigation.dart';
+import '../../features/groups/groups_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../l10n/generated/app_localizations.dart';
 
@@ -24,7 +25,7 @@ class _MainShellState extends State<MainShell> {
           index: _selectedTab,
           children: [
             const SizedBox.shrink(),
-            const SizedBox.shrink(),
+            const GroupsScreen(),
             Center(child: Text(strings.statisticsComingSoon)),
             const SettingsScreen(),
           ],
@@ -32,12 +33,7 @@ class _MainShellState extends State<MainShell> {
       ),
       floatingActionButton: FloatingActionButton(
         tooltip: strings.addCardTooltip,
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            fullscreenDialog: true,
-            builder: (context) => const CardEditorScreen(),
-          ),
-        ),
+        onPressed: () => openNewCard(context),
         child: const Icon(Icons.add),
       ),
       bottomNavigationBar: NavigationBar(

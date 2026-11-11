@@ -47,9 +47,8 @@ void main() {
   );
 
   Future<CardDirection> direction(int cardId, DirectionSense sense) async =>
-      (await cards.getDirections(
-        cardId,
-      )).firstWhere((direction) => direction.sense == sense);
+      (await cards.getDirections(cardId))
+          .firstWhere((direction) => direction.sense == sense);
 
   test('a new card is due at the next preset slot, front only', () async {
     final cardId = await service.create(draft());

@@ -23,6 +23,18 @@ Créer le sens inverse d'office, même inactif, évite de devoir le fabriquer pl
 
 En modification, cocher l'option planifie le sens inverse comme un sens neuf ; la décocher le rend inactif, sans effacer son historique.
 
+### Ajout en masse
+
+La page d'un groupe (et celle de « Sans groupe ») ouvre l'ajout en masse : on colle une carte par ligne, recto et verso séparés par un séparateur. Le séparateur est un champ libre prérempli avec `;`, et peut faire plusieurs caractères.
+
+La lecture des lignes est une règle du domaine (`BulkCardParser`), refaite à chaque frappe :
+
+- une ligne vide est sautée sans erreur ;
+- le recto s'arrête au premier séparateur, si bien que le verso peut lui-même contenir le séparateur ;
+- une ligne sans séparateur, ou dont le recto ou le verso est vide, est signalée par son numéro et ignorée.
+
+L'écran annonce le nombre de cartes prêtes et liste les lignes ignorées avant l'ajout. Les cartes sont créées dans une seule transaction, dans l'ordre des lignes, avec l'option « Aussi dans l'autre sens » choisie une fois pour toutes ; elles suivent le preset de leur groupe.
+
 ### Gestion de la carte
 
 Le service des cartes porte aussi la suspension (une carte suspendue n'est jamais due, dans aucun sens), la remise à zéro de la progression (chaque sens actif ou acquis repart comme un sens neuf, historique conservé) et la suppression. Chaque opération qui touche aux échéances prévient la planification des notifications.
@@ -33,19 +45,24 @@ Le service des cartes porte aussi la suspension (une carte suspendue n'est jamai
 - [x] Sans l'option, seul le sens recto → verso est actif, dû au prochain horaire du preset.
 - [x] Avec l'option, le sens verso → recto est actif aussi, dû le lendemain.
 - [x] Modifier une carte change son texte, son groupe, son preset, et active ou arrête le sens inverse.
+- [x] L'ajout en masse crée une carte par ligne valide, dans l'ordre, et signale les lignes ignorées par leur numéro.
+- [x] Le séparateur de l'ajout en masse est modifiable ; changer de séparateur relit toutes les lignes.
 - [x] Réinitialiser replanifie les sens actifs comme des sens neufs, en gardant l'historique.
 
 ## Test strategy
 
 - Le service est testé sur une base en mémoire avec une horloge fixée : état et échéance de chaque sens après création, modification et remise à zéro, lus depuis la base.
 - Chaque test vérifie aussi que la planification des notifications a été prévenue, par un écouteur qui compte les appels.
-- L'éditeur est couvert par un golden test, rempli et avec l'option du sens inverse cochée.
+- La lecture des lignes collées est testée en logique pure : espaces, lignes vides, séparateur absent, face vide, séparateur de plusieurs caractères.
+- L'écran d'ajout en masse est testé de bout en bout sur une base en mémoire : rapport avant ajout, changement de séparateur, cartes créées dans le groupe avec leurs deux sens.
+- L'éditeur et l'ajout en masse sont couverts par des golden tests.
 
 ## File mapping
 
 - `lib/application/cards/` — service des cartes, brouillon de l'éditeur, fournisseurs.
 - `lib/data/repositories/card_repository.dart` — stockage des cartes et de leurs sens, flux des cartes avec leurs sens.
-- `lib/features/cards/` — éditeur de carte et sélecteur de groupe.
+- `lib/domain/cards/bulk/` — lecture des lignes de l'ajout en masse.
+- `lib/features/cards/` — éditeur de carte, ajout en masse, sélecteur de groupe, ligne de carte des listes.
 
 ## Technical details
 

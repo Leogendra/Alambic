@@ -9,6 +9,7 @@ import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/groups/group_summary.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../cards/bulk_add_screen.dart';
 import '../cards/card_list_tile.dart';
 import '../cards/card_navigation.dart';
 import '../cards/card_status_formatter_provider.dart';
@@ -29,6 +30,15 @@ class GroupDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(summary?.group?.name ?? strings.noGroup),
         actions: [
+          IconButton(
+            tooltip: strings.bulkTooltip,
+            icon: const Icon(Icons.playlist_add),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => BulkAddScreen(groupId: groupId),
+              ),
+            ),
+          ),
           if (groupId != null)
             IconButton(
               tooltip: strings.groupSettingsTooltip,

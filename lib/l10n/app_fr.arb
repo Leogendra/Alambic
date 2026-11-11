@@ -288,5 +288,61 @@
         "type": "int"
       }
     }
-  }
+  },
+  "bulkTitle": "Ajout en masse",
+  "bulkInGroup": "dans {name}",
+  "@bulkInGroup": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bulkSeparator": "Séparateur",
+  "bulkSeparatorHint": "Entre recto et verso, sur chaque ligne",
+  "bulkTextHint": "Une carte par ligne :\nrecto ; verso",
+  "bulkReady": "{count, plural, =0{Aucune carte prête} =1{1 carte prête} other{{count} cartes prêtes}}",
+  "@bulkReady": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkErrorMissingSeparator": "Ligne {line} ignorée : pas de « {separator} »",
+  "@bulkErrorMissingSeparator": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      },
+      "separator": {
+        "type": "String"
+      }
+    }
+  },
+  "bulkErrorEmptyFace": "Ligne {line} ignorée : recto ou verso vide",
+  "@bulkErrorEmptyFace": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkAddButton": "{count, plural, =0{Ajouter} =1{Ajouter 1 carte} other{Ajouter {count} cartes}}",
+  "@bulkAddButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkAdded": "{count, plural, =1{1 carte ajoutée} other{{count} cartes ajoutées}}",
+  "@bulkAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkTooltip": "Ajout en masse"
 }

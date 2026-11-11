@@ -9,6 +9,7 @@ Remanence est une app Android de répétition espacée où la notification est l
 Le code est découpé en couches, de la plus stable à la plus dépendante de la plateforme. Une couche n'importe que les couches situées au-dessus d'elle dans cette liste.
 
 - `lib/domain/` : les règles métier en Dart pur. Calendrier à 4h, moteur séquence, calcul des échéances, résolution des presets, lecture de l'ajout en masse. Aucun import de Flutter, de drift ou d'un plugin : ces règles se testent sans base ni émulateur. Voir [Feature 1](features/1-planification.md) et [Feature 2](features/2-presets.md).
+- `lib/data/` : la persistance. La base drift (`lib/data/database/`) stocke les objets du domaine tels quels. Voir [Feature 0](features/0-socle.md#base-de-données).
 - `lib/app/` : la coquille de l'app (`RemanenceApp`, onglets, bouton « + ») et le thème. Voir [Feature 0](features/0-socle.md).
 - `lib/l10n/` : les textes de l'interface, en fichiers ARB.
 

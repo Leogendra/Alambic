@@ -7,7 +7,6 @@
   "tabSettings": "Réglages",
   "addCardTooltip": "Nouvelle carte",
   "statisticsComingSoon": "Les statistiques arrivent bientôt.",
-
   "commonSave": "Enregistrer",
   "commonCancel": "Annuler",
   "commonAdd": "Ajouter",
@@ -15,30 +14,57 @@
   "commonNew": "Nouveau",
   "commonClose": "Fermer",
   "commonOk": "OK",
-
   "intervalMinutes": "{amount} min",
-  "@intervalMinutes": {"placeholders": {"amount": {"type": "int"}}},
+  "@intervalMinutes": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "intervalHours": "{amount} h",
-  "@intervalHours": {"placeholders": {"amount": {"type": "int"}}},
+  "@intervalHours": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "intervalDays": "{amount} j",
-  "@intervalDays": {"placeholders": {"amount": {"type": "int"}}},
+  "@intervalDays": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "intervalWeeks": "{amount} sem",
-  "@intervalWeeks": {"placeholders": {"amount": {"type": "int"}}},
+  "@intervalWeeks": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "intervalMonths": "{amount} mois",
-  "@intervalMonths": {"placeholders": {"amount": {"type": "int"}}},
+  "@intervalMonths": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "unitMinutes": "minutes",
   "unitHours": "heures",
   "unitDays": "jours",
   "unitWeeks": "semaines",
   "unitMonths": "mois",
-
   "settingsTitle": "Réglages",
   "settingsRepetitionSection": "Répétition",
   "settingsPresets": "Presets",
   "settingsGlobalPreset": "Preset global",
   "settingsGlobalPresetHint": "Pour les groupes et les cartes qui n'ont pas choisi de preset",
   "settingsNotificationsSection": "Notifications",
-
   "presetsTitle": "Presets",
   "presetGlobalBadge": "Global",
   "presetEngineSequence": "Séquence",
@@ -47,16 +73,48 @@
   "presetModeGrouped": "rappel groupé",
   "presetModeGroupedChained": "rappel groupé, cartes enchaînées",
   "presetSummaryFormat": "{engine} · {schedule} · {mode}",
-  "@presetSummaryFormat": {"placeholders": {"engine": {"type": "String"}, "schedule": {"type": "String"}, "mode": {"type": "String"}}},
+  "@presetSummaryFormat": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      },
+      "schedule": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
   "presetRange": "{start} à {end}",
-  "@presetRange": {"placeholders": {"start": {"type": "String"}, "end": {"type": "String"}}},
+  "@presetRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
   "presetNewName": "Nouveau preset",
   "presetCopyName": "{name} (copie)",
-  "@presetCopyName": {"placeholders": {"name": {"type": "String"}}},
+  "@presetCopyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "presetDuplicate": "Dupliquer",
   "presetDuplicated": "Copie créée : {name}",
-  "@presetDuplicated": {"placeholders": {"name": {"type": "String"}}},
-
+  "@presetDuplicated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "presetEditorName": "Nom",
   "presetEditorSteps": "Crans",
   "presetEditorAddStep": "Cran",
@@ -91,8 +149,52 @@
   "presetEditorStepDialogTitle": "Nouveau cran",
   "presetEditorStepAmount": "Durée",
   "presetEditorStepUnit": "Unité",
-
   "presetPickerTitle": "Choisir un preset",
   "presetPickerInherit": "Hériter : {name}",
-  "@presetPickerInherit": {"placeholders": {"name": {"type": "String"}}}
+  "@presetPickerInherit": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cardEditorNewTitle": "Nouvelle carte",
+  "cardEditorEditTitle": "Modifier la carte",
+  "cardEditorCreate": "Créer",
+  "cardFront": "Recto",
+  "cardBack": "Verso",
+  "cardFrontHint": "Question, mot, expression…",
+  "cardBackHint": "Réponse",
+  "cardAlsoReverse": "Aussi dans l'autre sens",
+  "cardAlsoReverseHint": "Active aussi « {back} » → recto, suivi à part",
+  "@cardAlsoReverseHint": {
+    "placeholders": {
+      "back": {
+        "type": "String"
+      }
+    }
+  },
+  "cardAlsoReverseHintEmpty": "Active aussi verso → recto, suivi à part",
+  "cardGroup": "Groupe",
+  "noGroup": "Sans groupe",
+  "cardPreset": "Preset",
+  "cardPresetInheritedFromGroup": "Hérité du groupe : {name}",
+  "@cardPresetInheritedFromGroup": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cardPresetInheritedGlobal": "Preset global : {name}",
+  "@cardPresetInheritedGlobal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "commonChange": "Changer",
+  "cardIncomplete": "Le recto et le verso doivent être remplis.",
+  "groupPickerTitle": "Ranger dans un groupe"
 }

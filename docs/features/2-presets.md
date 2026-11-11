@@ -1,70 +1,70 @@
 # Feature 2 — Presets
 
-Statut : en cours (2026-11-11)
+Status: in progress (2026-11-11)
 
 ## Goal
 
-Un [preset](../lexicon.md#preset) regroupe toutes les règles de répétition d'une carte : séquence d'intervalles, comportement en cas d'échec, fin de séquence, horaire, mode de notification. L'utilisateur n'a rien à régler pour commencer (Standard s'applique partout), puis peut choisir un autre preset pour un groupe ou une carte, ou créer le sien.
+A [preset](../lexicon.md#preset) gathers all the repetition rules of a card: interval sequence, failure behaviour, end of sequence, schedule, notification mode. The user has nothing to set up to begin (Standard applies everywhere), then can pick another preset for a group or a card, or create their own.
 
 ## Implementation overview
 
-### Presets livrés
+### Shipped presets
 
-La base est créée avec deux presets, tous deux à heure fixe 12h, en une notification par carte, qui reculent d'un cran en cas d'échec et répètent le dernier intervalle en fin de séquence :
+The database is created with two presets, both at a fixed 12:00 time, one notification per card, stepping back one step on failure and repeating the last interval at the end of the sequence:
 
-- **Standard** : 1 j, 2 j, 1 sem, 1 mois, 3 mois, 6 mois. C'est le preset global de départ.
-- **Intensif** : 10 min, 1 h, 1 j, 3 j, 1 sem.
+- **Standard**: 1 d, 2 d, 1 wk, 1 mo, 3 mo, 6 mo. It is the initial global preset.
+- **Intensive** (*Intensif*): 10 min, 1 h, 1 d, 3 d, 1 wk.
 
-Chaque preset livré porte une clé (`builtInKey`) qui le reconnaît même renommé, pour pouvoir traduire son nom.
+Each shipped preset carries a key (`builtInKey`) that recognises it even after a rename, so that its name can be translated.
 
-### Résolution en cascade
+### Cascading resolution
 
-Le preset d'une carte se lit en trois niveaux : le choix fait sur la carte, sinon celui de son groupe, sinon le preset global. Un niveau sans choix hérite du suivant ; il n'y a pas de surcharge champ par champ. Les cartes sans groupe passent directement de leur propre choix au preset global.
+A card's preset is read in three levels: the choice made on the card, otherwise its group's, otherwise the global preset. A level with no choice inherits from the next one; there is no field-by-field override. Cards without a group go straight from their own choice to the global preset.
 
-Cette règle a une seule implémentation, `PresetResolver`. Les écrans et les services passent par `PresetCatalog`, une photographie de tous les presets et des choix de chaque groupe, qui résout le preset de nombreuses cartes sans interroger la base pour chacune. Le dépôt des presets la publie en flux et la republie dès qu'un preset, le preset global ou le choix d'un groupe change.
+This rule has a single implementation, `PresetResolver`. Screens and services go through `PresetCatalog`, a snapshot of all presets and of every group's choice, which resolves the preset of many cards without querying the database for each one. The preset repository publishes it as a stream and republishes it as soon as a preset, the global preset or a group's choice changes.
 
-### Gestion des presets
+### Preset management
 
-La liste des presets s'ouvre depuis Réglages, qui permet aussi de choisir le preset global. Chaque preset y montre sa séquence, son horaire et son mode de notification ; le preset global porte un badge.
+The preset list opens from Settings, which also lets the user choose the global preset. Each preset shows its sequence, its schedule and its notification mode; the global preset carries a badge.
 
-L'éditeur travaille sur un brouillon et n'écrit rien avant « Enregistrer ». Il règle la séquence (ajout d'un cran en durée et unité, retrait d'un cran tant qu'il en reste un autre), le comportement en cas d'échec, la fin de séquence, la réponse tapée, l'horaire (heure fixe ou plage) et le mode de notification (une par carte, ou rappel groupé qui ouvre l'app ou enchaîne les cartes). Ces trois derniers réglages sont enregistrés dès maintenant ; les notifications qui les exploitent sont décrites dans leur propre feature.
+The editor works on a draft and writes nothing before "Save". It sets the sequence (adding a step as a duration and a unit, removing a step as long as another one remains), the failure behaviour, the end of sequence, the typed answer, the schedule (fixed time or time range) and the notification mode (one per card, or a grouped reminder that opens the app or chains the cards). These last three settings are stored already; the notifications that use them are described in their own feature.
 
-« Nouveau » ouvre un brouillon aux valeurs de Standard. « Dupliquer » enregistre aussitôt une copie nommée « <nom> (copie) » et ouvre son éditeur. Une copie n'est jamais un preset livré, même quand elle copie Standard. Les presets livrés restent modifiables.
+"New" opens a draft with the Standard values. "Duplicate" immediately stores a copy named "<name> (copy)" and opens its editor. A copy is never a shipped preset, even when it copies Standard. Shipped presets remain editable.
 
-Le moteur adaptatif n'est pas encore proposé dans l'éditeur : tout preset créé est une séquence.
+The adaptive engine is not offered in the editor yet: every created preset is a sequence.
 
-### Changement de preset
+### Preset change
 
-Changer le preset d'une carte, d'un groupe ou le preset global ne réécrit aucune carte : le cran et l'échéance de chaque sens restent tels quels. Si la nouvelle séquence est plus courte, le moteur ramène le cran au dernier cran au moment de la réponse suivante ([Feature 1](1-planification.md#le-cran)).
+Changing the preset of a card, of a group or the global preset rewrites no card: the step and due date of each direction stay as they are. If the new sequence is shorter, the engine clamps the step to the last step at the next answer ([Feature 1](1-scheduling.md#the-step)).
 
 ## Acceptance criteria
 
-- [x] Une base neuve contient Standard et Intensif, avec les intervalles ci-dessus et l'heure fixe 12h.
-- [x] Une carte sans choix suit le preset de son groupe, un groupe sans choix suit le preset global.
-- [x] Le choix fait sur une carte l'emporte sur celui de son groupe.
-- [x] Changer de preset (même moteur) conserve le cran et l'échéance ; un cran trop grand est ramené au dernier cran.
-- [x] On crée un preset depuis les valeurs de Standard, on modifie n'importe quel preset, on duplique un preset sous un nouveau nom.
-- [x] Un preset sans nom ou sans cran ne peut pas être enregistré.
-- [x] Le preset global se choisit dans Réglages.
+- [x] A fresh database contains Standard and Intensive, with the intervals above and the fixed 12:00 time.
+- [x] A card with no choice follows its group's preset, a group with no choice follows the global preset.
+- [x] The choice made on a card wins over its group's.
+- [x] Changing preset (same engine) keeps the step and the due date; a step that is too high is clamped to the last step.
+- [x] A preset is created from the Standard values, any preset can be edited, a preset can be duplicated under a new name.
+- [x] A preset without a name or without a step cannot be saved.
+- [x] The global preset is chosen in Settings.
 
 ## Test strategy
 
-- La cascade est prouvée deux fois : en logique pure sur `PresetCatalog`, puis de bout en bout sur une base en mémoire, en changeant les choix par les dépôts comme le font les écrans.
-- Le maintien du cran et de l'échéance est vérifié sur les données stockées après le changement, et non sur un objet en mémoire.
-- Création, modification, duplication et refus d'un preset invalide sont testés par le service, sur une base en mémoire.
-- La liste et l'éditeur sont couverts par des golden tests sur les presets livrés.
+- The cascade is proven twice: as pure logic on `PresetCatalog`, then end to end on an in-memory database, changing the choices through the repositories as the screens do.
+- Keeping the step and the due date is checked on the stored data after the change, not on an in-memory object.
+- Creation, editing, duplication and refusal of an invalid preset are tested through the service, on an in-memory database.
+- The list and the editor are covered by golden tests on the shipped presets.
 
 ## File mapping
 
-- `lib/domain/presets/` — modèle de preset, presets livrés, règle de résolution et `PresetCatalog`.
-- `lib/data/repositories/preset_repository.dart` — lecture et écriture des presets et du preset global, flux du catalogue.
-- `lib/data/database/preset_companions.dart` — écriture d'un `Preset` du domaine dans sa table.
-- `lib/application/presets/` — service de création, modification et duplication ; fournisseurs Riverpod des presets et du catalogue.
-- `lib/features/presets/` — liste, éditeur, dialogue d'ajout de cran et sélecteur de preset réutilisé par les groupes et les cartes.
-- `lib/features/settings/settings_screen.dart` — accès aux presets et choix du preset global.
+- `lib/domain/presets/` — preset model, shipped presets, resolution rule and `PresetCatalog`.
+- `lib/data/repositories/preset_repository.dart` — reading and writing presets and the global preset, catalog stream.
+- `lib/data/database/preset_companions.dart` — writing a domain `Preset` into its table.
+- `lib/application/presets/` — creation, editing and duplication service; Riverpod providers of the presets and the catalog.
+- `lib/features/presets/` — list, editor, step dialog and the preset picker reused by groups and cards.
+- `lib/features/settings/settings_screen.dart` — access to presets and choice of the global preset.
 
 ## Technical details
 
-Le flux du catalogue observe trois tables (presets, réglages, groupes) par une requête témoin `SELECT 1` déclarée sur ces tables, puis relit le tout dans une transaction. Drift ne sait pas combiner nativement plusieurs requêtes en un flux ; ce procédé garde une photographie cohérente à chaque émission.
+The catalog stream observes three tables (presets, settings, groups) through a `SELECT 1` witness query declared on these tables, then rereads everything in a transaction. Drift cannot natively combine several queries into one stream; this keeps each emission a consistent snapshot.
 
-Le choix d'un moteur différent (séquence vers adaptatif) remet la progression à zéro. Il n'existe pas encore, faute de moteur adaptatif.
+Choosing a different engine (sequence to adaptive) resets the progression. It does not exist yet, for lack of an adaptive engine.

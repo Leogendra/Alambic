@@ -20,7 +20,7 @@ final cardProvider = StreamProvider.family<CardWithDirections?, int>(
   (ref, cardId) => ref.watch(cardRepositoryProvider).watchCard(cardId),
 );
 
-/// Cards of a group, or of "Sans groupe" for `null`.
+/// Cards of a group, or of "No group" for `null`.
 final groupCardsProvider =
     StreamProvider.family<List<CardWithDirections>, int?>(
       (ref, groupId) =>

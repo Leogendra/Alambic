@@ -10,7 +10,7 @@ import '../../l10n/generated/app_localizations.dart';
 import '../cards/card_status_formatter.dart';
 import '../cards/card_status_formatter_provider.dart';
 
-/// "À revoir" and "Correct", each with when the card would come back.
+/// "Again" and "Correct", each with when the card would come back.
 class AnswerButtons extends ConsumerWidget {
   const AnswerButtons({
     required this.directionId,

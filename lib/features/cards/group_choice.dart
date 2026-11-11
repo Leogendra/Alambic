@@ -1,4 +1,4 @@
-/// Result of the group picker. A `null` [groupId] means "Sans groupe", which
+/// Result of the group picker. A `null` [groupId] means "No group", which
 /// differs from dismissing the picker (no result at all).
 class GroupChoice {
   const GroupChoice(this.groupId);

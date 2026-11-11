@@ -8,7 +8,7 @@ import '../../domain/scheduling/scheduling_calendar.dart';
 import '../../domain/scheduling/sequence_engine.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Texts describing where a card stands: "cran 2 sur 6", "Due", "dans 3 j".
+/// Texts describing where a card stands: "step 2 of 6", "Due", "in 3 d".
 class CardStatusFormatter {
   const CardStatusFormatter({
     required this.strings,
@@ -61,7 +61,7 @@ class CardStatusFormatter {
     return dueDates.isEmpty ? null : dueDateLabel(dueDates.first);
   }
 
-  /// "Due", "à 15:17", "demain" or "dans 3 j" for a future due date.
+  /// "Due", "at 15:17", "tomorrow" or "in 3 d" for a future due date.
   String dueDateLabel(DateTime dueAt) {
     final days = _daysBetween(calendar.dayOf(now), calendar.dayOf(dueAt));
     if (!dueAt.isAfter(now)) {

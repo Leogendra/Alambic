@@ -130,7 +130,7 @@ class CardRepository {
     )..where((card) => card.id.equals(cardId))).get(),
   ).map((cards) => cards.isEmpty ? null : cards.single);
 
-  /// Cards of a group, or of "Sans groupe" when [groupId] is `null`, in
+  /// Cards of a group, or of "No group" when [groupId] is `null`, in
   /// creation order (the group order).
   Stream<List<CardWithDirections>> watchCardsOfGroup(int? groupId) =>
       _watchWithDirections(

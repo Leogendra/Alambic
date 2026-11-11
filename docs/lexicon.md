@@ -1,41 +1,41 @@
-# Lexique — Remanence
+# Lexicon — Remanence
 
-Seul endroit où les termes sont définis. Les specs y renvoient au lieu de les redéfinir. Le nom utilisé dans le code est indiqué entre parenthèses.
+The only place where terms are defined. Specs link here instead of redefining them. The name used in the code is given in parentheses; the French interface word follows when it differs.
 
-## Termes
+## Terms
 
-### Carte
+### Card
 
-Une flashcard recto / verso (`Flashcard`). Chaque face porte du texte brut et/ou une image. Une carte appartient à un [groupe](#groupe) ou à aucun.
+A front / back flashcard (`Flashcard`; *carte*). Each face holds plain text and/or an image. A card belongs to one [group](#group) or to none.
 
-### Sens
+### Direction
 
-Une des deux façons de réviser une carte (`CardDirection`) : recto → verso (`frontToBack`) ou verso → recto (`backToFront`). Chaque sens a son propre état, son [cran](#cran), son [échéance](#échéance) et son historique. Ses états sont inactif, en attente (file d'une distillation), actif et acquis.
+One of the two ways to review a card (`CardDirection`; *sens*): front → back (`frontToBack`) or back → front (`backToFront`). Each direction has its own state, [step](#step), [due date](#due-date) and history. Its states are inactive, pending (in a distillation queue), active and acquired.
 
-### Groupe
+### Group
 
-Liste plate de cartes partageant un [preset](#preset) (`CardGroup`). Les cartes sans groupe forment la liste virtuelle « Sans groupe ».
+A flat list of cards sharing a [preset](#preset) (`CardGroup`; *groupe*). Cards without a group form the virtual list "No group" (*Sans groupe*).
 
 ### Preset
 
-Ensemble complet de règles de répétition (`Preset`) : moteur, séquence d'intervalles, comportement en cas d'échec et en fin de séquence, horaire, mode de notification. Un niveau (carte, groupe, global) choisit un preset entier ou hérite du niveau suivant.
+A complete set of repetition rules (`Preset`): engine, interval sequence, behaviour on failure and at the end of the sequence, schedule, notification mode. A level (card, group, global) picks a whole preset or inherits from the next level.
 
-### Cran
+### Step
 
-Position d'un sens dans la séquence de son preset (`step`) : l'indice de l'intervalle actuellement attendu, affiché à partir de 1 (« cran 2 sur 6 »). Un sens jamais révisé n'a pas de cran.
+Position of a direction in its preset's sequence (`step`; *cran*): the index of the interval currently waited, displayed from 1 ("step 2 of 6"). A direction never reviewed has no step.
 
-### Échéance
+### Due date
 
-Moment où un sens redevient à réviser (`dueAt`). Pour un intervalle d'un jour ou plus, c'est l'horaire du preset le jour voulu ; pour un intervalle plus court, l'instant de la réponse plus l'intervalle.
+Moment when a direction becomes [due](#due) again (`dueAt`; *échéance*). For an interval of a day or more, it is the preset slot on the target day; for a shorter interval, the answer moment plus the interval.
 
-### Journée
+### Day
 
-Journée de planification, qui commence à 4h du matin et non à minuit (`SchedulingCalendar`). Toutes les règles « même jour » et « aujourd'hui » l'utilisent.
+Scheduling day, which starts at 4am rather than midnight (`SchedulingCalendar`; *journée*). Every "same day" and "today" rule uses it.
 
-### À réviser
+### Due
 
-Un sens est à réviser aujourd'hui quand son échéance est passée, ou quand elle tombe aujourd'hui et qu'il n'a pas déjà été révisé aujourd'hui (`DuePolicy`).
+A direction is due today (*à réviser*) when its due date has passed, or when it falls today and the direction has not already been reviewed today (`DuePolicy`).
 
-### Révision bonus
+### Bonus review
 
-Réponse à une carte qui n'est pas à réviser. Elle est inscrite dans l'historique mais ne change ni le cran ni l'échéance.
+An answer to a card that is not due (*révision bonus*). It is written to the history but changes neither the step nor the due date.

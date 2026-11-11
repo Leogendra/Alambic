@@ -5,7 +5,7 @@ import '../../domain/presets/schedule_kind.dart';
 import '../../domain/presets/scheduling_engine_kind.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// One-line descriptions of a preset, as in "Séquence · 12:00 · une notif par carte".
+/// One-line descriptions of a preset, as in "Sequence · 12:00 · one notification per card".
 extension PresetLabels on AppLocalizations {
   String presetSummary(Preset preset) => presetSummaryFormat(
     presetEngineName(preset.engine),

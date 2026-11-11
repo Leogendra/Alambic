@@ -4,7 +4,7 @@ import '../../domain/groups/card_group.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'group_choice.dart';
 
-/// Bottom sheet to put a card in a group, or in "Sans groupe".
+/// Bottom sheet to put a card in a group, or in "No group".
 Future<GroupChoice?> showGroupPicker(
   BuildContext context, {
   required List<CardGroup> groups,

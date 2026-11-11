@@ -24,7 +24,7 @@ class GroupService {
   Future<void> setPreset(int groupId, int? presetId) =>
       _groups.setPreset(groupId, presetId);
 
-  /// Deletes the group; its cards move to "Sans groupe".
+  /// Deletes the group; its cards move to "No group".
   Future<void> delete(int groupId) => _groups.delete(groupId);
 
   void _checkName(String name) {

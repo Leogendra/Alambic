@@ -17,7 +17,7 @@ Future<void> startSession(BuildContext context, List<DueItem> items) async {
   );
 }
 
-/// Replaces the current session by a new one, for "Revoir les ratées".
+/// Replaces the current session by a new one, for "Review the missed cards".
 Future<void> replaceWithSession(
   BuildContext context,
   List<SessionItem> items, {

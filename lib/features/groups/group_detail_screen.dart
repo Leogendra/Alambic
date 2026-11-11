@@ -18,7 +18,7 @@ import '../session/session_launcher.dart';
 import 'group_settings_screen.dart';
 import 'group_stat_tile.dart';
 
-/// A group page, or "Sans groupe" when [groupId] is `null`.
+/// A group page, or "No group" when [groupId] is `null`.
 class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({required this.groupId, super.key});
 

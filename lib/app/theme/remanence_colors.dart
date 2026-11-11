@@ -67,7 +67,7 @@ class RemanenceColors extends ThemeExtension<RemanenceColors> {
   final Color accentText;
   final Color accentTint;
 
-  /// Colours of the "À revoir" answer.
+  /// Colours of the "Again" answer.
   final Color againBackground;
   final Color againForeground;
 

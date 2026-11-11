@@ -1,7 +1,7 @@
 import '../../domain/groups/card_group.dart';
 import '../../domain/presets/preset.dart';
 
-/// One line of the groups tab: a group, or "Sans groupe" when [group] is null.
+/// One line of the groups tab: a group, or "No group" when [group] is null.
 class GroupSummary {
   const GroupSummary({
     required this.group,

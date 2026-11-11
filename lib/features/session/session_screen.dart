@@ -15,7 +15,7 @@ import 'session_card_view.dart';
 import 'session_end_view.dart';
 
 /// Reviews [items] one by one: the prompt, a tap to reveal the answer, then
-/// "Correct" or "À revoir". Ends on a summary.
+/// "Correct" or "Again". Ends on a summary.
 class SessionScreen extends ConsumerStatefulWidget {
   const SessionScreen({required this.items, this.isBonus = false, super.key});
 

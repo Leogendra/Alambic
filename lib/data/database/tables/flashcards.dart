@@ -8,7 +8,7 @@ import 'presets.dart';
 class Flashcards extends Table {
   IntColumn get id => integer().autoIncrement()();
 
-  /// Deleting a group moves its cards to "Sans groupe".
+  /// Deleting a group moves its cards to "No group".
   IntColumn get groupId => integer().nullable().references(
     CardGroups,
     #id,

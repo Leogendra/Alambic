@@ -18,7 +18,7 @@ import '../../l10n/generated/app_localizations.dart';
 class BulkAddScreen extends ConsumerStatefulWidget {
   const BulkAddScreen({required this.groupId, super.key});
 
-  /// `null` adds the cards to "Sans groupe".
+  /// `null` adds the cards to "No group".
   final int? groupId;
 
   @override

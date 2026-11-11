@@ -1,4 +1,4 @@
-/// One-off reminder added with "Réviser bientôt". Answering it is a bonus review.
+/// One-off reminder added with "Review soon". Answering it is a bonus review.
 class ExtraReminder {
   const ExtraReminder({
     required this.id,

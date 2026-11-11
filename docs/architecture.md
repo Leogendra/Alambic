@@ -1,30 +1,30 @@
 # Architecture — Remanence
 
-## Rôle
+## Role
 
-Remanence est une app Android de répétition espacée où la notification est l'interface principale. Chaque carte a deux [sens](lexicon.md#sens) suivis séparément ; un [preset](lexicon.md#preset) décide quand chaque sens revient. Les règles produit de référence sont dans `SPECS.md` (non versionné) ; `docs/features/` décrit ce qui est implémenté.
+Remanence is an Android spaced-repetition app where the notification is the main interface. Each card has two [directions](lexicon.md#direction) tracked separately; a [preset](lexicon.md#preset) decides when each direction comes back. The reference product rules live in `SPECS.md` (not versioned); `docs/features/` describes what is implemented.
 
-## Pièces principales
+## Major pieces
 
-Le code est découpé en couches, de la plus stable à la plus dépendante de la plateforme. Une couche n'importe que les couches situées au-dessus d'elle dans cette liste.
+The code is split into layers, from the most stable to the most platform-dependent. A layer only imports the layers listed above it.
 
-- `lib/domain/` : les règles métier en Dart pur. Calendrier à 4h, moteur séquence, calcul des échéances, résolution des presets, lecture de l'ajout en masse. Aucun import de Flutter, de drift ou d'un plugin : ces règles se testent sans base ni émulateur. Voir [Feature 1](features/1-planification.md) et [Feature 2](features/2-presets.md).
-- `lib/data/` : la persistance. La base drift (`lib/data/database/`) stocke les objets du domaine tels quels ; les dépôts (`lib/data/repositories/`) exposent lectures, écritures et flux par concept (cartes, groupes, presets). Ils stockent des décisions, ils n'en prennent pas. Voir [Feature 0](features/0-socle.md#base-de-données).
-- `lib/application/` : les services qui appliquent les règles du domaine aux données (créer une carte, répondre, dupliquer un preset) et les fournisseurs Riverpod qui les exposent. L'horloge (`clockProvider`) y est injectée.
-- `lib/features/` : les écrans, un dossier par écran ou famille d'écrans. Ils lisent l'état par les fournisseurs et n'agissent que par les services.
-- `lib/app/` : la coquille de l'app (`RemanenceApp`, onglets, bouton « + »), le thème, les widgets partagés reprenant les composants de la maquette et les mises en forme de texte (intervalles, presets). Voir [Feature 0](features/0-socle.md).
-- `lib/l10n/` : les textes de l'interface, en fichiers ARB.
+- `lib/domain/` holds the business rules in pure Dart: the 4am calendar, the sequence engine, due-date computation, preset resolution, bulk-add parsing. It imports no Flutter, drift or plugin code, so these rules are tested without a database or an emulator. See [Feature 1](features/1-scheduling.md) and [Feature 2](features/2-presets.md).
+- `lib/data/` is persistence. The drift database (`lib/data/database/`) stores domain objects as they are; the repositories (`lib/data/repositories/`) expose reads, writes and streams per concept (cards, groups, presets, reviews). They store decisions, they never take any. See [Feature 0](features/0-foundation.md#database).
+- `lib/application/` holds the services that apply domain rules to the data (create a card, answer, duplicate a preset) and the Riverpod providers that expose them. The clock (`clockProvider`) is injected here.
+- `lib/features/` holds the screens, one folder per screen or family of screens. They read state through providers and act only through services.
+- `lib/app/` is the app shell (`RemanenceApp`, tabs, "+" button), the theme, the shared widgets that reproduce the mockup components, and text formatting (intervals, presets). See [Feature 0](features/0-foundation.md).
+- `lib/l10n/` holds the interface texts, as ARB files.
 
-## Comment les pièces s'assemblent
+## How the pieces fit
 
-Le point d'entrée ouvre la base et l'injecte dans Riverpod (`databaseProvider`). Les dépôts publient des flux drift ; les écrans les observent par des `StreamProvider` et se mettent à jour d'eux-mêmes après chaque écriture, y compris celles faites dans un autre isolate. Une action de l'utilisateur appelle un service, qui lit les données nécessaires, demande une décision au domaine et l'écrit par les dépôts.
+The entry point opens the database and injects it into Riverpod (`databaseProvider`). Repositories publish drift streams; screens observe them through `StreamProvider`s and refresh by themselves after every write, including writes made in another isolate. A user action calls a service, which reads the data it needs, asks the domain for a decision and writes it through the repositories.
 
-## Décisions de conception
+## Design decisions
 
-### Le domaine ne connaît pas l'heure
+### The domain does not know the time
 
-Les fonctions du domaine reçoivent l'instant courant en paramètre au lieu de lire l'horloge. C'est ce qui permet de tester la bascule de 4h, les intervalles de moins d'un jour ou la règle des deux sens sans attendre ni simuler le temps.
+Domain functions receive the current moment as a parameter instead of reading the clock. This is what makes the 4am day boundary, sub-day intervals and the two-directions rule testable without waiting or faking time.
 
-### Le pas d'une séquence est ramené à la séquence courante
+### A sequence step is clamped to the current sequence
 
-Un sens garde son [cran](lexicon.md#cran) quand son preset change ou quand la séquence est raccourcie. Plutôt que de réécrire les cartes concernées au moment du changement, le moteur ramène le cran au dernier cran existant à chaque calcul. Le changement de preset à moteur égal n'a donc aucune migration de données à faire.
+A direction keeps its [step](lexicon.md#step) when its preset changes or when the sequence gets shorter. Rather than rewriting the affected cards at change time, the engine clamps the step to the last existing step at each computation. A preset change with the same engine therefore needs no data migration.

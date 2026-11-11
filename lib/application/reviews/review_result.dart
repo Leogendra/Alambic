@@ -1,7 +1,7 @@
 import '../../domain/presets/preset.dart';
 import '../../domain/scheduling/direction_schedule.dart';
 
-/// What an answer changed, to tell the user ("retour au cran 1, revue demain").
+/// What an answer changed, to tell the user ("back to step 1, due tomorrow").
 class ReviewResult {
   const ReviewResult({
     required this.isBonus,

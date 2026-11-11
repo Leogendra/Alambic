@@ -28,7 +28,7 @@ class ReviewSession {
   int get againCount =>
       _outcomes.where((outcome) => outcome == ReviewOutcome.again).length;
 
-  /// Items answered "À revoir", to review them again as a bonus.
+  /// Items answered "Again", to review them again as a bonus.
   List<SessionItem> get missedItems => [
     for (var index = 0; index < _outcomes.length; index++)
       if (_outcomes[index] == ReviewOutcome.again) items[index],

@@ -11,7 +11,7 @@ class GroupOverview {
 
   final DuePolicy _duePolicy;
 
-  /// "Sans groupe" first, then the groups in the given order.
+  /// "No group" first, then the groups in the given order.
   List<GroupSummary> summarize({
     required List<CardGroup> groups,
     required List<CardWithDirections> cards,

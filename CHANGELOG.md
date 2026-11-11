@@ -1,15 +1,15 @@
 # Changelog
 
-Toutes les évolutions visibles de Remanence sont notées ici. Format : [Keep a Changelog 1.0.0](https://keepachangelog.com/fr/1.0.0/).
+All visible changes to Remanence are listed here. Format: [Keep a Changelog 1.0.0](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
 ### Added
 
-- Navigation principale à quatre onglets et bouton de création de carte, en thème clair et sombre.
-- Presets Standard (1 j à 6 mois) et Intensif (10 min à 1 sem), créés au premier lancement.
-- Liste et éditeur de presets dans Réglages : créer, modifier, dupliquer un preset, et choisir le preset global.
-- Création et modification de cartes texte, rangées dans un groupe ou non, avec l'option « Aussi dans l'autre sens » et un preset propre à la carte.
-- Onglet Groupes : « Sans groupe », liste des groupes avec leurs cartes dues, recherche dans les cartes, page d'un groupe et réglages (nom, preset, suppression).
-- Ajout en masse : coller une carte par ligne dans un groupe, avec un séparateur modifiable (`;` par défaut) et le signalement des lignes ignorées.
-- Session de révision dans l'app : réponse révélée au tap, boutons Correct / À revoir avec la prochaine échéance, écran de fin et révision bonus des cartes ratées.
+- Main navigation with four tabs and a card creation button, in light and dark theme.
+- Standard (1 day to 6 months) and Intensive (10 min to 1 week) presets, created on first launch.
+- Preset list and editor in Settings: create, edit and duplicate a preset, and choose the global preset.
+- Creation and editing of text cards, in a group or not, with the "Also in the other direction" option and a card-specific preset.
+- Groups tab: "No group", list of groups with their due cards, card search, group page and group settings (name, preset, deletion).
+- Bulk add: paste one card per line into a group, with an editable separator (`;` by default) and a report of the skipped lines.
+- In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.

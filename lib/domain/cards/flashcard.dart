@@ -17,7 +17,7 @@ class Flashcard {
 
   final int id;
 
-  /// `null` for cards outside any group ("Sans groupe").
+  /// `null` for cards outside any group ("No group").
   final int? groupId;
   final String? frontText;
   final String? frontImagePath;

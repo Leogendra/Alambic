@@ -1,7 +1,7 @@
 import '../cards/card_direction.dart';
 import 'scheduling_calendar.dart';
 
-/// Decides which directions are "à réviser".
+/// Decides which directions are "due".
 class DuePolicy {
   const DuePolicy(this.calendar);
 

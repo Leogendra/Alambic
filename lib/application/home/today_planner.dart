@@ -1,0 +1,85 @@
+import '../../data/repositories/card_with_directions.dart';
+import '../../domain/presets/preset_catalog.dart';
+import '../../domain/reviews/extra_reminder.dart';
+import '../../domain/reviews/review_record.dart';
+import '../../domain/scheduling/scheduling_calendar.dart';
+import 'timeline_entry.dart';
+import 'today_overview.dart';
+
+/// Builds the home screen view of today from the cards, the reminders and the
+/// answers of the day.
+class TodayPlanner {
+  const TodayPlanner(this._calendar);
+
+  final SchedulingCalendar _calendar;
+
+  TodayOverview build({
+    required List<CardWithDirections> cards,
+    required List<ExtraReminder> reminders,
+    required List<ReviewRecord> reviewsToday,
+    required PresetCatalog catalog,
+    required int dueCount,
+    required DateTime now,
+  }) => TodayOverview(
+    dueCount: dueCount,
+    doneCount: {
+      for (final review in reviewsToday)
+        if (!review.isBonus) review.directionId,
+    }.length,
+    timeline: [
+      ..._groupEntries(cards, catalog, now),
+      ..._reminderEntries(reminders, now),
+    ]..sort((first, second) => first.at.compareTo(second.at)),
+  );
+
+  /// Directions of active cards due today, grouped by group and moment.
+  Iterable<TimelineEntry> _groupEntries(
+    List<CardWithDirections> cards,
+    PresetCatalog catalog,
+    DateTime now,
+  ) {
+    final counts = <(int?, DateTime), int>{};
+    for (final card in cards.where((card) => !card.card.suspended)) {
+      for (final direction in card.directions) {
+        final dueAt = direction.dueAt;
+        if (direction.isScheduled && _isToday(dueAt!, now)) {
+          final key = (card.card.groupId, dueAt);
+          counts[key] = (counts[key] ?? 0) + 1;
+        }
+      }
+    }
+    return counts.entries.map(
+      (count) => TimelineEntry(
+        at: count.key.$2,
+        groupId: count.key.$1,
+        preset: catalog.presetForGroup(count.key.$1),
+        count: count.value,
+        isExtraReminder: false,
+      ),
+    );
+  }
+
+  Iterable<TimelineEntry> _reminderEntries(
+    List<ExtraReminder> reminders,
+    DateTime now,
+  ) {
+    final counts = <DateTime, int>{};
+    for (final reminder in reminders) {
+      if (_isToday(reminder.remindAt, now)) {
+        counts[reminder.remindAt] = (counts[reminder.remindAt] ?? 0) + 1;
+      }
+    }
+    return counts.entries.map(
+      (count) => TimelineEntry(
+        at: count.key,
+        groupId: null,
+        preset: null,
+        count: count.value,
+        isExtraReminder: true,
+      ),
+    );
+  }
+
+  bool _isToday(DateTime moment, DateTime now) =>
+      _calendar.isSameDay(moment, now);
+}

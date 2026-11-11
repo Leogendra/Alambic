@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../features/cards/card_navigation.dart';
 import '../../features/groups/groups_screen.dart';
+import '../../features/home/home_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../l10n/generated/app_localizations.dart';
 
@@ -24,7 +25,7 @@ class _MainShellState extends State<MainShell> {
         child: IndexedStack(
           index: _selectedTab,
           children: [
-            const SizedBox.shrink(),
+            const HomeScreen(),
             const GroupsScreen(),
             Center(child: Text(strings.statisticsComingSoon)),
             const SettingsScreen(),

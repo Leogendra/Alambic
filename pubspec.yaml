@@ -1,0 +1,44 @@
+name: remanence
+description: "Notification-first spaced repetition app."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  android_alarm_manager_plus: 5.1.2
+  drift: 2.35.4
+  drift_flutter: 0.3.1
+  flutter:
+    sdk: flutter
+  flutter_local_notifications: 23.0.1
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: 3.5.0
+  intl: 0.20.3
+  path: 1.9.1
+  path_provider: 2.1.6
+  shared_preferences: 2.5.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+  drift_dev: 2.35.3
+  build_runner: 2.17.1
+
+flutter:
+  uses-material-design: true
+  generate: true
+  fonts:
+    - family: DM Sans
+      fonts:
+        - asset: assets/fonts/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/DMSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/DMSans-Bold.ttf
+          weight: 700

@@ -1,0 +1,10 @@
+{
+  "@@locale": "fr",
+  "appTitle": "Remanence",
+  "tabHome": "Accueil",
+  "tabGroups": "Groupes",
+  "tabStatistics": "Statistiques",
+  "tabSettings": "Réglages",
+  "addCardTooltip": "Nouvelle carte",
+  "statisticsComingSoon": "Les statistiques arrivent bientôt."
+}

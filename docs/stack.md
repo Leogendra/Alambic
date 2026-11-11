@@ -24,6 +24,7 @@ Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so
 - Analysis: `flutter analyze`. Formatting: `dart format lib test`.
 - Tests: `flutter test`. Regenerate golden images after an intended visual change: `flutter test --update-goldens`.
 - Debug APK: `flutter build apk --debug`. Install on a connected phone: `flutter install` or `flutter run`.
+- Notifications are tested with in-memory fakes of the platform interfaces (`test/support/fake_notifications.dart`); the Android side is checked on a phone.
 - Tests that touch the database open a real in-memory SQLite database, with `closeStreamsSynchronously` so that widget tests do not end on pending timers.
 
 ## Conventions
@@ -36,5 +37,8 @@ Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so
 ## Pitfalls
 
 - `flutter_local_notifications` 23 requires `compileSdk` 37. With AGP 9, SDK 37 installs under the name `android-37.0`: `compileSdk = 37` fails with "Failed to find target with hash string 'android-37'". The `compileSdk { version = release(37) { minorApiLevel = 0 } }` syntax of `android/app/build.gradle.kts` is needed.
+- The project (D:) and the pub cache (C:) are on different drives. The Kotlin incremental caches of the plugins then fail with "Could not close incremental caches". `kotlin.incremental=false` in `android/gradle.properties` avoids it; after a failed build, `android/gradlew --stop` and the removal of `build/<plugin>/` may be needed.
+- `android_alarm_manager_plus` does not fall back to an inexact alarm without the exact alarm permission: it logs an error and drops the alarm. Ask for an exact alarm only when `canScheduleExactNotifications` allows it.
+- Notification buttons without user interface are always delivered to the background handler of `flutter_local_notifications`, even when the app is open.
 - In golden tests, Flutter replaces shadows with a black outline: the floating button appears circled in black on the reference images. This is not an app defect.
 - Golden images depend on the rendering of the platform that generated them (Windows here). Regenerating them on another platform produces differences of a few pixels.

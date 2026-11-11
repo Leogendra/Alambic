@@ -10,6 +10,7 @@ import '../../data/data_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../presets/preset_picker.dart';
 import '../presets/presets_screen.dart';
+import 'exact_alarms_panel.dart';
 
 /// Settings tab.
 class SettingsScreen extends ConsumerWidget {
@@ -30,6 +31,9 @@ class SettingsScreen extends ConsumerWidget {
         ),
         SectionLabel(strings.settingsRepetitionSection),
         _RepetitionPanel(),
+        const SizedBox(height: 24),
+        SectionLabel(strings.settingsNotificationsSection),
+        const ExactAlarmsPanel(),
       ],
     );
   }

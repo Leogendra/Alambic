@@ -14,4 +14,6 @@ All visible changes to Remanence are listed here. Format: [Keep a Changelog 1.0.
 - Bulk add: paste one card per line into a group, with an editable separator (`;` by default) and a report of the skipped lines.
 - Home tab: number of due cards with an estimated duration and the progress of the day, today's reminders, groups to review and groups with new cards to start.
 - Card sheet: both faces, step, next review and history of each direction, with Review soon (one-off reminder), Suspend / Resume, Reset and starting a direction.
+- Notifications: a started card arrives at its preset slot with Correct / Again buttons, answered without opening the app; Again shows the expected answer and the next review. A card reviewed in the app before its slot is not notified twice. "Review soon" reminders are notified too.
+- Reminders survive a phone restart. Without the exact alarm permission they may arrive a few minutes late, and Settings offers to allow exact alarms.
 - In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.

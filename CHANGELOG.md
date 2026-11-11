@@ -12,3 +12,4 @@ Toutes les évolutions visibles de Remanence sont notées ici. Format : [Keep a 
 - Création et modification de cartes texte, rangées dans un groupe ou non, avec l'option « Aussi dans l'autre sens » et un preset propre à la carte.
 - Onglet Groupes : « Sans groupe », liste des groupes avec leurs cartes dues, recherche dans les cartes, page d'un groupe et réglages (nom, preset, suppression).
 - Ajout en masse : coller une carte par ligne dans un groupe, avec un séparateur modifiable (`;` par défaut) et le signalement des lignes ignorées.
+- Session de révision dans l'app : réponse révélée au tap, boutons Correct / À revoir avec la prochaine échéance, écran de fin et révision bonus des cartes ratées.

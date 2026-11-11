@@ -10,8 +10,14 @@ Le code est découpé en couches, de la plus stable à la plus dépendante de la
 
 - `lib/domain/` : les règles métier en Dart pur. Calendrier à 4h, moteur séquence, calcul des échéances, résolution des presets, lecture de l'ajout en masse. Aucun import de Flutter, de drift ou d'un plugin : ces règles se testent sans base ni émulateur. Voir [Feature 1](features/1-planification.md) et [Feature 2](features/2-presets.md).
 - `lib/data/` : la persistance. La base drift (`lib/data/database/`) stocke les objets du domaine tels quels ; les dépôts (`lib/data/repositories/`) exposent lectures, écritures et flux par concept (cartes, groupes, presets). Ils stockent des décisions, ils n'en prennent pas. Voir [Feature 0](features/0-socle.md#base-de-données).
-- `lib/app/` : la coquille de l'app (`RemanenceApp`, onglets, bouton « + ») et le thème. Voir [Feature 0](features/0-socle.md).
+- `lib/application/` : les services qui appliquent les règles du domaine aux données (créer une carte, répondre, dupliquer un preset) et les fournisseurs Riverpod qui les exposent. L'horloge (`clockProvider`) y est injectée.
+- `lib/features/` : les écrans, un dossier par écran ou famille d'écrans. Ils lisent l'état par les fournisseurs et n'agissent que par les services.
+- `lib/app/` : la coquille de l'app (`RemanenceApp`, onglets, bouton « + »), le thème, les widgets partagés reprenant les composants de la maquette et les mises en forme de texte (intervalles, presets). Voir [Feature 0](features/0-socle.md).
 - `lib/l10n/` : les textes de l'interface, en fichiers ARB.
+
+## Comment les pièces s'assemblent
+
+Le point d'entrée ouvre la base et l'injecte dans Riverpod (`databaseProvider`). Les dépôts publient des flux drift ; les écrans les observent par des `StreamProvider` et se mettent à jour d'eux-mêmes après chaque écriture, y compris celles faites dans un autre isolate. Une action de l'utilisateur appelle un service, qui lit les données nécessaires, demande une décision au domaine et l'écrit par les dépôts.
 
 ## Décisions de conception
 

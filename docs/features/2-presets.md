@@ -23,6 +23,16 @@ Le preset d'une carte se lit en trois niveaux : le choix fait sur la carte, sino
 
 Cette règle a une seule implémentation, `PresetResolver`. Les écrans et les services passent par `PresetCatalog`, une photographie de tous les presets et des choix de chaque groupe, qui résout le preset de nombreuses cartes sans interroger la base pour chacune. Le dépôt des presets la publie en flux et la republie dès qu'un preset, le preset global ou le choix d'un groupe change.
 
+### Gestion des presets
+
+La liste des presets s'ouvre depuis Réglages, qui permet aussi de choisir le preset global. Chaque preset y montre sa séquence, son horaire et son mode de notification ; le preset global porte un badge.
+
+L'éditeur travaille sur un brouillon et n'écrit rien avant « Enregistrer ». Il règle la séquence (ajout d'un cran en durée et unité, retrait d'un cran tant qu'il en reste un autre), le comportement en cas d'échec, la fin de séquence, la réponse tapée, l'horaire (heure fixe ou plage) et le mode de notification (une par carte, ou rappel groupé qui ouvre l'app ou enchaîne les cartes). Ces trois derniers réglages sont enregistrés dès maintenant ; les notifications qui les exploitent sont décrites dans leur propre feature.
+
+« Nouveau » ouvre un brouillon aux valeurs de Standard. « Dupliquer » enregistre aussitôt une copie nommée « <nom> (copie) » et ouvre son éditeur. Une copie n'est jamais un preset livré, même quand elle copie Standard. Les presets livrés restent modifiables.
+
+Le moteur adaptatif n'est pas encore proposé dans l'éditeur : tout preset créé est une séquence.
+
 ### Changement de preset
 
 Changer le preset d'une carte, d'un groupe ou le preset global ne réécrit aucune carte : le cran et l'échéance de chaque sens restent tels quels. Si la nouvelle séquence est plus courte, le moteur ramène le cran au dernier cran au moment de la réponse suivante ([Feature 1](1-planification.md#le-cran)).
@@ -33,17 +43,25 @@ Changer le preset d'une carte, d'un groupe ou le preset global ne réécrit aucu
 - [x] Une carte sans choix suit le preset de son groupe, un groupe sans choix suit le preset global.
 - [x] Le choix fait sur une carte l'emporte sur celui de son groupe.
 - [x] Changer de preset (même moteur) conserve le cran et l'échéance ; un cran trop grand est ramené au dernier cran.
+- [x] On crée un preset depuis les valeurs de Standard, on modifie n'importe quel preset, on duplique un preset sous un nouveau nom.
+- [x] Un preset sans nom ou sans cran ne peut pas être enregistré.
+- [x] Le preset global se choisit dans Réglages.
 
 ## Test strategy
 
 - La cascade est prouvée deux fois : en logique pure sur `PresetCatalog`, puis de bout en bout sur une base en mémoire, en changeant les choix par les dépôts comme le font les écrans.
 - Le maintien du cran et de l'échéance est vérifié sur les données stockées après le changement, et non sur un objet en mémoire.
+- Création, modification, duplication et refus d'un preset invalide sont testés par le service, sur une base en mémoire.
+- La liste et l'éditeur sont couverts par des golden tests sur les presets livrés.
 
 ## File mapping
 
 - `lib/domain/presets/` — modèle de preset, presets livrés, règle de résolution et `PresetCatalog`.
 - `lib/data/repositories/preset_repository.dart` — lecture et écriture des presets et du preset global, flux du catalogue.
 - `lib/data/database/preset_companions.dart` — écriture d'un `Preset` du domaine dans sa table.
+- `lib/application/presets/` — service de création, modification et duplication ; fournisseurs Riverpod des presets et du catalogue.
+- `lib/features/presets/` — liste, éditeur, dialogue d'ajout de cran et sélecteur de preset réutilisé par les groupes et les cartes.
+- `lib/features/settings/settings_screen.dart` — accès aux presets et choix du preset global.
 
 ## Technical details
 

@@ -7,3 +7,5 @@ Toutes les évolutions visibles de Remanence sont notées ici. Format : [Keep a 
 ### Added
 
 - Navigation principale à quatre onglets et bouton de création de carte, en thème clair et sombre.
+- Presets Standard (1 j à 6 mois) et Intensif (10 min à 1 sem), créés au premier lancement.
+- Liste et éditeur de presets dans Réglages : créer, modifier, dupliquer un preset, et choisir le preset global.

@@ -9,13 +9,17 @@ Future<void> startSession(BuildContext context, List<DueItem> items) async {
   if (items.isEmpty) {
     return;
   }
-  await Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (context) =>
-          SessionScreen(items: items.map(_toSessionItem).toList()),
-    ),
-  );
+  await openSession(context, items.map(_toSessionItem).toList());
 }
+
+/// Opens a session on [items], due or not: answering a direction that is not
+/// due is a bonus review.
+Future<void> openSession(BuildContext context, List<SessionItem> items) =>
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => SessionScreen(items: items),
+      ),
+    );
 
 /// Replaces the current session by a new one, for "Review the missed cards".
 Future<void> replaceWithSession(

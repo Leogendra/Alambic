@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'card_editor_screen.dart';
+import 'card_sheet_screen.dart';
 
-/// Opens a card from a list.
+/// Opens the sheet of a card from a list.
 Future<void> openCard(BuildContext context, int cardId) => Navigator.of(context)
     .push(
       MaterialPageRoute<void>(
-        builder: (context) => CardEditorScreen(cardId: cardId),
+        builder: (context) => CardSheetScreen(cardId: cardId),
       ),
     );
 

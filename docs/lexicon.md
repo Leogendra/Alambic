@@ -40,6 +40,10 @@ Scheduling day, which starts at 4am rather than midnight (`SchedulingCalendar`; 
 
 A direction is due today (*à réviser*) when its due date has passed, or when it falls today and the direction has not already been reviewed today (`DuePolicy`).
 
+### Extra reminder
+
+A one-off reminder added to a direction with "Review soon" (`ExtraReminder`; *rappel ponctuel*). Answering it is a [bonus review](#bonus-review).
+
 ### Bonus review
 
 An answer to a card that is not due (*révision bonus*). It is written to the history but changes neither the step nor the due date.

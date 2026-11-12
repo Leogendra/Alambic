@@ -7,6 +7,8 @@ import 'delivery_candidate.dart';
 /// date.
 ///
 /// Rules owned here:
+/// - a direction still due from an earlier day (its notification was ignored,
+///   swiped or not shown) is notified again today, at the slot of its preset;
 /// - with a time range and one notification per card, the directions due at
 ///   the start of the range on a day are spread evenly over the range, in
 ///   the order of their ids; a grouped reminder stays at the start.
@@ -16,17 +18,24 @@ class DeliveryPlanner {
   final SchedulingCalendar calendar;
 
   /// Moment at which each candidate is notified, by direction id.
-  Map<int, DateTime> plan(Iterable<DeliveryCandidate> candidates) {
+  Map<int, DateTime> plan(
+    Iterable<DeliveryCandidate> candidates, {
+    required DateTime now,
+  }) {
+    final today = calendar.dayOf(now);
     final moments = <int, DateTime>{};
     final ranges = <(int, DateTime), List<DeliveryCandidate>>{};
     for (final candidate in candidates) {
       final dueAt = candidate.direction.dueAt!;
-      final day = calendar.dayOf(dueAt);
+      final moment = calendar.dayOf(dueAt).isBefore(today)
+          ? calendar.momentAt(today, candidate.preset.dailySlot)
+          : dueAt;
+      final day = calendar.dayOf(moment);
       if (_spreadsOverRange(candidate) &&
-          dueAt == calendar.momentAt(day, candidate.preset.rangeStart)) {
+          moment == calendar.momentAt(day, candidate.preset.rangeStart)) {
         ranges.putIfAbsent((candidate.preset.id, day), () => []).add(candidate);
       } else {
-        moments[candidate.direction.id] = dueAt;
+        moments[candidate.direction.id] = moment;
       }
     }
     for (final MapEntry(key: (_, day), value: sharing) in ranges.entries) {

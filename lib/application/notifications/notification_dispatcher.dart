@@ -60,6 +60,7 @@ class NotificationDispatcher {
     final cards = await _cards.getAll();
     final deliveries = _deliveryPlanner.plan(
       deliveryCandidates(cards, catalog),
+      now: now,
     );
     final groupedReminders = <GroupReminderKey>{};
     for (final card in cards) {
@@ -71,6 +72,7 @@ class NotificationDispatcher {
               cardSuspended: card.card.suspended,
               deliverAt: deliverAt,
               now: now,
+              calendar: _deliveryPlanner.calendar,
             )) {
           if (catalog.presetForCard(card.card).notificationMode ==
               NotificationMode.grouped) {

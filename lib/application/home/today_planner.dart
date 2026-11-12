@@ -45,7 +45,7 @@ class TodayPlanner {
     DateTime now,
   ) {
     final deliveries = DeliveryPlanner(_calendar)
-        .plan(deliveryCandidates(cards, catalog));
+        .plan(deliveryCandidates(cards, catalog), now: now);
     final counts = <(int?, DateTime, int?), int>{};
     for (final card in cards) {
       for (final direction in card.directions) {

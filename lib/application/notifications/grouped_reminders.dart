@@ -98,6 +98,7 @@ class GroupedReminders {
     final catalog = await _presets.loadCatalog();
     final deliveries = _deliveryPlanner.plan(
       deliveryCandidates(cards, catalog),
+      now: now,
     );
     final waiting = [
       for (final card in cards)

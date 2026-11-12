@@ -22,6 +22,14 @@ The first batch is introduced on the launch day. A batch of N cards is owed from
 
 Each scheduling day is processed once per distillation, by the first pass that sees it: at app launch, or at any wake-up of the app. A running distillation plans a wake-up at the start of the next day it has to process (4am), so cards are introduced with the app closed. A missed day is not caught up: at most one batch is introduced per day. A suspended card keeps its place in the queue and is skipped.
 
+### Avoiding collisions
+
+With "Avoid collisions" (on by default), a distillation has a budget of N notifications a day, N being its cards per batch. When the day is processed, the reminders due today of the cards it introduced come first, the shortest interval first (a D+1 reminder before a D+2 one; a card introduced and not answered yet counts as the shortest). Those over the budget move to the next day at their preset slot, keeping their step: no penalty. New cards only get what is left of the budget; the part of the batch they cannot take waits for the next days.
+
+With 3 cards a day on the Standard preset, every card answered correctly: day 1 brings three new cards, day 2 their three D+1 reminders and no new card, day 3 three new cards, day 4 the three D+1 reminders while the three D+2 reminders move to day 5.
+
+The budget is spent once, when the day is processed; reminders that come later the same day (intervals shorter than a day) do not count. It only applies while the distillation runs: paused, stopped or finished, its cards follow their preset without it. Without the option, the N cards of a batch arrive whatever is due.
+
 ### Pause, stop and end
 
 A paused distillation introduces nothing; resuming it processes the current day if it was not processed yet. Stopping a distillation deletes it: its remaining directions stay pending, outside any queue, and can be started by hand (card sheet, "Start all") or taken by a new distillation. A distillation whose queue is empty ends and is deleted the same way.
@@ -32,12 +40,14 @@ A paused distillation introduces nothing; resuming it processes the current day 
 - [x] Batches follow "N cards every X days", one batch at most per day, the day starting at 4am, with the app closed.
 - [x] A card added to the group during the distillation joins the end of the queue; a card moved out of the group leaves it.
 - [x] A back → front distillation activates the reverse of one-way cards.
+- [x] Avoiding collisions: a daily budget of N notifications, reminders first and shortest intervals first, the rest moved to the next day without penalty, new cards in what is left.
 - [x] Pause, resume and stop; the directions left by a stopped distillation can be started by hand.
 - [x] A distillation ends when its queue is empty.
 
 ## Test strategy
 
-- The rhythm (`DistillationRhythm`) is tested as pure functions: batch owed, rest of a batch held back, next batch day, estimate of the last arrival.
+- The rhythm (`DistillationRhythm`) and the budget (`CollisionBudget`) are tested as pure functions: batch owed, rest of a batch held back, next batch day, estimate of the last arrival; ranking of the reminders and room left for new cards.
+- The example of 3 cards a day on the Standard preset is replayed day by day on an in-memory database, answering every card when it comes.
 - The service is tested on an in-memory database filled through the services, moving a fixed clock across days: first batch, next days, 4am boundary, missed days, additions, reverse, pause, stop, suspension, end.
 - The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, and the introduction done by the wake-up.
 

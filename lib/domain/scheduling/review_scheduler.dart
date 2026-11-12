@@ -65,6 +65,26 @@ class ReviewScheduler {
     );
   }
 
+  /// Schedule of a reminder held back by a distillation budget: the same
+  /// step, due the next day at the preset slot.
+  DirectionSchedule postponed({
+    required int? step,
+    required Preset preset,
+    required DateTime now,
+    required DateTime? oppositeDueAt,
+  }) {
+    final nextDay = calendar.addDays(calendar.dayOf(now), 1);
+    return DirectionSchedule(
+      state: DirectionState.active,
+      step: step,
+      dueAt: _spacedFromOpposite(
+        calendar.momentAt(nextDay, preset.dailySlot),
+        preset,
+        oppositeDueAt,
+      ),
+    );
+  }
+
   DateTime _dueAfter(
     PresetInterval interval,
     Preset preset,

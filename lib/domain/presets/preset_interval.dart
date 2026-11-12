@@ -16,6 +16,9 @@ class PresetInterval {
   Duration get subDayDuration =>
       Duration(minutes: amount * unit.minutesPerUnit);
 
+  /// Length of the interval, a day counting 24 hours; used to rank intervals.
+  Duration get length => isDayBased ? Duration(days: days) : subDayDuration;
+
   Map<String, Object> toJson() => {'amount': amount, 'unit': unit.name};
 
   factory PresetInterval.fromJson(Map<String, Object?> json) => PresetInterval(

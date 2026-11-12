@@ -149,7 +149,7 @@ void main() {
         .launchForGroup(
           groupId,
           DirectionSense.frontToBack,
-          const DistillationSettings(),
+          const DistillationSettings(avoidCollisions: false),
         );
     expect(scheduledMoments(), [
       DateTime(2026, 11, 10, 12),

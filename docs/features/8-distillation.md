@@ -16,6 +16,14 @@ A group distillation covers one direction (front → back or back → front) of 
 
 The queue follows the group order (creation order) or a random order chosen at launch. A card created in the group, or moved into it, while the distillation exists joins the end of the queue; a card moved out of the group leaves it and waits to be started by hand.
 
+A group has at most two distillations, one per direction, each with its own rhythm. "No group" cannot be distilled, and launching is refused when no direction waits.
+
+### Global distillation
+
+The global distillation covers every card, of every group and of "No group", in both directions: it takes every direction never started (the reverse of a one-way card stays inactive). Its order is always random. Launching it stops every other distillation, and their remaining directions join its queue; while it exists, running or paused, no group distillation can be launched. A card created anywhere joins it.
+
+The reverse of a card only enters the queue once its front was introduced: until then it is held without a rank, and it gets the last rank at the end of the pass that introduced its front. It therefore always arrives after its front, and never the same day. A reverse whose front is already in review enters the queue directly.
+
 ### Rhythm
 
 The first batch is introduced on the launch day. A batch of N cards is owed from its batch day on; the next batch comes X days after the day the previous one was completed. Introducing a direction makes it due today at its preset slot, exactly like starting it by hand: due right away when the slot has passed, and moved to the next day if the other direction of the card is due today. It arrives as a new card ("New card") and then follows its preset.
@@ -40,6 +48,8 @@ A paused distillation introduces nothing; resuming it processes the current day 
 - [x] Batches follow "N cards every X days", one batch at most per day, the day starting at 4am, with the app closed.
 - [x] A card added to the group during the distillation joins the end of the queue; a card moved out of the group leaves it.
 - [x] A back → front distillation activates the reverse of one-way cards.
+- [x] At most one distillation per group and direction; launching with nothing to introduce is refused.
+- [x] The global distillation stops the others and takes their queues, blocks group distillations while it exists, and introduces the reverse of a card after its front, never the same day.
 - [x] Avoiding collisions: a daily budget of N notifications, reminders first and shortest intervals first, the rest moved to the next day without penalty, new cards in what is left.
 - [x] Pause, resume and stop; the directions left by a stopped distillation can be started by hand.
 - [x] A distillation ends when its queue is empty.
@@ -47,6 +57,7 @@ A paused distillation introduces nothing; resuming it processes the current day 
 ## Test strategy
 
 - The rhythm (`DistillationRhythm`) and the budget (`CollisionBudget`) are tested as pure functions: batch owed, rest of a batch held back, next batch day, estimate of the last arrival; ranking of the reminders and room left for new cards.
+- The launch rules and the global distillation are tested on an in-memory database: refusals, queues taken over, cards created meanwhile, and the reverse arriving after its front over ten simulated days with a seeded random order.
 - The example of 3 cards a day on the Standard preset is replayed day by day on an in-memory database, answering every card when it comes.
 - The service is tested on an in-memory database filled through the services, moving a fixed clock across days: first batch, next days, 4am boundary, missed days, additions, reverse, pause, stop, suspension, end.
 - The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, and the introduction done by the wake-up.

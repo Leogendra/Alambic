@@ -17,6 +17,11 @@ class ReviewTexts {
   final AppLocalizations strings;
   final SchedulingCalendar calendar;
 
+  /// Title of a card notification: the asked face, or a mention of its image
+  /// when it has no text.
+  String promptTitle(String prompt) =>
+      prompt.isEmpty ? strings.notificationImagePrompt : prompt;
+
   /// Line under the asked face: "Cran 2 sur 6", "Intervalle 12 j", "verso →
   /// recto · Nouvelle carte", or the bonus mention of an extra reminder.
   String promptDetail(ReviewPrompt prompt) {
@@ -69,8 +74,9 @@ class ReviewTexts {
     return '$groups · ${strings.reviewDuration(digest.count)}';
   }
 
-  String answerLine(AnswerReveal reveal) =>
-      strings.notificationAnswer(reveal.answer);
+  String answerLine(AnswerReveal reveal) => reveal.answer.isEmpty
+      ? strings.notificationAnswerImage
+      : strings.notificationAnswer(reveal.answer);
 
   /// How the typed answer compared, then what the answer did: "« canbera »
   /// accepté, 1 faute · prochain rappel demain", "Compté raté · retour au

@@ -11,6 +11,7 @@ class ReviewPrompt {
   const ReviewPrompt({
     required this.key,
     required this.prompt,
+    required this.image,
     required this.groupName,
     required this.progress,
     required this.isReverse,
@@ -29,6 +30,7 @@ class ReviewPrompt {
   }) => ReviewPrompt(
     key: key,
     prompt: card.promptFor(direction.sense).text ?? '',
+    image: card.promptFor(direction.sense).imagePath,
     groupName: groupName,
     progress: DirectionProgress.of(direction, preset),
     isReverse: direction.sense == DirectionSense.backToFront,
@@ -39,8 +41,11 @@ class ReviewPrompt {
 
   final ReviewNotificationKey key;
 
-  /// Text of the asked face.
+  /// Text of the asked face; empty for a face that is an image alone.
   final String prompt;
+
+  /// Image of the asked face, by its name in the image store.
+  final String? image;
 
   /// `null` for a card outside any group.
   final String? groupName;

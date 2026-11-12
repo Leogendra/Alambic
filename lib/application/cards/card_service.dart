@@ -1,3 +1,4 @@
+import '../../data/images/image_store.dart';
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/card_direction.dart';
@@ -10,12 +11,14 @@ import '../clock.dart';
 import '../distillation/distillation_service.dart';
 import '../scheduling/schedule_change_listener.dart';
 import 'card_draft.dart';
+import 'draft_image.dart';
 
 /// Creates, edits and manages cards, and starts their directions.
 class CardService {
   const CardService({
     required this._cards,
     required this._presets,
+    required this._images,
     required this._scheduler,
     required this._distillations,
     required this._clock,
@@ -24,6 +27,7 @@ class CardService {
 
   final CardRepository _cards;
   final PresetRepository _presets;
+  final ImageStore _images;
   final ReviewScheduler _scheduler;
   final DistillationService _distillations;
   final Clock _clock;
@@ -34,12 +38,16 @@ class CardService {
   /// join the end of the queue of the distillation covering them.
   Future<int> create(CardDraft draft) async {
     _checkComplete(draft);
+    final frontImage = await _store(draft.frontImage);
+    final backImage = await _store(draft.backImage);
     final cardId = await _cards.transaction(() async {
       final now = _clock();
       final cardId = await _cards.insertCard(
         groupId: draft.groupId,
-        frontText: draft.frontText.trim(),
-        backText: draft.backText.trim(),
+        frontText: _textOf(draft.frontText),
+        frontImagePath: frontImage,
+        backText: _textOf(draft.backText),
+        backImagePath: backImage,
         presetId: draft.presetId,
         createdAt: now,
       );
@@ -60,8 +68,10 @@ class CardService {
         final now = _clock();
         final cardId = await _cards.insertCard(
           groupId: draft.groupId,
-          frontText: draft.frontText.trim(),
-          backText: draft.backText.trim(),
+          frontText: _textOf(draft.frontText),
+          frontImagePath: null,
+          backText: _textOf(draft.backText),
+          backImagePath: null,
           presetId: draft.presetId,
           createdAt: now,
         );
@@ -80,19 +90,29 @@ class CardService {
   /// Updates the content of a card. Checking "also reverse" adds the reverse
   /// direction, waiting to be started; unchecking it stops it, keeping its
   /// history. A card moved to another group follows the distillations of its
-  /// new group.
+  /// new group. An image replaced or removed leaves the image store.
   Future<void> update(int cardId, CardDraft draft) async {
     _checkComplete(draft);
+    final previous = await _cards.getCard(cardId);
+    final frontImage = await _store(draft.frontImage);
+    final backImage = await _store(draft.backImage);
     await _cards.transaction(() async {
       await _cards.updateCardContent(
         cardId: cardId,
         groupId: draft.groupId,
-        frontText: draft.frontText.trim(),
-        backText: draft.backText.trim(),
+        frontText: _textOf(draft.frontText),
+        frontImagePath: frontImage,
+        backText: _textOf(draft.backText),
+        backImagePath: backImage,
         presetId: draft.presetId,
       );
       await _applyReverseChoice(cardId, draft.alsoReverse);
     });
+    for (final image in [previous.frontImagePath, previous.backImagePath]) {
+      if (image != null && image != frontImage && image != backImage) {
+        await _images.delete(image);
+      }
+    }
     await _distillations.joinQueues(cardId);
     await _scheduleChangeListener.onSchedulesChanged();
   }
@@ -152,9 +172,29 @@ class CardService {
     await _scheduleChangeListener.onSchedulesChanged();
   }
 
+  /// Deletes a card with its history and its images.
   Future<void> delete(int cardId) async {
+    final card = await _cards.getCard(cardId);
     await _cards.deleteCard(cardId);
+    for (final image in [card.frontImagePath, card.backImagePath]) {
+      if (image != null) {
+        await _images.delete(image);
+      }
+    }
     await _scheduleChangeListener.onSchedulesChanged();
+  }
+
+  /// Name in the image store of a draft image, copying a picked one into it.
+  Future<String?> _store(DraftImage? image) async => switch (image) {
+    null => null,
+    StoredImage(:final name) => name,
+    PickedImage(:final path) => await _images.add(path),
+  };
+
+  /// An empty text is no text: the face is an image alone.
+  static String? _textOf(String text) {
+    final trimmed = text.trim();
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   Future<void> _insertDirections(int cardId, bool alsoReverse) async {

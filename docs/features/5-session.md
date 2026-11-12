@@ -12,7 +12,7 @@ Review [due](../lexicon.md#due) cards in the app, one by one, with the same two 
 
 A session starts from a list of due directions, sorted by [due date](../lexicon.md#due-date) (oldest first). A group page starts it on the group's due cards ("Review the N due"), the Home tab on every due card ("Review all now"), and the card sheet on a single direction.
 
-For each card, the screen shows the asked face, with the group and the preset on top, and the mention "back → front" for the reverse direction. Tapping the card or "Show answer" reveals the other face, then the "Again" and "Correct" buttons. Under each button stands the effect of the answer: "tomorrow", "in 6 d", "at 15:17", "acquired", or "no effect" for a bonus review. A progress bar and a "3 / 12" counter follow the progress; the cross leaves the session, the answers already given staying recorded.
+For each card, the screen shows the asked face (its image above its text, the image shrinking to leave room for the text), with the group and the preset on top, and the mention "back → front" for the reverse direction. Tapping the card or "Show answer" reveals the other face, then the "Again" and "Correct" buttons. Under each button stands the effect of the answer: "tomorrow", "in 6 d", "at 15:17", "acquired", or "no effect" for a bonus review. A progress bar and a "3 / 12" counter follow the progress; the cross leaves the session, the answers already given staying recorded.
 
 ### Answer
 

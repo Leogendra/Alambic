@@ -11,6 +11,7 @@ final cardServiceProvider = Provider(
   (ref) => CardService(
     cards: ref.watch(cardRepositoryProvider),
     presets: ref.watch(presetRepositoryProvider),
+    images: ref.watch(imageStoreProvider),
     scheduler: ref.watch(reviewSchedulerProvider),
     distillations: ref.watch(distillationServiceProvider),
     clock: ref.watch(clockProvider),

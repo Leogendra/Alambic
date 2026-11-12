@@ -274,7 +274,7 @@
     }
   },
   "commonChange": "Changer",
-  "cardIncomplete": "Le recto et le verso doivent être remplis.",
+  "cardIncomplete": "Le recto et le verso ont chacun besoin d'un texte ou d'une image.",
   "groupPickerTitle": "Ranger dans un groupe",
   "groupsTitle": "Groupes",
   "groupsSearchHint": "Rechercher dans les cartes",
@@ -372,6 +372,9 @@
     }
   },
   "cardStatusNew": "nouvelle",
+  "cardImageOnly": "Image",
+  "cardAddImage": "Image",
+  "cardRemoveImage": "Retirer l'image",
   "cardStatusUnstarted": "pas commencée",
   "cardStatusPending": "en attente de distillation",
   "cardStatusPendingStopped": "en attente",
@@ -732,6 +735,8 @@
   "notificationChannelName": "Révisions",
   "notificationChannelDescription": "Les cartes à réviser, avec leurs boutons de réponse.",
   "notificationNewCard": "Nouvelle carte",
+  "notificationImagePrompt": "Que montre cette image ?",
+  "notificationAnswerImage": "Réponse en image",
   "notificationExtra": "Réviser bientôt · sans effet sur le planning",
   "notificationAnswer": "Réponse : {answer}",
   "@notificationAnswer": {

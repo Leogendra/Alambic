@@ -64,6 +64,7 @@ void main() {
       expect(mongolia.prompt, 'Mongolie');
       expect(mongolia.groupName, 'Capitales');
       expect(mongolia.progress, isA<NewProgress>());
+      expect(mongolia.image, isNull);
       harness.presenter.prompts.clear();
       await dispatchAt(DateTime(2026, 11, 10, 12, 1));
       expect(harness.presenter.prompts, isEmpty);

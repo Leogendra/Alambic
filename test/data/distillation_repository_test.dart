@@ -30,7 +30,9 @@ void main() {
     final cardId = await cards.insertCard(
       groupId: groupId,
       frontText: 'Mongolie',
+      frontImagePath: null,
       backText: 'Oulan-Bator',
+      backImagePath: null,
       presetId: null,
       createdAt: now,
     );

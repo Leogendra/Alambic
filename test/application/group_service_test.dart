@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:alambic/application/cards/card_draft.dart';
+import 'package:alambic/application/cards/draft_image.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
@@ -35,5 +39,35 @@ void main() {
     final cards = await CardRepository(database).getAll();
     expect(cards, hasLength(3));
     expect(cards.where((card) => card.card.groupId == capitals), isEmpty);
+  });
+
+  test('deleting a group deletes the images of its cards', () async {
+    final flags = await services.groups.create('Drapeaux');
+    final cardId = await services.cards.create(
+      const CardDraft(
+        frontText: '',
+        backText: 'Pérou',
+        frontImage: PickedImage('test/support/fixtures/flag.png'),
+        groupId: null,
+        presetId: null,
+        alsoReverse: false,
+      ),
+    );
+    final card = await CardRepository(database).getCard(cardId);
+    await services.cards.update(
+      cardId,
+      CardDraft(
+        frontText: '',
+        backText: 'Pérou',
+        frontImage: StoredImage(card.frontImagePath!),
+        groupId: flags,
+        presetId: null,
+        alsoReverse: false,
+      ),
+    );
+    final file = File(services.images.pathOf(card.frontImagePath!));
+    expect(file.existsSync(), isTrue);
+    await services.groups.delete(flags);
+    expect(file.existsSync(), isFalse);
   });
 }

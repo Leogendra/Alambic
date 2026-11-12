@@ -6,8 +6,10 @@ import '../../application/groups/group_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../data/repositories/card_with_directions.dart';
 import '../../domain/cards/card_direction.dart';
+import '../../domain/cards/card_face.dart';
 import '../../domain/cards/direction_sense.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../cards/card_image.dart';
 
 /// The card of a session: the prompt on top, the answer below once revealed.
 class SessionCardView extends ConsumerWidget {
@@ -28,8 +30,8 @@ class SessionCardView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
-    final prompt = card.card.promptFor(direction.sense).text ?? '';
-    final answer = card.card.answerFor(direction.sense).text ?? '';
+    final prompt = card.card.promptFor(direction.sense);
+    final answer = card.card.answerFor(direction.sense);
     return Container(
       decoration: BoxDecoration(
         color: colors.surface,
@@ -54,12 +56,10 @@ class SessionCardView extends ConsumerWidget {
                 children: [
                   _context(context, ref, strings),
                   Expanded(
-                    child: Center(
-                      child: _faceText(
-                        prompt,
-                        isRevealed ? colors.textSecondary : colors.textPrimary,
-                        isRevealed ? 30 : 36,
-                      ),
+                    child: _face(
+                      prompt,
+                      isRevealed ? colors.textSecondary : colors.textPrimary,
+                      isRevealed ? 30 : 36,
                     ),
                   ),
                 ],
@@ -74,7 +74,7 @@ class SessionCardView extends ConsumerWidget {
               alignment: Alignment.center,
               padding: const EdgeInsets.all(20),
               child: isRevealed
-                  ? _faceText(answer, colors.textPrimary, 36)
+                  ? _face(answer, colors.textPrimary, 36)
                   : Text(
                       strings.sessionTapToFlip,
                       style: TextStyle(
@@ -117,6 +117,21 @@ class SessionCardView extends ConsumerWidget {
       ),
     );
   }
+
+  /// The image of a face above its text, the image shrinking to leave room
+  /// for the text.
+  Widget _face(CardFace face, Color color, double fontSize) => SizedBox(
+    width: double.infinity,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 12,
+      children: [
+        if (face.imagePath case final image?)
+          Flexible(child: CardImage.stored(image)),
+        if (face.hasText) _faceText(face.text!, color, fontSize),
+      ],
+    ),
+  );
 
   Widget _faceText(String text, Color color, double fontSize) => Text(
     text,

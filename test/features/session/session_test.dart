@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:alambic/application/cards/card_draft.dart';
+import 'package:alambic/application/cards/draft_image.dart';
 import 'package:alambic/application/reviews/session_item.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
@@ -10,6 +12,7 @@ import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_images.dart';
 
 void main() {
   late AlambicDatabase database;
@@ -40,6 +43,48 @@ void main() {
       overrides: screenOverrides(database, sampleNow),
     );
   }
+
+  testWidgets('shows the image of a face above its text', (tester) async {
+    final images = openTestImageStore();
+    late List<SessionItem> flagItems;
+    late String flagPath;
+    await tester.runAsync(() async {
+      final services = SampleServices(
+        database,
+        FixedClock(sampleNow),
+        images: images,
+      );
+      final cardId = await services.cards.create(
+        const CardDraft(
+          frontText: 'Quel pays a ce drapeau ?',
+          backText: 'Pérou',
+          frontImage: PickedImage('test/support/fixtures/flag.png'),
+          groupId: null,
+          presetId: null,
+          alsoReverse: false,
+        ),
+      );
+      await services.cards.startGroup(null);
+      final front = (await CardRepository(database).getDirections(cardId))
+          .firstWhere(
+            (direction) => direction.sense == DirectionSense.frontToBack,
+          );
+      flagItems = [SessionItem(cardId: cardId, directionId: front.id)];
+      flagPath = images.pathOf(
+        (await CardRepository(database).getCard(cardId)).frontImagePath!,
+      );
+    });
+    await precacheImageFile(tester, flagPath);
+    await pumpGolden(
+      tester,
+      SessionScreen(items: flagItems),
+      overrides: screenOverrides(database, sampleNow, images: images),
+    );
+    await expectLater(
+      find.byType(SessionScreen),
+      matchesGoldenFile('goldens/session_image.png'),
+    );
+  });
 
   Future<void> answer(WidgetTester tester, String button) async {
     await tester.tap(find.text('Afficher la réponse'));

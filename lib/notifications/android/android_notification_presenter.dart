@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../application/notifications/answer_reveal.dart';
@@ -8,14 +10,16 @@ import '../../application/notifications/notification_action.dart';
 import '../../application/notifications/notification_presenter.dart';
 import '../../application/notifications/review_notification_key.dart';
 import '../../application/notifications/review_prompt.dart';
+import '../../data/images/image_store.dart';
 import '../review_texts.dart';
 import 'notification_payload.dart';
 
 /// Review notifications on Android: the asked face as title, the step as
 /// text, the group as sub-text, and the answer buttons handled in the
-/// background without opening the app.
+/// background without opening the app. A face with an image shows it once
+/// the notification is expanded.
 class AndroidNotificationPresenter implements NotificationPresenter {
-  AndroidNotificationPresenter(this._plugin, this._texts);
+  AndroidNotificationPresenter(this._plugin, this._texts, this._images);
 
   static const String channelId = 'reviews';
 
@@ -28,67 +32,76 @@ class AndroidNotificationPresenter implements NotificationPresenter {
 
   final AndroidFlutterLocalNotificationsPlugin _plugin;
   final ReviewTexts _texts;
+  final ImageStore _images;
 
   @override
   Future<void> requestPermission() => _plugin.requestNotificationsPermission();
 
   @override
-  Future<void> showPrompt(ReviewPrompt prompt) => _plugin.show(
-    id: _idOf(prompt.key),
-    title: prompt.prompt,
-    body: _texts.promptDetail(prompt),
-    payload: NotificationPayload.encode(prompt.key, isPrompt: true),
-    notificationDetails: _details(
-      subText: _texts.groupLabel(prompt),
-      // A chained card follows the answer of the previous one.
-      onlyAlertOnce: prompt.key.chain != null,
-      actions: [
-        if (prompt.typedAnswer)
-          // Kept on screen, like "Again": the notification is replaced by
-          // the expected answer.
+  Future<void> showPrompt(ReviewPrompt prompt) {
+    final title = _texts.promptTitle(prompt.prompt);
+    final detail = _texts.promptDetail(prompt);
+    return _plugin.show(
+      id: _idOf(prompt.key),
+      title: title,
+      body: detail,
+      payload: NotificationPayload.encode(prompt.key, isPrompt: true),
+      notificationDetails: _details(
+        subText: _texts.groupLabel(prompt),
+        style: _picture(prompt.image, title: title, summary: detail),
+        // A chained card follows the answer of the previous one.
+        onlyAlertOnce: prompt.key.chain != null,
+        actions: [
+          if (prompt.typedAnswer)
+            // Kept on screen, like "Again": the notification is replaced by
+            // the expected answer.
+            AndroidNotificationAction(
+              NotificationAction.answer.name,
+              _texts.strings.notificationAnswerButton,
+              cancelNotification: false,
+              inputs: [
+                AndroidNotificationActionInput(
+                  label: _texts.strings.notificationAnswerField,
+                ),
+              ],
+            )
+          else
+            AndroidNotificationAction(
+              NotificationAction.correct.name,
+              _texts.strings.reviewCorrect,
+              // A chained card is replaced by the next one.
+              cancelNotification: prompt.key.chain == null,
+            ),
+          // Kept on screen: the notification is replaced by the answer.
           AndroidNotificationAction(
-            NotificationAction.answer.name,
-            _texts.strings.notificationAnswerButton,
+            NotificationAction.again.name,
+            _texts.strings.reviewAgain,
             cancelNotification: false,
-            inputs: [
-              AndroidNotificationActionInput(
-                label: _texts.strings.notificationAnswerField,
-              ),
-            ],
-          )
-        else
-          AndroidNotificationAction(
-            NotificationAction.correct.name,
-            _texts.strings.reviewCorrect,
-            // A chained card is replaced by the next one.
-            cancelNotification: prompt.key.chain == null,
           ),
-        // Kept on screen: the notification is replaced by the answer.
-        AndroidNotificationAction(
-          NotificationAction.again.name,
-          _texts.strings.reviewAgain,
-          cancelNotification: false,
-        ),
-        if (prompt.key.chain != null)
-          AndroidNotificationAction(
-            NotificationAction.open.name,
-            _texts.strings.notificationOpen,
-            showsUserInterface: true,
-          ),
-      ],
-    ),
-  );
+          if (prompt.key.chain != null)
+            AndroidNotificationAction(
+              NotificationAction.open.name,
+              _texts.strings.notificationOpen,
+              showsUserInterface: true,
+            ),
+        ],
+      ),
+    );
+  }
 
   @override
   Future<void> showReveal(AnswerReveal reveal) {
     final answer = _texts.answerLine(reveal);
+    final verdict = _texts.verdict(reveal);
     return _plugin.show(
       id: _idOf(reveal.key),
-      title: reveal.prompt,
+      title: _texts.promptTitle(reveal.prompt),
       body: answer,
       payload: NotificationPayload.encode(reveal.key, isPrompt: false),
       notificationDetails: _details(
-        bigText: '$answer\n${_texts.verdict(reveal)}',
+        style:
+            _picture(reveal.answerImage, title: answer, summary: verdict) ??
+            BigTextStyleInformation('$answer\n$verdict'),
         onlyAlertOnce: true,
         actions: [
           AndroidNotificationAction(
@@ -194,9 +207,28 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   /// uses; "No group" is -1.
   static int _groupIdOf(GroupReminderKey key) => -1 - (key.groupId ?? 0);
 
+  /// The image named [image] in the expanded notification, with [title] and
+  /// [summary] in place of the title and text; `null` without an image, or
+  /// when its file is gone.
+  StyleInformation? _picture(
+    String? image, {
+    required String title,
+    required String summary,
+  }) {
+    final path = image == null ? null : _images.pathOf(image);
+    if (path == null || !File(path).existsSync()) {
+      return null;
+    }
+    return BigPictureStyleInformation(
+      FilePathAndroidBitmap(path),
+      contentTitle: title,
+      summaryText: summary,
+    );
+  }
+
   AndroidNotificationDetails _details({
     String? subText,
-    String? bigText,
+    StyleInformation? style,
     bool onlyAlertOnce = false,
     bool silent = false,
     required List<AndroidNotificationAction> actions,
@@ -208,7 +240,7 @@ class AndroidNotificationPresenter implements NotificationPresenter {
     priority: Priority.high,
     category: AndroidNotificationCategory.reminder,
     subText: subText,
-    styleInformation: bigText == null ? null : BigTextStyleInformation(bigText),
+    styleInformation: style,
     onlyAlertOnce: onlyAlertOnce,
     silent: silent,
     actions: actions,

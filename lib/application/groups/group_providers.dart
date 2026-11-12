@@ -49,6 +49,8 @@ final groupSummaryProvider = Provider.family<GroupSummary?, int?>(
 final groupServiceProvider = Provider(
   (ref) => GroupService(
     groups: ref.watch(groupRepositoryProvider),
+    cards: ref.watch(cardRepositoryProvider),
+    images: ref.watch(imageStoreProvider),
     clock: ref.watch(clockProvider),
     scheduleChangeListener: ref.watch(scheduleChangeListenerProvider),
   ),

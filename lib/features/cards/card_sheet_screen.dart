@@ -12,12 +12,14 @@ import '../../application/reminders/reminder_providers.dart';
 import '../../application/reviews/session_item.dart';
 import '../../data/repositories/card_with_directions.dart';
 import '../../domain/cards/card_direction.dart';
+import '../../domain/cards/card_face.dart';
 import '../../domain/cards/direction_sense.dart';
 import '../../domain/cards/direction_state.dart';
 import '../../domain/presets/preset.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../session/session_launcher.dart';
 import 'card_editor_screen.dart';
+import 'card_image.dart';
 import 'card_status_formatter.dart';
 import 'card_status_formatter_provider.dart';
 import 'direction_progress_panel.dart';
@@ -199,7 +201,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
     final remindAt = await showReviewSoonSheet(
       context,
       directionId: direction.id,
-      front: card.card.promptFor(direction.sense).text ?? '',
+      front: card.card.promptFor(direction.sense).text ?? strings.cardImageOnly,
       defaultTime: preset.dailySlot,
     );
     if (remindAt != null) {
@@ -292,16 +294,16 @@ class _FacesPanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _face(strings.cardFront, card.card.frontText ?? '', colors),
+            _face(strings.cardFront, card.card.front, colors),
             Divider(height: 1, color: colors.divider),
-            _face(strings.cardBack, card.card.backText ?? '', colors),
+            _face(strings.cardBack, card.card.back, colors),
           ],
         ),
       ),
     );
   }
 
-  Widget _face(String label, String text, AlambicColors colors) => Padding(
+  Widget _face(String label, CardFace face, AlambicColors colors) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,10 +318,16 @@ class _FacesPanel extends StatelessWidget {
             color: colors.textSecondary,
           ),
         ),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-        ),
+        if (face.hasText)
+          Text(
+            face.text!,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+          ),
+        if (face.imagePath case final image?)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: CardImage.stored(image, height: 140),
+          ),
       ],
     ),
   );

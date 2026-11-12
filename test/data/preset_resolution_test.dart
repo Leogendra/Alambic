@@ -36,7 +36,9 @@ void main() {
   Future<int> createCard({int? groupId, int? presetId}) => cards.insertCard(
     groupId: groupId,
     frontText: 'Mongolie',
+    frontImagePath: null,
     backText: 'Oulan-Bator',
+    backImagePath: null,
     presetId: presetId,
     createdAt: DateTime(2026, 11, 10),
   );

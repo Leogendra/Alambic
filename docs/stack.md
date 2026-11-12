@@ -14,6 +14,8 @@ Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so
 - `shared_preferences`: interface preferences.
 - `flutter_local_notifications`: notifications with action buttons handled in the background.
 - `android_alarm_manager_plus`: wakes the app up at a due moment, including after a phone restart.
+- `image_picker`: picks a card image from the phone gallery, scaled down on the way.
+- `path_provider`: locates the folder of the app, where the database and the image store live.
 - `intl` and `flutter_localizations`: translations generated from the ARB files of `lib/l10n/`.
 - DM Sans font (OFL), bundled as four static weights in `assets/fonts/`.
 

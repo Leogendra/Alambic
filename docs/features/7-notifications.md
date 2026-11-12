@@ -64,7 +64,11 @@ On resume, `PauseShift`, in the domain, moves the due date of every scheduled di
 
 When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per direction whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app, and is notified again the next day at its slot.
 
-The notification shows the asked face as its title, the [step](../lexicon.md#step) ("Cran 2 sur 6", "Nouvelle carte", or "Intervalle 11 j" for an adaptive preset, with "verso → recto" for the reverse direction) as its text, the group as its sub-text, and two buttons, "Correct" and "Again". An extra reminder shows the same card with a "no effect on the schedule" mention.
+The notification shows the asked face as its title ("Que montre cette image ?" for a face that is an image alone), the [step](../lexicon.md#step) ("Cran 2 sur 6", "Nouvelle carte", or "Intervalle 11 j" for an adaptive preset, with "verso → recto" for the reverse direction) as its text, the group as its sub-text, and two buttons, "Correct" and "Again". An extra reminder shows the same card with a "no effect on the schedule" mention.
+
+### Showing a card's image
+
+When the asked face has an image, the expanded notification shows it in the Android *BigPicture* style, with the face and its step above; the collapsed notification shows the text only. After "Again" or a typed answer, an answer face with an image shows it the same way, under the answer and the verdict ("Réponse en image" when it has no text). The presenter reads the file from the image store; a file gone shows the text alone.
 
 ### Answering from the notification
 
@@ -114,6 +118,7 @@ The notification permission of Android 13 is asked at launch until the onboardin
 
 - [x] A started card is notified at its preset slot, without the app being open.
 - [x] The notification shows the asked face, the step and the group, with "Correct" and "Again".
+- [x] A face with an image shows it in the expanded notification, text only when collapsed; so does an answer face with an image after "Again".
 - [x] "Correct" records the answer from the notification and closes it; "Again" records the failure and shows the answer, the new step and the next review, with "OK".
 - [x] A card reviewed in the app before its slot is not notified, and a notification already shown is withdrawn.
 - [x] A suspended card is never notified; a reminder more than an hour late is not shown.

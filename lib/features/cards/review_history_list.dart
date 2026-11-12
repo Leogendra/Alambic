@@ -6,14 +6,18 @@ import '../../app/formatting/interval_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/reviews/review_providers.dart';
+import '../../application/clock.dart';
 import '../../domain/presets/preset.dart';
+import '../../domain/presets/scheduling_engine_kind.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_record.dart';
+import '../../domain/scheduling/scheduling_calendar.dart';
 import '../../domain/scheduling/sequence_engine.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// Answers given to one direction, most recent first, with their effect:
-/// "→ 1 mois", "recule à 2 j", "acquise" or "sans effet" for a bonus.
+/// "→ 1 mois", "recule à 2 j", "→ 12 j" for FSRS, "acquise" or "sans effet"
+/// for a bonus.
 class ReviewHistoryList extends ConsumerWidget {
   const ReviewHistoryList({
     required this.directionId,
@@ -28,6 +32,7 @@ class ReviewHistoryList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
+    final calendar = ref.watch(schedulingCalendarProvider);
     final history =
         ref.watch(directionHistoryProvider(directionId)).value ?? const [];
     if (history.isEmpty) {
@@ -40,13 +45,16 @@ class ReviewHistoryList extends ConsumerWidget {
       );
     }
     return SurfacePanel(
-      children: [for (final record in history) _row(strings, colors, record)],
+      children: [
+        for (final record in history) _row(strings, colors, calendar, record),
+      ],
     );
   }
 
   Widget _row(
     AppLocalizations strings,
     AlambicColors colors,
+    SchedulingCalendar calendar,
     ReviewRecord record,
   ) {
     final isFailure = record.outcome == ReviewOutcome.again && !record.isBonus;
@@ -75,7 +83,7 @@ class ReviewHistoryList extends ConsumerWidget {
             ),
           ),
           Text(
-            _effect(strings, record),
+            _effect(strings, calendar, record),
             style: TextStyle(
               fontSize: 13,
               fontWeight: record.isBonus ? null : FontWeight.w600,
@@ -107,19 +115,32 @@ class ReviewHistoryList extends ConsumerWidget {
     ),
   );
 
-  /// The step reached is read against the current preset, which may differ
-  /// from the one in force at the time of the answer.
-  String _effect(AppLocalizations strings, ReviewRecord record) {
+  /// The step reached is read against the current sequence, which may differ
+  /// from the one in force at the time of the answer. Otherwise, as for an
+  /// FSRS answer, the effect is the interval to the due date it gave.
+  String _effect(
+    AppLocalizations strings,
+    SchedulingCalendar calendar,
+    ReviewRecord record,
+  ) {
     final stepAfter = SequenceEngine.clampToSequence(record.stepAfter, preset);
+    final dueAtAfter = record.dueAtAfter;
+    final String interval;
     if (record.isBonus) {
       return strings.answerNoEffect;
-    } else if (stepAfter == null) {
-      return strings.answerAcquired;
+    } else if (stepAfter != null &&
+        (preset.engine == SchedulingEngineKind.sequence ||
+            dueAtAfter == null)) {
+      interval = strings.intervalLabel(preset.intervals[stepAfter]);
+    } else if (dueAtAfter != null) {
+      interval = strings.intervalDays(
+        calendar.daysBetween(record.reviewedAt, dueAtAfter),
+      );
     } else {
-      final interval = strings.intervalLabel(preset.intervals[stepAfter]);
-      return record.outcome == ReviewOutcome.correct
-          ? strings.historyTo(interval)
-          : strings.historyBackTo(interval);
+      return strings.answerAcquired;
     }
+    return record.outcome == ReviewOutcome.correct
+        ? strings.historyTo(interval)
+        : strings.historyBackTo(interval);
   }
 }

@@ -98,6 +98,8 @@ class CardRepository {
           sense: sense,
           state: schedule.state,
           step: Value(schedule.step),
+          stability: Value(schedule.memory?.stability),
+          difficulty: Value(schedule.memory?.difficulty),
           dueAt: Value(schedule.dueAt),
         ),
       );
@@ -114,6 +116,8 @@ class CardRepository {
         CardDirectionsCompanion(
           state: Value(schedule.state),
           step: Value(schedule.step),
+          stability: Value(schedule.memory?.stability),
+          difficulty: Value(schedule.memory?.difficulty),
           dueAt: Value(schedule.dueAt),
           notifiedAt: const Value(null),
           lastReviewedAt: reviewedAt == null
@@ -141,6 +145,8 @@ class CardRepository {
         CardDirectionsCompanion(
           state: const Value(DirectionState.pending),
           step: const Value(null),
+          stability: const Value(null),
+          difficulty: const Value(null),
           dueAt: const Value(null),
           notifiedAt: const Value(null),
           distillationId: Value(distillationId),

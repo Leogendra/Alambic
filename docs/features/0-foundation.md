@@ -24,7 +24,7 @@ The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_set
 - deleting a group deletes its cards, and with them their directions and history, and its distillations;
 - deleting a distillation releases its directions: a pending one stays pending, outside any queue.
 
-The schema is versioned. Each version bump comes with an upgrade step in `AlambicDatabase.migration`, so that an installed app keeps its data; version 2 added the distillations, version 3 the notification safeguards, version 4 the pauses.
+The schema is versioned. Each version bump comes with an upgrade step in `AlambicDatabase.migration`, so that an installed app keeps its data; version 2 added the distillations, version 3 the notification safeguards, version 4 the pauses, version 5 the FSRS memory of the directions, the due date given by each answer and the Adaptive preset.
 
 The global preset lives in the database rather than in the preferences, because it is part of the review data: it must be readable from background tasks and travel with the export.
 

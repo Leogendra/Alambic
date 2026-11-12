@@ -1,3 +1,4 @@
+import '../scheduling/fsrs/fsrs_memory.dart';
 import 'direction_sense.dart';
 import 'direction_state.dart';
 
@@ -9,6 +10,8 @@ class CardDirection {
     required this.sense,
     required this.state,
     required this.step,
+    required this.stability,
+    required this.difficulty,
     required this.dueAt,
     required this.lastReviewedAt,
     required this.notifiedAt,
@@ -25,6 +28,11 @@ class CardDirection {
   /// `null` while the direction has never been answered.
   final int? step;
 
+  /// FSRS memory of a direction followed by the adaptive engine; `null`
+  /// otherwise, and while it has never been answered.
+  final double? stability;
+  final double? difficulty;
+
   /// `null` unless the direction is [DirectionState.active].
   final DateTime? dueAt;
   final DateTime? lastReviewedAt;
@@ -40,6 +48,14 @@ class CardDirection {
   /// reverse direction of the global distillation still waiting for its
   /// front to be introduced, and once introduced.
   final int? queuePosition;
+
+  FsrsMemory? get memory => switch ((stability, difficulty)) {
+    (final double stability, final double difficulty) => FsrsMemory(
+      stability: stability,
+      difficulty: difficulty,
+    ),
+    _ => null,
+  };
 
   bool get isScheduled => state == DirectionState.active && dueAt != null;
 

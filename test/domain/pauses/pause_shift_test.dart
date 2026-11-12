@@ -17,6 +17,8 @@ void main() {
         sense: DirectionSense.frontToBack,
         state: DirectionState.active,
         step: 2,
+        stability: null,
+        difficulty: null,
         dueAt: dueAt,
         lastReviewedAt: lastReviewedAt,
         notifiedAt: null,

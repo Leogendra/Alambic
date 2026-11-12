@@ -24,13 +24,6 @@ abstract final class SequenceEngine {
     };
   }
 
-  /// Interval waited by a direction at [step]: zero for a direction never
-  /// answered.
-  static Duration waitedInterval(int? step, Preset preset) {
-    final clamped = clampToSequence(step, preset);
-    return clamped == null ? Duration.zero : preset.intervals[clamped].length;
-  }
-
   /// A step kept from a longer sequence is brought back to the last step.
   static int? clampToSequence(int? step, Preset preset) {
     if (step == null) {

@@ -48,10 +48,10 @@ The screen announces the number of ready cards and lists the skipped lines befor
 
 Touching a card in a list opens its sheet. It shows both faces, then one direction at a time, chosen with a two-segment switch whose segments already summarise each direction ("step 1 of 6 · tomorrow"). For the shown direction, the sheet gives:
 
-- its [step](../lexicon.md#step) on a bar of the preset sequence, with the interval of each step, and its next review ("Next review Fri 13 Nov, 12:00", or "Due now");
+- its [step](../lexicon.md#step) on a bar of the preset sequence, with the interval of each step, or for an [adaptive](../lexicon.md#adaptive-engine) preset its current interval with its stability and difficulty ("Interval 11 d", "Stability 10.7 d · difficulty 5.3 of 10"); then its next review ("Next review Fri 13 Nov, 12:00", or "Due now");
 - or, when it is not scheduled, why: not studied, waiting in a distillation, or [unstarted](../lexicon.md#unstarted) (or left by a stopped distillation), with a "Start this direction" button;
 - its upcoming "Review soon" reminders, each removable;
-- its history, most recent first: date, answer, a "bonus" tag for a [bonus review](../lexicon.md#bonus-review), and the effect ("→ 1 mo", "back to 2 d", "acquired", "no effect"). The effect is read against the current preset, so it may differ from what the user saw if the preset changed since.
+- its history, most recent first: date, answer, a "bonus" tag for a [bonus review](../lexicon.md#bonus-review), and the effect ("→ 1 mo", "back to 2 d", "acquired", "no effect"); an FSRS answer gives the interval to the due date it chose ("→ 11 d"). The effect is read against the current preset, so it may differ from what the user saw if the preset changed since.
 
 Touching the faces opens a one-card session on the shown direction; when that direction is not due, the answer is a bonus review. The edit button opens the card editor, and the menu deletes the card after confirmation.
 

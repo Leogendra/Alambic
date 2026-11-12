@@ -6,10 +6,11 @@ import '../../domain/cards/direction_state.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
-import '../../domain/scheduling/sequence_engine.dart';
+import '../../domain/scheduling/direction_progress.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Texts describing where a card stands: "step 2 of 6", "Due", "in 3 d".
+/// Texts describing where a card stands: "step 2 of 6", "interval 12 d",
+/// "Due", "in 3 d".
 class CardStatusFormatter {
   const CardStatusFormatter({
     required this.strings,
@@ -45,7 +46,7 @@ class CardStatusFormatter {
           strings.cardStatusPendingStopped,
         DirectionState.pending => strings.cardStatusPending,
         DirectionState.acquired => strings.cardStatusAcquired,
-        DirectionState.active => _stepLabel(card, direction),
+        DirectionState.active => _progressLabel(card, direction),
       };
 
   /// When the card is next due, from its earliest direction; `null` when it is
@@ -76,13 +77,16 @@ class CardStatusFormatter {
         now: now,
       );
 
-  String _stepLabel(CardWithDirections card, CardDirection direction) {
-    final preset = catalog.presetForCard(card.card);
-    final step = SequenceEngine.clampToSequence(direction.step, preset);
-    if (step == null) {
-      return strings.cardStatusNew;
-    } else {
-      return strings.cardStatusStep(step + 1, preset.sequenceLength);
-    }
-  }
+  String _progressLabel(CardWithDirections card, CardDirection direction) =>
+      switch (DirectionProgress.of(
+        direction,
+        catalog.presetForCard(card.card),
+      )) {
+        NewProgress() => strings.cardStatusNew,
+        SequenceProgress(:final step, :final sequenceLength) =>
+          strings.cardStatusStep(step + 1, sequenceLength),
+        AdaptiveProgress(:final intervalDays) => strings.cardStatusInterval(
+          strings.intervalDays(intervalDays),
+        ),
+      };
 }

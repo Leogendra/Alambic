@@ -73,7 +73,7 @@ class TodayPlanner {
         if (deliverAt != null && _isToday(deliverAt, now)) {
           final distillationId = direction.distillationId;
           final isNewKnowledge =
-              direction.step == null &&
+              direction.lastReviewedAt == null &&
               distillationIds.contains(distillationId);
           final key = (
             card.card.groupId,

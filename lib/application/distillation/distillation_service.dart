@@ -16,10 +16,10 @@ import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../domain/distillation/distillation_status.dart';
 import '../../domain/presets/preset_catalog.dart';
+import '../../domain/scheduling/direction_progress.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/review_scheduler.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
-import '../../domain/scheduling/sequence_engine.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
 import 'distillation_refused.dart';
@@ -308,16 +308,17 @@ class DistillationService {
               ))
             BudgetedReminder(
               directionId: direction.id,
-              interval: SequenceEngine.waitedInterval(
-                direction.step,
+              interval: DirectionProgress.of(
+                direction,
                 catalog.presetForCard(card.card),
-              ),
+              ).waitedInterval,
               dueAt: direction.dueAt!,
             ),
     ];
   }
 
-  /// Moves the reminders over the budget to the next day, keeping their step.
+  /// Moves the reminders over the budget to the next day, keeping their
+  /// progression.
   Future<int> _postpone(
     List<int> directionIds,
     List<CardWithDirections> cards,
@@ -337,7 +338,7 @@ class DistillationService {
       await _cards.applySchedule(
         directionId,
         _scheduler.postponed(
-          step: direction.step,
+          direction: direction,
           preset: catalog.presetForCard(card.card),
           now: now,
           oppositeDueAt: opposite?.dueAt,

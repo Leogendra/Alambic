@@ -1,28 +1,36 @@
 # Feature 1 — Review scheduling
 
-Status: implemented (2026-11-11)
+Status: implemented (2026-11-12)
 
 ## Goal
 
-Decide, after each answer, when a [direction](../lexicon.md#direction) must come back. This is the heart of spaced repetition: a successful card comes back later and later, a failed card comes back sooner. This feature covers the sequence engine; the adaptive engine (FSRS) will be added alongside it.
+Decide, after each answer, when a [direction](../lexicon.md#direction) must come back. This is the heart of spaced repetition: a successful card comes back later and later, a failed card comes back sooner. Two engines decide the interval: a fixed sequence of intervals, or FSRS, which computes each interval from the answers.
 
 ## Implementation overview
 
 Scheduling lives entirely in the domain and works in three stages.
 
-1. The sequence engine (`SequenceEngine`) computes the new [step](../lexicon.md#step) from the current step, the answer and the [preset](../lexicon.md#preset). It returns the interval to wait, or reports that the direction is acquired.
+1. The engine of the [preset](../lexicon.md#preset) computes the interval to wait. The sequence engine (`SequenceEngine`) moves the [step](../lexicon.md#step) from the current step and the answer, and may report that the direction is acquired. The adaptive engine (`FsrsEngine`) updates the [memory](../lexicon.md#adaptive-engine) of the direction and derives the interval from it.
 2. The scheduler (`ReviewScheduler`) turns that interval into a [due date](../lexicon.md#due-date), depending on whether the interval counts in days or in minutes.
 3. It finally applies the two-directions rule: if the other direction of the card is due the same day, the one being scheduled moves to the next day.
 
 The [day](../lexicon.md#day) starts at 4am, through `SchedulingCalendar`. An answer given at 1am counts for the previous day, and every "same day" comparison goes through this calendar. Days are added as calendar days rather than 24-hour slices, so that a daylight saving change does not shift the slot by an hour.
 
-The engine never reads the time: the answer moment is given to it. It does not read the database either; the caller gives it the current step, the resolved preset and the due date of the other direction.
+The engines never read the time: the answer moment is given to them. They do not read the database either; the caller gives the scheduler the direction, the resolved preset and the due date of the other direction.
 
 ### The step
 
 The step is the index, in the preset sequence, of the interval currently waited. A direction never reviewed has no step: its first correct answer waits the first interval. In the Standard sequence (1 d, 2 d, 1 wk, 1 mo, 3 mo, 6 mo), a card answered correctly three times in a row therefore waits 1 week, at step 3 of 6.
 
 If the sequence was shortened, or the card moved to a shorter preset, the engine clamps the step to the last existing step before computing. The stored step is only corrected at the next answer.
+
+### The adaptive engine
+
+The adaptive engine is a port of FSRS-5 with its default parameters. It keeps two numbers per direction: the stability (days until the probability of recalling the card falls to 90 %) and the difficulty (1 to 10). "Correct" counts as *Good* and "Again" as *Again*. Each answer updates both numbers from the days elapsed since the previous answer: the longer the card held, the more its stability grows; a failure drops it.
+
+The next interval is the number of days until the probability of recalling falls to the preset's target retention (90 % by default, 70 % to 97 %): a higher retention brings the reviews closer. It always lasts a day or more, even after a failure, and lands on the preset slot like any day-based interval, with the two-directions rule. A new direction answered "Correct" comes back in 3 days, then about 11 days, 35 days, 3 months; answered "Again", the next day.
+
+A direction followed by FSRS has no step. Where a step is shown elsewhere, an adaptive direction shows its current interval instead ("interval 11 d"). `DirectionProgress` gives, for any direction and its preset, the step, the FSRS memory and interval, or "new": screens, notifications and the priority of the daily cap all read it.
 
 ### Starting a direction
 
@@ -63,6 +71,7 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 - [x] The day starts at 4am.
 - [x] The two directions of a card are never due the same day: the direction being scheduled moves to the next day.
 - [x] A step beyond a shortened sequence is clamped to the last step.
+- [x] With the adaptive engine, each answer updates the stability and the difficulty from the days elapsed since the previous answer; the interval is the time until the recall probability falls to the target retention, at least a day, at the preset slot.
 
 ## Test strategy
 
@@ -70,10 +79,12 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 - Dates are fixed in the tests (November 2026): no test reads the clock or waits.
 - The day boundaries (3:59am and 4am, end of month, slot before 4am) are tested explicitly on the calendar.
 - The reverse-direction shift is tested at start and after an answer.
+- The FSRS port is checked against values computed by hand from the FSRS-5 formulas (first answers, recall on time, failure, target retention), then end to end through the review service on a stored adaptive card.
 
 ## File mapping
 
-- `lib/domain/scheduling/` — 4am calendar, sequence engine, scheduler and "due" rule.
+- `lib/domain/scheduling/` — 4am calendar, sequence engine, scheduler, "due" rule and `DirectionProgress`.
+- `lib/domain/scheduling/fsrs/` — the FSRS port: memory, ratings and formulas.
 - `lib/domain/presets/preset_interval.dart` — an interval and its unit; a unit of a day or more counts in days.
 
 ## Technical details
@@ -83,6 +94,8 @@ Months count 30 days (`IntervalUnit.month`). A "1 month" always has the same len
 A preset slot earlier than 4am (for example 2am) belongs to the end of the scheduling day: `momentAt` places it on the next calendar date. Without this, a due date "day D at 2am" would fall on the previous evening in the user's calendar.
 
 The two-directions rule only looks at the current due date of the other direction. It only applies to day-based intervals: a 10-minute interval is never pushed to the next day.
+
+FSRS keeps its stability and difficulty in `card_directions` (`stability`, `difficulty`), empty for a sequence direction. The elapsed days count scheduling days between the previous answer and this one; a bonus review does not count as an answer. Intervals are not fuzzed: two cards answered the same way the same day come back together, which the notification safeguards then spread. The parameters are the published defaults: they are not fitted to the user's history.
 
 ## Constraints
 

@@ -65,7 +65,7 @@ class AlambicDatabase extends _$AlambicDatabase {
   );
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -97,6 +97,13 @@ class AlambicDatabase extends _$AlambicDatabase {
         await migrator.addColumn(cardGroups, cardGroups.pausedAt);
         await migrator.addColumn(appSettings, appSettings.pausedAt);
       }
+      if (from < 5) {
+        await migrator.addColumn(cardDirections, cardDirections.stability);
+        await migrator.addColumn(cardDirections, cardDirections.difficulty);
+        await migrator.addColumn(reviewRecords, reviewRecords.dueAtAfter);
+        await into(presets)
+            .insert(PresetCompanions.forInsert(BuiltInPresets.adaptive));
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -106,7 +113,7 @@ class AlambicDatabase extends _$AlambicDatabase {
   /// Creates the shipped presets and makes Standard the global preset.
   Future<void> _seedBuiltInPresets() async {
     int? standardId;
-    for (final preset in BuiltInPresets.shippedInFirstRelease) {
+    for (final preset in BuiltInPresets.all) {
       final id = await into(presets).insert(PresetCompanions.forInsert(preset));
       if (preset.builtInKey == BuiltInPresetKey.standard) {
         standardId = id;

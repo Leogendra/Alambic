@@ -1,8 +1,8 @@
 import '../presets/notification_mode.dart';
 import '../presets/schedule_kind.dart';
 import '../scheduling/clock_time.dart';
+import '../scheduling/direction_progress.dart';
 import '../scheduling/scheduling_calendar.dart';
-import '../scheduling/sequence_engine.dart';
 import 'delivery_candidate.dart';
 import 'notification_guards.dart';
 import 'notification_timing.dart';
@@ -153,12 +153,10 @@ class DeliveryPlanner {
     DeliveryCandidate second,
     Map<int, DateTime> moments,
   ) {
-    final byInterval =
-        SequenceEngine.waitedInterval(
-          first.direction.step,
-          first.preset,
-        ).compareTo(
-          SequenceEngine.waitedInterval(second.direction.step, second.preset),
+    final byInterval = DirectionProgress.of(first.direction, first.preset)
+        .waitedInterval
+        .compareTo(
+          DirectionProgress.of(second.direction, second.preset).waitedInterval,
         );
     if (byInterval != 0) {
       return byInterval;

@@ -43,7 +43,13 @@ class Preset {
   final ClockTime rangeEnd;
   final NotificationMode notificationMode;
   final GroupedReminderAction groupedAction;
+
+  /// Probability of recalling a card on its due date aimed at by the adaptive
+  /// engine, between [minRetention] and [maxRetention].
   final double targetRetention;
+
+  static const double minRetention = 0.7;
+  static const double maxRetention = 0.97;
 
   /// Time at which day-based reviews of this preset become due.
   ///

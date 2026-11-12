@@ -10,10 +10,13 @@ A [preset](../lexicon.md#preset) gathers all the repetition rules of a card: int
 
 ### Shipped presets
 
-The database is created with two presets, both at a fixed 12:00 time, one notification per card, stepping back one step on failure and repeating the last interval at the end of the sequence:
+The database is created with three presets, all at a fixed 12:00 time:
 
 - **Standard**: 1 d, 2 d, 1 wk, 1 mo, 3 mo, 6 mo. It is the initial global preset.
 - **Intensive** (*Intensif*): 10 min, 1 h, 1 d, 3 d, 1 wk.
+- **Adaptive** (*Adaptatif*): the adaptive engine ([Feature 1](1-scheduling.md#the-adaptive-engine)) at a 90 % target retention, one grouped reminder per group opening the app.
+
+Standard and Intensive send one notification per card, step back one step on failure and repeat the last interval at the end of the sequence. Adaptive keeps the Standard sequence, unused while its engine is adaptive.
 
 Each shipped preset carries a key (`builtInKey`) that recognises it even after a rename, so that its name can be translated.
 
@@ -27,11 +30,11 @@ This rule has a single implementation, `PresetResolver`. Screens and services go
 
 The preset list opens from Settings, which also lets the user choose the global preset. Each preset shows its sequence, its schedule and its notification mode; the global preset carries a badge.
 
-The editor works on a draft and writes nothing before "Save". It sets the sequence (adding a step as a duration and a unit, removing a step as long as another one remains), the failure behaviour, the end of sequence, the typed answer, the schedule (fixed time or time range) and the notification mode (one per card, or a grouped reminder that opens the app or chains the cards). These last three settings are stored already; the notifications that use them are described in their own feature.
+The editor works on a draft and writes nothing before "Save". It first sets the engine: fixed sequence or adaptive. A sequence preset then sets the sequence (adding a step as a duration and a unit, removing a step as long as another one remains), the failure behaviour and the end of sequence; an adaptive preset sets instead its target retention, from 70 % to 97 % by steps of 1 %. Both then set the typed answer, the schedule (fixed time or time range) and the notification mode (one per card, or a grouped reminder that opens the app or chains the cards). These last three settings are stored already; the notifications that use them are described in their own feature.
 
 "New" opens a draft with the Standard values. "Duplicate" immediately stores a copy named "<name> (copy)" and opens its editor. A copy is never a shipped preset, even when it copies Standard. Shipped presets remain editable.
 
-The adaptive engine is not offered in the editor yet: every created preset is a sequence.
+In the list, an adaptive preset shows "Intervals computed from your answers. Target retention 90 %." instead of its sequence.
 
 ### Preset change
 
@@ -45,6 +48,8 @@ Changing the preset of a card, of a group or the global preset rewrites no card:
 - [x] Changing preset (same engine) keeps the step and the due date; a step that is too high is clamped to the last step.
 - [x] A preset is created from the Standard values, any preset can be edited, a preset can be duplicated under a new name.
 - [x] A preset without a name or without a step cannot be saved.
+- [x] A fresh database contains Adaptive, an adaptive preset at a 90 % target retention.
+- [x] The editor switches a preset between a sequence and the adaptive engine; an adaptive preset sets its target retention from 70 % to 97 %.
 - [x] The global preset is chosen in Settings.
 
 ## Test strategy

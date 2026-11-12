@@ -21,6 +21,8 @@ import '../../domain/distillation/distillation_order.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'distillation_labels.dart';
+import 'distillation_tile.dart';
+import 'distillation_warning.dart';
 
 /// "Distill": settings of a new distillation of a group, with an estimate of
 /// its last arrival.
@@ -61,6 +63,7 @@ class _DistillationLaunchScreenState
           (sense) => !taken.contains(sense),
           orElse: () => DirectionSense.frontToBack,
         );
+    final global = ref.watch(globalDistillationProvider);
     final remaining = taken.contains(sense)
         ? 0
         : DistillationService.queueableInGroup(cards, sense);
@@ -97,51 +100,57 @@ class _DistillationLaunchScreenState
               ),
             ),
           const SizedBox(height: 16),
-          SectionLabel(strings.distillSense),
-          SegmentedChoice<DirectionSense>(
-            options: [
-              for (final option in DirectionSense.values)
-                SegmentOption(
-                  option,
-                  strings.directionName(option),
-                  enabled: !taken.contains(option),
-                ),
-            ],
-            selected: sense,
-            onSelected: (value) => setState(() => _chosenSense = value),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
-            child: Text(
-              taken.contains(sense)
-                  ? strings.distillSenseTaken
-                  : strings.distillSenseCount(remaining),
-              style: TextStyle(fontSize: 13, color: colors.textSecondary),
+          if (global != null) ...[
+            DistillationWarning(strings.distillBlockedByGlobal),
+            const SizedBox(height: 16),
+            DistillationTile(progress: global),
+          ] else ...[
+            SectionLabel(strings.distillSense),
+            SegmentedChoice<DirectionSense>(
+              options: [
+                for (final option in DirectionSense.values)
+                  SegmentOption(
+                    option,
+                    strings.directionName(option),
+                    enabled: !taken.contains(option),
+                  ),
+              ],
+              selected: sense,
+              onSelected: (value) => setState(() => _chosenSense = value),
             ),
-          ),
-          const SizedBox(height: 16),
-          ..._rhythmSection(strings),
-          const SizedBox(height: 16),
-          SectionLabel(strings.distillOrder),
-          SegmentedChoice<DistillationOrder>(
-            options: [
-              SegmentOption(
-                DistillationOrder.groupOrder,
-                strings.distillOrderGroup,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
+              child: Text(
+                taken.contains(sense)
+                    ? strings.distillSenseTaken
+                    : strings.distillSenseCount(remaining),
+                style: TextStyle(fontSize: 13, color: colors.textSecondary),
               ),
-              SegmentOption(
-                DistillationOrder.random,
-                strings.distillOrderRandom,
-              ),
-            ],
-            selected: _settings.order,
-            onSelected: (value) =>
-                _update((settings) => settings.copyWith(order: value)),
-          ),
-          const SizedBox(height: 16),
-          _collisionsPanel(strings),
-          const SizedBox(height: 24),
-          _footer(strings, colors, remaining, onLaunch: () => _launch(sense)),
+            ),
+            const SizedBox(height: 16),
+            ..._rhythmSection(strings),
+            const SizedBox(height: 16),
+            SectionLabel(strings.distillOrder),
+            SegmentedChoice<DistillationOrder>(
+              options: [
+                SegmentOption(
+                  DistillationOrder.groupOrder,
+                  strings.distillOrderGroup,
+                ),
+                SegmentOption(
+                  DistillationOrder.random,
+                  strings.distillOrderRandom,
+                ),
+              ],
+              selected: _settings.order,
+              onSelected: (value) =>
+                  _update((settings) => settings.copyWith(order: value)),
+            ),
+            const SizedBox(height: 16),
+            _collisionsPanel(strings),
+            const SizedBox(height: 24),
+            _footer(strings, colors, remaining, onLaunch: () => _launch(sense)),
+          ],
         ],
       ),
     );

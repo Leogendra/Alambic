@@ -20,6 +20,7 @@ class GroupDistillationsSection extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final colors = RemanenceColors.of(context);
     final distillations = ref.watch(groupDistillationsProvider(groupId));
+    final globalInProgress = ref.watch(globalDistillationProvider) != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
@@ -48,7 +49,9 @@ class GroupDistillationsSection extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18),
             child: Text(
-              strings.groupDistillationNone,
+              globalInProgress
+                  ? strings.groupDistillationGlobal
+                  : strings.groupDistillationNone,
               style: TextStyle(fontSize: 14, color: colors.textSecondary),
             ),
           )

@@ -150,10 +150,14 @@ class DistillationService {
       )
       .length;
 
-  /// Directions of [cards] the global distillation would take.
+  /// Directions of [cards] the global distillation would take: the ones
+  /// never started, including those queued by the distillations it stops.
   static int queueableGlobally(Iterable<CardWithDirections> cards) => cards
       .expand((card) => card.directions)
-      .where((direction) => direction.isStartable)
+      .where(
+        (direction) =>
+            direction.isStartable || direction.state == DirectionState.pending,
+      )
       .length;
 
   /// Puts the directions of a new or edited card in the queue of the

@@ -18,6 +18,8 @@ CardDirection direction({
   dueAt: dueAt,
   lastReviewedAt: lastReviewedAt,
   notifiedAt: null,
+  distillationId: null,
+  queuePosition: null,
 );
 
 void main() {

@@ -14,7 +14,11 @@ One of the two ways to review a card (`CardDirection`; *sens*): front → back (
 
 ### Unstarted
 
-State of a studied direction that has not entered review yet (`DirectionState.unstarted`; *pas commencée*). Every new card starts there; it has no due date until the user starts it, all at once or through a distillation.
+State of a studied direction that has not entered review yet (`DirectionState.unstarted`; *pas commencée*). Every new card starts there; it has no due date until the user starts it, all at once or through a [distillation](#distillation). A pending direction left by a stopped distillation can be started the same way (`CardDirection.isStartable`).
+
+### Distillation
+
+A process that introduces never reviewed [directions](#direction) a few at a time, "N cards every X days" (`Distillation`). A group distillation covers one direction of one group; the global distillation covers both directions of every card. Its queue is made of the directions it holds in the pending state, in their queue order. A stopped or finished distillation is deleted, which leaves its remaining directions pending outside any queue, [startable](#unstarted) by hand.
 
 ### Group
 

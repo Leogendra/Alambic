@@ -18,6 +18,8 @@ void main() {
     dueAt: dueAt ?? DateTime(2026, 11, 10, 12),
     lastReviewedAt: null,
     notifiedAt: notifiedAt,
+    distillationId: null,
+    queuePosition: null,
   );
 
   bool shouldNotify(CardDirection direction, DateTime now) =>
@@ -61,6 +63,8 @@ void main() {
         dueAt: null,
         lastReviewedAt: null,
         notifiedAt: null,
+        distillationId: null,
+        queuePosition: null,
       );
       expect(shouldNotify(unstarted, DateTime(2026, 11, 10, 12)), false);
     });

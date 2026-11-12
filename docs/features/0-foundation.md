@@ -18,10 +18,13 @@ The DM Sans font is bundled as static weights (400, 500, 600, 700) rather than a
 
 All data lives in a local SQLite database managed by drift, `RemanenceDatabase`. Tables use the domain classes directly as rows (`@UseRowClass`): a `Preset` or a `CardDirection` read from the database is the very object the business rules manipulate, with no conversion layer. Enums are stored by name, a preset sequence as JSON and times of day as minutes since midnight.
 
-The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset), `card_groups`, `flashcards`, `card_directions` (one direction per card and orientation), `review_records` (the history) and `extra_reminders` (the "Review soon" reminders). Foreign keys are enabled at each opening, which gives two deletion rules:
+The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset), `card_groups`, `distillations` (the distillations in progress), `flashcards`, `card_directions` (one direction per card and orientation, with the distillation that queued it and its rank in the queue), `review_records` (the history) and `extra_reminders` (the "Review soon" reminders). Foreign keys are enabled at each opening, which gives these deletion rules:
 
 - deleting a card deletes its directions, their history and their reminders;
-- deleting a group deletes its cards, and with them their directions and history.
+- deleting a group deletes its cards, and with them their directions and history, and its distillations;
+- deleting a distillation releases its directions: a pending one stays pending, outside any queue.
+
+The schema is versioned. Each version bump comes with an upgrade step in `RemanenceDatabase.migration`, so that an installed app keeps its data; version 2 added the distillations.
 
 The global preset lives in the database rather than in the preferences, because it is part of the review data: it must be readable from background tasks and travel with the export.
 
@@ -35,11 +38,13 @@ When the database is created, the Standard and Intensive presets are inserted an
 - [x] The main navigation shows four tabs and a "+" button.
 - [x] A fresh database contains the Standard and Intensive presets, Standard being the global preset.
 - [x] Deleting a group deletes its cards; deleting a card deletes its directions and their history.
+- [x] A database created by an earlier version is upgraded on opening, its data kept.
 
 ## Test strategy
 
 - The shell is covered by golden tests, in light and dark theme, at the size of the mockup screens (390 × 844).
 - The schema is tested on a real, not mocked, in-memory SQLite database: initial content and cascading deletion rules.
+- Each upgrade is tested from a fixture holding the SQL of the previous version with a little data (`test/data/fixtures/`): the database opened over it must keep that data.
 - Golden tests load the real fonts (DM Sans and the Material icons); otherwise text would render as blocks and the images would not show the typography.
 
 ## File mapping

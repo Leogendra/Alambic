@@ -5,6 +5,9 @@ import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/direction_sense.dart';
 import '../../domain/cards/direction_state.dart';
 import '../../domain/cards/flashcard.dart';
+import '../../domain/distillation/distillation.dart';
+import '../../domain/distillation/distillation_order.dart';
+import '../../domain/distillation/distillation_status.dart';
 import '../../domain/groups/card_group.dart';
 import '../../domain/presets/built_in_preset_key.dart';
 import '../../domain/presets/built_in_presets.dart';
@@ -27,6 +30,7 @@ import 'preset_companions.dart';
 import 'tables/app_settings.dart';
 import 'tables/card_directions.dart';
 import 'tables/card_groups.dart';
+import 'tables/distillations.dart';
 import 'tables/extra_reminders.dart';
 import 'tables/flashcards.dart';
 import 'tables/presets.dart';
@@ -40,6 +44,7 @@ part 'remanence_database.g.dart';
     Presets,
     AppSettings,
     CardGroups,
+    Distillations,
     Flashcards,
     CardDirections,
     ReviewRecords,
@@ -60,13 +65,20 @@ class RemanenceDatabase extends _$RemanenceDatabase {
   );
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (migrator) async {
       await migrator.createAll();
       await _seedBuiltInPresets();
+    },
+    onUpgrade: (migrator, from, to) async {
+      if (from < 2) {
+        await migrator.createTable(distillations);
+        await migrator.addColumn(cardDirections, cardDirections.distillationId);
+        await migrator.addColumn(cardDirections, cardDirections.queuePosition);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

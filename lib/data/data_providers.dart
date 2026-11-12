@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'database/remanence_database.dart';
 import 'repositories/card_repository.dart';
+import 'repositories/distillation_repository.dart';
 import 'repositories/group_repository.dart';
 import 'repositories/preset_repository.dart';
 import 'repositories/reminder_repository.dart';
@@ -26,4 +27,8 @@ final cardRepositoryProvider = Provider(
 
 final reminderRepositoryProvider = Provider(
   (ref) => ReminderRepository(ref.watch(databaseProvider)),
+);
+
+final distillationRepositoryProvider = Provider(
+  (ref) => DistillationRepository(ref.watch(databaseProvider)),
 );

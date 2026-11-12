@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../../domain/cards/card_direction.dart';
 import '../../../domain/cards/direction_sense.dart';
 import '../../../domain/cards/direction_state.dart';
+import 'distillations.dart';
 import 'flashcards.dart';
 
 @UseRowClass(CardDirection)
@@ -17,6 +18,15 @@ class CardDirections extends Table {
   DateTimeColumn get dueAt => dateTime().nullable()();
   DateTimeColumn get lastReviewedAt => dateTime().nullable()();
   DateTimeColumn get notifiedAt => dateTime().nullable()();
+
+  /// Distillation that queued or introduced the direction. A stopped or
+  /// finished distillation is deleted, releasing its directions.
+  IntColumn get distillationId => integer().nullable().references(
+    Distillations,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  IntColumn get queuePosition => integer().nullable()();
 
   @override
   List<Set<Column>> get uniqueKeys => [

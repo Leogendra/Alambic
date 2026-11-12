@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/direction_sense.dart';
+import '../../domain/cards/direction_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/scheduling/direction_schedule.dart';
 import '../database/remanence_database.dart';
@@ -121,8 +122,60 @@ class CardRepository {
         ),
       );
 
-  Future<void> deactivateDirection(int directionId) =>
-      applySchedule(directionId, DirectionSchedule.inactive);
+  /// Stops studying a direction; it leaves any distillation.
+  Future<void> deactivateDirection(int directionId) async {
+    await applySchedule(directionId, DirectionSchedule.inactive);
+    await releaseFromDistillation(directionId);
+  }
+
+  /// Puts a direction in the queue of a distillation, at [position] (`null`
+  /// to hold it until it gets one).
+  Future<void> enqueue(
+    int directionId, {
+    required int distillationId,
+    required int? position,
+  }) =>
+      (_database.update(
+        _database.cardDirections,
+      )..where((direction) => direction.id.equals(directionId))).write(
+        CardDirectionsCompanion(
+          state: const Value(DirectionState.pending),
+          step: const Value(null),
+          dueAt: const Value(null),
+          notifiedAt: const Value(null),
+          distillationId: Value(distillationId),
+          queuePosition: Value(position),
+        ),
+      );
+
+  Future<void> setQueuePosition(int directionId, int? position) =>
+      (_database.update(_database.cardDirections)
+            ..where((direction) => direction.id.equals(directionId)))
+          .write(CardDirectionsCompanion(queuePosition: Value(position)));
+
+  /// Takes a direction out of its distillation; a pending one stays pending,
+  /// waiting to be started by hand or by another distillation.
+  Future<void> releaseFromDistillation(int directionId) =>
+      (_database.update(
+        _database.cardDirections,
+      )..where((direction) => direction.id.equals(directionId))).write(
+        const CardDirectionsCompanion(
+          distillationId: Value(null),
+          queuePosition: Value(null),
+        ),
+      );
+
+  /// Directions queued or introduced by a distillation.
+  Future<List<CardDirection>> getDistilled(int distillationId) =>
+      (_database.select(_database.cardDirections)..where(
+            (direction) => direction.distillationId.equals(distillationId),
+          ))
+          .get();
+
+  /// Directions queued or introduced by any distillation.
+  Stream<List<CardDirection>> watchAllDistilled() => (_database.select(
+    _database.cardDirections,
+  )..where((direction) => direction.distillationId.isNotNull())).watch();
 
   Future<void> markNotified(int directionId, DateTime notifiedAt) =>
       (_database.update(_database.cardDirections)

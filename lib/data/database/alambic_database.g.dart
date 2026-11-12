@@ -711,6 +711,17 @@ class $AppSettingsTable extends AppSettings
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _pausedAtMeta = const VerificationMeta(
+    'pausedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> pausedAt = GeneratedColumn<DateTime>(
+    'paused_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -723,6 +734,7 @@ class $AppSettingsTable extends AppSettings
     autoGroupThreshold,
     notifiedDay,
     notifiedCount,
+    pausedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -804,6 +816,12 @@ class $AppSettingsTable extends AppSettings
         ),
       );
     }
+    if (data.containsKey('paused_at')) {
+      context.handle(
+        _pausedAtMeta,
+        pausedAt.isAcceptableOrUnknown(data['paused_at']!, _pausedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -857,6 +875,10 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.int,
         data['${effectivePrefix}notified_count'],
       )!,
+      pausedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}paused_at'],
+      ),
     );
   }
 
@@ -887,6 +909,9 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   /// Cards notified on [notifiedDay], counted against the daily cap.
   final DateTime? notifiedDay;
   final int notifiedCount;
+
+  /// Start of the global pause, `null` when it is off.
+  final DateTime? pausedAt;
   const AppSettingsRow({
     required this.id,
     required this.globalPresetId,
@@ -898,6 +923,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     required this.autoGroupThreshold,
     this.notifiedDay,
     required this.notifiedCount,
+    this.pausedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -922,6 +948,9 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       map['notified_day'] = Variable<DateTime>(notifiedDay);
     }
     map['notified_count'] = Variable<int>(notifiedCount);
+    if (!nullToAbsent || pausedAt != null) {
+      map['paused_at'] = Variable<DateTime>(pausedAt);
+    }
     return map;
   }
 
@@ -939,6 +968,9 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
           ? const Value.absent()
           : Value(notifiedDay),
       notifiedCount: Value(notifiedCount),
+      pausedAt: pausedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pausedAt),
     );
   }
 
@@ -960,6 +992,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       autoGroupThreshold: serializer.fromJson<int>(json['autoGroupThreshold']),
       notifiedDay: serializer.fromJson<DateTime?>(json['notifiedDay']),
       notifiedCount: serializer.fromJson<int>(json['notifiedCount']),
+      pausedAt: serializer.fromJson<DateTime?>(json['pausedAt']),
     );
   }
   @override
@@ -976,6 +1009,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       'autoGroupThreshold': serializer.toJson<int>(autoGroupThreshold),
       'notifiedDay': serializer.toJson<DateTime?>(notifiedDay),
       'notifiedCount': serializer.toJson<int>(notifiedCount),
+      'pausedAt': serializer.toJson<DateTime?>(pausedAt),
     };
   }
 
@@ -990,6 +1024,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     int? autoGroupThreshold,
     Value<DateTime?> notifiedDay = const Value.absent(),
     int? notifiedCount,
+    Value<DateTime?> pausedAt = const Value.absent(),
   }) => AppSettingsRow(
     id: id ?? this.id,
     globalPresetId: globalPresetId ?? this.globalPresetId,
@@ -1001,6 +1036,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     autoGroupThreshold: autoGroupThreshold ?? this.autoGroupThreshold,
     notifiedDay: notifiedDay.present ? notifiedDay.value : this.notifiedDay,
     notifiedCount: notifiedCount ?? this.notifiedCount,
+    pausedAt: pausedAt.present ? pausedAt.value : this.pausedAt,
   );
   AppSettingsRow copyWithCompanion(AppSettingsCompanion data) {
     return AppSettingsRow(
@@ -1030,6 +1066,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       notifiedCount: data.notifiedCount.present
           ? data.notifiedCount.value
           : this.notifiedCount,
+      pausedAt: data.pausedAt.present ? data.pausedAt.value : this.pausedAt,
     );
   }
 
@@ -1045,7 +1082,8 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
           ..write('autoGroupEnabled: $autoGroupEnabled, ')
           ..write('autoGroupThreshold: $autoGroupThreshold, ')
           ..write('notifiedDay: $notifiedDay, ')
-          ..write('notifiedCount: $notifiedCount')
+          ..write('notifiedCount: $notifiedCount, ')
+          ..write('pausedAt: $pausedAt')
           ..write(')'))
         .toString();
   }
@@ -1062,6 +1100,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     autoGroupThreshold,
     notifiedDay,
     notifiedCount,
+    pausedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -1076,7 +1115,8 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
           other.autoGroupEnabled == this.autoGroupEnabled &&
           other.autoGroupThreshold == this.autoGroupThreshold &&
           other.notifiedDay == this.notifiedDay &&
-          other.notifiedCount == this.notifiedCount);
+          other.notifiedCount == this.notifiedCount &&
+          other.pausedAt == this.pausedAt);
 }
 
 class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
@@ -1090,6 +1130,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
   final Value<int> autoGroupThreshold;
   final Value<DateTime?> notifiedDay;
   final Value<int> notifiedCount;
+  final Value<DateTime?> pausedAt;
   const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.globalPresetId = const Value.absent(),
@@ -1101,6 +1142,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     this.autoGroupThreshold = const Value.absent(),
     this.notifiedDay = const Value.absent(),
     this.notifiedCount = const Value.absent(),
+    this.pausedAt = const Value.absent(),
   });
   AppSettingsCompanion.insert({
     this.id = const Value.absent(),
@@ -1113,6 +1155,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     this.autoGroupThreshold = const Value.absent(),
     this.notifiedDay = const Value.absent(),
     this.notifiedCount = const Value.absent(),
+    this.pausedAt = const Value.absent(),
   }) : globalPresetId = Value(globalPresetId);
   static Insertable<AppSettingsRow> custom({
     Expression<int>? id,
@@ -1125,6 +1168,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     Expression<int>? autoGroupThreshold,
     Expression<DateTime>? notifiedDay,
     Expression<int>? notifiedCount,
+    Expression<DateTime>? pausedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1139,6 +1183,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
         'auto_group_threshold': autoGroupThreshold,
       if (notifiedDay != null) 'notified_day': notifiedDay,
       if (notifiedCount != null) 'notified_count': notifiedCount,
+      if (pausedAt != null) 'paused_at': pausedAt,
     });
   }
 
@@ -1153,6 +1198,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     Value<int>? autoGroupThreshold,
     Value<DateTime?>? notifiedDay,
     Value<int>? notifiedCount,
+    Value<DateTime?>? pausedAt,
   }) {
     return AppSettingsCompanion(
       id: id ?? this.id,
@@ -1165,6 +1211,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
       autoGroupThreshold: autoGroupThreshold ?? this.autoGroupThreshold,
       notifiedDay: notifiedDay ?? this.notifiedDay,
       notifiedCount: notifiedCount ?? this.notifiedCount,
+      pausedAt: pausedAt ?? this.pausedAt,
     );
   }
 
@@ -1205,6 +1252,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     if (notifiedCount.present) {
       map['notified_count'] = Variable<int>(notifiedCount.value);
     }
+    if (pausedAt.present) {
+      map['paused_at'] = Variable<DateTime>(pausedAt.value);
+    }
     return map;
   }
 
@@ -1220,7 +1270,8 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
           ..write('autoGroupEnabled: $autoGroupEnabled, ')
           ..write('autoGroupThreshold: $autoGroupThreshold, ')
           ..write('notifiedDay: $notifiedDay, ')
-          ..write('notifiedCount: $notifiedCount')
+          ..write('notifiedCount: $notifiedCount, ')
+          ..write('pausedAt: $pausedAt')
           ..write(')'))
         .toString();
   }
@@ -1279,8 +1330,25 @@ class $CardGroupsTable extends CardGroups
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _pausedAtMeta = const VerificationMeta(
+    'pausedAt',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, name, presetId, createdAt];
+  late final GeneratedColumn<DateTime> pausedAt = GeneratedColumn<DateTime>(
+    'paused_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    presetId,
+    createdAt,
+    pausedAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1318,6 +1386,12 @@ class $CardGroupsTable extends CardGroups
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('paused_at')) {
+      context.handle(
+        _pausedAtMeta,
+        pausedAt.isAcceptableOrUnknown(data['paused_at']!, _pausedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -1343,6 +1417,10 @@ class $CardGroupsTable extends CardGroups
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      pausedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}paused_at'],
+      ),
     );
   }
 
@@ -1357,17 +1435,20 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
   final Value<String> name;
   final Value<int?> presetId;
   final Value<DateTime> createdAt;
+  final Value<DateTime?> pausedAt;
   const CardGroupsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.presetId = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.pausedAt = const Value.absent(),
   });
   CardGroupsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     this.presetId = const Value.absent(),
     required DateTime createdAt,
+    this.pausedAt = const Value.absent(),
   }) : name = Value(name),
        createdAt = Value(createdAt);
   static Insertable<CardGroup> custom({
@@ -1375,12 +1456,14 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Expression<String>? name,
     Expression<int>? presetId,
     Expression<DateTime>? createdAt,
+    Expression<DateTime>? pausedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (presetId != null) 'preset_id': presetId,
       if (createdAt != null) 'created_at': createdAt,
+      if (pausedAt != null) 'paused_at': pausedAt,
     });
   }
 
@@ -1389,12 +1472,14 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Value<String>? name,
     Value<int?>? presetId,
     Value<DateTime>? createdAt,
+    Value<DateTime?>? pausedAt,
   }) {
     return CardGroupsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       presetId: presetId ?? this.presetId,
       createdAt: createdAt ?? this.createdAt,
+      pausedAt: pausedAt ?? this.pausedAt,
     );
   }
 
@@ -1413,6 +1498,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (pausedAt.present) {
+      map['paused_at'] = Variable<DateTime>(pausedAt.value);
+    }
     return map;
   }
 
@@ -1422,7 +1510,8 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('presetId: $presetId, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('pausedAt: $pausedAt')
           ..write(')'))
         .toString();
   }
@@ -4120,6 +4209,7 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
       Value<int> autoGroupThreshold,
       Value<DateTime?> notifiedDay,
       Value<int> notifiedCount,
+      Value<DateTime?> pausedAt,
     });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
     AppSettingsCompanion Function({
@@ -4133,6 +4223,7 @@ typedef $$AppSettingsTableUpdateCompanionBuilder =
       Value<int> autoGroupThreshold,
       Value<DateTime?> notifiedDay,
       Value<int> notifiedCount,
+      Value<DateTime?> pausedAt,
     });
 
 final class $$AppSettingsTableReferences
@@ -4214,6 +4305,11 @@ class $$AppSettingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<DateTime> get pausedAt => $composableBuilder(
+    column: $table.pausedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$PresetsTableFilterComposer get globalPresetId {
     final $$PresetsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -4292,6 +4388,11 @@ class $$AppSettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get pausedAt => $composableBuilder(
+    column: $table.pausedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$PresetsTableOrderingComposer get globalPresetId {
     final $$PresetsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4367,6 +4468,9 @@ class $$AppSettingsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<DateTime> get pausedAt =>
+      $composableBuilder(column: $table.pausedAt, builder: (column) => column);
+
   $$PresetsTableAnnotationComposer get globalPresetId {
     final $$PresetsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -4429,6 +4533,7 @@ class $$AppSettingsTableTableManager
                 Value<int> autoGroupThreshold = const Value.absent(),
                 Value<DateTime?> notifiedDay = const Value.absent(),
                 Value<int> notifiedCount = const Value.absent(),
+                Value<DateTime?> pausedAt = const Value.absent(),
               }) => AppSettingsCompanion(
                 id: id,
                 globalPresetId: globalPresetId,
@@ -4440,6 +4545,7 @@ class $$AppSettingsTableTableManager
                 autoGroupThreshold: autoGroupThreshold,
                 notifiedDay: notifiedDay,
                 notifiedCount: notifiedCount,
+                pausedAt: pausedAt,
               ),
           createCompanionCallback:
               ({
@@ -4453,6 +4559,7 @@ class $$AppSettingsTableTableManager
                 Value<int> autoGroupThreshold = const Value.absent(),
                 Value<DateTime?> notifiedDay = const Value.absent(),
                 Value<int> notifiedCount = const Value.absent(),
+                Value<DateTime?> pausedAt = const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 id: id,
                 globalPresetId: globalPresetId,
@@ -4464,6 +4571,7 @@ class $$AppSettingsTableTableManager
                 autoGroupThreshold: autoGroupThreshold,
                 notifiedDay: notifiedDay,
                 notifiedCount: notifiedCount,
+                pausedAt: pausedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -4535,12 +4643,14 @@ typedef $$CardGroupsTableCreateCompanionBuilder = CardGroupsCompanion Function({
   required String name,
   Value<int?> presetId,
   required DateTime createdAt,
+  Value<DateTime?> pausedAt,
 });
 typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
   Value<int> id,
   Value<String> name,
   Value<int?> presetId,
   Value<DateTime> createdAt,
+  Value<DateTime?> pausedAt,
 });
 
 final class $$CardGroupsTableReferences
@@ -4623,6 +4733,11 @@ class $$CardGroupsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get pausedAt => $composableBuilder(
+    column: $table.pausedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4724,6 +4839,11 @@ class $$CardGroupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get pausedAt => $composableBuilder(
+    column: $table.pausedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$PresetsTableOrderingComposer get presetId {
     final $$PresetsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4765,6 +4885,9 @@ class $$CardGroupsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get pausedAt =>
+      $composableBuilder(column: $table.pausedAt, builder: (column) => column);
 
   $$PresetsTableAnnotationComposer get presetId {
     final $$PresetsTableAnnotationComposer composer = $composerBuilder(
@@ -4876,11 +4999,13 @@ class $$CardGroupsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<int?> presetId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> pausedAt = const Value.absent(),
               }) => CardGroupsCompanion(
                 id: id,
                 name: name,
                 presetId: presetId,
                 createdAt: createdAt,
+                pausedAt: pausedAt,
               ),
           createCompanionCallback:
               ({
@@ -4888,11 +5013,13 @@ class $$CardGroupsTableTableManager
                 required String name,
                 Value<int?> presetId = const Value.absent(),
                 required DateTime createdAt,
+                Value<DateTime?> pausedAt = const Value.absent(),
               }) => CardGroupsCompanion.insert(
                 id: id,
                 name: name,
                 presetId: presetId,
                 createdAt: createdAt,
+                pausedAt: pausedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(

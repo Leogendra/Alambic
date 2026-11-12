@@ -2,6 +2,8 @@ import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/card_with_directions.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
+import '../../data/repositories/pause_repository.dart';
+import '../../domain/pauses/pauses.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
 import '../../domain/cards/card_direction.dart';
@@ -36,6 +38,7 @@ class NotificationDispatcher {
     required this._presets,
     required this._reminders,
     required this._settings,
+    required this._pauses,
     required this._distillations,
     required this._groupedReminders,
     required this._presenter,
@@ -49,6 +52,7 @@ class NotificationDispatcher {
   final PresetRepository _presets;
   final ReminderRepository _reminders;
   final NotificationSettingsRepository _settings;
+  final PauseRepository _pauses;
   final DistillationService _distillations;
   final GroupedReminders _groupedReminders;
   final NotificationPresenter _presenter;
@@ -65,9 +69,10 @@ class NotificationDispatcher {
     };
     final cards = await _cards.getAll();
     final guards = await _settings.loadGuards();
+    final pauses = await _pauses.loadPauses();
     final today = _deliveryPlanner.calendar.dayOf(now);
     final deliveries = _deliveryPlanner.plan(
-      deliveryCandidates(cards, catalog),
+      deliveryCandidates(cards, catalog, pauses),
       now: now,
       guards: guards,
       notifiedToday: await _settings.notifiedOn(today),
@@ -112,16 +117,18 @@ class NotificationDispatcher {
     if (notifiedGroups.isNotEmpty) {
       await _settings.addNotified(today, notifiedGroups.length);
     }
-    await _dispatchExtraReminders(cards, catalog, groupNames, now);
+    await _dispatchExtraReminders(cards, catalog, groupNames, pauses, now);
     await _planner.replan();
   }
 
-  /// Shows the extra reminders whose moment has come. One found too late is
-  /// dropped, like a late reminder of a due card.
+  /// Shows the extra reminders whose moment has come. One found too late,
+  /// or falling during a pause of its card, is dropped, like a late reminder
+  /// of a due card.
   Future<void> _dispatchExtraReminders(
     List<CardWithDirections> cards,
     PresetCatalog catalog,
     Map<int, String> groupNames,
+    Pauses pauses,
     DateTime now,
   ) async {
     for (final reminder in await _reminders.getAllUpcoming()) {
@@ -129,7 +136,9 @@ class NotificationDispatcher {
         continue;
       }
       final card = _cardOf(cards, reminder);
-      if (card != null && NotificationTiming.isOnTime(reminder.remindAt, now)) {
+      if (card != null &&
+          !pauses.covers(card.card.groupId) &&
+          NotificationTiming.isOnTime(reminder.remindAt, now)) {
         final direction = card.directions.firstWhere(
           (direction) => direction.id == reminder.directionId,
         );

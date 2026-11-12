@@ -585,6 +585,32 @@
   },
   "reviewSoonPast": "Ce moment est déjà passé.",
   "homeTitle": "Aujourd'hui",
+  "pausedSince": "En pause depuis le {date}",
+  "@pausedSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pausedHint": "Aucune notif. À la reprise, les échéances sont décalées d'autant.",
+  "pauseResume": "Reprendre",
+  "pauseGroup": "Pause",
+  "pauseGroupHint": "Aucune notif du groupe ; à la reprise, ses échéances sont décalées d'autant",
+  "pauseGlobal": "Pause globale",
+  "pauseGlobalHint": "Suspend tout, décale les échéances",
+  "pauseAllTooltip": "Tout mettre en pause",
+  "pauseAllConfirmTitle": "Tout mettre en pause ?",
+  "pauseAllConfirmBody": "Plus aucune notif ni nouvelle carte de distillation. Les cartes restent révisables dans l'app. À la reprise, les échéances sont décalées de la durée de la pause.",
+  "pauseAllConfirm": "Mettre en pause",
+  "groupLinePaused": "{cards} · En pause",
+  "@groupLinePaused": {
+    "placeholders": {
+      "cards": {
+        "type": "String"
+      }
+    }
+  },
   "homeDueLabel": "à réviser",
   "homeDuration": "Environ {minutes} min",
   "@homeDuration": {

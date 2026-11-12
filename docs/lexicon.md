@@ -48,6 +48,10 @@ A direction is due today (*à réviser*) when its due date has passed, or when i
 
 A one-off reminder added to a direction with "Review soon" (`ExtraReminder`; *rappel ponctuel*). Answering it is a [bonus review](#bonus-review).
 
+### Pause
+
+A period during which cards are not notified (`Pauses`; *pause*): the pause of a group, or the global pause (*vacances*) covering every card. The cards stay reviewable in the app; at the end of the pause, their [due dates](#due-date) move by its length.
+
 ### Notification moment
 
 Moment at which a scheduled direction is notified (`DeliveryPlanner`). It is usually its [due date](#due-date), but a time range spreads the directions of a day over the range.

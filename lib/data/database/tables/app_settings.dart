@@ -31,6 +31,9 @@ class AppSettings extends Table {
   DateTimeColumn get notifiedDay => dateTime().nullable()();
   IntColumn get notifiedCount => integer().withDefault(const Constant(0))();
 
+  /// Start of the global pause, `null` when it is off.
+  DateTimeColumn get pausedAt => dateTime().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

@@ -1,6 +1,7 @@
 import '../../data/repositories/card_with_directions.dart';
 import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/notification_guards.dart';
+import '../../domain/pauses/pauses.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../domain/reviews/extra_reminder.dart';
 import '../../domain/reviews/review_record.dart';
@@ -26,6 +27,7 @@ class TodayPlanner {
     required DateTime now,
     NotificationGuards? guards,
     int notifiedToday = 0,
+    Pauses pauses = Pauses.none,
   }) => TodayOverview(
     dueCount: dueCount,
     doneCount: {
@@ -40,8 +42,9 @@ class TodayPlanner {
         now,
         guards,
         notifiedToday,
+        pauses,
       ),
-      ..._reminderEntries(reminders, now),
+      ..._reminderEntries(reminders, cards, pauses, now),
     ]..sort((first, second) => first.at.compareTo(second.at)),
   );
 
@@ -55,9 +58,10 @@ class TodayPlanner {
     DateTime now,
     NotificationGuards? guards,
     int notifiedToday,
+    Pauses pauses,
   ) {
     final deliveries = DeliveryPlanner(_calendar).plan(
-      deliveryCandidates(cards, catalog),
+      deliveryCandidates(cards, catalog, pauses),
       now: now,
       guards: guards,
       notifiedToday: notifiedToday,
@@ -92,13 +96,23 @@ class TodayPlanner {
     );
   }
 
+  /// "Review soon" reminders of today, except those of paused cards, which
+  /// are not notified.
   Iterable<TimelineEntry> _reminderEntries(
     List<ExtraReminder> reminders,
+    List<CardWithDirections> cards,
+    Pauses pauses,
     DateTime now,
   ) {
+    final groupOfDirection = {
+      for (final card in cards)
+        for (final direction in card.directions)
+          direction.id: card.card.groupId,
+    };
     final counts = <DateTime, int>{};
     for (final reminder in reminders) {
-      if (_isToday(reminder.remindAt, now)) {
+      if (_isToday(reminder.remindAt, now) &&
+          !pauses.covers(groupOfDirection[reminder.directionId])) {
         counts[reminder.remindAt] = (counts[reminder.remindAt] ?? 0) + 1;
       }
     }

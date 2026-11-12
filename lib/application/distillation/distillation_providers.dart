@@ -15,6 +15,7 @@ final distillationServiceProvider = Provider(
     distillations: ref.watch(distillationRepositoryProvider),
     cards: ref.watch(cardRepositoryProvider),
     presets: ref.watch(presetRepositoryProvider),
+    pauses: ref.watch(pauseRepositoryProvider),
     scheduler: ref.watch(reviewSchedulerProvider),
     calendar: ref.watch(schedulingCalendarProvider),
     clock: ref.watch(clockProvider),

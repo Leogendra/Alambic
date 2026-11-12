@@ -6,6 +6,7 @@ import 'package:alambic/application/scheduling/ignored_schedule_changes.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
+import 'package:alambic/data/repositories/pause_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/domain/cards/card_direction.dart';
 import 'package:alambic/domain/cards/direction_sense.dart';
@@ -38,6 +39,7 @@ void main() {
         distillations: DistillationRepository(database),
         cards: cards,
         presets: PresetRepository(database),
+        pauses: PauseRepository(database),
         scheduler: const ReviewScheduler(SchedulingCalendar()),
         calendar: const SchedulingCalendar(),
         clock: clock.call,

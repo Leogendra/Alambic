@@ -18,13 +18,13 @@ The DM Sans font is bundled as static weights (400, 500, 600, 700) rather than a
 
 All data lives in a local SQLite database managed by drift, `AlambicDatabase`. Tables use the domain classes directly as rows (`@UseRowClass`): a `Preset` or a `CardDirection` read from the database is the very object the business rules manipulate, with no conversion layer. Enums are stored by name, a preset sequence as JSON and times of day as minutes since midnight.
 
-The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset, the notification safeguards and the count of cards notified today), `card_groups`, `distillations` (the distillations in progress), `flashcards`, `card_directions` (one direction per card and orientation, with the distillation that queued it and its rank in the queue), `review_records` (the history) and `extra_reminders` (the "Review soon" reminders). Foreign keys are enabled at each opening, which gives these deletion rules:
+The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset, the notification safeguards, the count of cards notified today and the start of the global pause), `card_groups`, `distillations` (the distillations in progress), `flashcards`, `card_directions` (one direction per card and orientation, with the distillation that queued it and its rank in the queue), `review_records` (the history) and `extra_reminders` (the "Review soon" reminders). Foreign keys are enabled at each opening, which gives these deletion rules:
 
 - deleting a card deletes its directions, their history and their reminders;
 - deleting a group deletes its cards, and with them their directions and history, and its distillations;
 - deleting a distillation releases its directions: a pending one stays pending, outside any queue.
 
-The schema is versioned. Each version bump comes with an upgrade step in `AlambicDatabase.migration`, so that an installed app keeps its data; version 2 added the distillations, version 3 the notification safeguards.
+The schema is versioned. Each version bump comes with an upgrade step in `AlambicDatabase.migration`, so that an installed app keeps its data; version 2 added the distillations, version 3 the notification safeguards, version 4 the pauses.
 
 The global preset lives in the database rather than in the preferences, because it is part of the review data: it must be readable from background tasks and travel with the export.
 

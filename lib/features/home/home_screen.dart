@@ -9,10 +9,12 @@ import '../../application/groups/group_providers.dart';
 import '../../application/groups/group_summary.dart';
 import '../../application/home/home_providers.dart';
 import '../../application/home/today_overview.dart';
+import '../../application/pauses/pause_providers.dart';
 import '../../application/reviews/review_providers.dart';
 import '../../application/time/minute_ticker.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../groups/group_detail_screen.dart';
+import '../pauses/paused_banner.dart';
 import '../session/session_launcher.dart';
 import 'today_timeline.dart';
 
@@ -32,10 +34,18 @@ class HomeScreen extends ConsumerWidget {
     final summaries = ref.watch(groupSummariesProvider);
     final dueGroups = summaries.where((summary) => summary.dueCount > 0);
     final newGroups = summaries.where((summary) => summary.unstartedCount > 0);
+    final pausedAt = ref.watch(pausesProvider).value?.globalSince;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 96),
       children: [
-        _header(context, now),
+        _header(context, ref, now, paused: pausedAt != null),
+        if (pausedAt != null) ...[
+          const SizedBox(height: 20),
+          PausedBanner(
+            since: pausedAt,
+            onResume: () => ref.read(pauseServiceProvider).resumeAll(),
+          ),
+        ],
         const SizedBox(height: 20),
         _DuePanel(overview: overview),
         const SizedBox(height: 20),
@@ -61,31 +71,73 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _header(BuildContext context, DateTime now) {
+  Widget _header(
+    BuildContext context,
+    WidgetRef ref,
+    DateTime now, {
+    required bool paused,
+  }) {
     final strings = AppLocalizations.of(context);
     final date = DateFormat.MMMMEEEEd(strings.localeName).format(now);
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 2,
       children: [
-        Text(
-          strings.homeTitle,
-          style: const TextStyle(
-            fontSize: 34,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.6,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 2,
+            children: [
+              Text(
+                strings.homeTitle,
+                style: const TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.6,
+                ),
+              ),
+              Text(
+                date[0].toUpperCase() + date.substring(1),
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: AlambicColors.of(context).textSecondary,
+                ),
+              ),
+            ],
           ),
         ),
-        Text(
-          date[0].toUpperCase() + date.substring(1),
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-            color: AlambicColors.of(context).textSecondary,
+        if (!paused)
+          IconButton(
+            tooltip: strings.pauseAllTooltip,
+            icon: const Icon(Icons.pause),
+            onPressed: () => _confirmPauseAll(context, ref),
           ),
-        ),
       ],
     );
+  }
+
+  Future<void> _confirmPauseAll(BuildContext context, WidgetRef ref) async {
+    final strings = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(strings.pauseAllConfirmTitle),
+        content: Text(strings.pauseAllConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(strings.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(strings.pauseAllConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await ref.read(pauseServiceProvider).pauseAll();
+    }
   }
 }
 

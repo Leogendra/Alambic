@@ -23,4 +23,5 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Time range schedule: the notifications of the day are spread evenly over the range, and Home's timeline shows them at their moment.
 - A notification ignored or swiped is sent again the next day at the preset slot.
 - Notification safeguards in Settings: a daily cap that holds back the longest intervals first, quiet hours (22:00 to 08:00 by default) and auto grouping of a busy moment into a single notification.
+- Pause of a group, from its settings or its page, and global pause, from Settings or Home: nothing is notified and distillations wait; on resume, due dates move by the length of the pause.
 - In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.

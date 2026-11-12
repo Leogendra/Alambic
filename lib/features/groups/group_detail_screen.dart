@@ -8,6 +8,7 @@ import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/groups/group_summary.dart';
+import '../../application/pauses/pause_providers.dart';
 import '../../application/reviews/review_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../cards/bulk_add_screen.dart';
@@ -15,6 +16,7 @@ import '../cards/card_list_tile.dart';
 import '../cards/card_navigation.dart';
 import '../cards/card_status_formatter_provider.dart';
 import '../distillation/group_distillations_section.dart';
+import '../pauses/paused_banner.dart';
 import '../session/session_launcher.dart';
 import 'group_settings_screen.dart';
 import 'group_stat_tile.dart';
@@ -84,6 +86,14 @@ class _GroupBody extends ConsumerWidget {
           '${strings.presetScheduleLabel(summary.preset)}',
           style: TextStyle(fontSize: 14, color: colors.textSecondary),
         ),
+        if (summary.group?.pausedAt case final pausedAt?) ...[
+          const SizedBox(height: 16),
+          PausedBanner(
+            since: pausedAt,
+            onResume: () =>
+                ref.read(pauseServiceProvider).resumeGroup(summary.groupId!),
+          ),
+        ],
         const SizedBox(height: 16),
         Row(
           spacing: 10,

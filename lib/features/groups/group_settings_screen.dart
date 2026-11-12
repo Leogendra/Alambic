@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/formatting/preset_labels.dart';
 import '../../app/theme/alambic_colors.dart';
@@ -9,6 +10,7 @@ import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../app/widgets/text_input_dialog.dart';
 import '../../application/groups/group_providers.dart';
+import '../../application/pauses/pause_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../domain/groups/card_group.dart';
 import '../../domain/presets/preset_catalog.dart';
@@ -40,6 +42,8 @@ class GroupSettingsScreen extends ConsumerWidget {
                   children: [_presetRow(context, ref, group, catalog)],
                 ),
                 _hint(context, strings.groupSettingsPresetHint),
+                const SizedBox(height: 24),
+                SurfacePanel(children: [_pauseRow(context, ref, group)]),
                 const SizedBox(height: 24),
                 SurfacePanel(children: [_deleteRow(context, ref, group)]),
               ],
@@ -97,6 +101,24 @@ class GroupSettingsScreen extends ConsumerWidget {
               .setPreset(group.id, choice.presetId);
         }
       },
+    );
+  }
+
+  Widget _pauseRow(BuildContext context, WidgetRef ref, CardGroup group) {
+    final strings = AppLocalizations.of(context);
+    final pausedAt = group.pausedAt;
+    return PanelRow(
+      title: strings.pauseGroup,
+      subtitle: pausedAt == null
+          ? strings.pauseGroupHint
+          : strings.pausedSince(strings.shortDate(pausedAt)),
+      trailing: Switch(
+        value: pausedAt != null,
+        onChanged: (paused) {
+          final service = ref.read(pauseServiceProvider);
+          paused ? service.pauseGroup(group.id) : service.resumeGroup(group.id);
+        },
+      ),
     );
   }
 

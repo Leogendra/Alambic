@@ -15,6 +15,7 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/pause_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/reminder_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
@@ -42,6 +43,7 @@ class SampleServices {
       distillations: DistillationRepository(database),
       cards: CardRepository(database),
       presets: PresetRepository(database),
+      pauses: PauseRepository(database),
       scheduler: const ReviewScheduler(SchedulingCalendar()),
       calendar: const SchedulingCalendar(),
       clock: clock.call,

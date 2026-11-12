@@ -7,6 +7,7 @@ import '../cards/card_providers.dart';
 import '../clock.dart';
 import '../distillation/distillation_providers.dart';
 import '../notifications/guard_providers.dart';
+import '../pauses/pause_providers.dart';
 import '../presets/preset_providers.dart';
 import '../reviews/review_providers.dart';
 import '../time/minute_ticker.dart';
@@ -44,7 +45,9 @@ final todayOverviewProvider = Provider<TodayOverview?>((ref) {
   final now = ref.watch(currentMomentProvider).value;
   final guards = ref.watch(notificationGuardsProvider).value;
   final notifiedToday = ref.watch(notifiedTodayProvider).value;
+  final pauses = ref.watch(pausesProvider).value;
   if (cards == null ||
+      pauses == null ||
       guards == null ||
       notifiedToday == null ||
       distillations == null ||
@@ -66,6 +69,7 @@ final todayOverviewProvider = Provider<TodayOverview?>((ref) {
       now: now,
       guards: guards,
       notifiedToday: notifiedToday,
+      pauses: pauses,
     );
   }
 });

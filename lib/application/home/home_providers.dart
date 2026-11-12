@@ -6,6 +6,7 @@ import '../../domain/reviews/review_record.dart';
 import '../cards/card_providers.dart';
 import '../clock.dart';
 import '../distillation/distillation_providers.dart';
+import '../notifications/guard_providers.dart';
 import '../presets/preset_providers.dart';
 import '../reviews/review_providers.dart';
 import '../time/minute_ticker.dart';
@@ -41,7 +42,11 @@ final todayOverviewProvider = Provider<TodayOverview?>((ref) {
   final catalog = ref.watch(presetCatalogProvider).value;
   final distillations = ref.watch(distillationsProvider).value;
   final now = ref.watch(currentMomentProvider).value;
+  final guards = ref.watch(notificationGuardsProvider).value;
+  final notifiedToday = ref.watch(notifiedTodayProvider).value;
   if (cards == null ||
+      guards == null ||
+      notifiedToday == null ||
       distillations == null ||
       reminders == null ||
       reviews == null ||
@@ -59,6 +64,8 @@ final todayOverviewProvider = Provider<TodayOverview?>((ref) {
       },
       dueCount: ref.watch(dueItemsProvider).length,
       now: now,
+      guards: guards,
+      notifiedToday: notifiedToday,
     );
   }
 });

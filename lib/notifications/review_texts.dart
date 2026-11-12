@@ -2,6 +2,7 @@ import '../app/formatting/due_labels.dart';
 import '../app/formatting/review_duration_labels.dart';
 import '../application/notifications/answer_reveal.dart';
 import '../application/notifications/group_reminder.dart';
+import '../application/notifications/notification_digest.dart';
 import '../application/notifications/review_prompt.dart';
 import '../domain/reviews/typed_answer_match.dart';
 import '../domain/scheduling/scheduling_calendar.dart';
@@ -50,6 +51,18 @@ class ReviewTexts {
   /// "Environ 3 min".
   String groupReminderDetail(GroupReminder reminder) =>
       strings.reviewDuration(reminder.count);
+
+  /// "12 cartes à réviser".
+  String digestTitle(NotificationDigest digest) =>
+      strings.notificationDigestTitle(digest.count);
+
+  /// "Capitales, Espagnol · Environ 6 min".
+  String digestDetail(NotificationDigest digest) {
+    final groups = digest.groupNames
+        .map((name) => name ?? strings.noGroup)
+        .join(', ');
+    return '$groups · ${strings.reviewDuration(digest.count)}';
+  }
 
   String answerLine(AnswerReveal reveal) =>
       strings.notificationAnswer(reveal.answer);

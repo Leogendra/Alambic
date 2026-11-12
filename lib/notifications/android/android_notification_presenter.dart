@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../application/notifications/answer_reveal.dart';
 import '../../application/notifications/group_reminder.dart';
 import '../../application/notifications/group_reminder_key.dart';
+import '../../application/notifications/notification_digest.dart';
 import '../../application/notifications/notification_action.dart';
 import '../../application/notifications/notification_presenter.dart';
 import '../../application/notifications/review_notification_key.dart';
@@ -21,6 +22,9 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   /// Ids of extra reminders start here, above any direction id, so that an
   /// extra reminder never replaces the notification of a due card.
   static const int _extraReminderIdBase = 1000000000;
+
+  /// The digest is a single notification, above any extra reminder.
+  static const int _digestId = 2000000000;
 
   final AndroidFlutterLocalNotificationsPlugin _plugin;
   final ReviewTexts _texts;
@@ -144,6 +148,34 @@ class AndroidNotificationPresenter implements NotificationPresenter {
       ?NotificationPayload.decodeGroup(notification.payload):
           NotificationPayload.decodeGroupCount(notification.payload),
   };
+
+  @override
+  Future<void> showDigest(NotificationDigest digest) => _plugin.show(
+    id: _digestId,
+    title: _texts.digestTitle(digest),
+    body: _texts.digestDetail(digest),
+    payload: NotificationPayload.encodeDigest(digest),
+    notificationDetails: _details(
+      onlyAlertOnce: !digest.alert,
+      silent: !digest.alert,
+      actions: [
+        AndroidNotificationAction(
+          NotificationAction.open.name,
+          _texts.strings.notificationOpenApp,
+          showsUserInterface: true,
+        ),
+      ],
+    ),
+  );
+
+  @override
+  Future<void> dismissDigest() => _plugin.cancel(id: _digestId);
+
+  @override
+  Future<int?> shownDigestCount() async => [
+    for (final notification in await _plugin.getActiveNotifications())
+      ?NotificationPayload.decodeDigestCount(notification.payload),
+  ].firstOrNull;
 
   /// A card chained in a grouped reminder takes the place of the reminder.
   static int _idOf(ReviewNotificationKey key) {

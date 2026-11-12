@@ -4,6 +4,7 @@ import 'database/alambic_database.dart';
 import 'repositories/card_repository.dart';
 import 'repositories/distillation_repository.dart';
 import 'repositories/group_repository.dart';
+import 'repositories/notification_settings_repository.dart';
 import 'repositories/preset_repository.dart';
 import 'repositories/reminder_repository.dart';
 
@@ -31,4 +32,8 @@ final reminderRepositoryProvider = Provider(
 
 final distillationRepositoryProvider = Provider(
   (ref) => DistillationRepository(ref.watch(databaseProvider)),
+);
+
+final notificationSettingsRepositoryProvider = Provider(
+  (ref) => NotificationSettingsRepository(ref.watch(databaseProvider)),
 );

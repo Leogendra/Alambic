@@ -2,12 +2,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/notifications/notification_action.dart';
 import 'package:alambic/application/notifications/notification_providers.dart';
 import 'package:alambic/application/notifications/review_notification_key.dart';
+import 'package:alambic/application/reviews/review_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/domain/presets/schedule_kind.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
@@ -28,6 +31,10 @@ void main() {
     database = openTestDatabase();
     harness = NotificationHarness(database, FixedClock(sampleNow));
     capitals = await seedSampleData(SampleServices(database, harness.clock));
+    // The seven cards due at noon are notified one by one.
+    await NotificationSettingsRepository(
+      database,
+    ).saveGuards(NotificationGuards.defaults.copyWith(autoGroupEnabled: false));
   });
 
   tearDown(() async {
@@ -244,5 +251,68 @@ void main() {
           .map((prompt) => prompt.prompt),
       ['être', 'avoir'],
     );
+  });
+
+  group('safeguards', () {
+    Future<void> setGuards(NotificationGuards guards) =>
+        NotificationSettingsRepository(database).saveGuards(guards);
+
+    test(
+      'gathers the notifications of a moment beyond the threshold',
+      () async {
+        await setGuards(NotificationGuards.defaults);
+        await dispatchAt(DateTime(2026, 11, 10, 12));
+        expect(harness.presenter.prompts, isEmpty);
+        final digest = harness.presenter.digest!;
+        expect(digest.count, 7);
+        expect(digest.groupNames, ['Capitales', 'Espagnol', null]);
+        // Answered in the app, the cards leave the digest.
+        final direction = await mongoliaFront();
+        await harness
+            .read(reviewServiceProvider)
+            .answer(
+              direction,
+              ReviewOutcome.correct,
+              source: ReviewSource.session,
+            );
+        expect(harness.presenter.digest!.count, 6);
+        expect(harness.presenter.digest!.alert, isFalse);
+      },
+    );
+
+    test('holds the cards beyond the daily cap until the next day', () async {
+      await setGuards(
+        NotificationGuards.defaults.copyWith(
+          dailyCap: 4,
+          autoGroupEnabled: false,
+        ),
+      );
+      await dispatchAt(DateTime(2026, 11, 10, 12));
+      expect(harness.presenter.prompts, hasLength(4));
+      expect(
+        await NotificationSettingsRepository(database)
+            .notifiedOn(DateTime(2026, 11, 10)),
+        4,
+      );
+      harness.presenter.prompts.clear();
+      await dispatchAt(DateTime(2026, 11, 11, 12));
+      // The three held back, then the reverse of Pérou due that day; the
+      // four ignored the day before compete with them.
+      expect(harness.presenter.prompts, hasLength(4));
+    });
+
+    test('moves a notification out of the quiet hours', () async {
+      await setGuards(
+        NotificationGuards.defaults.copyWith(
+          quietStart: const ClockTime(11, 0),
+          quietEnd: const ClockTime(13, 0),
+          autoGroupEnabled: false,
+        ),
+      );
+      await dispatchAt(DateTime(2026, 11, 10, 12));
+      expect(harness.presenter.prompts, isEmpty);
+      await dispatchAt(DateTime(2026, 11, 10, 13));
+      expect(harness.presenter.prompts, hasLength(7));
+    });
   });
 }

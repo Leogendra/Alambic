@@ -14,7 +14,6 @@ import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../domain/distillation/distillation_status.dart';
-import '../../domain/presets/preset.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/review_scheduler.dart';
@@ -300,19 +299,13 @@ class DistillationService {
               ))
             BudgetedReminder(
               directionId: direction.id,
-              interval: _waitedInterval(
-                direction,
+              interval: SequenceEngine.waitedInterval(
+                direction.step,
                 catalog.presetForCard(card.card),
               ),
               dueAt: direction.dueAt!,
             ),
     ];
-  }
-
-  /// Interval that led to the current due date of [direction].
-  Duration _waitedInterval(CardDirection direction, Preset preset) {
-    final step = SequenceEngine.clampToSequence(direction.step, preset);
-    return step == null ? Duration.zero : preset.intervals[step].length;
   }
 
   /// Moves the reminders over the budget to the next day, keeping their step.

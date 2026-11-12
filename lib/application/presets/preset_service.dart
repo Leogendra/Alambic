@@ -1,12 +1,21 @@
 import '../../data/repositories/preset_repository.dart';
 import '../../domain/presets/built_in_presets.dart';
 import '../../domain/presets/preset.dart';
+import '../scheduling/ignored_schedule_changes.dart';
+import '../scheduling/schedule_change_listener.dart';
 
 /// Creation, edition and duplication of presets.
 class PresetService {
-  const PresetService(this._presets);
+  const PresetService(
+    this._presets, [
+    this._scheduleChangeListener = const IgnoredScheduleChanges(),
+  ]);
 
   final PresetRepository _presets;
+
+  /// Told when a preset is edited: its schedule and notification mode decide
+  /// when its cards are notified.
+  final ScheduleChangeListener _scheduleChangeListener;
 
   /// A new preset starts from the Standard values.
   Preset newDraft(String name) =>
@@ -20,8 +29,16 @@ class PresetService {
       return _presets.insert(preset);
     } else {
       await _presets.update(preset);
+      await _scheduleChangeListener.onSchedulesChanged();
       return preset.id;
     }
+  }
+
+  /// Changing the global preset keeps every step and due date; the
+  /// notifications of the cards that inherit it follow the new preset.
+  Future<void> setGlobalPreset(int presetId) async {
+    await _presets.setGlobalPresetId(presetId);
+    await _scheduleChangeListener.onSchedulesChanged();
   }
 
   /// Stores a copy of [preset] under [copyName] and returns its id. The copy is

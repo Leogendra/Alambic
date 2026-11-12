@@ -35,7 +35,9 @@ final plannedAlarmStoreProvider = Provider<PlannedAlarmStore>(
 final notificationPlannerProvider = Provider(
   (ref) => NotificationPlanner(
     cards: ref.watch(cardRepositoryProvider),
+    groups: ref.watch(groupRepositoryProvider),
     presets: ref.watch(presetRepositoryProvider),
+    settings: ref.watch(notificationSettingsRepositoryProvider),
     reminders: ref.watch(reminderRepositoryProvider),
     distillations: ref.watch(distillationRepositoryProvider),
     rhythm: ref.watch(distillationRhythmProvider),
@@ -54,6 +56,7 @@ final groupedRemindersProvider = Provider(
     cards: ref.watch(cardRepositoryProvider),
     groups: ref.watch(groupRepositoryProvider),
     presets: ref.watch(presetRepositoryProvider),
+    settings: ref.watch(notificationSettingsRepositoryProvider),
     presenter: ref.watch(notificationPresenterProvider),
     deliveryPlanner: ref.watch(deliveryPlannerProvider),
     clock: ref.watch(clockProvider),
@@ -66,6 +69,7 @@ final notificationDispatcherProvider = Provider(
     groups: ref.watch(groupRepositoryProvider),
     presets: ref.watch(presetRepositoryProvider),
     reminders: ref.watch(reminderRepositoryProvider),
+    settings: ref.watch(notificationSettingsRepositoryProvider),
     distillations: ref.watch(distillationServiceProvider),
     groupedReminders: ref.watch(groupedRemindersProvider),
     presenter: ref.watch(notificationPresenterProvider),

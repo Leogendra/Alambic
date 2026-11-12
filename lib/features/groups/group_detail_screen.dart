@@ -14,6 +14,7 @@ import '../cards/bulk_add_screen.dart';
 import '../cards/card_list_tile.dart';
 import '../cards/card_navigation.dart';
 import '../cards/card_status_formatter_provider.dart';
+import '../distillation/group_distillations_section.dart';
 import '../session/session_launcher.dart';
 import 'group_settings_screen.dart';
 import 'group_stat_tile.dart';
@@ -111,6 +112,10 @@ class _GroupBody extends ConsumerWidget {
             ),
             child: Text(strings.groupReviewDue(summary.dueCount)),
           ),
+        ],
+        if (summary.groupId case final groupId?) ...[
+          const SizedBox(height: 24),
+          GroupDistillationsSection(groupId: groupId),
         ],
         const SizedBox(height: 24),
         SectionLabel(strings.groupCardsSection),

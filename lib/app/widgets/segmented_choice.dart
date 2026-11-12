@@ -41,8 +41,9 @@ class SegmentedChoice<T> extends StatelessWidget {
   ) => Semantics(
     selected: isSelected,
     button: true,
+    enabled: option.enabled,
     child: GestureDetector(
-      onTap: () => onSelected(option.value),
+      onTap: option.enabled ? () => onSelected(option.value) : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         height: 40,
@@ -62,7 +63,11 @@ class SegmentedChoice<T> extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-            color: isSelected ? colors.textPrimary : colors.textSecondary,
+            color: isSelected
+                ? colors.textPrimary
+                : colors.textSecondary.withValues(
+                    alpha: option.enabled ? 1 : 0.5,
+                  ),
           ),
         ),
       ),

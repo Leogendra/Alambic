@@ -4,10 +4,13 @@ import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// Dates as the mockup writes them: "2 nov.", "ven. 13 nov.",
-/// "ven. 13 nov., 12:00".
+/// "ven. 13 nov., 12:00", "23 décembre".
 extension DateLabels on AppLocalizations {
   String shortDate(DateTime moment) =>
       DateFormat.MMMd(localeName).format(moment);
+
+  String longDate(DateTime moment) =>
+      DateFormat.MMMMd(localeName).format(moment);
 
   String dayDate(DateTime moment) =>
       DateFormat.MMMEd(localeName).format(moment);

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_riverpod/misc.dart';
 
 import '../../application/clock.dart';
 import '../../application/notifications/notification_providers.dart';
+import '../../application/notifications/notification_target.dart';
 import '../../application/scheduling/scheduling_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../review_texts.dart';
@@ -13,6 +15,7 @@ import '../shared_preferences_alarm_store.dart';
 import 'android_alarm_scheduler.dart';
 import 'android_notification_presenter.dart';
 import 'background_entry_points.dart';
+import 'notification_payload.dart';
 
 /// Wiring of the Android notification layer, shared by the app and by the
 /// background tasks, which each run in their own isolate.
@@ -20,15 +23,40 @@ abstract final class AndroidNotifications {
   static final AndroidFlutterLocalNotificationsPlugin _plugin =
       AndroidFlutterLocalNotificationsPlugin();
 
+  static final StreamController<NotificationTarget> _opened =
+      StreamController.broadcast();
+
   /// Initializes the plugins in the current isolate. Buttons pressed on a
   /// notification are always handled by [onNotificationResponse] in a
-  /// background isolate, whether the app is open or not.
+  /// background isolate, whether the app is open or not, except the ones
+  /// that open the app, which reach [_onOpened] in the app.
   static Future<void> initialize() async {
     await AndroidAlarmManager.initialize();
     await _plugin.initialize(
       settings: const AndroidInitializationSettings('@mipmap/ic_launcher'),
+      onDidReceiveNotificationResponse: _onOpened,
       onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
     );
+  }
+
+  static void _onOpened(NotificationResponse response) {
+    final target = NotificationPayload.target(response.payload);
+    if (target != null) {
+      _opened.add(target);
+    }
+  }
+
+  /// The group to open when a notification launched the app, then the ones
+  /// opened while it runs.
+  static Stream<NotificationTarget> _openedTargets() async* {
+    final launch = await _plugin.getNotificationAppLaunchDetails();
+    final target = launch != null && launch.didNotificationLaunchApp
+        ? NotificationPayload.target(launch.notificationResponse?.payload)
+        : null;
+    if (target != null) {
+      yield target;
+    }
+    yield* _opened.stream;
   }
 
   /// The Android implementations of the notification interfaces, and the
@@ -45,6 +73,7 @@ abstract final class AndroidNotifications {
     scheduleChangeListenerProvider.overrideWith(
       (ref) => ref.watch(notificationPlannerProvider),
     ),
+    notificationTargetsProvider.overrideWithValue(_openedTargets()),
   ];
 
   /// Texts in the language of the phone when the app has it, French

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:alambic/application/clock.dart';
 import 'package:alambic/application/notifications/alarm_scheduler.dart';
 import 'package:alambic/application/notifications/answer_reveal.dart';
+import 'package:alambic/application/notifications/group_reminder.dart';
+import 'package:alambic/application/notifications/group_reminder_key.dart';
 import 'package:alambic/application/notifications/notification_presenter.dart';
 import 'package:alambic/application/notifications/notification_providers.dart';
 import 'package:alambic/application/notifications/planned_alarm_store.dart';
@@ -46,31 +48,59 @@ class FakeAlarmScheduler implements AlarmScheduler {
 class FakePresenter implements NotificationPresenter {
   final Map<ReviewNotificationKey, ReviewPrompt> prompts = {};
   final Map<ReviewNotificationKey, AnswerReveal> reveals = {};
+  final Map<GroupReminderKey, GroupReminder> groupReminders = {};
 
   @override
   Future<void> requestPermission() async {}
 
   @override
   Future<void> showPrompt(ReviewPrompt prompt) async {
-    reveals.remove(prompt.key);
+    _clearSlotOf(prompt.key);
     prompts[prompt.key] = prompt;
   }
 
   @override
   Future<void> showReveal(AnswerReveal reveal) async {
-    prompts.remove(reveal.key);
+    _clearSlotOf(reveal.key);
     reveals[reveal.key] = reveal;
   }
 
   @override
-  Future<void> dismiss(ReviewNotificationKey key) async {
-    prompts.remove(key);
-    reveals.remove(key);
-  }
+  Future<void> dismiss(ReviewNotificationKey key) async => _clearSlotOf(key);
 
   @override
   Future<List<ReviewNotificationKey>> shownPrompts() async =>
       prompts.keys.toList();
+
+  @override
+  Future<void> showGroupReminder(GroupReminder reminder) async {
+    dismissGroupReminder(reminder.key);
+    groupReminders[reminder.key] = reminder;
+  }
+
+  @override
+  Future<void> dismissGroupReminder(GroupReminderKey key) async {
+    groupReminders.remove(key);
+    prompts.removeWhere((prompt, _) => prompt.chain == key);
+    reveals.removeWhere((reveal, _) => reveal.chain == key);
+  }
+
+  @override
+  Future<Map<GroupReminderKey, int>> shownGroupReminders() async => {
+    for (final reminder in groupReminders.values) reminder.key: reminder.count,
+  };
+
+  /// A notification replaces the one with the same id: the same card, or
+  /// anything shown by the grouped reminder it is chained in.
+  void _clearSlotOf(ReviewNotificationKey key) {
+    final chain = key.chain;
+    if (chain != null) {
+      dismissGroupReminder(chain);
+    } else {
+      prompts.remove(key);
+      reveals.remove(key);
+    }
+  }
 }
 
 class InMemoryAlarmStore implements PlannedAlarmStore {

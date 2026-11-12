@@ -1,5 +1,7 @@
 import '../app/formatting/due_labels.dart';
+import '../app/formatting/review_duration_labels.dart';
 import '../application/notifications/answer_reveal.dart';
+import '../application/notifications/group_reminder.dart';
 import '../application/notifications/review_prompt.dart';
 import '../domain/reviews/typed_answer_match.dart';
 import '../domain/scheduling/scheduling_calendar.dart';
@@ -28,7 +30,26 @@ class ReviewTexts {
         : position;
   }
 
-  String groupLabel(ReviewPrompt prompt) => prompt.groupName ?? strings.noGroup;
+  /// The group, and the cards left when the card is chained in a grouped
+  /// reminder: "Capitales · 3 à réviser".
+  String groupLabel(ReviewPrompt prompt) {
+    final group = prompt.groupName ?? strings.noGroup;
+    final remaining = prompt.chainRemaining;
+    return remaining == null
+        ? group
+        : strings.notificationChainRemaining(group, remaining);
+  }
+
+  /// "Capitales : 5 cartes à réviser".
+  String groupReminderTitle(GroupReminder reminder) =>
+      strings.notificationGroupTitle(
+        reminder.groupName ?? strings.noGroup,
+        reminder.count,
+      );
+
+  /// "Environ 3 min".
+  String groupReminderDetail(GroupReminder reminder) =>
+      strings.reviewDuration(reminder.count);
 
   String answerLine(AnswerReveal reveal) =>
       strings.notificationAnswer(reveal.answer);

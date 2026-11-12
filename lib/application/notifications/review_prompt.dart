@@ -1,3 +1,7 @@
+import '../../domain/cards/card_direction.dart';
+import '../../domain/cards/direction_sense.dart';
+import '../../domain/cards/flashcard.dart';
+import '../../domain/presets/preset.dart';
 import 'review_notification_key.dart';
 
 /// Content of a notification asking a card: the asked face and where the
@@ -11,7 +15,28 @@ class ReviewPrompt {
     required this.sequenceLength,
     required this.isReverse,
     required this.typedAnswer,
+    this.chainRemaining,
   });
+
+  /// The notification of [direction] of [card], following [preset].
+  factory ReviewPrompt.of({
+    required ReviewNotificationKey key,
+    required Flashcard card,
+    required CardDirection direction,
+    required Preset preset,
+    required String? groupName,
+    int? chainRemaining,
+  }) => ReviewPrompt(
+    key: key,
+    prompt: card.promptFor(direction.sense).text ?? '',
+    groupName: groupName,
+    step: direction.step,
+    sequenceLength: preset.sequenceLength,
+    isReverse: direction.sense == DirectionSense.backToFront,
+    // Without text on the answer face, there is nothing to compare with.
+    typedAnswer: preset.typedAnswer && card.answerFor(direction.sense).hasText,
+    chainRemaining: chainRemaining,
+  );
 
   final ReviewNotificationKey key;
 
@@ -31,4 +56,8 @@ class ReviewPrompt {
   /// Asks for a typed answer ("Answer" and "Again") instead of "Correct" and
   /// "Again".
   final bool typedAnswer;
+
+  /// Cards left in the grouped reminder, this one included, when the cards
+  /// are chained in the notification.
+  final int? chainRemaining;
 }

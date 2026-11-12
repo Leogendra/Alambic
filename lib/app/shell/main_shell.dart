@@ -1,21 +1,47 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../application/notifications/notification_providers.dart';
+import '../../application/notifications/notification_target.dart';
 import '../../features/cards/card_navigation.dart';
+import '../../features/groups/group_detail_screen.dart';
 import '../../features/groups/groups_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Root screen: four tabs and the "+" button that creates a card.
-class MainShell extends StatefulWidget {
+/// Root screen: four tabs and the "+" button that creates a card. A grouped
+/// reminder touched in the notifications opens its group above it.
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
+class _MainShellState extends ConsumerState<MainShell> {
   int _selectedTab = 0;
+  StreamSubscription<NotificationTarget>? _openedTargets;
+
+  @override
+  void initState() {
+    super.initState();
+    _openedTargets = ref.read(notificationTargetsProvider).listen(_open);
+  }
+
+  @override
+  void dispose() {
+    _openedTargets?.cancel();
+    super.dispose();
+  }
+
+  void _open(NotificationTarget target) => Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (context) => GroupDetailScreen(groupId: target.groupId),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {

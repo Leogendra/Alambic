@@ -4,12 +4,14 @@ import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
 import '../../domain/cards/card_direction.dart';
-import '../../domain/cards/direction_sense.dart';
 import '../../domain/notifications/notification_timing.dart';
+import '../../domain/presets/notification_mode.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../domain/reviews/extra_reminder.dart';
 import '../clock.dart';
 import '../distillation/distillation_service.dart';
+import 'group_reminder_key.dart';
+import 'grouped_reminders.dart';
 import 'notification_planner.dart';
 import 'notification_presenter.dart';
 import 'review_notification_key.dart';
@@ -17,7 +19,9 @@ import 'review_prompt.dart';
 
 /// Runs when the app wakes up: runs the daily pass of the distillations,
 /// shows a notification for every direction and every "Review soon" reminder
-/// whose moment has come, then plans the next wake-ups. The content is read from the database at that moment, never
+/// whose moment has come, then plans the next wake-ups. A direction whose
+/// preset asks for a grouped reminder is announced by the reminder of its
+/// group instead. The content is read from the database at that moment, never
 /// fixed when the wake-up was planned.
 class NotificationDispatcher {
   const NotificationDispatcher({
@@ -26,6 +30,7 @@ class NotificationDispatcher {
     required this._presets,
     required this._reminders,
     required this._distillations,
+    required this._groupedReminders,
     required this._presenter,
     required this._planner,
     required this._clock,
@@ -36,6 +41,7 @@ class NotificationDispatcher {
   final PresetRepository _presets;
   final ReminderRepository _reminders;
   final DistillationService _distillations;
+  final GroupedReminders _groupedReminders;
   final NotificationPresenter _presenter;
   final NotificationPlanner _planner;
   final Clock _clock;
@@ -48,6 +54,7 @@ class NotificationDispatcher {
       for (final group in await _groups.watchAll().first) group.id: group.name,
     };
     final cards = await _cards.getAll();
+    final groupedReminders = <GroupReminderKey>{};
     for (final card in cards) {
       for (final direction in card.directions) {
         if (NotificationTiming.shouldNotify(
@@ -55,12 +62,20 @@ class NotificationDispatcher {
           cardSuspended: card.card.suspended,
           now: now,
         )) {
-          await _presenter.showPrompt(
-            _prompt(card, direction, catalog, groupNames, null),
-          );
+          if (catalog.presetForCard(card.card).notificationMode ==
+              NotificationMode.grouped) {
+            groupedReminders.add(GroupReminderKey(card.card.groupId));
+          } else {
+            await _presenter.showPrompt(
+              _prompt(card, direction, catalog, groupNames, null),
+            );
+          }
           await _cards.markNotified(direction.id, now);
         }
       }
+    }
+    for (final key in groupedReminders) {
+      await _groupedReminders.show(key, alert: true);
     }
     await _dispatchExtraReminders(cards, catalog, groupNames, now);
     await _planner.replan();
@@ -108,21 +123,14 @@ class NotificationDispatcher {
     PresetCatalog catalog,
     Map<int, String> groupNames,
     int? extraReminderId,
-  ) {
-    final preset = catalog.presetForCard(card.card);
-    return ReviewPrompt(
-      key: ReviewNotificationKey(
-        directionId: direction.id,
-        extraReminderId: extraReminderId,
-      ),
-      prompt: card.card.promptFor(direction.sense).text ?? '',
-      groupName: groupNames[card.card.groupId],
-      step: direction.step,
-      sequenceLength: preset.sequenceLength,
-      isReverse: direction.sense == DirectionSense.backToFront,
-      // Without text on the answer face, there is nothing to compare with.
-      typedAnswer:
-          preset.typedAnswer && card.card.answerFor(direction.sense).hasText,
-    );
-  }
+  ) => ReviewPrompt.of(
+    key: ReviewNotificationKey(
+      directionId: direction.id,
+      extraReminderId: extraReminderId,
+    ),
+    card: card.card,
+    direction: direction,
+    preset: catalog.presetForCard(card.card),
+    groupName: groupNames[card.card.groupId],
+  );
 }

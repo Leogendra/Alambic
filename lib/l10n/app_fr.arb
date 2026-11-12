@@ -65,6 +65,61 @@
   "settingsGlobalPreset": "Preset global",
   "settingsGlobalPresetHint": "Pour les groupes et les cartes qui n'ont pas choisi de preset",
   "settingsNotificationsSection": "Notifications",
+  "settingsGuards": "Garde-fous",
+  "settingsGuardsSummary": "{cap} par jour max · silence {start} à {end}",
+  "@settingsGuardsSummary": {
+    "placeholders": {
+      "cap": {
+        "type": "int"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsGuardsSummaryNoQuiet": "{cap} par jour max",
+  "@settingsGuardsSummaryNoQuiet": {
+    "placeholders": {
+      "cap": {
+        "type": "int"
+      }
+    }
+  },
+  "guardsTitle": "Garde-fous",
+  "guardsDailyCap": "Plafond par jour",
+  "guardsDailyCapHint": "Notifs de cartes, tous groupes",
+  "guardsDecrease": "Diminuer",
+  "guardsIncrease": "Augmenter",
+  "guardsTomorrow": "{count, plural, =0{Demain : aucune carte due} =1{Demain : 1 carte due} other{Demain : {count} cartes dues}}",
+  "@guardsTomorrow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guardsTomorrowAllSent": "Toutes notifiées.",
+  "guardsTomorrowSplit": "{sent} notifiées. {postponed} décalées au lendemain : les intervalles les plus longs passent en dernier.",
+  "@guardsTomorrowSplit": {
+    "placeholders": {
+      "sent": {
+        "type": "int"
+      },
+      "postponed": {
+        "type": "int"
+      }
+    }
+  },
+  "guardsQuietHours": "Ne pas déranger",
+  "guardsQuietHoursHint": "Notifs décalées à la fin de la plage",
+  "guardsQuietFrom": "De",
+  "guardsQuietTo": "À",
+  "guardsAutoGroup": "Regroupement auto",
+  "guardsAutoGroupHint": "Une seule notif au-delà du seuil",
+  "guardsAutoGroupThreshold": "Seuil par créneau",
   "presetsTitle": "Presets",
   "presetGlobalBadge": "Global",
   "presetEngineSequence": "Séquence",
@@ -673,6 +728,14 @@
       "group": {
         "type": "String"
       },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationDigestTitle": "{count, plural, =1{1 carte à réviser} other{{count} cartes à réviser}}",
+  "@notificationDigestTitle": {
+    "placeholders": {
       "count": {
         "type": "int"
       }

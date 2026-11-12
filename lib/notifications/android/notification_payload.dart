@@ -2,12 +2,13 @@ import 'dart:convert';
 
 import '../../application/notifications/group_reminder.dart';
 import '../../application/notifications/group_reminder_key.dart';
+import '../../application/notifications/notification_digest.dart';
 import '../../application/notifications/notification_target.dart';
 import '../../application/notifications/review_notification_key.dart';
 
 /// The key of a notification, carried in its payload so that a pressed
 /// button knows what it answers: a card, possibly chained in a grouped
-/// reminder, or the count of a grouped reminder.
+/// reminder, the count of a grouped reminder, or the digest of a moment.
 abstract final class NotificationPayload {
   static String encode(ReviewNotificationKey key, {required bool isPrompt}) {
     final chain = key.chain;
@@ -24,6 +25,17 @@ abstract final class NotificationPayload {
     'group': reminder.key.groupId,
     'count': reminder.count,
   });
+
+  static String encodeDigest(NotificationDigest digest) =>
+      jsonEncode({'digest': true, 'count': digest.count});
+
+  /// The count shown by the digest, `null` for any other notification.
+  static int? decodeDigestCount(String? payload) {
+    final fields = _fields(payload);
+    return fields != null && fields['digest'] == true
+        ? fields['count'] as int?
+        : null;
+  }
 
   /// `null` for a payload that is not a card notification.
   static ReviewNotificationKey? decode(String? payload) {
@@ -53,14 +65,19 @@ abstract final class NotificationPayload {
   static int decodeGroupCount(String? payload) =>
       _fields(payload)?['count'] as int? ?? 0;
 
-  /// The group to open for a grouped reminder or a card chained in it;
-  /// `null` for any other notification.
+  /// The group to open for a grouped reminder or a card chained in it, Home
+  /// for the digest; `null` for any other notification.
   static NotificationTarget? target(String? payload) {
     final fields = _fields(payload);
-    return fields != null &&
-            (fields['summary'] == true || fields['chained'] == true)
-        ? NotificationTarget.group(fields['group'] as int?)
-        : null;
+    if (fields == null) {
+      return null;
+    } else if (fields['digest'] == true) {
+      return const NotificationTarget.home();
+    } else if (fields['summary'] == true || fields['chained'] == true) {
+      return NotificationTarget.group(fields['group'] as int?);
+    } else {
+      return null;
+    }
   }
 
   static Map<String, dynamic>? _fields(String? payload) {

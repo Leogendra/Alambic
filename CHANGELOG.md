@@ -22,4 +22,5 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Grouped reminder, for presets in this mode: one notification per group with its number of due cards, which opens the app on the group or chains the cards inside the notification.
 - Time range schedule: the notifications of the day are spread evenly over the range, and Home's timeline shows them at their moment.
 - A notification ignored or swiped is sent again the next day at the preset slot.
+- Notification safeguards in Settings: a daily cap that holds back the longest intervals first, quiet hours (22:00 to 08:00 by default) and auto grouping of a busy moment into a single notification.
 - In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.

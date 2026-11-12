@@ -6,13 +6,14 @@ import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/distillation/distillation_providers.dart';
+import '../../application/notifications/guard_providers.dart';
 import '../../application/presets/preset_providers.dart';
-import '../../data/data_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../distillation/global_distillation_screen.dart';
 import '../presets/preset_picker.dart';
 import '../presets/presets_screen.dart';
 import 'exact_alarms_panel.dart';
+import 'notification_guards_screen.dart';
 
 /// Settings tab.
 class SettingsScreen extends ConsumerWidget {
@@ -35,6 +36,8 @@ class SettingsScreen extends ConsumerWidget {
         _RepetitionPanel(),
         const SizedBox(height: 24),
         SectionLabel(strings.settingsNotificationsSection),
+        const _NotificationsPanel(),
+        const SizedBox(height: 14),
         const ExactAlarmsPanel(),
       ],
     );
@@ -79,8 +82,8 @@ class _RepetitionPanel extends ConsumerWidget {
                   final presetId = choice?.presetId;
                   if (presetId != null) {
                     await ref
-                        .read(presetRepositoryProvider)
-                        .setGlobalPresetId(presetId);
+                        .read(presetServiceProvider)
+                        .setGlobalPreset(presetId);
                   }
                 },
         ),
@@ -102,6 +105,41 @@ class _RepetitionPanel extends ConsumerWidget {
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (context) => const GlobalDistillationScreen(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _NotificationsPanel extends ConsumerWidget {
+  const _NotificationsPanel();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    final guards = ref.watch(notificationGuardsProvider).value;
+    return SurfacePanel(
+      children: [
+        PanelRow(
+          title: strings.settingsGuards,
+          subtitle: switch (guards) {
+            null => null,
+            final guards when guards.quietHoursEnabled =>
+              strings.settingsGuardsSummary(
+                guards.dailyCap,
+                '${guards.quietStart}',
+                '${guards.quietEnd}',
+              ),
+            final guards => strings.settingsGuardsSummaryNoQuiet(
+              guards.dailyCap,
+            ),
+          },
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (context) => const NotificationGuardsScreen(),
             ),
           ),
         ),

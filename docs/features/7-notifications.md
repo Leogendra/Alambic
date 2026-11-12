@@ -4,7 +4,7 @@ Status: in progress (2026-11-11)
 
 ## Goal
 
-Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. A preset can also gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. The daily safeguards come later.
+Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. A preset can also gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the whole within a daily cap, outside quiet hours, and gather the notifications of a busy moment into one.
 
 ## Implementation overview
 
@@ -41,6 +41,16 @@ Then, with a time range in one-notification-per-card mode: the directions due at
 The spreading depends on the cards due that day: when a card is answered in the app before its notification, the others of the range move. A notification that moves to a moment already passed is shown at once, through a wake-up planned for the next minute.
 
 Home's timeline lists the same moments, so a range shows one line per notification.
+
+### Safeguards
+
+Three safeguards, set in Settings › Notifications › Garde-fous and stored in the database (`NotificationGuards`), apply to every group. `DeliveryPlanner` applies the first two to the notification moments, the dispatcher the third:
+
+- **Quiet hours** (*ne pas déranger*, on by default, 22:00 to 08:00): a notification falling inside is moved to their end, 23:10 to 08:00 the next morning. The hours may span midnight or stay within a day. A notification moved to the next morning keeps that moment even though its due day is over.
+- **Daily cap** (20 cards by default): each day, the cards beyond the cap are not notified; the ones waiting the longest interval of their sequence go last, a new card counting as the shortest. They are moved to the slot of the next day, where they compete again. The cards already notified that day count against the cap, through a counter of the day kept in `app_settings`, since a card answered loses the trace of its notification. A card in a grouped reminder counts as one card; "Review soon" reminders are not counted.
+- **Auto grouping** (on by default, beyond 5): when a wake-up has more notifications to show than the threshold, card notifications and grouped reminders together, a single notification replaces them, "12 cartes à réviser", naming the groups and the estimated time. Touching it opens Home. Its count follows the answers given in the app: it counts the cards notified that day that are still due, and closes when none is left.
+
+The Garde-fous screen saves each change at once and plans the wake-ups again. Under the cap, it shows tomorrow's load: the cards due tomorrow, how many fit under the cap and how many would be moved to the day after.
 
 ### Showing a card
 
@@ -108,13 +118,17 @@ The notification permission of Android 13 is asked at launch until the onboardin
 - [x] With chaining, the cards of the reminder are answered one after the other inside the notification, with "Open" to switch to the app.
 - [x] A grouped reminder follows the answers given in the app, and closes when no card is left.
 - [x] With a time range, the cards of the day are notified one by one, spread evenly over the range; a grouped reminder arrives at the start of the range.
+- [x] Beyond the daily cap, the cards waiting the longest intervals are not notified that day and come back the next day.
+- [x] A notification falling in the quiet hours arrives at their end.
+- [x] Beyond the auto grouping threshold, the notifications of a moment are replaced by a single one that opens Home.
+- [x] The safeguards are set in Settings, with tomorrow's load shown against the cap.
 
 ## Test strategy
 
 - The timing rules (shown once, within an hour, wake-ups rounded and capped), the notification moments and the typed answer comparison are tested as pure domain logic.
 - The planner, the dispatcher and the action handler are tested together on an in-memory database, through the same providers as the app, with in-memory fakes of the three platform interfaces that behave like an alarm manager and a notification shade.
 - The notification texts and the payload carried by a notification are tested without a device.
-- The exact alarm panel is tested on screen, with a golden test of the refused state.
+- The exact alarm panel is tested on screen, with a golden test of the refused state; the safeguards screen has a golden test too.
 - The Android implementation itself (alarm plugin, notification plugin, background isolates) is not covered by automated tests: it is checked on a phone.
 
 ## File mapping
@@ -125,12 +139,14 @@ The notification permission of Android 13 is asked at launch until the onboardin
 - `lib/notifications/` — notification texts and the store of planned wake-ups.
 - `lib/notifications/android/` — Android implementations, wiring and background entry points.
 - `lib/features/settings/exact_alarms_panel.dart` — the exact alarm panel of Settings.
+- `lib/features/settings/notification_guards_screen.dart` — the safeguards screen.
+- `lib/data/repositories/notification_settings_repository.dart` — the safeguards and the count of cards notified today.
 - `lib/app/shell/main_shell.dart` — opens the group of a grouped reminder touched in the notifications.
 - `lib/main.dart` — initialisation, permission request and planning at launch.
 
 ## Technical details
 
-The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its direction id; extra reminders use ids from 1,000,000,000 upwards so that they never replace the notification of a due card; the grouped reminder of a group uses the negative id `-1 - groupId` (-1 for "No group"), and the cards chained in it take the same id, so that each one replaces the previous. A notification carries its key (direction, extra reminder, chained group, prompt or answer, or the group and count of a grouped reminder) in its payload, which is how the planner finds the notifications shown and how a pressed button finds what it answers.
+The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its direction id; extra reminders use ids from 1,000,000,000 upwards so that they never replace the notification of a due card; the digest of a moment uses 2,000,000,000; the grouped reminder of a group uses the negative id `-1 - groupId` (-1 for "No group"), and the cards chained in it take the same id, so that each one replaces the previous. A notification carries its key (direction, extra reminder, chained group, prompt or answer, or the group and count of a grouped reminder) in its payload, which is how the planner finds the notifications shown and how a pressed button finds what it answers.
 
 "Open" and touching a grouped reminder launch the app instead of a background isolate: the plugin hands the response to the running app, or to the launch details when the notification started it. `notificationTargetsProvider` turns both into a stream of groups to open, which the main shell follows.
 

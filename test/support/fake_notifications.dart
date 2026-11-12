@@ -5,6 +5,7 @@ import 'package:alambic/application/notifications/alarm_scheduler.dart';
 import 'package:alambic/application/notifications/answer_reveal.dart';
 import 'package:alambic/application/notifications/group_reminder.dart';
 import 'package:alambic/application/notifications/group_reminder_key.dart';
+import 'package:alambic/application/notifications/notification_digest.dart';
 import 'package:alambic/application/notifications/notification_presenter.dart';
 import 'package:alambic/application/notifications/notification_providers.dart';
 import 'package:alambic/application/notifications/planned_alarm_store.dart';
@@ -49,6 +50,7 @@ class FakePresenter implements NotificationPresenter {
   final Map<ReviewNotificationKey, ReviewPrompt> prompts = {};
   final Map<ReviewNotificationKey, AnswerReveal> reveals = {};
   final Map<GroupReminderKey, GroupReminder> groupReminders = {};
+  NotificationDigest? digest;
 
   @override
   Future<void> requestPermission() async {}
@@ -89,6 +91,16 @@ class FakePresenter implements NotificationPresenter {
   Future<Map<GroupReminderKey, int>> shownGroupReminders() async => {
     for (final reminder in groupReminders.values) reminder.key: reminder.count,
   };
+
+  @override
+  Future<void> showDigest(NotificationDigest digest) async =>
+      this.digest = digest;
+
+  @override
+  Future<void> dismissDigest() async => digest = null;
+
+  @override
+  Future<int?> shownDigestCount() async => digest?.count;
 
   /// A notification replaces the one with the same id: the same card, or
   /// anything shown by the grouped reminder it is chained in.

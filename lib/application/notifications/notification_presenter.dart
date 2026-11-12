@@ -1,6 +1,7 @@
 import 'answer_reveal.dart';
 import 'group_reminder.dart';
 import 'group_reminder_key.dart';
+import 'notification_digest.dart';
 import 'review_notification_key.dart';
 import 'review_prompt.dart';
 
@@ -35,4 +36,13 @@ abstract interface class NotificationPresenter {
   /// Count shown by each grouped reminder currently on screen, not chaining
   /// a card.
   Future<Map<GroupReminderKey, int>> shownGroupReminders();
+
+  /// Shows the notification gathering the cards of a moment beyond the auto
+  /// grouping threshold; there is only one, replaced each time.
+  Future<void> showDigest(NotificationDigest digest);
+
+  Future<void> dismissDigest();
+
+  /// Count shown by the digest, `null` when it is not on screen.
+  Future<int?> shownDigestCount();
 }

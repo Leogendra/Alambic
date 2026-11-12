@@ -13,7 +13,8 @@ import '../../features/settings/settings_screen.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// Root screen: four tabs and the "+" button that creates a card. A grouped
-/// reminder touched in the notifications opens its group above it.
+/// reminder touched in the notifications opens its group above it, the
+/// digest of a moment opens Home.
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
@@ -37,11 +38,18 @@ class _MainShellState extends ConsumerState<MainShell> {
     super.dispose();
   }
 
-  void _open(NotificationTarget target) => Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (context) => GroupDetailScreen(groupId: target.groupId),
-    ),
-  );
+  void _open(NotificationTarget target) {
+    final navigator = Navigator.of(context)..popUntil((route) => route.isFirst);
+    if (target.isHome) {
+      setState(() => _selectedTab = 0);
+    } else {
+      navigator.push(
+        MaterialPageRoute<void>(
+          builder: (context) => GroupDetailScreen(groupId: target.groupId),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

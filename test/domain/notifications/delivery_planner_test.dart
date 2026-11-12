@@ -4,6 +4,7 @@ import 'package:alambic/domain/cards/direction_sense.dart';
 import 'package:alambic/domain/cards/direction_state.dart';
 import 'package:alambic/domain/notifications/delivery_candidate.dart';
 import 'package:alambic/domain/notifications/delivery_planner.dart';
+import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/domain/presets/built_in_presets.dart';
 import 'package:alambic/domain/presets/notification_mode.dart';
 import 'package:alambic/domain/presets/preset.dart';
@@ -25,16 +26,18 @@ void main() {
     DateTime dueAt, {
     Preset? preset,
     int? groupId,
+    int? step = 1,
+    DateTime? notifiedAt,
   }) => DeliveryCandidate(
     direction: CardDirection(
       id: id,
       cardId: id,
       sense: DirectionSense.frontToBack,
       state: DirectionState.active,
-      step: 1,
+      step: step,
       dueAt: dueAt,
       lastReviewedAt: null,
-      notifiedAt: null,
+      notifiedAt: notifiedAt,
       distillationId: null,
       queuePosition: null,
     ),
@@ -153,6 +156,103 @@ void main() {
         1: DateTime(2026, 11, 10, 9),
         2: DateTime(2026, 11, 10, 13),
       });
+    });
+  });
+
+  group('quiet hours', () {
+    const guards = NotificationGuards.defaults;
+    final intensive = BuiltInPresets.intensive;
+
+    Map<int, DateTime> guarded(
+      List<DeliveryCandidate> candidates,
+      DateTime now,
+    ) => planner.plan(candidates, now: now, guards: guards);
+
+    test('move a notification falling inside to their end', () {
+      final moments = guarded([
+        candidate(1, DateTime(2026, 11, 10, 23, 10), preset: intensive),
+        candidate(2, DateTime(2026, 11, 11, 2, 30), preset: intensive),
+        candidate(3, DateTime(2026, 11, 11, 7, 59), preset: intensive),
+        candidate(4, DateTime(2026, 11, 10, 21, 59), preset: intensive),
+      ], DateTime(2026, 11, 10, 21));
+      expect(moments, {
+        1: DateTime(2026, 11, 11, 8),
+        2: DateTime(2026, 11, 11, 8),
+        3: DateTime(2026, 11, 11, 8),
+        4: DateTime(2026, 11, 10, 21, 59),
+      });
+    });
+
+    test('keep the moved notification on the next morning', () {
+      final moments = guarded([
+        candidate(1, DateTime(2026, 11, 10, 23, 10), preset: intensive),
+      ], DateTime(2026, 11, 11, 7));
+      expect(moments[1], DateTime(2026, 11, 11, 8));
+    });
+
+    test('are ignored when turned off', () {
+      final moments = planner.plan(
+        [candidate(1, DateTime(2026, 11, 10, 23, 10), preset: intensive)],
+        now: DateTime(2026, 11, 10, 21),
+        guards: guards.copyWith(quietHoursEnabled: false),
+      );
+      expect(moments[1], DateTime(2026, 11, 10, 23, 10));
+    });
+
+    test('may stay within a day', () {
+      final nap = guards.copyWith(
+        quietStart: const ClockTime(13, 0),
+        quietEnd: const ClockTime(14, 30),
+      );
+      expect(nap.isQuiet(const ClockTime(13, 45)), isTrue);
+      expect(nap.isQuiet(const ClockTime(14, 30)), isFalse);
+      expect(nap.isQuiet(const ClockTime(23, 0)), isFalse);
+    });
+  });
+
+  group('the daily cap', () {
+    final noon = DateTime(2026, 11, 10, 12);
+    final standard = BuiltInPresets.standard;
+    final guards = NotificationGuards.defaults.copyWith(dailyCap: 2);
+
+    test('moves the longest intervals to the slot of the next day', () {
+      final moments = planner.plan(
+        [
+          candidate(1, noon, preset: standard, step: 5),
+          candidate(2, noon, preset: standard, step: 0),
+          candidate(3, noon, preset: standard, step: null),
+          candidate(4, noon, preset: standard, step: 3),
+        ],
+        now: DateTime(2026, 11, 10, 8),
+        guards: guards,
+      );
+      expect(moments, {
+        1: DateTime(2026, 11, 11, 12),
+        2: noon,
+        3: noon,
+        4: DateTime(2026, 11, 11, 12),
+      });
+    });
+
+    test('counts the cards already notified today', () {
+      final moments = planner.plan(
+        [
+          candidate(1, noon, preset: standard, step: 0),
+          candidate(2, noon, preset: standard, step: 1),
+          candidate(
+            3,
+            DateTime(2026, 11, 10, 9),
+            preset: standard,
+            notifiedAt: DateTime(2026, 11, 10, 9),
+          ),
+        ],
+        now: DateTime(2026, 11, 10, 10),
+        guards: guards,
+        notifiedToday: 1,
+      );
+      expect(moments[1], noon);
+      expect(moments[2], DateTime(2026, 11, 11, 12));
+      expect(moments[3], DateTime(2026, 11, 10, 9));
     });
   });
 }

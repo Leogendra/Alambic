@@ -1,5 +1,6 @@
 import '../../data/repositories/card_with_directions.dart';
 import '../../domain/notifications/delivery_planner.dart';
+import '../../domain/notifications/notification_guards.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../domain/reviews/extra_reminder.dart';
 import '../../domain/reviews/review_record.dart';
@@ -23,6 +24,8 @@ class TodayPlanner {
     required Set<int> distillationIds,
     required int dueCount,
     required DateTime now,
+    NotificationGuards? guards,
+    int notifiedToday = 0,
   }) => TodayOverview(
     dueCount: dueCount,
     doneCount: {
@@ -30,7 +33,14 @@ class TodayPlanner {
         if (!review.isBonus) review.directionId,
     }.length,
     timeline: [
-      ..._groupEntries(cards, catalog, distillationIds, now),
+      ..._groupEntries(
+        cards,
+        catalog,
+        distillationIds,
+        now,
+        guards,
+        notifiedToday,
+      ),
       ..._reminderEntries(reminders, now),
     ]..sort((first, second) => first.at.compareTo(second.at)),
   );
@@ -43,9 +53,15 @@ class TodayPlanner {
     PresetCatalog catalog,
     Set<int> distillationIds,
     DateTime now,
+    NotificationGuards? guards,
+    int notifiedToday,
   ) {
-    final deliveries = DeliveryPlanner(_calendar)
-        .plan(deliveryCandidates(cards, catalog), now: now);
+    final deliveries = DeliveryPlanner(_calendar).plan(
+      deliveryCandidates(cards, catalog),
+      now: now,
+      guards: guards,
+      notifiedToday: notifiedToday,
+    );
     final counts = <(int?, DateTime, int?), int>{};
     for (final card in cards) {
       for (final direction in card.directions) {

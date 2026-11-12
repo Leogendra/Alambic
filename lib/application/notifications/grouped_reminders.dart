@@ -1,5 +1,6 @@
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/group_repository.dart';
+import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/flashcard.dart';
@@ -24,6 +25,7 @@ class GroupedReminders {
     required this._cards,
     required this._groups,
     required this._presets,
+    required this._settings,
     required this._presenter,
     required this._deliveryPlanner,
     required this._clock,
@@ -32,6 +34,7 @@ class GroupedReminders {
   final CardRepository _cards;
   final GroupRepository _groups;
   final PresetRepository _presets;
+  final NotificationSettingsRepository _settings;
   final NotificationPresenter _presenter;
   final DeliveryPlanner _deliveryPlanner;
   final Clock _clock;
@@ -91,7 +94,8 @@ class GroupedReminders {
   }
 
   /// Cards of the group whose preset asks for a grouped reminder and whose
-  /// notification moment has come, the earliest due first.
+  /// notification moment has come, the earliest due first. Cards held back by
+  /// the daily cap are left out.
   Future<List<_Waiting>> _waiting(GroupReminderKey key) async {
     final now = _clock();
     final cards = await _cards.getCardsOfGroup(key.groupId);
@@ -99,6 +103,10 @@ class GroupedReminders {
     final deliveries = _deliveryPlanner.plan(
       deliveryCandidates(cards, catalog),
       now: now,
+      guards: await _settings.loadGuards(),
+      notifiedToday: await _settings.notifiedOn(
+        _deliveryPlanner.calendar.dayOf(now),
+      ),
     );
     final waiting = [
       for (final card in cards)

@@ -65,7 +65,7 @@ class AlambicDatabase extends _$AlambicDatabase {
   );
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -78,6 +78,20 @@ class AlambicDatabase extends _$AlambicDatabase {
         await migrator.createTable(distillations);
         await migrator.addColumn(cardDirections, cardDirections.distillationId);
         await migrator.addColumn(cardDirections, cardDirections.queuePosition);
+      }
+      if (from < 3) {
+        for (final column in [
+          appSettings.dailyNotificationCap,
+          appSettings.quietHoursEnabled,
+          appSettings.quietStart,
+          appSettings.quietEnd,
+          appSettings.autoGroupEnabled,
+          appSettings.autoGroupThreshold,
+          appSettings.notifiedDay,
+          appSettings.notifiedCount,
+        ]) {
+          await migrator.addColumn(appSettings, column);
+        }
       }
     },
     beforeOpen: (details) async {

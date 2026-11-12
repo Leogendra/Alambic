@@ -1,6 +1,8 @@
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/card_with_directions.dart';
 import '../../data/repositories/distillation_repository.dart';
+import '../../data/repositories/group_repository.dart';
+import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
@@ -12,6 +14,7 @@ import '../scheduling/schedule_change_listener.dart';
 import 'alarm_scheduler.dart';
 import 'delivery_candidates.dart';
 import 'grouped_reminders.dart';
+import 'notification_digest.dart';
 import 'notification_presenter.dart';
 import 'planned_alarm_store.dart';
 
@@ -28,7 +31,9 @@ import 'planned_alarm_store.dart';
 class NotificationPlanner implements ScheduleChangeListener {
   const NotificationPlanner({
     required this._cards,
+    required this._groups,
     required this._presets,
+    required this._settings,
     required this._reminders,
     required this._distillations,
     required this._rhythm,
@@ -46,7 +51,9 @@ class NotificationPlanner implements ScheduleChangeListener {
   static const int wakeUpLimit = 48;
 
   final CardRepository _cards;
+  final GroupRepository _groups;
   final PresetRepository _presets;
+  final NotificationSettingsRepository _settings;
   final ReminderRepository _reminders;
   final DistillationRepository _distillations;
   final DistillationRhythm _rhythm;
@@ -72,7 +79,14 @@ class NotificationPlanner implements ScheduleChangeListener {
     final cards = await _cards.getAll();
     final reminders = await _reminders.getAllUpcoming();
     final candidates = deliveryCandidates(cards, await _presets.loadCatalog());
-    final deliveries = _deliveryPlanner.plan(candidates, now: now);
+    final deliveries = _deliveryPlanner.plan(
+      candidates,
+      now: now,
+      guards: await _settings.loadGuards(),
+      notifiedToday: await _settings.notifiedOn(
+        _deliveryPlanner.calendar.dayOf(now),
+      ),
+    );
     final moments = [
       ...deliveries.values,
       for (final reminder in reminders) reminder.remindAt,
@@ -112,6 +126,7 @@ class NotificationPlanner implements ScheduleChangeListener {
     }
     await _store.save(wanted);
     await _withdrawAnswered(cards, now);
+    await _refreshDigest(cards, now);
   }
 
   /// Start of the next day each running distillation has to process: every
@@ -129,6 +144,42 @@ class NotificationPlanner implements ScheduleChangeListener {
                 : _rhythm.nextIntroductionDay(distillation, today),
           ),
     ];
+  }
+
+  /// Counts again the cards announced today that are still due, when the
+  /// notification gathering them is on screen, and closes it once none is
+  /// left.
+  Future<void> _refreshDigest(
+    List<CardWithDirections> cards,
+    DateTime now,
+  ) async {
+    final shownCount = await _presenter.shownDigestCount();
+    if (shownCount == null) {
+      return;
+    }
+    final today = _deliveryPlanner.calendar.dayOf(now);
+    final groupIds = [
+      for (final card in cards)
+        for (final direction in card.directions)
+          if (direction.notifiedAt case final notifiedAt?
+              when _deliveryPlanner.calendar.dayOf(notifiedAt) == today &&
+                  _duePolicy.isDueToday(
+                    direction,
+                    cardSuspended: card.card.suspended,
+                    now: now,
+                  ))
+            card.card.groupId,
+    ];
+    if (groupIds.isEmpty) {
+      await _presenter.dismissDigest();
+    } else if (groupIds.length != shownCount) {
+      await _presenter.showDigest(
+        NotificationDigest.of(groupIds, {
+          for (final group in await _groups.watchAll().first)
+            group.id: group.name,
+        }, alert: false),
+      );
+    }
   }
 
   Future<void> _withdrawAnswered(

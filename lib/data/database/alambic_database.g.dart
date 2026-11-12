@@ -616,8 +616,114 @@ class $AppSettingsTable extends AppSettings
       'REFERENCES presets (id)',
     ),
   );
+  static const VerificationMeta _dailyNotificationCapMeta =
+      const VerificationMeta('dailyNotificationCap');
   @override
-  List<GeneratedColumn> get $columns => [id, globalPresetId];
+  late final GeneratedColumn<int> dailyNotificationCap = GeneratedColumn<int>(
+    'daily_notification_cap',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(20),
+  );
+  static const VerificationMeta _quietHoursEnabledMeta = const VerificationMeta(
+    'quietHoursEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> quietHoursEnabled = GeneratedColumn<bool>(
+    'quiet_hours_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("quiet_hours_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ClockTime, int> quietStart =
+      GeneratedColumn<int>(
+        'quiet_start',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(22 * 60),
+      ).withConverter<ClockTime>($AppSettingsTable.$converterquietStart);
+  @override
+  late final GeneratedColumnWithTypeConverter<ClockTime, int> quietEnd =
+      GeneratedColumn<int>(
+        'quiet_end',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(8 * 60),
+      ).withConverter<ClockTime>($AppSettingsTable.$converterquietEnd);
+  static const VerificationMeta _autoGroupEnabledMeta = const VerificationMeta(
+    'autoGroupEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> autoGroupEnabled = GeneratedColumn<bool>(
+    'auto_group_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("auto_group_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _autoGroupThresholdMeta =
+      const VerificationMeta('autoGroupThreshold');
+  @override
+  late final GeneratedColumn<int> autoGroupThreshold = GeneratedColumn<int>(
+    'auto_group_threshold',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(5),
+  );
+  static const VerificationMeta _notifiedDayMeta = const VerificationMeta(
+    'notifiedDay',
+  );
+  @override
+  late final GeneratedColumn<DateTime> notifiedDay = GeneratedColumn<DateTime>(
+    'notified_day',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notifiedCountMeta = const VerificationMeta(
+    'notifiedCount',
+  );
+  @override
+  late final GeneratedColumn<int> notifiedCount = GeneratedColumn<int>(
+    'notified_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    globalPresetId,
+    dailyNotificationCap,
+    quietHoursEnabled,
+    quietStart,
+    quietEnd,
+    autoGroupEnabled,
+    autoGroupThreshold,
+    notifiedDay,
+    notifiedCount,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -644,6 +750,60 @@ class $AppSettingsTable extends AppSettings
     } else if (isInserting) {
       context.missing(_globalPresetIdMeta);
     }
+    if (data.containsKey('daily_notification_cap')) {
+      context.handle(
+        _dailyNotificationCapMeta,
+        dailyNotificationCap.isAcceptableOrUnknown(
+          data['daily_notification_cap']!,
+          _dailyNotificationCapMeta,
+        ),
+      );
+    }
+    if (data.containsKey('quiet_hours_enabled')) {
+      context.handle(
+        _quietHoursEnabledMeta,
+        quietHoursEnabled.isAcceptableOrUnknown(
+          data['quiet_hours_enabled']!,
+          _quietHoursEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('auto_group_enabled')) {
+      context.handle(
+        _autoGroupEnabledMeta,
+        autoGroupEnabled.isAcceptableOrUnknown(
+          data['auto_group_enabled']!,
+          _autoGroupEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('auto_group_threshold')) {
+      context.handle(
+        _autoGroupThresholdMeta,
+        autoGroupThreshold.isAcceptableOrUnknown(
+          data['auto_group_threshold']!,
+          _autoGroupThresholdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notified_day')) {
+      context.handle(
+        _notifiedDayMeta,
+        notifiedDay.isAcceptableOrUnknown(
+          data['notified_day']!,
+          _notifiedDayMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notified_count')) {
+      context.handle(
+        _notifiedCountMeta,
+        notifiedCount.isAcceptableOrUnknown(
+          data['notified_count']!,
+          _notifiedCountMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -661,6 +821,42 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.int,
         data['${effectivePrefix}global_preset_id'],
       )!,
+      dailyNotificationCap: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}daily_notification_cap'],
+      )!,
+      quietHoursEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}quiet_hours_enabled'],
+      )!,
+      quietStart: $AppSettingsTable.$converterquietStart.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}quiet_start'],
+        )!,
+      ),
+      quietEnd: $AppSettingsTable.$converterquietEnd.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}quiet_end'],
+        )!,
+      ),
+      autoGroupEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}auto_group_enabled'],
+      )!,
+      autoGroupThreshold: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}auto_group_threshold'],
+      )!,
+      notifiedDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}notified_day'],
+      ),
+      notifiedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}notified_count'],
+      )!,
     );
   }
 
@@ -668,18 +864,64 @@ class $AppSettingsTable extends AppSettings
   $AppSettingsTable createAlias(String alias) {
     return $AppSettingsTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<ClockTime, int> $converterquietStart =
+      const ClockTimeConverter();
+  static TypeConverter<ClockTime, int> $converterquietEnd =
+      const ClockTimeConverter();
 }
 
 class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   /// Always 1: the table holds a single row.
   final int id;
   final int globalPresetId;
-  const AppSettingsRow({required this.id, required this.globalPresetId});
+
+  /// Notification safeguards, see `NotificationGuards`.
+  final int dailyNotificationCap;
+  final bool quietHoursEnabled;
+  final ClockTime quietStart;
+  final ClockTime quietEnd;
+  final bool autoGroupEnabled;
+  final int autoGroupThreshold;
+
+  /// Cards notified on [notifiedDay], counted against the daily cap.
+  final DateTime? notifiedDay;
+  final int notifiedCount;
+  const AppSettingsRow({
+    required this.id,
+    required this.globalPresetId,
+    required this.dailyNotificationCap,
+    required this.quietHoursEnabled,
+    required this.quietStart,
+    required this.quietEnd,
+    required this.autoGroupEnabled,
+    required this.autoGroupThreshold,
+    this.notifiedDay,
+    required this.notifiedCount,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['global_preset_id'] = Variable<int>(globalPresetId);
+    map['daily_notification_cap'] = Variable<int>(dailyNotificationCap);
+    map['quiet_hours_enabled'] = Variable<bool>(quietHoursEnabled);
+    {
+      map['quiet_start'] = Variable<int>(
+        $AppSettingsTable.$converterquietStart.toSql(quietStart),
+      );
+    }
+    {
+      map['quiet_end'] = Variable<int>(
+        $AppSettingsTable.$converterquietEnd.toSql(quietEnd),
+      );
+    }
+    map['auto_group_enabled'] = Variable<bool>(autoGroupEnabled);
+    map['auto_group_threshold'] = Variable<int>(autoGroupThreshold);
+    if (!nullToAbsent || notifiedDay != null) {
+      map['notified_day'] = Variable<DateTime>(notifiedDay);
+    }
+    map['notified_count'] = Variable<int>(notifiedCount);
     return map;
   }
 
@@ -687,6 +929,16 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     return AppSettingsCompanion(
       id: Value(id),
       globalPresetId: Value(globalPresetId),
+      dailyNotificationCap: Value(dailyNotificationCap),
+      quietHoursEnabled: Value(quietHoursEnabled),
+      quietStart: Value(quietStart),
+      quietEnd: Value(quietEnd),
+      autoGroupEnabled: Value(autoGroupEnabled),
+      autoGroupThreshold: Value(autoGroupThreshold),
+      notifiedDay: notifiedDay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notifiedDay),
+      notifiedCount: Value(notifiedCount),
     );
   }
 
@@ -698,6 +950,16 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     return AppSettingsRow(
       id: serializer.fromJson<int>(json['id']),
       globalPresetId: serializer.fromJson<int>(json['globalPresetId']),
+      dailyNotificationCap: serializer.fromJson<int>(
+        json['dailyNotificationCap'],
+      ),
+      quietHoursEnabled: serializer.fromJson<bool>(json['quietHoursEnabled']),
+      quietStart: serializer.fromJson<ClockTime>(json['quietStart']),
+      quietEnd: serializer.fromJson<ClockTime>(json['quietEnd']),
+      autoGroupEnabled: serializer.fromJson<bool>(json['autoGroupEnabled']),
+      autoGroupThreshold: serializer.fromJson<int>(json['autoGroupThreshold']),
+      notifiedDay: serializer.fromJson<DateTime?>(json['notifiedDay']),
+      notifiedCount: serializer.fromJson<int>(json['notifiedCount']),
     );
   }
   @override
@@ -706,12 +968,39 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'globalPresetId': serializer.toJson<int>(globalPresetId),
+      'dailyNotificationCap': serializer.toJson<int>(dailyNotificationCap),
+      'quietHoursEnabled': serializer.toJson<bool>(quietHoursEnabled),
+      'quietStart': serializer.toJson<ClockTime>(quietStart),
+      'quietEnd': serializer.toJson<ClockTime>(quietEnd),
+      'autoGroupEnabled': serializer.toJson<bool>(autoGroupEnabled),
+      'autoGroupThreshold': serializer.toJson<int>(autoGroupThreshold),
+      'notifiedDay': serializer.toJson<DateTime?>(notifiedDay),
+      'notifiedCount': serializer.toJson<int>(notifiedCount),
     };
   }
 
-  AppSettingsRow copyWith({int? id, int? globalPresetId}) => AppSettingsRow(
+  AppSettingsRow copyWith({
+    int? id,
+    int? globalPresetId,
+    int? dailyNotificationCap,
+    bool? quietHoursEnabled,
+    ClockTime? quietStart,
+    ClockTime? quietEnd,
+    bool? autoGroupEnabled,
+    int? autoGroupThreshold,
+    Value<DateTime?> notifiedDay = const Value.absent(),
+    int? notifiedCount,
+  }) => AppSettingsRow(
     id: id ?? this.id,
     globalPresetId: globalPresetId ?? this.globalPresetId,
+    dailyNotificationCap: dailyNotificationCap ?? this.dailyNotificationCap,
+    quietHoursEnabled: quietHoursEnabled ?? this.quietHoursEnabled,
+    quietStart: quietStart ?? this.quietStart,
+    quietEnd: quietEnd ?? this.quietEnd,
+    autoGroupEnabled: autoGroupEnabled ?? this.autoGroupEnabled,
+    autoGroupThreshold: autoGroupThreshold ?? this.autoGroupThreshold,
+    notifiedDay: notifiedDay.present ? notifiedDay.value : this.notifiedDay,
+    notifiedCount: notifiedCount ?? this.notifiedCount,
   );
   AppSettingsRow copyWithCompanion(AppSettingsCompanion data) {
     return AppSettingsRow(
@@ -719,6 +1008,28 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       globalPresetId: data.globalPresetId.present
           ? data.globalPresetId.value
           : this.globalPresetId,
+      dailyNotificationCap: data.dailyNotificationCap.present
+          ? data.dailyNotificationCap.value
+          : this.dailyNotificationCap,
+      quietHoursEnabled: data.quietHoursEnabled.present
+          ? data.quietHoursEnabled.value
+          : this.quietHoursEnabled,
+      quietStart: data.quietStart.present
+          ? data.quietStart.value
+          : this.quietStart,
+      quietEnd: data.quietEnd.present ? data.quietEnd.value : this.quietEnd,
+      autoGroupEnabled: data.autoGroupEnabled.present
+          ? data.autoGroupEnabled.value
+          : this.autoGroupEnabled,
+      autoGroupThreshold: data.autoGroupThreshold.present
+          ? data.autoGroupThreshold.value
+          : this.autoGroupThreshold,
+      notifiedDay: data.notifiedDay.present
+          ? data.notifiedDay.value
+          : this.notifiedDay,
+      notifiedCount: data.notifiedCount.present
+          ? data.notifiedCount.value
+          : this.notifiedCount,
     );
   }
 
@@ -726,46 +1037,134 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   String toString() {
     return (StringBuffer('AppSettingsRow(')
           ..write('id: $id, ')
-          ..write('globalPresetId: $globalPresetId')
+          ..write('globalPresetId: $globalPresetId, ')
+          ..write('dailyNotificationCap: $dailyNotificationCap, ')
+          ..write('quietHoursEnabled: $quietHoursEnabled, ')
+          ..write('quietStart: $quietStart, ')
+          ..write('quietEnd: $quietEnd, ')
+          ..write('autoGroupEnabled: $autoGroupEnabled, ')
+          ..write('autoGroupThreshold: $autoGroupThreshold, ')
+          ..write('notifiedDay: $notifiedDay, ')
+          ..write('notifiedCount: $notifiedCount')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, globalPresetId);
+  int get hashCode => Object.hash(
+    id,
+    globalPresetId,
+    dailyNotificationCap,
+    quietHoursEnabled,
+    quietStart,
+    quietEnd,
+    autoGroupEnabled,
+    autoGroupThreshold,
+    notifiedDay,
+    notifiedCount,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AppSettingsRow &&
           other.id == this.id &&
-          other.globalPresetId == this.globalPresetId);
+          other.globalPresetId == this.globalPresetId &&
+          other.dailyNotificationCap == this.dailyNotificationCap &&
+          other.quietHoursEnabled == this.quietHoursEnabled &&
+          other.quietStart == this.quietStart &&
+          other.quietEnd == this.quietEnd &&
+          other.autoGroupEnabled == this.autoGroupEnabled &&
+          other.autoGroupThreshold == this.autoGroupThreshold &&
+          other.notifiedDay == this.notifiedDay &&
+          other.notifiedCount == this.notifiedCount);
 }
 
 class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
   final Value<int> id;
   final Value<int> globalPresetId;
+  final Value<int> dailyNotificationCap;
+  final Value<bool> quietHoursEnabled;
+  final Value<ClockTime> quietStart;
+  final Value<ClockTime> quietEnd;
+  final Value<bool> autoGroupEnabled;
+  final Value<int> autoGroupThreshold;
+  final Value<DateTime?> notifiedDay;
+  final Value<int> notifiedCount;
   const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.globalPresetId = const Value.absent(),
+    this.dailyNotificationCap = const Value.absent(),
+    this.quietHoursEnabled = const Value.absent(),
+    this.quietStart = const Value.absent(),
+    this.quietEnd = const Value.absent(),
+    this.autoGroupEnabled = const Value.absent(),
+    this.autoGroupThreshold = const Value.absent(),
+    this.notifiedDay = const Value.absent(),
+    this.notifiedCount = const Value.absent(),
   });
   AppSettingsCompanion.insert({
     this.id = const Value.absent(),
     required int globalPresetId,
+    this.dailyNotificationCap = const Value.absent(),
+    this.quietHoursEnabled = const Value.absent(),
+    this.quietStart = const Value.absent(),
+    this.quietEnd = const Value.absent(),
+    this.autoGroupEnabled = const Value.absent(),
+    this.autoGroupThreshold = const Value.absent(),
+    this.notifiedDay = const Value.absent(),
+    this.notifiedCount = const Value.absent(),
   }) : globalPresetId = Value(globalPresetId);
   static Insertable<AppSettingsRow> custom({
     Expression<int>? id,
     Expression<int>? globalPresetId,
+    Expression<int>? dailyNotificationCap,
+    Expression<bool>? quietHoursEnabled,
+    Expression<int>? quietStart,
+    Expression<int>? quietEnd,
+    Expression<bool>? autoGroupEnabled,
+    Expression<int>? autoGroupThreshold,
+    Expression<DateTime>? notifiedDay,
+    Expression<int>? notifiedCount,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (globalPresetId != null) 'global_preset_id': globalPresetId,
+      if (dailyNotificationCap != null)
+        'daily_notification_cap': dailyNotificationCap,
+      if (quietHoursEnabled != null) 'quiet_hours_enabled': quietHoursEnabled,
+      if (quietStart != null) 'quiet_start': quietStart,
+      if (quietEnd != null) 'quiet_end': quietEnd,
+      if (autoGroupEnabled != null) 'auto_group_enabled': autoGroupEnabled,
+      if (autoGroupThreshold != null)
+        'auto_group_threshold': autoGroupThreshold,
+      if (notifiedDay != null) 'notified_day': notifiedDay,
+      if (notifiedCount != null) 'notified_count': notifiedCount,
     });
   }
 
-  AppSettingsCompanion copyWith({Value<int>? id, Value<int>? globalPresetId}) {
+  AppSettingsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? globalPresetId,
+    Value<int>? dailyNotificationCap,
+    Value<bool>? quietHoursEnabled,
+    Value<ClockTime>? quietStart,
+    Value<ClockTime>? quietEnd,
+    Value<bool>? autoGroupEnabled,
+    Value<int>? autoGroupThreshold,
+    Value<DateTime?>? notifiedDay,
+    Value<int>? notifiedCount,
+  }) {
     return AppSettingsCompanion(
       id: id ?? this.id,
       globalPresetId: globalPresetId ?? this.globalPresetId,
+      dailyNotificationCap: dailyNotificationCap ?? this.dailyNotificationCap,
+      quietHoursEnabled: quietHoursEnabled ?? this.quietHoursEnabled,
+      quietStart: quietStart ?? this.quietStart,
+      quietEnd: quietEnd ?? this.quietEnd,
+      autoGroupEnabled: autoGroupEnabled ?? this.autoGroupEnabled,
+      autoGroupThreshold: autoGroupThreshold ?? this.autoGroupThreshold,
+      notifiedDay: notifiedDay ?? this.notifiedDay,
+      notifiedCount: notifiedCount ?? this.notifiedCount,
     );
   }
 
@@ -778,6 +1177,34 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     if (globalPresetId.present) {
       map['global_preset_id'] = Variable<int>(globalPresetId.value);
     }
+    if (dailyNotificationCap.present) {
+      map['daily_notification_cap'] = Variable<int>(dailyNotificationCap.value);
+    }
+    if (quietHoursEnabled.present) {
+      map['quiet_hours_enabled'] = Variable<bool>(quietHoursEnabled.value);
+    }
+    if (quietStart.present) {
+      map['quiet_start'] = Variable<int>(
+        $AppSettingsTable.$converterquietStart.toSql(quietStart.value),
+      );
+    }
+    if (quietEnd.present) {
+      map['quiet_end'] = Variable<int>(
+        $AppSettingsTable.$converterquietEnd.toSql(quietEnd.value),
+      );
+    }
+    if (autoGroupEnabled.present) {
+      map['auto_group_enabled'] = Variable<bool>(autoGroupEnabled.value);
+    }
+    if (autoGroupThreshold.present) {
+      map['auto_group_threshold'] = Variable<int>(autoGroupThreshold.value);
+    }
+    if (notifiedDay.present) {
+      map['notified_day'] = Variable<DateTime>(notifiedDay.value);
+    }
+    if (notifiedCount.present) {
+      map['notified_count'] = Variable<int>(notifiedCount.value);
+    }
     return map;
   }
 
@@ -785,7 +1212,15 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
   String toString() {
     return (StringBuffer('AppSettingsCompanion(')
           ..write('id: $id, ')
-          ..write('globalPresetId: $globalPresetId')
+          ..write('globalPresetId: $globalPresetId, ')
+          ..write('dailyNotificationCap: $dailyNotificationCap, ')
+          ..write('quietHoursEnabled: $quietHoursEnabled, ')
+          ..write('quietStart: $quietStart, ')
+          ..write('quietEnd: $quietEnd, ')
+          ..write('autoGroupEnabled: $autoGroupEnabled, ')
+          ..write('autoGroupThreshold: $autoGroupThreshold, ')
+          ..write('notifiedDay: $notifiedDay, ')
+          ..write('notifiedCount: $notifiedCount')
           ..write(')'))
         .toString();
   }
@@ -3674,9 +4109,31 @@ typedef $$PresetsTableProcessedTableManager =
       })
     >;
 typedef $$AppSettingsTableCreateCompanionBuilder =
-    AppSettingsCompanion Function({Value<int> id, required int globalPresetId});
+    AppSettingsCompanion Function({
+      Value<int> id,
+      required int globalPresetId,
+      Value<int> dailyNotificationCap,
+      Value<bool> quietHoursEnabled,
+      Value<ClockTime> quietStart,
+      Value<ClockTime> quietEnd,
+      Value<bool> autoGroupEnabled,
+      Value<int> autoGroupThreshold,
+      Value<DateTime?> notifiedDay,
+      Value<int> notifiedCount,
+    });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
-    AppSettingsCompanion Function({Value<int> id, Value<int> globalPresetId});
+    AppSettingsCompanion Function({
+      Value<int> id,
+      Value<int> globalPresetId,
+      Value<int> dailyNotificationCap,
+      Value<bool> quietHoursEnabled,
+      Value<ClockTime> quietStart,
+      Value<ClockTime> quietEnd,
+      Value<bool> autoGroupEnabled,
+      Value<int> autoGroupThreshold,
+      Value<DateTime?> notifiedDay,
+      Value<int> notifiedCount,
+    });
 
 final class $$AppSettingsTableReferences
     extends
@@ -3712,6 +4169,48 @@ class $$AppSettingsTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dailyNotificationCap => $composableBuilder(
+    column: $table.dailyNotificationCap,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get quietHoursEnabled => $composableBuilder(
+    column: $table.quietHoursEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ClockTime, ClockTime, int> get quietStart =>
+      $composableBuilder(
+        column: $table.quietStart,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<ClockTime, ClockTime, int> get quietEnd =>
+      $composableBuilder(
+        column: $table.quietEnd,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<bool> get autoGroupEnabled => $composableBuilder(
+    column: $table.autoGroupEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get autoGroupThreshold => $composableBuilder(
+    column: $table.autoGroupThreshold,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get notifiedDay => $composableBuilder(
+    column: $table.notifiedDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get notifiedCount => $composableBuilder(
+    column: $table.notifiedCount,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3753,6 +4252,46 @@ class $$AppSettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get dailyNotificationCap => $composableBuilder(
+    column: $table.dailyNotificationCap,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get quietHoursEnabled => $composableBuilder(
+    column: $table.quietHoursEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get quietStart => $composableBuilder(
+    column: $table.quietStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get quietEnd => $composableBuilder(
+    column: $table.quietEnd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get autoGroupEnabled => $composableBuilder(
+    column: $table.autoGroupEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get autoGroupThreshold => $composableBuilder(
+    column: $table.autoGroupThreshold,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get notifiedDay => $composableBuilder(
+    column: $table.notifiedDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get notifiedCount => $composableBuilder(
+    column: $table.notifiedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$PresetsTableOrderingComposer get globalPresetId {
     final $$PresetsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3788,6 +4327,45 @@ class $$AppSettingsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get dailyNotificationCap => $composableBuilder(
+    column: $table.dailyNotificationCap,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get quietHoursEnabled => $composableBuilder(
+    column: $table.quietHoursEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<ClockTime, int> get quietStart =>
+      $composableBuilder(
+        column: $table.quietStart,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<ClockTime, int> get quietEnd =>
+      $composableBuilder(column: $table.quietEnd, builder: (column) => column);
+
+  GeneratedColumn<bool> get autoGroupEnabled => $composableBuilder(
+    column: $table.autoGroupEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get autoGroupThreshold => $composableBuilder(
+    column: $table.autoGroupThreshold,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get notifiedDay => $composableBuilder(
+    column: $table.notifiedDay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get notifiedCount => $composableBuilder(
+    column: $table.notifiedCount,
+    builder: (column) => column,
+  );
 
   $$PresetsTableAnnotationComposer get globalPresetId {
     final $$PresetsTableAnnotationComposer composer = $composerBuilder(
@@ -3839,17 +4417,53 @@ class $$AppSettingsTableTableManager
               $$AppSettingsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$AppSettingsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<int> globalPresetId = const Value.absent(),
-          }) => AppSettingsCompanion(id: id, globalPresetId: globalPresetId),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> globalPresetId = const Value.absent(),
+                Value<int> dailyNotificationCap = const Value.absent(),
+                Value<bool> quietHoursEnabled = const Value.absent(),
+                Value<ClockTime> quietStart = const Value.absent(),
+                Value<ClockTime> quietEnd = const Value.absent(),
+                Value<bool> autoGroupEnabled = const Value.absent(),
+                Value<int> autoGroupThreshold = const Value.absent(),
+                Value<DateTime?> notifiedDay = const Value.absent(),
+                Value<int> notifiedCount = const Value.absent(),
+              }) => AppSettingsCompanion(
+                id: id,
+                globalPresetId: globalPresetId,
+                dailyNotificationCap: dailyNotificationCap,
+                quietHoursEnabled: quietHoursEnabled,
+                quietStart: quietStart,
+                quietEnd: quietEnd,
+                autoGroupEnabled: autoGroupEnabled,
+                autoGroupThreshold: autoGroupThreshold,
+                notifiedDay: notifiedDay,
+                notifiedCount: notifiedCount,
+              ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required int globalPresetId,
+                Value<int> dailyNotificationCap = const Value.absent(),
+                Value<bool> quietHoursEnabled = const Value.absent(),
+                Value<ClockTime> quietStart = const Value.absent(),
+                Value<ClockTime> quietEnd = const Value.absent(),
+                Value<bool> autoGroupEnabled = const Value.absent(),
+                Value<int> autoGroupThreshold = const Value.absent(),
+                Value<DateTime?> notifiedDay = const Value.absent(),
+                Value<int> notifiedCount = const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 id: id,
                 globalPresetId: globalPresetId,
+                dailyNotificationCap: dailyNotificationCap,
+                quietHoursEnabled: quietHoursEnabled,
+                quietStart: quietStart,
+                quietEnd: quietEnd,
+                autoGroupEnabled: autoGroupEnabled,
+                autoGroupThreshold: autoGroupThreshold,
+                notifiedDay: notifiedDay,
+                notifiedCount: notifiedCount,
               ),
           withReferenceMapper: (p0) => p0
               .map(

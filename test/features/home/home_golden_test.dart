@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/pause_repository.dart';
 import 'package:alambic/domain/cards/direction_sense.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
@@ -62,4 +63,21 @@ void main() {
       );
     });
   }
+
+  testWidgets('home during the global pause', (tester) async {
+    await seed(tester);
+    await tester.runAsync(
+      () => PauseRepository(database).setGlobalPausedAt(sampleNow),
+    );
+    await pumpGolden(
+      tester,
+      const Scaffold(body: SafeArea(child: HomeScreen())),
+      overrides: screenOverrides(database, renderAt),
+    );
+    expect(find.text('Reprendre'), findsOneWidget);
+    await expectLater(
+      find.byType(HomeScreen),
+      matchesGoldenFile('goldens/home_paused.png'),
+    );
+  });
 }

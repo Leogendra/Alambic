@@ -5,6 +5,7 @@ import 'repositories/card_repository.dart';
 import 'repositories/distillation_repository.dart';
 import 'repositories/group_repository.dart';
 import 'repositories/notification_settings_repository.dart';
+import 'repositories/pause_repository.dart';
 import 'repositories/preset_repository.dart';
 import 'repositories/reminder_repository.dart';
 
@@ -36,4 +37,8 @@ final distillationRepositoryProvider = Provider(
 
 final notificationSettingsRepositoryProvider = Provider(
   (ref) => NotificationSettingsRepository(ref.watch(databaseProvider)),
+);
+
+final pauseRepositoryProvider = Provider(
+  (ref) => PauseRepository(ref.watch(databaseProvider)),
 );

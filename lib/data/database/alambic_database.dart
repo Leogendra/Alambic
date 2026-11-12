@@ -65,7 +65,7 @@ class AlambicDatabase extends _$AlambicDatabase {
   );
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -92,6 +92,10 @@ class AlambicDatabase extends _$AlambicDatabase {
         ]) {
           await migrator.addColumn(appSettings, column);
         }
+      }
+      if (from < 4) {
+        await migrator.addColumn(cardGroups, cardGroups.pausedAt);
+        await migrator.addColumn(appSettings, appSettings.pausedAt);
       }
     },
     beforeOpen: (details) async {

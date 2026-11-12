@@ -31,13 +31,14 @@ Two grids follow, each opening the group page:
 - "Groups to review": the groups with due cards, with their count;
 - "Cards to start": the groups holding [unstarted](../lexicon.md#unstarted) cards, so that new cards never go unnoticed ([Feature 3](3-cards.md#starting-new-cards)).
 
-The pause button of the mockup is not there yet: pauses come with the notification safeguards.
+A pause button next to the date starts the global pause, after a confirmation ([Feature 7](7-notifications.md#pauses)). During the pause, Home starts with "En pause depuis le …" and a "Reprendre" button, and the timeline is empty: nothing will be notified.
 
 ## Acceptance criteria
 
 - [x] Home shows the number of due cards, an estimated duration and the progress of the day; "Review all now" starts a session on every due card.
 - [x] The timeline lists today's reminders per group and moment, the new cards of the distillations, and the "Review soon" reminders, past ones greyed with what is left, the next one highlighted.
 - [x] Home lists the groups with due cards and the groups with cards to start, each opening its group page.
+- [x] The pause button starts the global pause; Home then offers to resume it.
 
 ## Test strategy
 

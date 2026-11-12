@@ -20,7 +20,9 @@ The page of a group (or of "No group") recalls the number of cards, the preset, 
 
 ### Group settings
 
-A group's settings are its name, its preset and its deletion. The preset is picked from the preset list, or inherits the global preset. The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
+A group's settings are its name, its preset, its pause and its deletion. The preset is picked from the preset list, or inherits the global preset. The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
+
+The pause silences the group: none of its cards is notified and its distillations introduce nothing, until it is resumed; its due dates then move by the length of the pause ([Feature 7](7-notifications.md#pauses)). A paused group is greyed in the tab, with "En pause" and a pause icon instead of its due count, and its page starts with "En pause depuis le …" and a "Reprendre" button.
 
 Deleting a group asks for confirmation, announcing how many cards go with it, then deletes the group with its cards and their history.
 
@@ -36,6 +38,7 @@ Counters are computed by `GroupOverview` from all cards, the preset catalog and 
 - [x] A group is created, renamed, changes preset or inherits the global preset.
 - [x] Deleting a group deletes its cards and their history.
 - [x] A suspended card does not count as due.
+- [x] A group is paused and resumed from its settings or its page; a paused group is shown as such in the tab.
 
 ## Test strategy
 

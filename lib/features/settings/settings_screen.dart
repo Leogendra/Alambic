@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/formatting/date_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../application/notifications/guard_providers.dart';
+import '../../application/pauses/pause_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../distillation/global_distillation_screen.dart';
@@ -120,6 +122,7 @@ class _NotificationsPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final guards = ref.watch(notificationGuardsProvider).value;
+    final pausedAt = ref.watch(pausesProvider).value?.globalSince;
     return SurfacePanel(
       children: [
         PanelRow(
@@ -141,6 +144,19 @@ class _NotificationsPanel extends ConsumerWidget {
             MaterialPageRoute<void>(
               builder: (context) => const NotificationGuardsScreen(),
             ),
+          ),
+        ),
+        PanelRow(
+          title: strings.pauseGlobal,
+          subtitle: pausedAt == null
+              ? strings.pauseGlobalHint
+              : strings.pausedSince(strings.shortDate(pausedAt)),
+          trailing: Switch(
+            value: pausedAt != null,
+            onChanged: (paused) {
+              final service = ref.read(pauseServiceProvider);
+              paused ? service.pauseAll() : service.resumeAll();
+            },
           ),
         ),
       ],

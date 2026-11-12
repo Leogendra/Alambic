@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/pause_repository.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/groups/group_settings_screen.dart';
 import 'package:alambic/features/groups/groups_screen.dart';
@@ -38,6 +39,22 @@ void main() {
     await expectLater(
       find.byType(GroupsScreen),
       matchesGoldenFile('goldens/groups_tab.png'),
+    );
+  });
+
+  testWidgets('groups tab with a paused group', (tester) async {
+    await seed(tester);
+    await tester.runAsync(
+      () => PauseRepository(database).setGroupPausedAt(capitalsId, sampleNow),
+    );
+    await pumpGolden(
+      tester,
+      const Scaffold(body: SafeArea(child: GroupsScreen())),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await expectLater(
+      find.byType(GroupsScreen),
+      matchesGoldenFile('goldens/groups_tab_paused.png'),
     );
   });
 

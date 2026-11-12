@@ -5,6 +5,7 @@ class CardGroup {
     required this.name,
     required this.presetId,
     required this.createdAt,
+    this.pausedAt,
   });
 
   final int id;
@@ -13,4 +14,9 @@ class CardGroup {
   /// `null` inherits the global preset.
   final int? presetId;
   final DateTime createdAt;
+
+  /// Start of the pause of the group, `null` when it is not paused.
+  final DateTime? pausedAt;
+
+  bool get isPaused => pausedAt != null;
 }

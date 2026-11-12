@@ -4,7 +4,7 @@ Status: in progress (2026-11-11)
 
 ## Goal
 
-Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. A preset can also gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the whole within a daily cap, outside quiet hours, and gather the notifications of a busy moment into one.
+Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. A preset can also gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the whole within a daily cap, outside quiet hours, and gather the notifications of a busy moment into one. A group, or everything, can be paused.
 
 ## Implementation overview
 
@@ -51,6 +51,14 @@ Three safeguards, set in Settings › Notifications › Garde-fous and stored in
 - **Auto grouping** (on by default, beyond 5): when a wake-up has more notifications to show than the threshold, card notifications and grouped reminders together, a single notification replaces them, "12 cartes à réviser", naming the groups and the estimated time. Touching it opens Home. Its count follows the answers given in the app: it counts the cards notified that day that are still due, and closes when none is left.
 
 The Garde-fous screen saves each change at once and plans the wake-ups again. Under the cap, it shows tomorrow's load: the cards due tomorrow, how many fit under the cap and how many would be moved to the day after.
+
+### Pauses
+
+A group is paused from its settings or its page, everything from Settings › Notifications or the pause button of Home. `PauseService` stores the start of the pause (`card_groups.paused_at`, `app_settings.paused_at`) and plans the wake-ups again.
+
+During a pause, the paused cards are no longer candidates for a notification, so no wake-up is planned for them, no grouped reminder counts them, Home's timeline leaves them out and their "Review soon" reminders are dropped. The distillations of a paused group, and every distillation during the global pause, introduce nothing; on resume, the next daily pass introduces the batch due, without catching up the days missed. The cards stay reviewable in the app.
+
+On resume, `PauseShift`, in the domain, moves the due date of every scheduled direction by the number of scheduling days the pause lasted, keeping its time: a card due on the 12th, in a pause from the 10th to the 14th, comes back on the 16th. A direction answered during the pause keeps the due date chosen then, and a pause shorter than a day moves nothing. Resuming the global pause leaves alone the groups still paused on their own: their resume shifts them by their whole pause.
 
 ### Showing a card
 
@@ -122,6 +130,7 @@ The notification permission of Android 13 is asked at launch until the onboardin
 - [x] A notification falling in the quiet hours arrives at their end.
 - [x] Beyond the auto grouping threshold, the notifications of a moment are replaced by a single one that opens Home.
 - [x] The safeguards are set in Settings, with tomorrow's load shown against the cap.
+- [x] A paused group, or every card during the global pause, is not notified and its distillations wait; on resume, its due dates move by the length of the pause, except those of cards answered meanwhile.
 
 ## Test strategy
 
@@ -141,6 +150,8 @@ The notification permission of Android 13 is asked at launch until the onboardin
 - `lib/features/settings/exact_alarms_panel.dart` — the exact alarm panel of Settings.
 - `lib/features/settings/notification_guards_screen.dart` — the safeguards screen.
 - `lib/data/repositories/notification_settings_repository.dart` — the safeguards and the count of cards notified today.
+- `lib/domain/pauses/`, `lib/application/pauses/`, `lib/data/repositories/pause_repository.dart` — the pauses, their shift on resume, their service and storage.
+- `lib/features/pauses/paused_banner.dart` — "En pause depuis le …" with "Reprendre", on Home and on a group page.
 - `lib/app/shell/main_shell.dart` — opens the group of a grouped reminder touched in the notifications.
 - `lib/main.dart` — initialisation, permission request and planning at launch.
 

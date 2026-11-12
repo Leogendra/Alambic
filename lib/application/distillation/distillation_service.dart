@@ -3,6 +3,7 @@ import 'dart:math';
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/card_with_directions.dart';
 import '../../data/repositories/distillation_repository.dart';
+import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/direction_sense.dart';
@@ -34,6 +35,7 @@ class DistillationService {
     required this._distillations,
     required this._cards,
     required this._presets,
+    required this._pauses,
     required this._scheduler,
     required this._calendar,
     required this._clock,
@@ -44,6 +46,7 @@ class DistillationService {
   final DistillationRepository _distillations;
   final CardRepository _cards;
   final PresetRepository _presets;
+  final PauseRepository _pauses;
   final ReviewScheduler _scheduler;
   final SchedulingCalendar _calendar;
   final Clock _clock;
@@ -210,11 +213,17 @@ class DistillationService {
   /// Runs the pass of the current day for every running distillation that
   /// has not had it yet: spends its budget when it avoids collisions,
   /// introduces the cards the rhythm owes, and deletes a distillation whose
-  /// queue is empty. Returns whether a schedule moved.
+  /// queue is empty. A distillation whose group is paused, or any during the
+  /// global pause, waits for the end of the pause. Returns whether a schedule
+  /// moved.
   Future<bool> advance() async {
     var changed = false;
+    final pauses = await _pauses.loadPauses();
     for (final distillation in await _distillations.getAll()) {
-      if (distillation.isRunning) {
+      final paused = distillation.isGlobal
+          ? pauses.isGlobal
+          : pauses.covers(distillation.groupId);
+      if (distillation.isRunning && !paused) {
         changed = await _advanceOne(distillation.id) || changed;
       }
     }

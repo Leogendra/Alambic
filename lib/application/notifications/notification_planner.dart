@@ -3,6 +3,7 @@ import '../../data/repositories/card_with_directions.dart';
 import '../../data/repositories/distillation_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
+import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
@@ -34,6 +35,7 @@ class NotificationPlanner implements ScheduleChangeListener {
     required this._groups,
     required this._presets,
     required this._settings,
+    required this._pauses,
     required this._reminders,
     required this._distillations,
     required this._rhythm,
@@ -54,6 +56,7 @@ class NotificationPlanner implements ScheduleChangeListener {
   final GroupRepository _groups;
   final PresetRepository _presets;
   final NotificationSettingsRepository _settings;
+  final PauseRepository _pauses;
   final ReminderRepository _reminders;
   final DistillationRepository _distillations;
   final DistillationRhythm _rhythm;
@@ -78,7 +81,11 @@ class NotificationPlanner implements ScheduleChangeListener {
     final now = _clock();
     final cards = await _cards.getAll();
     final reminders = await _reminders.getAllUpcoming();
-    final candidates = deliveryCandidates(cards, await _presets.loadCatalog());
+    final candidates = deliveryCandidates(
+      cards,
+      await _presets.loadCatalog(),
+      await _pauses.loadPauses(),
+    );
     final deliveries = _deliveryPlanner.plan(
       candidates,
       now: now,

@@ -5,7 +5,8 @@ import '../../app/widgets/count_badge.dart';
 import '../../application/groups/group_summary.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// A group in the groups tab: name, card count, preset and due badge.
+/// A group in the groups tab: name, card count, preset and due badge, or
+/// the pause of a paused group.
 class GroupSummaryTile extends StatelessWidget {
   const GroupSummaryTile({
     required this.summary,
@@ -22,6 +23,7 @@ class GroupSummaryTile extends StatelessWidget {
     final colors = AlambicColors.of(context);
     final cards = strings.cardCount(summary.cardCount);
     final group = summary.group;
+    final paused = group?.isPaused ?? false;
     return Material(
       color: colors.surface,
       shape: RoundedRectangleBorder(
@@ -42,15 +44,18 @@ class GroupSummaryTile extends StatelessWidget {
                   children: [
                     Text(
                       group?.name ?? strings.noGroup,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
+                        color: paused ? colors.textSecondary : null,
                       ),
                     ),
                     Text(
-                      group == null
-                          ? strings.noGroupLine(cards)
-                          : strings.groupLine(cards, summary.preset.name),
+                      switch (group) {
+                        null => strings.noGroupLine(cards),
+                        _ when paused => strings.groupLinePaused(cards),
+                        _ => strings.groupLine(cards, summary.preset.name),
+                      },
                       style: TextStyle(
                         fontSize: 13,
                         color: colors.textSecondary,
@@ -59,7 +64,10 @@ class GroupSummaryTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (summary.dueCount > 0) CountBadge(summary.dueCount),
+              if (paused)
+                Icon(Icons.pause, color: colors.textSecondary)
+              else if (summary.dueCount > 0)
+                CountBadge(summary.dueCount),
             ],
           ),
         ),

@@ -42,6 +42,14 @@ The budget is spent once, when the day is processed; reminders that come later t
 
 A paused distillation introduces nothing; resuming it processes the current day if it was not processed yet. Stopping a distillation deletes it: its remaining directions stay pending, outside any queue, and can be started by hand (card sheet, "Start all") or taken by a new distillation. A distillation whose queue is empty ends and is deleted the same way.
 
+### Screens
+
+On a group page, the "Distillation" section lists the distillations of the group: direction, "In progress" or "Paused", rhythm and order ("1 card per day · group order"), a progress bar ("22 of 35 introduced") and the estimated day of the last arrival. Each one has a pause / resume button and a stop button, which asks for confirmation and says what becomes of the remaining cards. Its "Distill" button opens the launch screen.
+
+The launch screen ("Distill") shows the preset slot and the preset the cards will follow, then the settings: direction (one already distilled is greyed out, "already in progress"; the other shows how many cards it would take), "N cards every X days" (1 / 1 by default), order (group order by default) and "Avoid collisions" (on, explaining the daily budget). An estimate follows ("44 cards · last arrival on 23 December"), computed as if every batch went through, then "Launch the distillation", disabled when nothing waits.
+
+On Home, the new cards of a distillation have their own line in the timeline ([Feature 6](6-home.md)).
+
 ## Acceptance criteria
 
 - [x] Launching a group distillation queues the never started directions of its sense, in group or random order, and introduces the first batch the same day.
@@ -53,6 +61,9 @@ A paused distillation introduces nothing; resuming it processes the current day 
 - [x] Avoiding collisions: a daily budget of N notifications, reminders first and shortest intervals first, the rest moved to the next day without penalty, new cards in what is left.
 - [x] Pause, resume and stop; the directions left by a stopped distillation can be started by hand.
 - [x] A distillation ends when its queue is empty.
+- [x] The launch screen sets direction, rhythm, order and collision avoidance, with an estimate of the last arrival.
+- [x] The group page follows each distillation (state, rhythm, progress, last arrival) with pause / resume and stop.
+- [x] Home shows the new cards of a distillation as "New knowledge".
 
 ## Test strategy
 
@@ -60,12 +71,14 @@ A paused distillation introduces nothing; resuming it processes the current day 
 - The launch rules and the global distillation are tested on an in-memory database: refusals, queues taken over, cards created meanwhile, and the reverse arriving after its front over ten simulated days with a seeded random order.
 - The example of 3 cards a day on the Standard preset is replayed day by day on an in-memory database, answering every card when it comes.
 - The service is tested on an in-memory database filled through the services, moving a fixed clock across days: first batch, next days, 4am boundary, missed days, additions, reverse, pause, stop, suspension, end.
+- The launch screen, the group page and Home with a distillation are covered by golden tests; a widget test launches a distillation from the screen.
 - The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, and the introduction done by the wake-up.
 
 ## File mapping
 
 - `lib/domain/distillation/` — the distillation, its settings, the rhythm and the queue rules.
-- `lib/application/distillation/` — `DistillationService` and its providers.
+- `lib/application/distillation/` — `DistillationService`, the progress of a distillation (`DistillationProgress`) and their providers.
+- `lib/features/distillation/` — the launch screen, the tile and the section of a group page.
 - `lib/data/repositories/distillation_repository.dart` — storage of the distillations; the queue itself is stored on the directions (`CardRepository`).
 
 ## Technical details

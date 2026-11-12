@@ -19,6 +19,7 @@ The panel shows the number of due directions and an estimate of about thirty sec
 The timeline lists the moments of the day at which something is planned:
 
 - for each group (and "No group"), the directions due today at a given moment, described by the group's preset: "4 reminders, one notification per card", or a grouped reminder;
+- the new cards a [distillation](8-distillation.md) introduces today, apart from the reminders of their group: "New knowledge", "Capitales · distillation, card 23 of 35";
 - the "Review soon" reminders falling today.
 
 Past moments are greyed and give what is still left ("2 left"); the first moment ahead is highlighted as "Next". A direction answered ahead of its slot leaves the timeline, since its due date moved. Directions overdue from previous days are not in the timeline: they are counted in the due panel.
@@ -35,13 +36,13 @@ The pause button of the mockup is not there yet: pauses come with the notificati
 ## Acceptance criteria
 
 - [x] Home shows the number of due cards, an estimated duration and the progress of the day; "Review all now" starts a session on every due card.
-- [x] The timeline lists today's reminders per group and moment, and the "Review soon" reminders, past ones greyed with what is left, the next one highlighted.
+- [x] The timeline lists today's reminders per group and moment, the new cards of the distillations, and the "Review soon" reminders, past ones greyed with what is left, the next one highlighted.
 - [x] Home lists the groups with due cards and the groups with cards to start, each opening its group page.
 
 ## Test strategy
 
-- `TodayPlanner` is tested on an in-memory database filled through the services: grouping per group and moment, extra reminders, next entry, and the count of answers of the day without bonus reviews.
-- The screen is covered by golden tests in light and dark theme on the sample data, partly answered, with a reminder and a group of new cards.
+- `TodayPlanner` is tested on an in-memory database filled through the services: grouping per group and moment, new cards of a distillation apart, extra reminders, next entry, and the count of answers of the day without bonus reviews.
+- The screen is covered by golden tests in light and dark theme on the sample data, partly answered, with a reminder and a group of new cards, and by a golden test with a distillation in progress.
 
 ## File mapping
 

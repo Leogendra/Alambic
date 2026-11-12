@@ -16,7 +16,7 @@ As soon as some text is typed, the group list gives way to the cards whose front
 
 ### Group page
 
-The page of a group (or of "No group") recalls the number of cards, the preset, its notification mode and its schedule. Three counters follow: due cards, active cards (at least one active or acquired direction) and new cards (a direction unstarted or pending distillation). When cards wait to be started, a panel offers "Start all" ([Feature 3](3-cards.md#starting-new-cards)). The card list is in creation order, which is the group order. Each card shows its front, its back, the status of the front → back direction ("not started", "new", "step 2 of 6", "suspended", "pending distillation", "acquired") and its next due date ("Due", "at 15:17", "tomorrow", "in 3 d"). The "+" button creates a card directly in the group.
+The page of a group (or of "No group") recalls the number of cards, the preset, its notification mode and its schedule. Three counters follow: due cards, active cards (at least one active or acquired direction) and new cards (a direction unstarted or pending distillation). When cards wait to be started, a panel offers "Start all" ([Feature 3](3-cards.md#starting-new-cards)). A group (not "No group") then has a "Distillation" section: its distillations in progress and a "Distill" button ([Feature 8](8-distillation.md#screens)). The card list is in creation order, which is the group order. Each card shows its front, its back, the status of the front → back direction ("not started", "new", "step 2 of 6", "suspended", "pending distillation", "acquired") and its next due date ("Due", "at 15:17", "tomorrow", "in 3 d"). The "+" button creates a card directly in the group.
 
 ### Group settings
 

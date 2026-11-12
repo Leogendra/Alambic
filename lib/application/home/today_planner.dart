@@ -18,6 +18,7 @@ class TodayPlanner {
     required List<ExtraReminder> reminders,
     required List<ReviewRecord> reviewsToday,
     required PresetCatalog catalog,
+    required Set<int> distillationIds,
     required int dueCount,
     required DateTime now,
   }) => TodayOverview(
@@ -27,23 +28,33 @@ class TodayPlanner {
         if (!review.isBonus) review.directionId,
     }.length,
     timeline: [
-      ..._groupEntries(cards, catalog, now),
+      ..._groupEntries(cards, catalog, distillationIds, now),
       ..._reminderEntries(reminders, now),
     ]..sort((first, second) => first.at.compareTo(second.at)),
   );
 
-  /// Directions of active cards due today, grouped by group and moment.
+  /// Directions of active cards due today, grouped by group and moment. The
+  /// new cards of a distillation in progress get lines of their own.
   Iterable<TimelineEntry> _groupEntries(
     List<CardWithDirections> cards,
     PresetCatalog catalog,
+    Set<int> distillationIds,
     DateTime now,
   ) {
-    final counts = <(int?, DateTime), int>{};
+    final counts = <(int?, DateTime, int?), int>{};
     for (final card in cards.where((card) => !card.card.suspended)) {
       for (final direction in card.directions) {
         final dueAt = direction.dueAt;
         if (direction.isScheduled && _isToday(dueAt!, now)) {
-          final key = (card.card.groupId, dueAt);
+          final distillationId = direction.distillationId;
+          final isNewKnowledge =
+              direction.step == null &&
+              distillationIds.contains(distillationId);
+          final key = (
+            card.card.groupId,
+            dueAt,
+            isNewKnowledge ? distillationId : null,
+          );
           counts[key] = (counts[key] ?? 0) + 1;
         }
       }
@@ -55,6 +66,7 @@ class TodayPlanner {
         preset: catalog.presetForGroup(count.key.$1),
         count: count.value,
         isExtraReminder: false,
+        distillationId: count.key.$3,
       ),
     );
   }

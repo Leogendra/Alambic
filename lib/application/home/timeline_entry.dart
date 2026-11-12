@@ -1,7 +1,8 @@
 import '../../domain/presets/preset.dart';
 
-/// One line of today's timeline: the reminders of a group at a moment, or the
-/// "Review soon" reminders falling at that moment.
+/// One line of today's timeline: the reminders of a group at a moment, the
+/// new cards a distillation introduces at that moment, or the "Review soon"
+/// reminders falling at that moment.
 class TimelineEntry {
   const TimelineEntry({
     required this.at,
@@ -9,6 +10,7 @@ class TimelineEntry {
     required this.preset,
     required this.count,
     required this.isExtraReminder,
+    this.distillationId,
   });
 
   final DateTime at;
@@ -23,4 +25,7 @@ class TimelineEntry {
   /// Directions still waiting at this moment.
   final int count;
   final bool isExtraReminder;
+
+  /// Set for the new cards of a distillation ("New knowledge").
+  final int? distillationId;
 }

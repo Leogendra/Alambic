@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/remanence_colors.dart';
 import '../../app/widgets/surface_panel.dart';
+import '../../application/distillation/distillation_progress.dart';
+import '../../application/distillation/distillation_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/home/timeline_entry.dart';
 import '../../application/home/today_overview.dart';
@@ -33,6 +35,10 @@ class TodayTimeline extends ConsumerWidget {
       );
     }
     final groups = ref.watch(groupsProvider).value ?? const [];
+    final distillations = {
+      for (final progress in ref.watch(distillationProgressesProvider))
+        progress.distillation.id: progress,
+    };
     final nextIndex = overview.nextIndex(now);
     return SurfacePanel(
       children: [
@@ -47,6 +53,7 @@ class TodayTimeline extends ConsumerWidget {
                     .map((group) => group.name)
                     .firstOrNull ??
                 strings.noGroup,
+            distillations: distillations,
             isPast: nextIndex == null || index < nextIndex,
             isNext: index == nextIndex,
           ),
@@ -59,10 +66,12 @@ class TodayTimeline extends ConsumerWidget {
     RemanenceColors colors,
     TimelineEntry entry, {
     required String Function(int? groupId) groupName,
+    required Map<int, DistillationProgress> distillations,
     required bool isPast,
     required bool isNext,
   }) {
     final textColor = isPast ? colors.textSecondary : colors.textPrimary;
+    final distillation = distillations[entry.distillationId];
     return SizedBox(
       height: 52,
       child: Row(
@@ -88,6 +97,8 @@ class TodayTimeline extends ConsumerWidget {
                 Text(
                   entry.isExtraReminder
                       ? strings.cardSheetReviewSoon
+                      : distillation != null
+                      ? strings.homeTimelineNewKnowledge(entry.count)
                       : groupName(entry.groupId),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -100,6 +111,13 @@ class TodayTimeline extends ConsumerWidget {
                 Text(
                   isPast
                       ? strings.homeTimelineRemaining(entry.count)
+                      : distillation != null
+                      ? _distillationDetail(
+                          strings,
+                          entry,
+                          distillation,
+                          groupName(entry.groupId),
+                        )
                       : _detail(strings, entry),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -108,6 +126,13 @@ class TodayTimeline extends ConsumerWidget {
               ],
             ),
           ),
+          if (distillation != null && !isNext)
+            Icon(
+              Icons.water_drop_outlined,
+              size: 18,
+              color: isPast ? colors.textSecondary : colors.accent,
+              semanticLabel: strings.groupDistillationSection,
+            ),
           if (isNext)
             Text(
               strings.homeTimelineNext,
@@ -138,6 +163,20 @@ class TodayTimeline extends ConsumerWidget {
       },
     };
   }
+
+  /// "Capitales · distillation, card 23 of 35".
+  String _distillationDetail(
+    AppLocalizations strings,
+    TimelineEntry entry,
+    DistillationProgress progress,
+    String group,
+  ) => entry.count == 1
+      ? strings.homeTimelineDistillationOne(
+          group,
+          progress.introduced,
+          progress.total,
+        )
+      : strings.homeTimelineDistillationMany(group, entry.count);
 
   Widget _dot(
     RemanenceColors colors, {

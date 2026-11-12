@@ -5,6 +5,7 @@ import '../../domain/reviews/extra_reminder.dart';
 import '../../domain/reviews/review_record.dart';
 import '../cards/card_providers.dart';
 import '../clock.dart';
+import '../distillation/distillation_providers.dart';
 import '../presets/preset_providers.dart';
 import '../reviews/review_providers.dart';
 import '../time/minute_ticker.dart';
@@ -38,8 +39,10 @@ final todayOverviewProvider = Provider<TodayOverview?>((ref) {
   final reminders = ref.watch(upcomingExtraRemindersProvider).value;
   final reviews = ref.watch(todayReviewsProvider).value;
   final catalog = ref.watch(presetCatalogProvider).value;
+  final distillations = ref.watch(distillationsProvider).value;
   final now = ref.watch(currentMomentProvider).value;
   if (cards == null ||
+      distillations == null ||
       reminders == null ||
       reviews == null ||
       catalog == null ||
@@ -51,6 +54,9 @@ final todayOverviewProvider = Provider<TodayOverview?>((ref) {
       reminders: reminders,
       reviewsToday: reviews,
       catalog: catalog,
+      distillationIds: {
+        for (final distillation in distillations) distillation.id,
+      },
       dueCount: ref.watch(dueItemsProvider).length,
       now: now,
     );

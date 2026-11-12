@@ -2,10 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:remanence/application/home/today_planner.dart';
 import 'package:remanence/data/database/remanence_database.dart';
 import 'package:remanence/data/repositories/card_repository.dart';
+import 'package:remanence/data/repositories/distillation_repository.dart';
 import 'package:remanence/data/repositories/preset_repository.dart';
 import 'package:remanence/data/repositories/reminder_repository.dart';
 import 'package:remanence/data/repositories/review_repository.dart';
 import 'package:remanence/domain/cards/direction_sense.dart';
+import 'package:remanence/domain/distillation/distillation_settings.dart';
 import 'package:remanence/domain/reviews/review_outcome.dart';
 import 'package:remanence/domain/reviews/review_source.dart';
 import 'package:remanence/domain/scheduling/clock_time.dart';
@@ -41,6 +43,12 @@ void main() {
         .watchSince(DateTime(2026, 11, 10, 4))
         .first,
     catalog: await PresetRepository(database).loadCatalog(),
+    distillationIds: {
+      for (final distillation in await DistillationRepository(
+        database,
+      ).getAll())
+        distillation.id,
+    },
     dueCount: 0,
     now: now,
   );
@@ -90,5 +98,25 @@ void main() {
           .count,
       3,
     );
+  });
+
+  test('the new cards of a distillation get a line of their own', () async {
+    final kanji = await samples.groups.create('Kanji');
+    for (final word in ['山', '川', '木']) {
+      await samples.card(word, 'sens', groupId: kanji);
+    }
+    final distillationId = await samples.distillations.launchForGroup(
+      kanji,
+      DirectionSense.frontToBack,
+      const DistillationSettings(cardsPerBatch: 2, avoidCollisions: false),
+    );
+    final overview = await overviewAt(sampleNow);
+    final distilled = overview.timeline
+        .where((entry) => entry.distillationId != null)
+        .single;
+    expect(distilled.distillationId, distillationId);
+    expect(distilled.groupId, kanji);
+    expect(distilled.count, 2);
+    expect(distilled.at, DateTime(2026, 11, 10, 12));
   });
 }

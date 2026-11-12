@@ -625,5 +625,158 @@
   "settingsExactAlarmsOn": "Les rappels tombent à la minute près.",
   "settingsExactAlarmsOff": "Les rappels peuvent arriver avec quelques minutes de retard. Autorise les alarmes exactes pour qu'ils tombent à l'heure.",
   "settingsExactAlarmsAllow": "Autoriser",
-  "settingsExactAlarmsAllowed": "Activés"
+  "settingsExactAlarmsAllowed": "Activés",
+  "distillTitle": "Distiller",
+  "distillIntro": "Les cartes jamais révisées arrivent au compte-gouttes, à l'horaire du preset ({time}). Chacune suit ensuite le preset {preset}.",
+  "@distillIntro": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
+  "distillSense": "Sens",
+  "distillSenseCount": "{count, plural, =0{rien à introduire} =1{1 carte à introduire} other{{count} cartes à introduire}}",
+  "@distillSenseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "distillSenseTaken": "déjà en cours",
+  "distillRhythm": "Rythme",
+  "distillCards": "Cartes",
+  "distillEvery": "Tous les",
+  "distillDays": "{count} j",
+  "@distillDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "distillFewerCards": "Moins de cartes",
+  "distillMoreCards": "Plus de cartes",
+  "distillFewerDays": "Moins de jours",
+  "distillMoreDays": "Plus de jours",
+  "distillOrder": "Ordre",
+  "distillOrderGroup": "Ordre du groupe",
+  "distillOrderRandom": "Aléatoire",
+  "distillAvoidCollisions": "Éviter les collisions",
+  "distillAvoidCollisionsHint": "{count, plural, =1{1 notif par jour au plus pour cette distillation.} other{{count} notifs par jour au plus pour cette distillation.}} Les rappels passent avant les nouvelles cartes.",
+  "@distillAvoidCollisionsHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "distillEstimate": "{count, plural, =1{1 carte · arrivée le {date}} other{{count} cartes · dernière arrivée le {date}}}",
+  "@distillEstimate": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "distillNothing": "Aucune carte à introduire dans ce sens.",
+  "distillLaunch": "Lancer la distillation",
+  "distillRefusedGlobal": "La distillation globale est en cours : arrête-la pour distiller un groupe.",
+  "distillRefusedTaken": "Ce sens est déjà distillé.",
+  "distillRefusedNothing": "Aucune carte à introduire.",
+  "groupDistillationSection": "Distillation",
+  "groupDistillationNone": "Aucune distillation. Distiller fait arriver les nouvelles cartes au compte-gouttes.",
+  "distillationRunning": "En cours",
+  "distillationPaused": "En pause",
+  "distillationPause": "Mettre la distillation en pause",
+  "distillationResume": "Reprendre la distillation",
+  "distillationStop": "Arrêter la distillation",
+  "distillationCardsPer": "{count, plural, =1{1 carte} other{{count} cartes}}",
+  "@distillationCardsPer": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "distillationEveryDays": "{count, plural, =1{par jour} other{tous les {count} jours}}",
+  "@distillationEveryDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "distillationOrderGroup": "ordre du groupe",
+  "distillationOrderRandom": "ordre aléatoire",
+  "distillationIntroduced": "{introduced} sur {total} introduites",
+  "@distillationIntroduced": {
+    "placeholders": {
+      "introduced": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "distillationLastArrival": "dernière le {date}",
+  "@distillationLastArrival": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "distillationStopTitle": "Arrêter la distillation ?",
+  "distillationStopBody": "{count, plural, =0{Toutes ses cartes sont déjà introduites.} =1{La carte restante reste en attente : relance une distillation ou commence-la à la main.} other{Les {count} cartes restantes restent en attente : relance une distillation ou commence-les à la main.}}",
+  "@distillationStopBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "distillationStopConfirm": "Arrêter",
+  "homeTimelineNewKnowledge": "{count, plural, =1{Nouvelle connaissance} other{Nouvelles connaissances}}",
+  "@homeTimelineNewKnowledge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeTimelineDistillationOne": "{group} · distillation, carte {rank} sur {total}",
+  "@homeTimelineDistillationOne": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "homeTimelineDistillationMany": "{group} · distillation, {count} cartes",
+  "@homeTimelineDistillationMany": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "distillationGlobalScope": "Globale"
 }

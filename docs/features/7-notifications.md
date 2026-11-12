@@ -4,7 +4,7 @@ Status: in progress (2026-11-11)
 
 ## Goal
 
-Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. Grouped reminders, time ranges and the daily safeguards come later.
+Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. A preset can also gather the due cards of a group in a single grouped reminder. Time ranges and the daily safeguards come later.
 
 ## Implementation overview
 
@@ -59,6 +59,19 @@ The typed answer is compared with the answer face by `TypedAnswerMatch`, in the 
 
 An accepted answer is recorded as "Correct", a refused one as "Again". In both cases the notification is replaced by the expected answer, how the typed answer compared and what the answer did ("« canbera » accepté, 1 faute · prochain rappel demain"), with "OK".
 
+### Grouped reminder
+
+A preset in grouped reminder mode announces the due cards of a group with a single notification, "Capitales : 5 cartes à réviser", with the estimated time ("Environ 3 min"). `GroupedReminders` builds it: the dispatcher marks each due direction of such a preset as notified, as usual, then shows the reminder of its group instead of a notification of its own. Cards without a group have their own reminder, under "No group".
+
+The count is the number of cards of the group, following a grouped preset, whose due moment has passed. When it changes because a card was answered in the app, the planner refreshes it without ringing again, and closes the reminder once no card is left.
+
+What the reminder offers depends on the preset:
+
+- open the app (default): touching the notification or "Ouvrir l'app" opens the app on the group page;
+- chain the cards: "Commencer ici" replaces the reminder with the first card, the earliest due. Each answer replaces it with the next card, with "Capitales · 3 à réviser" as sub-text and an "Ouvrir" button to switch to the app; "Again" first shows the expected answer, and its "OK" moves on. The notification closes after the last card. A chained card answered in the app gives way to the next one.
+
+When several presets of a group ask for a grouped reminder, the action of the earliest due card wins.
+
 ### Exact alarms, restarts and permissions
 
 Exact alarms need a permission that Android 14 refuses by default. Without it, wake-ups are scheduled as inexact alarms, which Android may deliver a few minutes late, and Settings shows a "Reminders at the exact time" panel with an "Allow" button opening the system page. Back in the app, the permission is read again and, when it changed, every wake-up is scheduled again with the new precision.
@@ -78,6 +91,9 @@ The notification permission of Android 13 is asked at launch until the onboardin
 - [x] Without the exact alarm permission, reminders are still planned as inexact alarms, and Settings offers to allow exact alarms.
 - [x] Wake-ups are planned again after a phone restart and at each launch.
 - [x] With the typed answer option, the card is answered in a field of the notification; the comparison ignores case, accents and spaces and forgives one typo, then the expected answer is shown with "OK".
+- [x] In grouped reminder mode, the due cards of a group are announced by one notification with their count, which opens the app on the group.
+- [x] With chaining, the cards of the reminder are answered one after the other inside the notification, with "Open" to switch to the app.
+- [x] A grouped reminder follows the answers given in the app, and closes when no card is left.
 
 ## Test strategy
 
@@ -91,15 +107,18 @@ The notification permission of Android 13 is asked at launch until the onboardin
 
 - `lib/domain/notifications/` — when to show a reminder and when to wake up.
 - `lib/domain/reviews/typed_answer_match.dart` — comparison of a typed answer.
-- `lib/application/notifications/` — the platform interfaces, the planner, the dispatcher, the action handler and their providers.
+- `lib/application/notifications/` — the platform interfaces, the planner, the dispatcher, the grouped reminders, the action handler and their providers.
 - `lib/notifications/` — notification texts and the store of planned wake-ups.
 - `lib/notifications/android/` — Android implementations, wiring and background entry points.
 - `lib/features/settings/exact_alarms_panel.dart` — the exact alarm panel of Settings.
+- `lib/app/shell/main_shell.dart` — opens the group of a grouped reminder touched in the notifications.
 - `lib/main.dart` — initialisation, permission request and planning at launch.
 
 ## Technical details
 
-The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its direction id; extra reminders use ids from 1,000,000,000 upwards so that they never replace the notification of a due card. A notification carries its key (direction, extra reminder, prompt or answer) in its payload, which is how the planner finds the cards shown and how a pressed button finds the direction it answers.
+The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its direction id; extra reminders use ids from 1,000,000,000 upwards so that they never replace the notification of a due card; the grouped reminder of a group uses the negative id `-1 - groupId` (-1 for "No group"), and the cards chained in it take the same id, so that each one replaces the previous. A notification carries its key (direction, extra reminder, chained group, prompt or answer, or the group and count of a grouped reminder) in its payload, which is how the planner finds the notifications shown and how a pressed button finds what it answers.
+
+"Open" and touching a grouped reminder launch the app instead of a background isolate: the plugin hands the response to the running app, or to the launch details when the notification started it. `notificationTargetsProvider` turns both into a stream of groups to open, which the main shell follows.
 
 The "Again" and "Answer" buttons do not let the plugin close the notification, so that the answer replaces it in place; the replaced notification only alerts once. The text typed in the field reaches the background isolate in the `input` of the notification response.
 

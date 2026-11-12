@@ -15,7 +15,7 @@ void main() {
     expect(compare('oulan bator', 'Oulan Bator'), TypedAnswerMatch.exact);
     expect(compare('OulanBator', 'Oulan Bator'), TypedAnswerMatch.exact);
     expect(compare('coeur', 'cœur'), TypedAnswerMatch.exact);
-    expect(compare("lAustralie", "l'Australie"), TypedAnswerMatch.exact);
+    expect(compare('lAustralie', "l'Australie"), TypedAnswerMatch.exact);
   });
 
   test('forgives one typo', () {

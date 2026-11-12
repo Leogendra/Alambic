@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../app/formatting/review_duration_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/section_label.dart';
 import '../../application/groups/group_providers.dart';
@@ -19,9 +20,6 @@ import 'today_timeline.dart';
 /// to start.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
-
-  /// Rough time per card used for the "about N min" estimate.
-  static const Duration _timePerCard = Duration(seconds: 30);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -89,9 +87,6 @@ class HomeScreen extends ConsumerWidget {
       ],
     );
   }
-
-  static int estimatedMinutes(int dueCount) =>
-      (dueCount * _timePerCard.inSeconds / 60).ceil();
 }
 
 /// "12 à réviser", the progress of the day and "Review all now".
@@ -142,7 +137,7 @@ class _DuePanel extends ConsumerWidget {
               ),
               if (due > 0)
                 Text(
-                  strings.homeDuration(HomeScreen.estimatedMinutes(due)),
+                  strings.reviewDuration(due),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

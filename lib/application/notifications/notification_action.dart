@@ -8,4 +8,12 @@ enum NotificationAction {
 
   /// "OK" under a revealed answer.
   acknowledge,
+
+  /// "Start here" on a grouped reminder: chains its cards in the
+  /// notification.
+  start,
+
+  /// "Open" on a grouped reminder or a chained card: opens the app on the
+  /// group.
+  open,
 }

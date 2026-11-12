@@ -656,6 +656,31 @@
     }
   },
   "notificationAcquired": "carte acquise",
+  "notificationGroupTitle": "{group} : {count, plural, =1{1 carte à réviser} other{{count} cartes à réviser}}",
+  "@notificationGroupTitle": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationChainRemaining": "{group} · {count} à réviser",
+  "@notificationChainRemaining": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationStartHere": "Commencer ici",
+  "notificationOpenApp": "Ouvrir l'app",
+  "notificationOpen": "Ouvrir",
   "settingsExactAlarms": "Rappels à l'heure exacte",
   "settingsExactAlarmsOn": "Les rappels tombent à la minute près.",
   "settingsExactAlarmsOff": "Les rappels peuvent arriver avec quelques minutes de retard. Autorise les alarmes exactes pour qu'ils tombent à l'heure.",

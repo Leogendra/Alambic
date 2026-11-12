@@ -18,19 +18,28 @@ Future<void> onReviewAlarm(int alarmId) => _runInBackground(
   (container) => container.read(notificationDispatcherProvider).dispatchDue(),
 );
 
-/// Runs in a background isolate when a button of a review notification is
-/// pressed, app open or not.
+/// Runs in a background isolate when a button of a review notification or
+/// of a grouped reminder is pressed, app open or not.
 @pragma('vm:entry-point')
 Future<void> onNotificationResponse(NotificationResponse response) async {
   final key = NotificationPayload.decode(response.payload);
+  final group = NotificationPayload.decodeGroup(response.payload);
   final action = NotificationAction.values
       .where((action) => action.name == response.actionId)
       .firstOrNull;
-  if (key != null && action != null) {
+  if (action == null) {
+    return;
+  } else if (key != null) {
     await _runInBackground(
       (container) => container
           .read(notificationActionHandlerProvider)
           .handle(key, action, input: response.input),
+    );
+  } else if (group != null) {
+    await _runInBackground(
+      (container) => container
+          .read(notificationActionHandlerProvider)
+          .handleGroup(group, action),
     );
   }
 }

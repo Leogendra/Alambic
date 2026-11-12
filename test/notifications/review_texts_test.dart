@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/notifications/answer_reveal.dart';
+import 'package:alambic/application/notifications/group_reminder.dart';
+import 'package:alambic/application/notifications/group_reminder_key.dart';
 import 'package:alambic/application/notifications/review_notification_key.dart';
 import 'package:alambic/application/notifications/review_prompt.dart';
 import 'package:alambic/application/reviews/review_result.dart';
@@ -144,5 +146,67 @@ void main() {
     expect(NotificationPayload.decodePrompt(answer), isNull);
     expect(NotificationPayload.decode('not json'), isNull);
     expect(NotificationPayload.decode(null), isNull);
+  });
+
+  test('the payload of a grouped reminder leads to its group', () {
+    const capitals = GroupReminderKey(4);
+    const noGroup = GroupReminderKey(null);
+    final summary = NotificationPayload.encodeGroup(
+      const GroupReminder(
+        key: noGroup,
+        groupName: null,
+        count: 5,
+        chain: true,
+        alert: true,
+      ),
+    );
+    expect(NotificationPayload.decodeGroup(summary), noGroup);
+    expect(NotificationPayload.decodeGroupCount(summary), 5);
+    expect(NotificationPayload.decode(summary), isNull);
+    expect(NotificationPayload.target(summary)!.groupId, isNull);
+    const chained = ReviewNotificationKey(directionId: 7, chain: capitals);
+    final card = NotificationPayload.encode(chained, isPrompt: true);
+    expect(NotificationPayload.decodePrompt(card), chained);
+    expect(NotificationPayload.decodeGroup(card), isNull);
+    expect(NotificationPayload.target(card)!.groupId, 4);
+    expect(
+      NotificationPayload.target(
+        NotificationPayload.encode(key, isPrompt: true),
+      ),
+      isNull,
+    );
+  });
+
+  test('a grouped reminder tells its count and the cards left', () {
+    const reminder = GroupReminder(
+      key: GroupReminderKey(4),
+      groupName: 'Capitales',
+      count: 5,
+      chain: false,
+      alert: true,
+    );
+    expect(
+      texts.groupReminderTitle(reminder),
+      'Capitales : 5 cartes à réviser',
+    );
+    expect(texts.groupReminderDetail(reminder), 'Environ 3 min');
+    expect(
+      texts.groupLabel(
+        ReviewPrompt(
+          key: const ReviewNotificationKey(
+            directionId: 7,
+            chain: GroupReminderKey(4),
+          ),
+          prompt: 'Pérou',
+          groupName: 'Capitales',
+          step: null,
+          sequenceLength: 6,
+          isReverse: false,
+          typedAnswer: false,
+          chainRemaining: 3,
+        ),
+      ),
+      'Capitales · 3 à réviser',
+    );
   });
 }

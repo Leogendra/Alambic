@@ -1,6 +1,8 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../application/notifications/answer_reveal.dart';
+import '../../application/notifications/group_reminder.dart';
+import '../../application/notifications/group_reminder_key.dart';
 import '../../application/notifications/notification_action.dart';
 import '../../application/notifications/notification_presenter.dart';
 import '../../application/notifications/review_notification_key.dart';
@@ -34,6 +36,8 @@ class AndroidNotificationPresenter implements NotificationPresenter {
     payload: NotificationPayload.encode(prompt.key, isPrompt: true),
     notificationDetails: _details(
       subText: _texts.groupLabel(prompt),
+      // A chained card follows the answer of the previous one.
+      onlyAlertOnce: prompt.key.chain != null,
       actions: [
         if (prompt.typedAnswer)
           // Kept on screen, like "Again": the notification is replaced by
@@ -52,6 +56,8 @@ class AndroidNotificationPresenter implements NotificationPresenter {
           AndroidNotificationAction(
             NotificationAction.correct.name,
             _texts.strings.reviewCorrect,
+            // A chained card is replaced by the next one.
+            cancelNotification: prompt.key.chain == null,
           ),
         // Kept on screen: the notification is replaced by the answer.
         AndroidNotificationAction(
@@ -59,6 +65,12 @@ class AndroidNotificationPresenter implements NotificationPresenter {
           _texts.strings.reviewAgain,
           cancelNotification: false,
         ),
+        if (prompt.key.chain != null)
+          AndroidNotificationAction(
+            NotificationAction.open.name,
+            _texts.strings.notificationOpen,
+            showsUserInterface: true,
+          ),
       ],
     ),
   );
@@ -78,6 +90,8 @@ class AndroidNotificationPresenter implements NotificationPresenter {
           AndroidNotificationAction(
             NotificationAction.acknowledge.name,
             _texts.strings.commonOk,
+            // A chained card is replaced by the next one.
+            cancelNotification: reveal.key.chain == null,
           ),
         ],
       ),
@@ -94,17 +108,65 @@ class AndroidNotificationPresenter implements NotificationPresenter {
       ?NotificationPayload.decodePrompt(notification.payload),
   ];
 
+  @override
+  Future<void> showGroupReminder(GroupReminder reminder) => _plugin.show(
+    id: _groupIdOf(reminder.key),
+    title: _texts.groupReminderTitle(reminder),
+    body: _texts.groupReminderDetail(reminder),
+    payload: NotificationPayload.encodeGroup(reminder),
+    notificationDetails: _details(
+      onlyAlertOnce: !reminder.alert,
+      silent: !reminder.alert,
+      actions: [
+        if (reminder.chain)
+          // Kept on screen: the notification is replaced by the first card.
+          AndroidNotificationAction(
+            NotificationAction.start.name,
+            _texts.strings.notificationStartHere,
+            cancelNotification: false,
+          ),
+        AndroidNotificationAction(
+          NotificationAction.open.name,
+          _texts.strings.notificationOpenApp,
+          showsUserInterface: true,
+        ),
+      ],
+    ),
+  );
+
+  @override
+  Future<void> dismissGroupReminder(GroupReminderKey key) =>
+      _plugin.cancel(id: _groupIdOf(key));
+
+  @override
+  Future<Map<GroupReminderKey, int>> shownGroupReminders() async => {
+    for (final notification in await _plugin.getActiveNotifications())
+      ?NotificationPayload.decodeGroup(notification.payload):
+          NotificationPayload.decodeGroupCount(notification.payload),
+  };
+
+  /// A card chained in a grouped reminder takes the place of the reminder.
   static int _idOf(ReviewNotificationKey key) {
+    final chain = key.chain;
     final extraReminderId = key.extraReminderId;
-    return extraReminderId == null
-        ? key.directionId
-        : _extraReminderIdBase + extraReminderId;
+    if (chain != null) {
+      return _groupIdOf(chain);
+    } else if (extraReminderId != null) {
+      return _extraReminderIdBase + extraReminderId;
+    } else {
+      return key.directionId;
+    }
   }
+
+  /// Grouped reminders use negative ids, which no card or extra reminder
+  /// uses; "No group" is -1.
+  static int _groupIdOf(GroupReminderKey key) => -1 - (key.groupId ?? 0);
 
   AndroidNotificationDetails _details({
     String? subText,
     String? bigText,
     bool onlyAlertOnce = false,
+    bool silent = false,
     required List<AndroidNotificationAction> actions,
   }) => AndroidNotificationDetails(
     channelId,
@@ -116,6 +178,7 @@ class AndroidNotificationPresenter implements NotificationPresenter {
     subText: subText,
     styleInformation: bigText == null ? null : BigTextStyleInformation(bigText),
     onlyAlertOnce: onlyAlertOnce,
+    silent: silent,
     actions: actions,
   );
 }

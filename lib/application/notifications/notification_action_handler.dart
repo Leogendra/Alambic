@@ -5,6 +5,8 @@ import '../../domain/reviews/typed_answer_match.dart';
 import '../clock.dart';
 import '../reviews/review_service.dart';
 import 'answer_reveal.dart';
+import 'group_reminder_key.dart';
+import 'grouped_reminders.dart';
 import 'notification_action.dart';
 import 'notification_presenter.dart';
 import 'review_notification_key.dart';
@@ -15,12 +17,14 @@ class NotificationActionHandler {
   const NotificationActionHandler({
     required this._cards,
     required this._reviews,
+    required this._groupedReminders,
     required this._presenter,
     required this._clock,
   });
 
   final CardRepository _cards;
   final ReviewService _reviews;
+  final GroupedReminders _groupedReminders;
   final NotificationPresenter _presenter;
   final Clock _clock;
 
@@ -29,6 +33,9 @@ class NotificationActionHandler {
   /// when it matches the expected one and as "Again" otherwise, and is always
   /// followed by the expected answer. Answering an extra reminder is a bonus
   /// review. A card deleted meanwhile only closes the notification.
+  ///
+  /// In a grouped reminder whose cards are chained, the next card replaces
+  /// the one answered, or the expected answer once acknowledged.
   Future<void> handle(
     ReviewNotificationKey key,
     NotificationAction action, {
@@ -36,7 +43,7 @@ class NotificationActionHandler {
   }) async {
     final direction = await _cards.findDirection(key.directionId);
     if (action == NotificationAction.acknowledge || direction == null) {
-      await _presenter.dismiss(key);
+      await _close(key);
       return;
     }
     final card = await _cards.getCard(direction.cardId);
@@ -57,7 +64,7 @@ class NotificationActionHandler {
       forceBonus: key.isExtraReminder,
     );
     if (action == NotificationAction.correct) {
-      await _presenter.dismiss(key);
+      await _close(key);
     } else {
       await _presenter.showReveal(
         AnswerReveal(
@@ -70,6 +77,25 @@ class NotificationActionHandler {
           match: match,
         ),
       );
+    }
+  }
+
+  /// "Start here" on a grouped reminder asks its first card.
+  Future<void> handleGroup(
+    GroupReminderKey key,
+    NotificationAction action,
+  ) async {
+    if (action == NotificationAction.start) {
+      await _groupedReminders.showNext(key);
+    }
+  }
+
+  Future<void> _close(ReviewNotificationKey key) async {
+    final chain = key.chain;
+    if (chain == null) {
+      await _presenter.dismiss(key);
+    } else {
+      await _groupedReminders.showNext(chain);
     }
   }
 }

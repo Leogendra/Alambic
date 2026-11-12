@@ -8,6 +8,7 @@ import '../../domain/scheduling/due_policy.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
 import 'alarm_scheduler.dart';
+import 'grouped_reminders.dart';
 import 'notification_presenter.dart';
 import 'planned_alarm_store.dart';
 
@@ -15,7 +16,9 @@ import 'planned_alarm_store.dart';
 /// schedule change, it schedules the next wake-ups, cancels the ones no longer
 /// needed, and withdraws the notifications of cards that are no longer due,
 /// for example a card reviewed in the app before its notification was
-/// answered.
+/// answered. The grouped reminders are refreshed the same way: a chained card
+/// answered in the app gives way to the next one, and a reminder with no card
+/// left is closed.
 ///
 /// A running distillation also wakes the app up at the start of the next day
 /// it has to process, so that its cards are introduced with the app closed.
@@ -28,6 +31,7 @@ class NotificationPlanner implements ScheduleChangeListener {
     required this._alarms,
     required this._store,
     required this._presenter,
+    required this._groupedReminders,
     required this._duePolicy,
     required this._clock,
   });
@@ -43,6 +47,7 @@ class NotificationPlanner implements ScheduleChangeListener {
   final AlarmScheduler _alarms;
   final PlannedAlarmStore _store;
   final NotificationPresenter _presenter;
+  final GroupedReminders _groupedReminders;
   final DuePolicy _duePolicy;
   final Clock _clock;
 
@@ -128,9 +133,19 @@ class NotificationPlanner implements ScheduleChangeListener {
             cardSuspended: card!.card.suspended,
             now: now,
           );
-      if (!key.isExtraReminder && !stillDue) {
-        await _presenter.dismiss(key);
+      if (key.isExtraReminder || stillDue) {
+        continue;
       }
+      final chain = key.chain;
+      if (chain == null) {
+        await _presenter.dismiss(key);
+      } else {
+        await _groupedReminders.showNext(chain);
+      }
+    }
+    for (final MapEntry(:key, value: shownCount)
+        in (await _presenter.shownGroupReminders()).entries) {
+      await _groupedReminders.refresh(key, shownCount);
     }
   }
 }

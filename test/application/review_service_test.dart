@@ -112,6 +112,48 @@ void main() {
     ]);
   });
 
+  test('a change of engine starts the progression over, keeping the due date '
+      'and the history', () async {
+    final presets = PresetRepository(database);
+    final catalog = await presets.loadCatalog();
+    final adaptive = catalog.presetsById.values.firstWhere(
+      (preset) => preset.builtInKey == BuiltInPresetKey.adaptive,
+    );
+    final cardId = await dueCard();
+    Future<void> answerAt(DateTime at) async {
+      clock.now = at;
+      await reviews.answer(
+        (await front(cardId)).id,
+        ReviewOutcome.correct,
+        source: ReviewSource.session,
+      );
+    }
+
+    await answerAt(DateTime(2026, 11, 10, 12, 5));
+    await answerAt(DateTime(2026, 11, 11, 12, 5));
+    expect((await front(cardId)).step, 1);
+    expect((await front(cardId)).dueAt, DateTime(2026, 11, 13, 12));
+
+    await presets.setGlobalPresetId(adaptive.id);
+    expect((await front(cardId)).dueAt, DateTime(2026, 11, 13, 12));
+    await answerAt(DateTime(2026, 11, 13, 12, 5));
+    var direction = await front(cardId);
+    expect(direction.step, isNull);
+    expect(direction.memory?.stability, 3.173, reason: 'a first FSRS answer');
+    expect(direction.dueAt, DateTime(2026, 11, 16, 12));
+
+    await presets.setGlobalPresetId(catalog.globalPresetId);
+    await answerAt(DateTime(2026, 11, 16, 12, 5));
+    direction = await front(cardId);
+    expect(direction.step, 0, reason: 'back to the first step');
+    expect(direction.memory, isNull);
+    expect(direction.dueAt, DateTime(2026, 11, 17, 12));
+    final history = await ReviewRepository(database)
+        .watchHistory(direction.id)
+        .first;
+    expect(history, hasLength(4));
+  });
+
   test('a card due later today can be answered before its slot', () async {
     final cardId = await dueCard();
     final result = await reviews.answer(

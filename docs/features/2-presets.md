@@ -40,12 +40,15 @@ In the list, an adaptive preset shows "Intervals computed from your answers. Tar
 
 Changing the preset of a card, of a group or the global preset rewrites no card: the step and due date of each direction stay as they are. If the new sequence is shorter, the engine clamps the step to the last step at the next answer ([Feature 1](1-scheduling.md#the-step)).
 
+When the new preset has the other engine, the progression starts over: each engine only reads its own progression (the step for a sequence, the FSRS memory for the adaptive engine), so the direction counts as new for the new engine. It shows "new", and its next answer is a first answer: a first step, or the initial FSRS memory. Its due date and its history stay. Editing a preset from one engine to the other has the same effect on all its cards, and so does moving a card to a group whose preset has the other engine.
+
 ## Acceptance criteria
 
 - [x] A fresh database contains Standard and Intensive, with the intervals above and the fixed 12:00 time.
 - [x] A card with no choice follows its group's preset, a group with no choice follows the global preset.
 - [x] The choice made on a card wins over its group's.
 - [x] Changing preset (same engine) keeps the step and the due date; a step that is too high is clamped to the last step.
+- [x] Changing to a preset with the other engine starts the progression over, keeping the due date and the history.
 - [x] A preset is created from the Standard values, any preset can be edited, a preset can be duplicated under a new name.
 - [x] A preset without a name or without a step cannot be saved.
 - [x] A fresh database contains Adaptive, an adaptive preset at a 90 % target retention.
@@ -56,6 +59,7 @@ Changing the preset of a card, of a group or the global preset rewrites no card:
 
 - The cascade is proven twice: as pure logic on `PresetCatalog`, then end to end on an in-memory database, changing the choices through the repositories as the screens do.
 - Keeping the step and the due date is checked on the stored data after the change, not on an in-memory object.
+- The engine change is tested both ways through the review service: the answer after the change is a first answer, the due date and the history stay; the card sheet of such a card is covered by a golden test.
 - Creation, editing, duplication and refusal of an invalid preset are tested through the service, on an in-memory database.
 - The list and the editor are covered by golden tests on the shipped presets.
 
@@ -72,4 +76,4 @@ Changing the preset of a card, of a group or the global preset rewrites no card:
 
 The catalog stream observes three tables (presets, settings, groups) through a `SELECT 1` witness query declared on these tables, then rereads everything in a transaction. Drift cannot natively combine several queries into one stream; this keeps each emission a consistent snapshot.
 
-Choosing a different engine (sequence to adaptive) resets the progression. It does not exist yet, for lack of an adaptive engine.
+The reset is not written at change time: an answer writes the progression of its engine and clears the other one, and `DirectionProgress` ignores a progression left by the other engine. So switching engine and back before any answer gives the step back. An acquired direction stays acquired under an adaptive preset.

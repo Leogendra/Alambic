@@ -33,3 +33,7 @@ Domain functions receive the current moment as a parameter instead of reading th
 ### A sequence step is clamped to the current sequence
 
 A direction keeps its [step](lexicon.md#step) when its preset changes or when the sequence gets shorter. Rather than rewriting the affected cards at change time, the engine clamps the step to the last existing step at each computation. A preset change with the same engine therefore needs no data migration.
+
+### Each engine reads only its own progression
+
+A direction stores a step for the sequence engine and an FSRS memory for the adaptive engine; an answer writes the one of its engine and clears the other. `DirectionProgress` reads, for the engine of the current preset, only its own progression. A change of engine therefore starts the progression over without rewriting any card, whatever the path of the change (card, group, global preset or the preset itself).

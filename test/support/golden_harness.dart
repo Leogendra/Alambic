@@ -3,8 +3,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/app/theme/remanence_theme.dart';
-import 'package:remanence/l10n/generated/app_localizations.dart';
+import 'package:alambic/app/theme/alambic_theme.dart';
+import 'package:alambic/l10n/generated/app_localizations.dart';
 
 /// Phone-sized surface matching the mockup artboards (390 x 844).
 const Size phoneSize = Size(390, 844);
@@ -25,8 +25,8 @@ Future<void> pumpGolden(
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: brightness == Brightness.light
-            ? RemanenceTheme.light()
-            : RemanenceTheme.dark(),
+            ? AlambicTheme.light()
+            : AlambicTheme.dark(),
         locale: const Locale('fr'),
         localizationsDelegates: const [
           AppLocalizations.delegate,

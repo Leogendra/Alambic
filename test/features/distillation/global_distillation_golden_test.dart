@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/distillation_repository.dart';
-import 'package:remanence/domain/cards/direction_sense.dart';
-import 'package:remanence/domain/distillation/distillation_settings.dart';
-import 'package:remanence/features/distillation/distillation_launch_screen.dart';
-import 'package:remanence/features/distillation/global_distillation_screen.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/distillation_repository.dart';
+import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/distillation/distillation_settings.dart';
+import 'package:alambic/features/distillation/distillation_launch_screen.dart';
+import 'package:alambic/features/distillation/global_distillation_screen.dart';
 
 import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
@@ -12,7 +12,7 @@ import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 
 void main() {
-  late RemanenceDatabase database;
+  late AlambicDatabase database;
   late SampleServices samples;
   late int japaneseId;
 

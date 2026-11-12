@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/domain/distillation/distillation.dart';
-import 'package:remanence/domain/distillation/distillation_order.dart';
-import 'package:remanence/domain/distillation/distillation_rhythm.dart';
-import 'package:remanence/domain/distillation/distillation_status.dart';
-import 'package:remanence/domain/scheduling/scheduling_calendar.dart';
+import 'package:alambic/domain/distillation/distillation.dart';
+import 'package:alambic/domain/distillation/distillation_order.dart';
+import 'package:alambic/domain/distillation/distillation_rhythm.dart';
+import 'package:alambic/domain/distillation/distillation_status.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 void main() {
   const rhythm = DistillationRhythm(SchedulingCalendar());

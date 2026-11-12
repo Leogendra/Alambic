@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/application/notifications/notification_action.dart';
-import 'package:remanence/application/notifications/notification_providers.dart';
-import 'package:remanence/application/notifications/review_notification_key.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/card_repository.dart';
-import 'package:remanence/data/repositories/review_repository.dart';
-import 'package:remanence/domain/cards/direction_sense.dart';
-import 'package:remanence/domain/reviews/review_source.dart';
-import 'package:remanence/domain/scheduling/clock_time.dart';
+import 'package:alambic/application/notifications/notification_action.dart';
+import 'package:alambic/application/notifications/notification_providers.dart';
+import 'package:alambic/application/notifications/review_notification_key.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/review_repository.dart';
+import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/reviews/review_source.dart';
+import 'package:alambic/domain/scheduling/clock_time.dart';
 
 import '../support/fake_notifications.dart';
 import '../support/fixed_clock.dart';
@@ -15,7 +15,7 @@ import '../support/sample_data.dart';
 import '../support/test_database.dart';
 
 void main() {
-  late RemanenceDatabase database;
+  late AlambicDatabase database;
   late NotificationHarness harness;
   late int capitals;
 

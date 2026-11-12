@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/interval_labels.dart';
 import '../../app/formatting/preset_labels.dart';
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
@@ -142,7 +142,7 @@ class GroupSettingsScreen extends ConsumerWidget {
       text,
       style: TextStyle(
         fontSize: 13,
-        color: RemanenceColors.of(context).textSecondary,
+        color: AlambicColors.of(context).textSecondary,
       ),
     ),
   );
@@ -150,6 +150,6 @@ class GroupSettingsScreen extends ConsumerWidget {
   TextStyle _valueStyle(BuildContext context) => TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.w600,
-    color: RemanenceColors.of(context).accentText,
+    color: AlambicColors.of(context).accentText,
   );
 }

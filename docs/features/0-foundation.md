@@ -4,19 +4,19 @@ Status: in progress (2026-11-11)
 
 ## Goal
 
-Infrastructure with no functional requirement of its own: the Flutter project `fr.gatienh.remanence`, the "hybrid" light and dark theme, the main navigation, translatable texts and the local database. Every other feature builds on it.
+Infrastructure with no functional requirement of its own: the Flutter project `fr.gatienh.alambic`, the "hybrid" light and dark theme, the main navigation, translatable texts and the local database. Every other feature builds on it.
 
 ## Implementation overview
 
-The app starts on `RemanenceApp`, which applies the light or dark theme according to the system setting and loads the French texts. The root screen is a shell with four tabs (Home, Groups, Statistics, Settings) and a floating "+" button that creates a card.
+The app starts on `AlambicApp`, which applies the light or dark theme according to the system setting and loads the French texts. The root screen is a shell with four tabs (Home, Groups, Statistics, Settings) and a floating "+" button that creates a card.
 
-The theme starts from a Material 3 `ColorScheme` built on the `#1447FF` accent, then overrides it with the mockup colours. Colours with no Material equivalent (segment background, colours of the "Again" button, secondary and tertiary text) are carried by the `RemanenceColors` theme extension, read by screens with `RemanenceColors.of(context)`. Each token has a light and a dark value, taken from the mockup.
+The theme starts from a Material 3 `ColorScheme` built on the `#1447FF` accent, then overrides it with the mockup colours. Colours with no Material equivalent (segment background, colours of the "Again" button, secondary and tertiary text) are carried by the `AlambicColors` theme extension, read by screens with `AlambicColors.of(context)`. Each token has a light and a dark value, taken from the mockup.
 
 The DM Sans font is bundled as static weights (400, 500, 600, 700) rather than as a variable font. Flutter does not apply the weight axis of a variable font by itself, whereas it picks the right static file from `fontWeight`.
 
 ### Database
 
-All data lives in a local SQLite database managed by drift, `RemanenceDatabase`. Tables use the domain classes directly as rows (`@UseRowClass`): a `Preset` or a `CardDirection` read from the database is the very object the business rules manipulate, with no conversion layer. Enums are stored by name, a preset sequence as JSON and times of day as minutes since midnight.
+All data lives in a local SQLite database managed by drift, `AlambicDatabase`. Tables use the domain classes directly as rows (`@UseRowClass`): a `Preset` or a `CardDirection` read from the database is the very object the business rules manipulate, with no conversion layer. Enums are stored by name, a preset sequence as JSON and times of day as minutes since midnight.
 
 The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset), `card_groups`, `distillations` (the distillations in progress), `flashcards`, `card_directions` (one direction per card and orientation, with the distillation that queued it and its rank in the queue), `review_records` (the history) and `extra_reminders` (the "Review soon" reminders). Foreign keys are enabled at each opening, which gives these deletion rules:
 
@@ -24,7 +24,7 @@ The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_set
 - deleting a group deletes its cards, and with them their directions and history, and its distillations;
 - deleting a distillation releases its directions: a pending one stays pending, outside any queue.
 
-The schema is versioned. Each version bump comes with an upgrade step in `RemanenceDatabase.migration`, so that an installed app keeps its data; version 2 added the distillations.
+The schema is versioned. Each version bump comes with an upgrade step in `AlambicDatabase.migration`, so that an installed app keeps its data; version 2 added the distillations.
 
 The global preset lives in the database rather than in the preferences, because it is part of the review data: it must be readable from background tasks and travel with the export.
 
@@ -32,7 +32,7 @@ When the database is created, the Standard and Intensive presets are inserted an
 
 ## Acceptance criteria
 
-- [x] The Android identifier is `fr.gatienh.remanence` and the displayed name is "Remanence".
+- [x] The Android identifier is `fr.gatienh.alambic` and the displayed name is "Alambic".
 - [x] Dependency versions are pinned exactly in `pubspec.yaml` and `pubspec.lock`.
 - [x] The app follows the system light or dark theme, in DM Sans with the `#1447FF` accent.
 - [x] The main navigation shows four tabs and a "+" button.
@@ -50,7 +50,7 @@ When the database is created, the Standard and Intensive presets are inserted an
 ## File mapping
 
 - `lib/app/` — app shell and theme.
-- `lib/data/database/` — drift database: tables, converters and initial content. `remanence_database.g.dart` is generated by `build_runner`.
+- `lib/data/database/` — drift database: tables, converters and initial content. `alambic_database.g.dart` is generated by `build_runner`.
 - `lib/l10n/app_fr.arb` — interface texts, source of the generated translations.
 - `assets/fonts/` — DM Sans and its OFL licence.
 - `android/app/build.gradle.kts` — `compileSdk` 37 and desugaring, required by the notifications (see `stack.md`).

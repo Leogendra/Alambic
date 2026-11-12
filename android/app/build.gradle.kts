@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "fr.gatienh.remanence"
+    namespace = "fr.gatienh.alambic"
     // flutter_local_notifications requires compileSdk 37 or above.
     compileSdk {
         version = release(37) { minorApiLevel = 0 }
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "fr.gatienh.remanence"
+        applicationId = "fr.gatienh.alambic"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

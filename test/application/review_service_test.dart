@@ -1,16 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/application/reviews/review_service.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/card_repository.dart';
-import 'package:remanence/data/repositories/preset_repository.dart';
-import 'package:remanence/data/repositories/review_repository.dart';
-import 'package:remanence/domain/cards/card_direction.dart';
-import 'package:remanence/domain/cards/direction_sense.dart';
-import 'package:remanence/domain/reviews/review_outcome.dart';
-import 'package:remanence/domain/reviews/review_source.dart';
-import 'package:remanence/domain/scheduling/due_policy.dart';
-import 'package:remanence/domain/scheduling/review_scheduler.dart';
-import 'package:remanence/domain/scheduling/scheduling_calendar.dart';
+import 'package:alambic/application/reviews/review_service.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/data/repositories/review_repository.dart';
+import 'package:alambic/domain/cards/card_direction.dart';
+import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
+import 'package:alambic/domain/reviews/review_source.dart';
+import 'package:alambic/domain/scheduling/due_policy.dart';
+import 'package:alambic/domain/scheduling/review_scheduler.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/recording_schedule_listener.dart';
@@ -18,7 +18,7 @@ import '../support/sample_data.dart';
 import '../support/test_database.dart';
 
 void main() {
-  late RemanenceDatabase database;
+  late AlambicDatabase database;
   late FixedClock clock;
   late SampleServices samples;
   late ReviewService reviews;

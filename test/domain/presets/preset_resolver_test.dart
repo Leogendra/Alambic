@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/domain/presets/preset_resolver.dart';
+import 'package:alambic/domain/presets/preset_resolver.dart';
 
 void main() {
   test('the card choice wins over the group and the global preset', () {

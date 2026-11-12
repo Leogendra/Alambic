@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/domain/reviews/review_soon_days.dart';
-import 'package:remanence/domain/scheduling/scheduling_calendar.dart';
+import 'package:alambic/domain/reviews/review_soon_days.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 void main() {
   const calendar = SchedulingCalendar();

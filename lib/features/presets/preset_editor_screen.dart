@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/clock_time_conversions.dart';
 import '../../app/formatting/interval_labels.dart';
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/interval_chip.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
@@ -223,7 +223,7 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        color: RemanenceColors.of(context).accentText,
+        color: AlambicColors.of(context).accentText,
       ),
     ),
     onTap: () async {
@@ -297,7 +297,7 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
       text,
       style: TextStyle(
         fontSize: 13,
-        color: RemanenceColors.of(context).textSecondary,
+        color: AlambicColors.of(context).textSecondary,
       ),
     ),
   );

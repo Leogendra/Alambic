@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/clock_time_conversions.dart';
 import '../../app/formatting/date_labels.dart';
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../application/clock.dart';
 import '../../application/reminders/reminder_providers.dart';
 import '../../domain/reviews/review_soon_days.dart';
@@ -56,7 +56,7 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
@@ -166,7 +166,7 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return Semantics(
       selected: isSelected,
       button: true,
@@ -210,7 +210,7 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
     );
   }
 
-  Widget _timeRow(AppLocalizations strings, RemanenceColors colors) => InkWell(
+  Widget _timeRow(AppLocalizations strings, AlambicColors colors) => InkWell(
     borderRadius: BorderRadius.circular(14),
     onTap: () async {
       final picked = await showTimePicker(

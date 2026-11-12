@@ -1,4 +1,4 @@
-# Stack — Remanence
+# Stack — Alambic
 
 ## Languages and environments
 

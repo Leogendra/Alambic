@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/interval_labels.dart';
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/direction_state.dart';
 import '../../domain/presets/preset.dart';
@@ -29,7 +29,7 @@ class DirectionProgressPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -45,7 +45,7 @@ class DirectionProgressPanel extends StatelessWidget {
     );
   }
 
-  List<Widget> _content(BuildContext context, RemanenceColors colors) {
+  List<Widget> _content(BuildContext context, AlambicColors colors) {
     final strings = AppLocalizations.of(context);
     final direction = this.direction;
     final state = direction?.state ?? DirectionState.inactive;
@@ -83,7 +83,7 @@ class DirectionProgressPanel extends StatelessWidget {
 
   List<Widget> _sequence(
     BuildContext context,
-    RemanenceColors colors,
+    AlambicColors colors,
     int? step,
   ) {
     final strings = AppLocalizations.of(context);
@@ -150,7 +150,7 @@ class DirectionProgressPanel extends StatelessWidget {
 
   Widget _nextReview(
     BuildContext context,
-    RemanenceColors colors,
+    AlambicColors colors,
     DateTime dueAt,
   ) {
     final strings = AppLocalizations.of(context);
@@ -189,7 +189,7 @@ class DirectionProgressPanel extends StatelessWidget {
     );
   }
 
-  Widget _message(String text, RemanenceColors colors) => Text(
+  Widget _message(String text, AlambicColors colors) => Text(
     text,
     style: TextStyle(fontSize: 15, height: 1.4, color: colors.textSecondary),
   );

@@ -1,17 +1,17 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/application/notifications/answer_reveal.dart';
-import 'package:remanence/application/notifications/review_notification_key.dart';
-import 'package:remanence/application/notifications/review_prompt.dart';
-import 'package:remanence/application/reviews/review_result.dart';
-import 'package:remanence/domain/cards/direction_state.dart';
-import 'package:remanence/domain/presets/built_in_presets.dart';
-import 'package:remanence/domain/scheduling/direction_schedule.dart';
-import 'package:remanence/domain/scheduling/scheduling_calendar.dart';
-import 'package:remanence/l10n/generated/app_localizations.dart';
-import 'package:remanence/notifications/android/notification_payload.dart';
-import 'package:remanence/notifications/review_texts.dart';
+import 'package:alambic/application/notifications/answer_reveal.dart';
+import 'package:alambic/application/notifications/review_notification_key.dart';
+import 'package:alambic/application/notifications/review_prompt.dart';
+import 'package:alambic/application/reviews/review_result.dart';
+import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/presets/built_in_presets.dart';
+import 'package:alambic/domain/scheduling/direction_schedule.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
+import 'package:alambic/l10n/generated/app_localizations.dart';
+import 'package:alambic/notifications/android/notification_payload.dart';
+import 'package:alambic/notifications/review_texts.dart';
 
 void main() {
   final texts = ReviewTexts(

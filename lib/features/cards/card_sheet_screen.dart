@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
@@ -60,7 +60,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
           groupName,
           style: TextStyle(
             fontSize: 15,
-            color: RemanenceColors.of(context).textSecondary,
+            color: AlambicColors.of(context).textSecondary,
           ),
         ),
         actions: [
@@ -263,7 +263,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
       text,
       style: TextStyle(
         fontSize: 13,
-        color: RemanenceColors.of(context).textSecondary,
+        color: AlambicColors.of(context).textSecondary,
       ),
     ),
   );
@@ -279,7 +279,7 @@ class _FacesPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return Material(
       color: colors.surface,
       shape: RoundedRectangleBorder(
@@ -301,7 +301,7 @@ class _FacesPanel extends StatelessWidget {
     );
   }
 
-  Widget _face(String label, String text, RemanenceColors colors) => Padding(
+  Widget _face(String label, String text, AlambicColors colors) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,7 +340,7 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final enabled = onPressed != null;
     final foreground = !enabled
         ? colors.textSecondary.withValues(alpha: 0.5)
@@ -405,7 +405,7 @@ class _Reminders extends ConsumerWidget {
                 Icon(
                   Icons.notifications_none,
                   size: 18,
-                  color: RemanenceColors.of(context).textSecondary,
+                  color: AlambicColors.of(context).textSecondary,
                 ),
                 const SizedBox(width: 10),
                 Expanded(

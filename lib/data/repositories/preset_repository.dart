@@ -3,13 +3,13 @@ import 'package:drift/drift.dart';
 import '../../domain/presets/preset.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../database/preset_companions.dart';
-import '../database/remanence_database.dart';
+import '../database/alambic_database.dart';
 
 /// Presets, the global preset, and the resolution snapshot built from them.
 class PresetRepository {
   const PresetRepository(this._database);
 
-  final RemanenceDatabase _database;
+  final AlambicDatabase _database;
 
   Stream<List<Preset>> watchAll() => (_database.select(
     _database.presets,

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'app/remanence_app.dart';
+import 'app/alambic_app.dart';
 import 'application/distillation/distillation_providers.dart';
 import 'application/notifications/notification_providers.dart';
 import 'data/data_providers.dart';
-import 'data/database/remanence_database.dart';
+import 'data/database/alambic_database.dart';
 import 'notifications/android/android_notifications.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidNotifications.initialize();
-  final database = RemanenceDatabase.open();
+  final database = AlambicDatabase.open();
   final container = ProviderContainer(
     overrides: [
       databaseProvider.overrideWithValue(database),
@@ -19,10 +19,7 @@ Future<void> main() async {
     ],
   );
   runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const RemanenceApp(),
-    ),
+    UncontrolledProviderScope(container: container, child: const AlambicApp()),
   );
   await container.read(notificationPresenterProvider).requestPermission();
   // A day not processed yet by the distillations (the phone was off at the

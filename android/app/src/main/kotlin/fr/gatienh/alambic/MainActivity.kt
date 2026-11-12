@@ -1,4 +1,4 @@
-package fr.gatienh.remanence
+package fr.gatienh.alambic
 
 import io.flutter.embedding.android.FlutterActivity
 

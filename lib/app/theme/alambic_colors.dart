@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 /// Colour tokens of the "hybride" theme, beyond what [ColorScheme] carries.
 @immutable
-class RemanenceColors extends ThemeExtension<RemanenceColors> {
-  const RemanenceColors({
+class AlambicColors extends ThemeExtension<AlambicColors> {
+  const AlambicColors({
     required this.background,
     required this.surface,
     required this.border,
@@ -19,7 +19,7 @@ class RemanenceColors extends ThemeExtension<RemanenceColors> {
     required this.againForeground,
   });
 
-  static const RemanenceColors light = RemanenceColors(
+  static const AlambicColors light = AlambicColors(
     background: Color(0xFFF4F4F6),
     surface: Color(0xFFFFFFFF),
     border: Color(0xFFE6E6EA),
@@ -35,7 +35,7 @@ class RemanenceColors extends ThemeExtension<RemanenceColors> {
     againForeground: Color(0xFF9A3412),
   );
 
-  static const RemanenceColors dark = RemanenceColors(
+  static const AlambicColors dark = AlambicColors(
     background: Color(0xFF121212),
     surface: Color(0xFF1F1F23),
     border: Color(0xFF26262B),
@@ -71,18 +71,18 @@ class RemanenceColors extends ThemeExtension<RemanenceColors> {
   final Color againBackground;
   final Color againForeground;
 
-  static RemanenceColors of(BuildContext context) =>
-      Theme.of(context).extension<RemanenceColors>()!;
+  static AlambicColors of(BuildContext context) =>
+      Theme.of(context).extension<AlambicColors>()!;
 
   @override
-  RemanenceColors copyWith() => this;
+  AlambicColors copyWith() => this;
 
   @override
-  RemanenceColors lerp(RemanenceColors? other, double t) {
+  AlambicColors lerp(AlambicColors? other, double t) {
     if (other == null) {
       return this;
     } else {
-      return RemanenceColors(
+      return AlambicColors(
         background: Color.lerp(background, other.background, t)!,
         surface: Color.lerp(surface, other.surface, t)!,
         border: Color.lerp(border, other.border, t)!,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../application/reviews/review_providers.dart';
 import '../../domain/cards/direction_state.dart';
 import '../../domain/reviews/review_outcome.dart';
@@ -28,7 +28,7 @@ class AnswerButtons extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final preview = ref
         .watch(
           answerPreviewProvider((directionId: directionId, asBonus: isBonus)),

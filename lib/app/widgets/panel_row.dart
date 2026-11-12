@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/remanence_colors.dart';
+import '../theme/alambic_colors.dart';
 
 /// One line of a [SurfacePanel]: a title, an optional subtitle and a trailing
 /// value or control.
@@ -22,7 +22,7 @@ class PanelRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return InkWell(
       onTap: onTap,
       child: ConstrainedBox(

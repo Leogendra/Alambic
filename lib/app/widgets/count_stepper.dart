@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/remanence_colors.dart';
+import '../theme/alambic_colors.dart';
 
 /// "− value +" control bounded by [min] and [max].
 class CountStepper extends StatelessWidget {
@@ -27,7 +27,7 @@ class CountStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: colors.border),

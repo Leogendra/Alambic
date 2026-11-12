@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../domain/presets/preset.dart';
-import 'remanence_database.dart';
+import 'alambic_database.dart';
 
 /// Writes a domain [Preset] into the presets table.
 abstract final class PresetCompanions {

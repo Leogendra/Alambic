@@ -4,14 +4,14 @@ import '../../domain/cards/direction_sense.dart';
 import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../domain/distillation/distillation_status.dart';
-import '../database/remanence_database.dart';
+import '../database/alambic_database.dart';
 
 /// Distillations in progress. A stopped or finished distillation is deleted;
 /// its queued directions stay pending, released from it.
 class DistillationRepository {
   const DistillationRepository(this._database);
 
-  final RemanenceDatabase _database;
+  final AlambicDatabase _database;
 
   Future<int> insert({
     required int? groupId,

@@ -1,16 +1,31 @@
-# Remanence
+# Alambic
 
 A notification-first spaced repetition app for Android: most reviews happen straight from the notification, without opening the app. Front / back cards are reviewed according to presets (sequences of intervals), and distillation introduces new cards a few at a time.
 
 ## Installation
 
-Requirements: Flutter 3.47 (stable), an Android SDK with platform 37, and an Android phone in developer mode.
+Requirements: Flutter 3.47 (stable), an Android SDK with platform 37, and an Android phone with wireless debugging on (Developer options › Wireless debugging), on the same Wi-Fi as the computer.
 
-```sh
-flutter pub get
-flutter build apk --debug
-flutter install
-```
+1. First time only, pair the computer: on the phone, Wireless debugging › Pair device with pairing code, then enter the code it shows:
+
+   ```sh
+   adb pair <ip>:<pairing-port>
+   ```
+
+2. Connect, with the address shown at the top of the Wireless debugging screen (its port changes each time wireless debugging is turned on):
+
+   ```sh
+   adb connect <ip>:<port>
+   ```
+
+3. Build and install:
+
+   ```sh
+   flutter build apk --release
+   flutter install --release
+   ```
+
+The release build is signed with the debug key, so it installs over a debug build and keeps the app's data.
 
 ## Usage
 
@@ -28,7 +43,7 @@ On first launch, the app creates the Standard and Intensif presets. The "+" butt
    Capital of Kenya ; Nairobi
    ```
 
-3. The cards arrive at noon the next day (Standard preset), then after 2 days, 1 week, 1 month, 3 months and 6 months as long as they are answered correctly.
+3. New cards wait until they are started: tap "Tout commencer" (Start all). They arrive at noon (Standard preset), right away if noon has passed, then after 2 days, 1 week, 1 month, 3 months and 6 months as long as they are answered correctly.
 
 ### Example: cramming for an exam within a day
 

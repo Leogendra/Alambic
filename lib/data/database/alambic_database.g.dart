@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'remanence_database.dart';
+part of 'alambic_database.dart';
 
 // ignore_for_file: type=lint
 class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
@@ -2860,9 +2860,9 @@ class ExtraRemindersCompanion extends UpdateCompanion<ExtraReminder> {
   }
 }
 
-abstract class _$RemanenceDatabase extends GeneratedDatabase {
-  _$RemanenceDatabase(QueryExecutor e) : super(e);
-  $RemanenceDatabaseManager get managers => $RemanenceDatabaseManager(this);
+abstract class _$AlambicDatabase extends GeneratedDatabase {
+  _$AlambicDatabase(QueryExecutor e) : super(e);
+  $AlambicDatabaseManager get managers => $AlambicDatabaseManager(this);
   late final $PresetsTable presets = $PresetsTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $CardGroupsTable cardGroups = $CardGroupsTable(this);
@@ -2978,15 +2978,14 @@ typedef $$PresetsTableUpdateCompanionBuilder = PresetsCompanion Function({
 });
 
 final class $$PresetsTableReferences
-    extends BaseReferences<_$RemanenceDatabase, $PresetsTable, Preset> {
+    extends BaseReferences<_$AlambicDatabase, $PresetsTable, Preset> {
   $$PresetsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$AppSettingsTable, List<AppSettingsRow>>
-  _appSettingsRefsTable(_$RemanenceDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.appSettings,
-        aliasName: 'presets__id__app_settings__global_preset_id',
-      );
+  _appSettingsRefsTable(_$AlambicDatabase db) => MultiTypedResultKey.fromTable(
+    db.appSettings,
+    aliasName: 'presets__id__app_settings__global_preset_id',
+  );
 
   $$AppSettingsTableProcessedTableManager get appSettingsRefs {
     final manager = $$AppSettingsTableTableManager(
@@ -3001,7 +3000,7 @@ final class $$PresetsTableReferences
   }
 
   static MultiTypedResultKey<$CardGroupsTable, List<CardGroup>>
-  _cardGroupsRefsTable(_$RemanenceDatabase db) => MultiTypedResultKey.fromTable(
+  _cardGroupsRefsTable(_$AlambicDatabase db) => MultiTypedResultKey.fromTable(
     db.cardGroups,
     aliasName: 'presets__id__card_groups__preset_id',
   );
@@ -3019,7 +3018,7 @@ final class $$PresetsTableReferences
   }
 
   static MultiTypedResultKey<$FlashcardsTable, List<Flashcard>>
-  _flashcardsRefsTable(_$RemanenceDatabase db) => MultiTypedResultKey.fromTable(
+  _flashcardsRefsTable(_$AlambicDatabase db) => MultiTypedResultKey.fromTable(
     db.flashcards,
     aliasName: 'presets__id__flashcards__preset_id',
   );
@@ -3038,7 +3037,7 @@ final class $$PresetsTableReferences
 }
 
 class $$PresetsTableFilterComposer
-    extends Composer<_$RemanenceDatabase, $PresetsTable> {
+    extends Composer<_$AlambicDatabase, $PresetsTable> {
   $$PresetsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -3225,7 +3224,7 @@ class $$PresetsTableFilterComposer
 }
 
 class $$PresetsTableOrderingComposer
-    extends Composer<_$RemanenceDatabase, $PresetsTable> {
+    extends Composer<_$AlambicDatabase, $PresetsTable> {
   $$PresetsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3310,7 +3309,7 @@ class $$PresetsTableOrderingComposer
 }
 
 class $$PresetsTableAnnotationComposer
-    extends Composer<_$RemanenceDatabase, $PresetsTable> {
+    extends Composer<_$AlambicDatabase, $PresetsTable> {
   $$PresetsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -3468,7 +3467,7 @@ class $$PresetsTableAnnotationComposer
 class $$PresetsTableTableManager
     extends
         RootTableManager<
-          _$RemanenceDatabase,
+          _$AlambicDatabase,
           $PresetsTable,
           Preset,
           $$PresetsTableFilterComposer,
@@ -3484,7 +3483,7 @@ class $$PresetsTableTableManager
             bool flashcardsRefs,
           })
         > {
-  $$PresetsTableTableManager(_$RemanenceDatabase db, $PresetsTable table)
+  $$PresetsTableTableManager(_$AlambicDatabase db, $PresetsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -3658,7 +3657,7 @@ class $$PresetsTableTableManager
 
 typedef $$PresetsTableProcessedTableManager =
     ProcessedTableManager<
-      _$RemanenceDatabase,
+      _$AlambicDatabase,
       $PresetsTable,
       Preset,
       $$PresetsTableFilterComposer,
@@ -3681,10 +3680,10 @@ typedef $$AppSettingsTableUpdateCompanionBuilder =
 
 final class $$AppSettingsTableReferences
     extends
-        BaseReferences<_$RemanenceDatabase, $AppSettingsTable, AppSettingsRow> {
+        BaseReferences<_$AlambicDatabase, $AppSettingsTable, AppSettingsRow> {
   $$AppSettingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $PresetsTable _globalPresetIdTable(_$RemanenceDatabase db) =>
+  static $PresetsTable _globalPresetIdTable(_$AlambicDatabase db) =>
       db.presets.createAlias('app_settings__global_preset_id__presets__id');
 
   $$PresetsTableProcessedTableManager get globalPresetId {
@@ -3703,7 +3702,7 @@ final class $$AppSettingsTableReferences
 }
 
 class $$AppSettingsTableFilterComposer
-    extends Composer<_$RemanenceDatabase, $AppSettingsTable> {
+    extends Composer<_$AlambicDatabase, $AppSettingsTable> {
   $$AppSettingsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -3741,7 +3740,7 @@ class $$AppSettingsTableFilterComposer
 }
 
 class $$AppSettingsTableOrderingComposer
-    extends Composer<_$RemanenceDatabase, $AppSettingsTable> {
+    extends Composer<_$AlambicDatabase, $AppSettingsTable> {
   $$AppSettingsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3779,7 +3778,7 @@ class $$AppSettingsTableOrderingComposer
 }
 
 class $$AppSettingsTableAnnotationComposer
-    extends Composer<_$RemanenceDatabase, $AppSettingsTable> {
+    extends Composer<_$AlambicDatabase, $AppSettingsTable> {
   $$AppSettingsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -3817,7 +3816,7 @@ class $$AppSettingsTableAnnotationComposer
 class $$AppSettingsTableTableManager
     extends
         RootTableManager<
-          _$RemanenceDatabase,
+          _$AlambicDatabase,
           $AppSettingsTable,
           AppSettingsRow,
           $$AppSettingsTableFilterComposer,
@@ -3829,10 +3828,8 @@ class $$AppSettingsTableTableManager
           AppSettingsRow,
           PrefetchHooks Function({bool globalPresetId})
         > {
-  $$AppSettingsTableTableManager(
-    _$RemanenceDatabase db,
-    $AppSettingsTable table,
-  ) : super(
+  $$AppSettingsTableTableManager(_$AlambicDatabase db, $AppSettingsTable table)
+    : super(
         TableManagerState(
           db: db,
           table: table,
@@ -3907,7 +3904,7 @@ class $$AppSettingsTableTableManager
 
 typedef $$AppSettingsTableProcessedTableManager =
     ProcessedTableManager<
-      _$RemanenceDatabase,
+      _$AlambicDatabase,
       $AppSettingsTable,
       AppSettingsRow,
       $$AppSettingsTableFilterComposer,
@@ -3933,10 +3930,10 @@ typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
 });
 
 final class $$CardGroupsTableReferences
-    extends BaseReferences<_$RemanenceDatabase, $CardGroupsTable, CardGroup> {
+    extends BaseReferences<_$AlambicDatabase, $CardGroupsTable, CardGroup> {
   $$CardGroupsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $PresetsTable _presetIdTable(_$RemanenceDatabase db) =>
+  static $PresetsTable _presetIdTable(_$AlambicDatabase db) =>
       db.presets.createAlias('card_groups__preset_id__presets__id');
 
   $$PresetsTableProcessedTableManager? get presetId {
@@ -3954,7 +3951,7 @@ final class $$CardGroupsTableReferences
   }
 
   static MultiTypedResultKey<$DistillationsTable, List<Distillation>>
-  _distillationsRefsTable(_$RemanenceDatabase db) =>
+  _distillationsRefsTable(_$AlambicDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.distillations,
         aliasName: 'card_groups__id__distillations__group_id',
@@ -3973,7 +3970,7 @@ final class $$CardGroupsTableReferences
   }
 
   static MultiTypedResultKey<$FlashcardsTable, List<Flashcard>>
-  _flashcardsRefsTable(_$RemanenceDatabase db) => MultiTypedResultKey.fromTable(
+  _flashcardsRefsTable(_$AlambicDatabase db) => MultiTypedResultKey.fromTable(
     db.flashcards,
     aliasName: 'card_groups__id__flashcards__group_id',
   );
@@ -3992,7 +3989,7 @@ final class $$CardGroupsTableReferences
 }
 
 class $$CardGroupsTableFilterComposer
-    extends Composer<_$RemanenceDatabase, $CardGroupsTable> {
+    extends Composer<_$AlambicDatabase, $CardGroupsTable> {
   $$CardGroupsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4090,7 +4087,7 @@ class $$CardGroupsTableFilterComposer
 }
 
 class $$CardGroupsTableOrderingComposer
-    extends Composer<_$RemanenceDatabase, $CardGroupsTable> {
+    extends Composer<_$AlambicDatabase, $CardGroupsTable> {
   $$CardGroupsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4138,7 +4135,7 @@ class $$CardGroupsTableOrderingComposer
 }
 
 class $$CardGroupsTableAnnotationComposer
-    extends Composer<_$RemanenceDatabase, $CardGroupsTable> {
+    extends Composer<_$AlambicDatabase, $CardGroupsTable> {
   $$CardGroupsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4232,7 +4229,7 @@ class $$CardGroupsTableAnnotationComposer
 class $$CardGroupsTableTableManager
     extends
         RootTableManager<
-          _$RemanenceDatabase,
+          _$AlambicDatabase,
           $CardGroupsTable,
           CardGroup,
           $$CardGroupsTableFilterComposer,
@@ -4248,7 +4245,7 @@ class $$CardGroupsTableTableManager
             bool flashcardsRefs,
           })
         > {
-  $$CardGroupsTableTableManager(_$RemanenceDatabase db, $CardGroupsTable table)
+  $$CardGroupsTableTableManager(_$AlambicDatabase db, $CardGroupsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -4385,7 +4382,7 @@ class $$CardGroupsTableTableManager
 
 typedef $$CardGroupsTableProcessedTableManager =
     ProcessedTableManager<
-      _$RemanenceDatabase,
+      _$AlambicDatabase,
       $CardGroupsTable,
       CardGroup,
       $$CardGroupsTableFilterComposer,
@@ -4434,14 +4431,14 @@ typedef $$DistillationsTableUpdateCompanionBuilder =
 
 final class $$DistillationsTableReferences
     extends
-        BaseReferences<_$RemanenceDatabase, $DistillationsTable, Distillation> {
+        BaseReferences<_$AlambicDatabase, $DistillationsTable, Distillation> {
   $$DistillationsTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $CardGroupsTable _groupIdTable(_$RemanenceDatabase db) =>
+  static $CardGroupsTable _groupIdTable(_$AlambicDatabase db) =>
       db.cardGroups.createAlias('distillations__group_id__card_groups__id');
 
   $$CardGroupsTableProcessedTableManager? get groupId {
@@ -4459,7 +4456,7 @@ final class $$DistillationsTableReferences
   }
 
   static MultiTypedResultKey<$CardDirectionsTable, List<CardDirection>>
-  _cardDirectionsRefsTable(_$RemanenceDatabase db) =>
+  _cardDirectionsRefsTable(_$AlambicDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.cardDirections,
         aliasName: 'distillations__id__card_directions__distillation_id',
@@ -4479,7 +4476,7 @@ final class $$DistillationsTableReferences
 }
 
 class $$DistillationsTableFilterComposer
-    extends Composer<_$RemanenceDatabase, $DistillationsTable> {
+    extends Composer<_$AlambicDatabase, $DistillationsTable> {
   $$DistillationsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4595,7 +4592,7 @@ class $$DistillationsTableFilterComposer
 }
 
 class $$DistillationsTableOrderingComposer
-    extends Composer<_$RemanenceDatabase, $DistillationsTable> {
+    extends Composer<_$AlambicDatabase, $DistillationsTable> {
   $$DistillationsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4683,7 +4680,7 @@ class $$DistillationsTableOrderingComposer
 }
 
 class $$DistillationsTableAnnotationComposer
-    extends Composer<_$RemanenceDatabase, $DistillationsTable> {
+    extends Composer<_$AlambicDatabase, $DistillationsTable> {
   $$DistillationsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4789,7 +4786,7 @@ class $$DistillationsTableAnnotationComposer
 class $$DistillationsTableTableManager
     extends
         RootTableManager<
-          _$RemanenceDatabase,
+          _$AlambicDatabase,
           $DistillationsTable,
           Distillation,
           $$DistillationsTableFilterComposer,
@@ -4802,7 +4799,7 @@ class $$DistillationsTableTableManager
           PrefetchHooks Function({bool groupId, bool cardDirectionsRefs})
         > {
   $$DistillationsTableTableManager(
-    _$RemanenceDatabase db,
+    _$AlambicDatabase db,
     $DistillationsTable table,
   ) : super(
         TableManagerState(
@@ -4948,7 +4945,7 @@ class $$DistillationsTableTableManager
 
 typedef $$DistillationsTableProcessedTableManager =
     ProcessedTableManager<
-      _$RemanenceDatabase,
+      _$AlambicDatabase,
       $DistillationsTable,
       Distillation,
       $$DistillationsTableFilterComposer,
@@ -4984,10 +4981,10 @@ typedef $$FlashcardsTableUpdateCompanionBuilder = FlashcardsCompanion Function({
 });
 
 final class $$FlashcardsTableReferences
-    extends BaseReferences<_$RemanenceDatabase, $FlashcardsTable, Flashcard> {
+    extends BaseReferences<_$AlambicDatabase, $FlashcardsTable, Flashcard> {
   $$FlashcardsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $CardGroupsTable _groupIdTable(_$RemanenceDatabase db) =>
+  static $CardGroupsTable _groupIdTable(_$AlambicDatabase db) =>
       db.cardGroups.createAlias('flashcards__group_id__card_groups__id');
 
   $$CardGroupsTableProcessedTableManager? get groupId {
@@ -5004,7 +5001,7 @@ final class $$FlashcardsTableReferences
     );
   }
 
-  static $PresetsTable _presetIdTable(_$RemanenceDatabase db) =>
+  static $PresetsTable _presetIdTable(_$AlambicDatabase db) =>
       db.presets.createAlias('flashcards__preset_id__presets__id');
 
   $$PresetsTableProcessedTableManager? get presetId {
@@ -5022,7 +5019,7 @@ final class $$FlashcardsTableReferences
   }
 
   static MultiTypedResultKey<$CardDirectionsTable, List<CardDirection>>
-  _cardDirectionsRefsTable(_$RemanenceDatabase db) =>
+  _cardDirectionsRefsTable(_$AlambicDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.cardDirections,
         aliasName: 'flashcards__id__card_directions__card_id',
@@ -5042,7 +5039,7 @@ final class $$FlashcardsTableReferences
 }
 
 class $$FlashcardsTableFilterComposer
-    extends Composer<_$RemanenceDatabase, $FlashcardsTable> {
+    extends Composer<_$AlambicDatabase, $FlashcardsTable> {
   $$FlashcardsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5158,7 +5155,7 @@ class $$FlashcardsTableFilterComposer
 }
 
 class $$FlashcardsTableOrderingComposer
-    extends Composer<_$RemanenceDatabase, $FlashcardsTable> {
+    extends Composer<_$AlambicDatabase, $FlashcardsTable> {
   $$FlashcardsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5249,7 +5246,7 @@ class $$FlashcardsTableOrderingComposer
 }
 
 class $$FlashcardsTableAnnotationComposer
-    extends Composer<_$RemanenceDatabase, $FlashcardsTable> {
+    extends Composer<_$AlambicDatabase, $FlashcardsTable> {
   $$FlashcardsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5357,7 +5354,7 @@ class $$FlashcardsTableAnnotationComposer
 class $$FlashcardsTableTableManager
     extends
         RootTableManager<
-          _$RemanenceDatabase,
+          _$AlambicDatabase,
           $FlashcardsTable,
           Flashcard,
           $$FlashcardsTableFilterComposer,
@@ -5373,7 +5370,7 @@ class $$FlashcardsTableTableManager
             bool cardDirectionsRefs,
           })
         > {
-  $$FlashcardsTableTableManager(_$RemanenceDatabase db, $FlashcardsTable table)
+  $$FlashcardsTableTableManager(_$AlambicDatabase db, $FlashcardsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -5520,7 +5517,7 @@ class $$FlashcardsTableTableManager
 
 typedef $$FlashcardsTableProcessedTableManager =
     ProcessedTableManager<
-      _$RemanenceDatabase,
+      _$AlambicDatabase,
       $FlashcardsTable,
       Flashcard,
       $$FlashcardsTableFilterComposer,
@@ -5565,18 +5562,14 @@ typedef $$CardDirectionsTableUpdateCompanionBuilder =
 
 final class $$CardDirectionsTableReferences
     extends
-        BaseReferences<
-          _$RemanenceDatabase,
-          $CardDirectionsTable,
-          CardDirection
-        > {
+        BaseReferences<_$AlambicDatabase, $CardDirectionsTable, CardDirection> {
   $$CardDirectionsTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $FlashcardsTable _cardIdTable(_$RemanenceDatabase db) =>
+  static $FlashcardsTable _cardIdTable(_$AlambicDatabase db) =>
       db.flashcards.createAlias('card_directions__card_id__flashcards__id');
 
   $$FlashcardsTableProcessedTableManager get cardId {
@@ -5593,7 +5586,7 @@ final class $$CardDirectionsTableReferences
     );
   }
 
-  static $DistillationsTable _distillationIdTable(_$RemanenceDatabase db) => db
+  static $DistillationsTable _distillationIdTable(_$AlambicDatabase db) => db
       .distillations
       .createAlias('card_directions__distillation_id__distillations__id');
 
@@ -5612,7 +5605,7 @@ final class $$CardDirectionsTableReferences
   }
 
   static MultiTypedResultKey<$ReviewRecordsTable, List<ReviewRecord>>
-  _reviewRecordsRefsTable(_$RemanenceDatabase db) =>
+  _reviewRecordsRefsTable(_$AlambicDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.reviewRecords,
         aliasName: 'card_directions__id__review_records__direction_id',
@@ -5631,7 +5624,7 @@ final class $$CardDirectionsTableReferences
   }
 
   static MultiTypedResultKey<$ExtraRemindersTable, List<ExtraReminder>>
-  _extraRemindersRefsTable(_$RemanenceDatabase db) =>
+  _extraRemindersRefsTable(_$AlambicDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.extraReminders,
         aliasName: 'card_directions__id__extra_reminders__direction_id',
@@ -5651,7 +5644,7 @@ final class $$CardDirectionsTableReferences
 }
 
 class $$CardDirectionsTableFilterComposer
-    extends Composer<_$RemanenceDatabase, $CardDirectionsTable> {
+    extends Composer<_$AlambicDatabase, $CardDirectionsTable> {
   $$CardDirectionsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5799,7 +5792,7 @@ class $$CardDirectionsTableFilterComposer
 }
 
 class $$CardDirectionsTableOrderingComposer
-    extends Composer<_$RemanenceDatabase, $CardDirectionsTable> {
+    extends Composer<_$AlambicDatabase, $CardDirectionsTable> {
   $$CardDirectionsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5895,7 +5888,7 @@ class $$CardDirectionsTableOrderingComposer
 }
 
 class $$CardDirectionsTableAnnotationComposer
-    extends Composer<_$RemanenceDatabase, $CardDirectionsTable> {
+    extends Composer<_$AlambicDatabase, $CardDirectionsTable> {
   $$CardDirectionsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -6033,7 +6026,7 @@ class $$CardDirectionsTableAnnotationComposer
 class $$CardDirectionsTableTableManager
     extends
         RootTableManager<
-          _$RemanenceDatabase,
+          _$AlambicDatabase,
           $CardDirectionsTable,
           CardDirection,
           $$CardDirectionsTableFilterComposer,
@@ -6051,7 +6044,7 @@ class $$CardDirectionsTableTableManager
           })
         > {
   $$CardDirectionsTableTableManager(
-    _$RemanenceDatabase db,
+    _$AlambicDatabase db,
     $CardDirectionsTable table,
   ) : super(
         TableManagerState(
@@ -6225,7 +6218,7 @@ class $$CardDirectionsTableTableManager
 
 typedef $$CardDirectionsTableProcessedTableManager =
     ProcessedTableManager<
-      _$RemanenceDatabase,
+      _$AlambicDatabase,
       $CardDirectionsTable,
       CardDirection,
       $$CardDirectionsTableFilterComposer,
@@ -6267,14 +6260,14 @@ typedef $$ReviewRecordsTableUpdateCompanionBuilder =
 
 final class $$ReviewRecordsTableReferences
     extends
-        BaseReferences<_$RemanenceDatabase, $ReviewRecordsTable, ReviewRecord> {
+        BaseReferences<_$AlambicDatabase, $ReviewRecordsTable, ReviewRecord> {
   $$ReviewRecordsTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $CardDirectionsTable _directionIdTable(_$RemanenceDatabase db) => db
+  static $CardDirectionsTable _directionIdTable(_$AlambicDatabase db) => db
       .cardDirections
       .createAlias('review_records__direction_id__card_directions__id');
 
@@ -6294,7 +6287,7 @@ final class $$ReviewRecordsTableReferences
 }
 
 class $$ReviewRecordsTableFilterComposer
-    extends Composer<_$RemanenceDatabase, $ReviewRecordsTable> {
+    extends Composer<_$AlambicDatabase, $ReviewRecordsTable> {
   $$ReviewRecordsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -6364,7 +6357,7 @@ class $$ReviewRecordsTableFilterComposer
 }
 
 class $$ReviewRecordsTableOrderingComposer
-    extends Composer<_$RemanenceDatabase, $ReviewRecordsTable> {
+    extends Composer<_$AlambicDatabase, $ReviewRecordsTable> {
   $$ReviewRecordsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -6432,7 +6425,7 @@ class $$ReviewRecordsTableOrderingComposer
 }
 
 class $$ReviewRecordsTableAnnotationComposer
-    extends Composer<_$RemanenceDatabase, $ReviewRecordsTable> {
+    extends Composer<_$AlambicDatabase, $ReviewRecordsTable> {
   $$ReviewRecordsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -6492,7 +6485,7 @@ class $$ReviewRecordsTableAnnotationComposer
 class $$ReviewRecordsTableTableManager
     extends
         RootTableManager<
-          _$RemanenceDatabase,
+          _$AlambicDatabase,
           $ReviewRecordsTable,
           ReviewRecord,
           $$ReviewRecordsTableFilterComposer,
@@ -6505,7 +6498,7 @@ class $$ReviewRecordsTableTableManager
           PrefetchHooks Function({bool directionId})
         > {
   $$ReviewRecordsTableTableManager(
-    _$RemanenceDatabase db,
+    _$AlambicDatabase db,
     $ReviewRecordsTable table,
   ) : super(
         TableManagerState(
@@ -6610,7 +6603,7 @@ class $$ReviewRecordsTableTableManager
 
 typedef $$ReviewRecordsTableProcessedTableManager =
     ProcessedTableManager<
-      _$RemanenceDatabase,
+      _$AlambicDatabase,
       $ReviewRecordsTable,
       ReviewRecord,
       $$ReviewRecordsTableFilterComposer,
@@ -6639,18 +6632,14 @@ typedef $$ExtraRemindersTableUpdateCompanionBuilder =
 
 final class $$ExtraRemindersTableReferences
     extends
-        BaseReferences<
-          _$RemanenceDatabase,
-          $ExtraRemindersTable,
-          ExtraReminder
-        > {
+        BaseReferences<_$AlambicDatabase, $ExtraRemindersTable, ExtraReminder> {
   $$ExtraRemindersTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $CardDirectionsTable _directionIdTable(_$RemanenceDatabase db) => db
+  static $CardDirectionsTable _directionIdTable(_$AlambicDatabase db) => db
       .cardDirections
       .createAlias('extra_reminders__direction_id__card_directions__id');
 
@@ -6670,7 +6659,7 @@ final class $$ExtraRemindersTableReferences
 }
 
 class $$ExtraRemindersTableFilterComposer
-    extends Composer<_$RemanenceDatabase, $ExtraRemindersTable> {
+    extends Composer<_$AlambicDatabase, $ExtraRemindersTable> {
   $$ExtraRemindersTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -6718,7 +6707,7 @@ class $$ExtraRemindersTableFilterComposer
 }
 
 class $$ExtraRemindersTableOrderingComposer
-    extends Composer<_$RemanenceDatabase, $ExtraRemindersTable> {
+    extends Composer<_$AlambicDatabase, $ExtraRemindersTable> {
   $$ExtraRemindersTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -6766,7 +6755,7 @@ class $$ExtraRemindersTableOrderingComposer
 }
 
 class $$ExtraRemindersTableAnnotationComposer
-    extends Composer<_$RemanenceDatabase, $ExtraRemindersTable> {
+    extends Composer<_$AlambicDatabase, $ExtraRemindersTable> {
   $$ExtraRemindersTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -6812,7 +6801,7 @@ class $$ExtraRemindersTableAnnotationComposer
 class $$ExtraRemindersTableTableManager
     extends
         RootTableManager<
-          _$RemanenceDatabase,
+          _$AlambicDatabase,
           $ExtraRemindersTable,
           ExtraReminder,
           $$ExtraRemindersTableFilterComposer,
@@ -6825,7 +6814,7 @@ class $$ExtraRemindersTableTableManager
           PrefetchHooks Function({bool directionId})
         > {
   $$ExtraRemindersTableTableManager(
-    _$RemanenceDatabase db,
+    _$AlambicDatabase db,
     $ExtraRemindersTable table,
   ) : super(
         TableManagerState(
@@ -6914,7 +6903,7 @@ class $$ExtraRemindersTableTableManager
 
 typedef $$ExtraRemindersTableProcessedTableManager =
     ProcessedTableManager<
-      _$RemanenceDatabase,
+      _$AlambicDatabase,
       $ExtraRemindersTable,
       ExtraReminder,
       $$ExtraRemindersTableFilterComposer,
@@ -6927,9 +6916,9 @@ typedef $$ExtraRemindersTableProcessedTableManager =
       PrefetchHooks Function({bool directionId})
     >;
 
-class $RemanenceDatabaseManager {
-  final _$RemanenceDatabase _db;
-  $RemanenceDatabaseManager(this._db);
+class $AlambicDatabaseManager {
+  final _$AlambicDatabase _db;
+  $AlambicDatabaseManager(this._db);
   $$PresetsTableTableManager get presets =>
       $$PresetsTableTableManager(_db, _db.presets);
   $$AppSettingsTableTableManager get appSettings =>

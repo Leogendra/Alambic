@@ -1,9 +1,9 @@
-import 'package:remanence/domain/presets/built_in_presets.dart';
-import 'package:remanence/domain/presets/failure_behavior.dart';
-import 'package:remanence/domain/presets/interval_unit.dart';
-import 'package:remanence/domain/presets/preset.dart';
-import 'package:remanence/domain/presets/preset_interval.dart';
-import 'package:remanence/domain/presets/sequence_end_behavior.dart';
+import 'package:alambic/domain/presets/built_in_presets.dart';
+import 'package:alambic/domain/presets/failure_behavior.dart';
+import 'package:alambic/domain/presets/interval_unit.dart';
+import 'package:alambic/domain/presets/preset.dart';
+import 'package:alambic/domain/presets/preset_interval.dart';
+import 'package:alambic/domain/presets/sequence_end_behavior.dart';
 
 /// Standard preset with an id, as stored.
 final Preset standardPreset = BuiltInPresets.standard.copyWith(id: 1);

@@ -1,25 +1,25 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/application/cards/card_draft.dart';
-import 'package:remanence/application/cards/card_service.dart';
-import 'package:remanence/application/distillation/distillation_service.dart';
-import 'package:remanence/application/scheduling/ignored_schedule_changes.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/card_repository.dart';
-import 'package:remanence/data/repositories/distillation_repository.dart';
-import 'package:remanence/data/repositories/preset_repository.dart';
-import 'package:remanence/domain/cards/card_direction.dart';
-import 'package:remanence/domain/cards/direction_sense.dart';
-import 'package:remanence/domain/cards/direction_state.dart';
-import 'package:remanence/domain/scheduling/direction_schedule.dart';
-import 'package:remanence/domain/scheduling/review_scheduler.dart';
-import 'package:remanence/domain/scheduling/scheduling_calendar.dart';
+import 'package:alambic/application/cards/card_draft.dart';
+import 'package:alambic/application/cards/card_service.dart';
+import 'package:alambic/application/distillation/distillation_service.dart';
+import 'package:alambic/application/scheduling/ignored_schedule_changes.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/distillation_repository.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/domain/cards/card_direction.dart';
+import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/scheduling/direction_schedule.dart';
+import 'package:alambic/domain/scheduling/review_scheduler.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/recording_schedule_listener.dart';
 import '../support/test_database.dart';
 
 void main() {
-  late RemanenceDatabase database;
+  late AlambicDatabase database;
   late CardRepository cards;
   late CardService service;
   late FixedClock clock;

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/domain/presets/failure_behavior.dart';
-import 'package:remanence/domain/presets/sequence_end_behavior.dart';
-import 'package:remanence/domain/reviews/review_outcome.dart';
-import 'package:remanence/domain/scheduling/sequence_engine.dart';
-import 'package:remanence/domain/scheduling/sequence_step.dart';
+import 'package:alambic/domain/presets/failure_behavior.dart';
+import 'package:alambic/domain/presets/sequence_end_behavior.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
+import 'package:alambic/domain/scheduling/sequence_engine.dart';
+import 'package:alambic/domain/scheduling/sequence_step.dart';
 
 import '../test_presets.dart';
 

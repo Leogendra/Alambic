@@ -3,13 +3,13 @@ import 'package:drift/drift.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_record.dart';
 import '../../domain/reviews/review_source.dart';
-import '../database/remanence_database.dart';
+import '../database/alambic_database.dart';
 
 /// History of answers.
 class ReviewRepository {
   const ReviewRepository(this._database);
 
-  final RemanenceDatabase _database;
+  final AlambicDatabase _database;
 
   Future<void> insert({
     required int directionId,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/preset_labels.dart';
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
@@ -74,7 +74,7 @@ class _GroupBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
       children: [
@@ -149,7 +149,7 @@ class _StartPanel extends ConsumerWidget {
               strings.groupStartHint,
               style: TextStyle(
                 fontSize: 14,
-                color: RemanenceColors.of(context).textSecondary,
+                color: AlambicColors.of(context).textSecondary,
               ),
             ),
             const SizedBox(height: 12),
@@ -186,7 +186,7 @@ class _CardList extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Text(
           AppLocalizations.of(context).groupEmpty,
-          style: TextStyle(color: RemanenceColors.of(context).textSecondary),
+          style: TextStyle(color: AlambicColors.of(context).textSecondary),
         ),
       );
     } else {

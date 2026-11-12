@@ -1,6 +1,6 @@
 # Changelog
 
-All visible changes to Remanence are listed here. Format: [Keep a Changelog 1.0.0](https://keepachangelog.com/en/1.0.0/).
+All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 

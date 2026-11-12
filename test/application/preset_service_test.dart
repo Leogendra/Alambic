@@ -1,16 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/application/presets/preset_service.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/preset_repository.dart';
-import 'package:remanence/domain/presets/built_in_preset_key.dart';
-import 'package:remanence/domain/presets/interval_unit.dart';
-import 'package:remanence/domain/presets/preset_interval.dart';
-import 'package:remanence/domain/scheduling/clock_time.dart';
+import 'package:alambic/application/presets/preset_service.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/domain/presets/built_in_preset_key.dart';
+import 'package:alambic/domain/presets/interval_unit.dart';
+import 'package:alambic/domain/presets/preset_interval.dart';
+import 'package:alambic/domain/scheduling/clock_time.dart';
 
 import '../support/test_database.dart';
 
 void main() {
-  late RemanenceDatabase database;
+  late AlambicDatabase database;
   late PresetRepository presets;
   late PresetService service;
 

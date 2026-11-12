@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../application/distillation/distillation_progress.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -18,7 +18,7 @@ class DistillationTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final distillation = progress.distillation;
     final service = ref.read(distillationServiceProvider);
     final lastArrival = progress.lastArrival;

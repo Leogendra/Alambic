@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/clock.dart';
 import '../../application/reviews/review_providers.dart';
@@ -96,7 +96,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Widget _header(AppLocalizations strings) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final total = _session.items.length;
     return SizedBox(
       height: 64,

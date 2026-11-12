@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../application/reviews/review_session.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'session_launcher.dart';
@@ -19,7 +19,7 @@ class SessionEndView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final missed = session.missedItems;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 48, 20, 24),
@@ -78,7 +78,7 @@ class SessionEndView extends StatelessWidget {
   }
 
   Widget _stat(BuildContext context, int value, String label) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),

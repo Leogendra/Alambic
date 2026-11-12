@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/notifications/notification_action.dart';
 import '../../application/notifications/notification_providers.dart';
 import '../../data/data_providers.dart';
-import '../../data/database/remanence_database.dart';
+import '../../data/database/alambic_database.dart';
 import 'android_notifications.dart';
 import 'notification_payload.dart';
 
@@ -43,7 +43,7 @@ Future<void> _runInBackground(
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
   await AndroidNotifications.initialize();
-  final database = RemanenceDatabase.open();
+  final database = AlambicDatabase.open();
   final container = ProviderContainer(
     overrides: [
       databaseProvider.overrideWithValue(database),

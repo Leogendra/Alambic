@@ -7,6 +7,7 @@ import 'package:alambic/application/notifications/review_prompt.dart';
 import 'package:alambic/application/reviews/review_result.dart';
 import 'package:alambic/domain/cards/direction_state.dart';
 import 'package:alambic/domain/presets/built_in_presets.dart';
+import 'package:alambic/domain/reviews/typed_answer_match.dart';
 import 'package:alambic/domain/scheduling/direction_schedule.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 import 'package:alambic/l10n/generated/app_localizations.dart';
@@ -31,9 +32,15 @@ void main() {
     step: step,
     sequenceLength: 6,
     isReverse: isReverse,
+    typedAnswer: false,
   );
 
-  AnswerReveal reveal({required bool isBonus}) => AnswerReveal(
+  AnswerReveal reveal({
+    required bool isBonus,
+    String? typed,
+    TypedAnswerMatch? match,
+    DirectionSchedule? schedule,
+  }) => AnswerReveal(
     key: key,
     prompt: 'Pérou',
     answer: 'Lima',
@@ -41,14 +48,17 @@ void main() {
       isBonus: isBonus,
       schedule: isBonus
           ? null
-          : DirectionSchedule(
-              state: DirectionState.active,
-              step: 0,
-              dueAt: DateTime(2026, 11, 11, 12),
-            ),
+          : schedule ??
+                DirectionSchedule(
+                  state: DirectionState.active,
+                  step: 0,
+                  dueAt: DateTime(2026, 11, 11, 12),
+                ),
       preset: BuiltInPresets.standard,
     ),
     answeredAt: DateTime(2026, 11, 10, 12, 5),
+    typed: typed,
+    match: match,
   );
 
   test('describes where the asked direction stands', () {
@@ -76,6 +86,52 @@ void main() {
       'Compté raté · retour au cran 1, revue demain',
     );
     expect(texts.verdict(reveal(isBonus: true)), 'Révision bonus · sans effet');
+  });
+
+  test('tells how a typed answer compared, then what it did', () {
+    final next = DirectionSchedule(
+      state: DirectionState.active,
+      step: 2,
+      dueAt: DateTime(2026, 11, 13, 12),
+    );
+    expect(
+      texts.verdict(
+        reveal(
+          isBonus: false,
+          typed: 'lma',
+          match: TypedAnswerMatch.oneTypo,
+          schedule: next,
+        ),
+      ),
+      '« lma » accepté, 1 faute · prochain rappel dans 3 j',
+    );
+    expect(
+      texts.verdict(
+        reveal(
+          isBonus: false,
+          typed: 'Lima',
+          match: TypedAnswerMatch.exact,
+          schedule: const DirectionSchedule(
+            state: DirectionState.acquired,
+            step: null,
+            dueAt: null,
+          ),
+        ),
+      ),
+      '« Lima » accepté · carte acquise',
+    );
+    expect(
+      texts.verdict(
+        reveal(isBonus: false, typed: 'Quito', match: TypedAnswerMatch.wrong),
+      ),
+      '« Quito » refusé · Compté raté · retour au cran 1, revue demain',
+    );
+    expect(
+      texts.verdict(
+        reveal(isBonus: true, typed: 'Lima', match: TypedAnswerMatch.exact),
+      ),
+      '« Lima » accepté · Révision bonus · sans effet',
+    );
   });
 
   test('the payload carries the key, and tells prompts from answers', () {

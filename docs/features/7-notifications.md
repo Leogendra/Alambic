@@ -4,7 +4,7 @@ Status: in progress (2026-11-11)
 
 ## Goal
 
-Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again" without opening the app, and the next review is planned at once. This feature covers the fixed-time notification of one card at a time; typed answers, grouped reminders, time ranges and the daily safeguards come later.
+Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. Grouped reminders, time ranges and the daily safeguards come later.
 
 ## Implementation overview
 
@@ -47,6 +47,18 @@ The buttons are handled in a background isolate, app open or not, by `Notificati
 
 Touching the notification itself opens the app.
 
+### Typed answer
+
+A preset with the typed answer option replaces "Correct" with "Answer" (*Répondre*), which opens a text field in the notification; "Again" stays. A card whose answer face has no text keeps "Correct", having nothing to compare with.
+
+The typed answer is compared with the answer face by `TypedAnswerMatch`, in the domain:
+
+- case, accents, spaces, hyphens and apostrophes are ignored: "oulan bator" is "Oulan-Bator", "coeur" is "cœur";
+- one typo is forgiven: a letter missing, added or replaced, or two neighbouring letters swapped;
+- no typo is forgiven on an answer of fewer than 4 characters, nor on a digit, so that "Lia" is not "Lim" and "1788" is not "1789".
+
+An accepted answer is recorded as "Correct", a refused one as "Again". In both cases the notification is replaced by the expected answer, how the typed answer compared and what the answer did ("« canbera » accepté, 1 faute · prochain rappel demain"), with "OK".
+
 ### Exact alarms, restarts and permissions
 
 Exact alarms need a permission that Android 14 refuses by default. Without it, wake-ups are scheduled as inexact alarms, which Android may deliver a few minutes late, and Settings shows a "Reminders at the exact time" panel with an "Allow" button opening the system page. Back in the app, the permission is read again and, when it changed, every wake-up is scheduled again with the new precision.
@@ -65,10 +77,11 @@ The notification permission of Android 13 is asked at launch until the onboardin
 - [x] A "Review soon" reminder is notified at its moment, and its answer is a bonus review.
 - [x] Without the exact alarm permission, reminders are still planned as inexact alarms, and Settings offers to allow exact alarms.
 - [x] Wake-ups are planned again after a phone restart and at each launch.
+- [x] With the typed answer option, the card is answered in a field of the notification; the comparison ignores case, accents and spaces and forgives one typo, then the expected answer is shown with "OK".
 
 ## Test strategy
 
-- The timing rules (shown once, within an hour, wake-ups rounded and capped) are tested as pure domain logic.
+- The timing rules (shown once, within an hour, wake-ups rounded and capped) and the typed answer comparison are tested as pure domain logic.
 - The planner, the dispatcher and the action handler are tested together on an in-memory database, through the same providers as the app, with in-memory fakes of the three platform interfaces that behave like an alarm manager and a notification shade.
 - The notification texts and the payload carried by a notification are tested without a device.
 - The exact alarm panel is tested on screen, with a golden test of the refused state.
@@ -77,6 +90,7 @@ The notification permission of Android 13 is asked at launch until the onboardin
 ## File mapping
 
 - `lib/domain/notifications/` — when to show a reminder and when to wake up.
+- `lib/domain/reviews/typed_answer_match.dart` — comparison of a typed answer.
 - `lib/application/notifications/` — the platform interfaces, the planner, the dispatcher, the action handler and their providers.
 - `lib/notifications/` — notification texts and the store of planned wake-ups.
 - `lib/notifications/android/` — Android implementations, wiring and background entry points.
@@ -87,7 +101,7 @@ The notification permission of Android 13 is asked at launch until the onboardin
 
 The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its direction id; extra reminders use ids from 1,000,000,000 upwards so that they never replace the notification of a due card. A notification carries its key (direction, extra reminder, prompt or answer) in its payload, which is how the planner finds the cards shown and how a pressed button finds the direction it answers.
 
-The "Again" button does not let the plugin close the notification, so that the answer replaces it in place; the replaced notification only alerts once.
+The "Again" and "Answer" buttons do not let the plugin close the notification, so that the answer replaces it in place; the replaced notification only alerts once. The text typed in the field reaches the background isolate in the `input` of the notification response.
 
 `android_alarm_manager_plus` drops an exact alarm without the permission instead of falling back by itself: the scheduler asks for an exact alarm only when `canScheduleExactNotifications` says it is allowed.
 

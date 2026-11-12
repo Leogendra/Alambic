@@ -10,6 +10,7 @@ class ReviewPrompt {
     required this.step,
     required this.sequenceLength,
     required this.isReverse,
+    required this.typedAnswer,
   });
 
   final ReviewNotificationKey key;
@@ -26,4 +27,8 @@ class ReviewPrompt {
 
   /// Back → front direction.
   final bool isReverse;
+
+  /// Asks for a typed answer ("Answer" and "Again") instead of "Correct" and
+  /// "Again".
+  final bool typedAnswer;
 }

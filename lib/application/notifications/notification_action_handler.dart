@@ -1,6 +1,7 @@
 import '../../data/repositories/card_repository.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
+import '../../domain/reviews/typed_answer_match.dart';
 import '../clock.dart';
 import '../reviews/review_service.dart';
 import 'answer_reveal.dart';
@@ -24,41 +25,51 @@ class NotificationActionHandler {
   final Clock _clock;
 
   /// "Correct" closes the notification; "Again" replaces it with the
-  /// expected answer and an "OK" button. Answering an extra reminder is a
-  /// bonus review. A card deleted meanwhile only closes the notification.
+  /// expected answer and an "OK" button. A typed answer counts as "Correct"
+  /// when it matches the expected one and as "Again" otherwise, and is always
+  /// followed by the expected answer. Answering an extra reminder is a bonus
+  /// review. A card deleted meanwhile only closes the notification.
   Future<void> handle(
     ReviewNotificationKey key,
-    NotificationAction action,
-  ) async {
-    final outcome = switch (action) {
-      NotificationAction.correct => ReviewOutcome.correct,
-      NotificationAction.again => ReviewOutcome.again,
-      NotificationAction.acknowledge => null,
-    };
+    NotificationAction action, {
+    String? input,
+  }) async {
     final direction = await _cards.findDirection(key.directionId);
-    if (outcome == null || direction == null) {
+    if (action == NotificationAction.acknowledge || direction == null) {
       await _presenter.dismiss(key);
       return;
     }
+    final card = await _cards.getCard(direction.cardId);
+    final answer = card.answerFor(direction.sense).text ?? '';
+    final typed = action == NotificationAction.answer ? input ?? '' : null;
+    final match = typed == null
+        ? null
+        : TypedAnswerMatch.compare(typed, answer);
+    final outcome = switch (action) {
+      NotificationAction.correct => ReviewOutcome.correct,
+      NotificationAction.answer when match!.isAccepted => ReviewOutcome.correct,
+      _ => ReviewOutcome.again,
+    };
     final result = await _reviews.answer(
       key.directionId,
       outcome,
       source: ReviewSource.notification,
       forceBonus: key.isExtraReminder,
     );
-    if (outcome == ReviewOutcome.again) {
-      final card = await _cards.getCard(direction.cardId);
+    if (action == NotificationAction.correct) {
+      await _presenter.dismiss(key);
+    } else {
       await _presenter.showReveal(
         AnswerReveal(
           key: key,
           prompt: card.promptFor(direction.sense).text ?? '',
-          answer: card.answerFor(direction.sense).text ?? '',
+          answer: answer,
           result: result,
           answeredAt: _clock(),
+          typed: typed,
+          match: match,
         ),
       );
-    } else {
-      await _presenter.dismiss(key);
     }
   }
 }

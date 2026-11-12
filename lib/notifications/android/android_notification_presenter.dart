@@ -35,10 +35,24 @@ class AndroidNotificationPresenter implements NotificationPresenter {
     notificationDetails: _details(
       subText: _texts.groupLabel(prompt),
       actions: [
-        AndroidNotificationAction(
-          NotificationAction.correct.name,
-          _texts.strings.reviewCorrect,
-        ),
+        if (prompt.typedAnswer)
+          // Kept on screen, like "Again": the notification is replaced by
+          // the expected answer.
+          AndroidNotificationAction(
+            NotificationAction.answer.name,
+            _texts.strings.notificationAnswerButton,
+            cancelNotification: false,
+            inputs: [
+              AndroidNotificationActionInput(
+                label: _texts.strings.notificationAnswerField,
+              ),
+            ],
+          )
+        else
+          AndroidNotificationAction(
+            NotificationAction.correct.name,
+            _texts.strings.reviewCorrect,
+          ),
         // Kept on screen: the notification is replaced by the answer.
         AndroidNotificationAction(
           NotificationAction.again.name,

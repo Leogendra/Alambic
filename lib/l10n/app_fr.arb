@@ -621,6 +621,41 @@
     }
   },
   "notificationBonus": "Révision bonus · sans effet",
+  "notificationAnswerButton": "Répondre",
+  "notificationAnswerField": "Ta réponse",
+  "notificationTypedAccepted": "« {typed} » accepté",
+  "@notificationTypedAccepted": {
+    "placeholders": {
+      "typed": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTypedAcceptedTypo": "« {typed} » accepté, 1 faute",
+  "@notificationTypedAcceptedTypo": {
+    "placeholders": {
+      "typed": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTypedRefused": "« {typed} » refusé",
+  "@notificationTypedRefused": {
+    "placeholders": {
+      "typed": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationNextReview": "prochain rappel {when}",
+  "@notificationNextReview": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationAcquired": "carte acquise",
   "settingsExactAlarms": "Rappels à l'heure exacte",
   "settingsExactAlarmsOn": "Les rappels tombent à la minute près.",
   "settingsExactAlarmsOff": "Les rappels peuvent arriver avec quelques minutes de retard. Autorise les alarmes exactes pour qu'ils tombent à l'heure.",

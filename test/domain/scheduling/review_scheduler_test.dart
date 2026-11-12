@@ -207,4 +207,36 @@ void main() {
       expect(schedule.dueAt, DateTime(2026, 11, 14, 12));
     });
   });
+
+  group('a change of engine starts over', () {
+    test('a sequence step means nothing to FSRS', () {
+      final schedule = scheduler.afterAnswer(
+        direction: answered(step: 4, lastReviewedAt: DateTime(2026, 8, 10, 12)),
+        outcome: ReviewOutcome.correct,
+        preset: BuiltInPresets.adaptive.copyWith(id: 4),
+        answeredAt: DateTime(2026, 11, 10, 12, 5),
+        oppositeDueAt: null,
+      );
+      expect(schedule.step, isNull);
+      expect(schedule.memory?.stability, 3.173);
+      expect(schedule.dueAt, DateTime(2026, 11, 13, 12));
+    });
+
+    test('an FSRS memory means nothing to a sequence, and is dropped', () {
+      final schedule = scheduler.afterAnswer(
+        direction: answered(
+          stability: 120,
+          difficulty: 4,
+          lastReviewedAt: DateTime(2026, 8, 10, 12),
+        ),
+        outcome: ReviewOutcome.correct,
+        preset: standardPreset,
+        answeredAt: DateTime(2026, 11, 10, 12, 5),
+        oppositeDueAt: null,
+      );
+      expect(schedule.step, 0);
+      expect(schedule.memory, isNull);
+      expect(schedule.dueAt, DateTime(2026, 11, 11, 12));
+    });
+  });
 }

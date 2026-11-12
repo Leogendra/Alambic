@@ -1,6 +1,6 @@
 # Feature 8 — Distillation
 
-Status: in progress (2026-11-12)
+Status: implemented (2026-11-12)
 
 ## Goal
 
@@ -50,6 +50,10 @@ The launch screen ("Distill") shows the preset slot and the preset the cards wil
 
 On Home, the new cards of a distillation have their own line in the timeline ([Feature 6](6-home.md)).
 
+Settings has a "Global distillation" row, which says whether it is in progress and how far ("In progress · 23 of 212 introduced"). Its screen recalls what the global distillation covers, warns that launching it stops the distillations in progress (named) and blocks group distillations, then offers the rhythm and "Avoid collisions" (no direction nor order: it covers both, at random). The estimate is a duration ("212 to introduce · about 7 months at this rhythm"); it counts the directions queued by the distillations it would stop. Once launched, the screen shows its tile, with pause and stop.
+
+While it exists, a group page says that the global distillation also introduces the cards of the group, and the launch screen of a group distillation shows why it is blocked, with the tile of the global distillation to stop it.
+
 ## Acceptance criteria
 
 - [x] Launching a group distillation queues the never started directions of its sense, in group or random order, and introduces the first batch the same day.
@@ -64,6 +68,7 @@ On Home, the new cards of a distillation have their own line in the timeline ([F
 - [x] The launch screen sets direction, rhythm, order and collision avoidance, with an estimate of the last arrival.
 - [x] The group page follows each distillation (state, rhythm, progress, last arrival) with pause / resume and stop.
 - [x] Home shows the new cards of a distillation as "New knowledge".
+- [x] Settings launches and follows the global distillation; a group launch is blocked meanwhile, with a way to stop it.
 
 ## Test strategy
 
@@ -71,14 +76,14 @@ On Home, the new cards of a distillation have their own line in the timeline ([F
 - The launch rules and the global distillation are tested on an in-memory database: refusals, queues taken over, cards created meanwhile, and the reverse arriving after its front over ten simulated days with a seeded random order.
 - The example of 3 cards a day on the Standard preset is replayed day by day on an in-memory database, answering every card when it comes.
 - The service is tested on an in-memory database filled through the services, moving a fixed clock across days: first batch, next days, 4am boundary, missed days, additions, reverse, pause, stop, suspension, end.
-- The launch screen, the group page and Home with a distillation are covered by golden tests; a widget test launches a distillation from the screen.
+- The launch screen, the group page, Home, the global distillation screen (before and after launch) and the blocked group launch are covered by golden tests; widget tests launch a group and a global distillation from their screens.
 - The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, and the introduction done by the wake-up.
 
 ## File mapping
 
 - `lib/domain/distillation/` — the distillation, its settings, the rhythm and the queue rules.
 - `lib/application/distillation/` — `DistillationService`, the progress of a distillation (`DistillationProgress`) and their providers.
-- `lib/features/distillation/` — the launch screen, the tile and the section of a group page.
+- `lib/features/distillation/` — the launch screens (group and global), the tile and the section of a group page.
 - `lib/data/repositories/distillation_repository.dart` — storage of the distillations; the queue itself is stored on the directions (`CardRepository`).
 
 ## Technical details

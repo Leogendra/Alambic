@@ -778,5 +778,81 @@
       }
     }
   },
-  "distillationGlobalScope": "Globale"
+  "distillationGlobalScope": "Globale",
+  "settingsGlobalDistillation": "Distillation globale",
+  "settingsGlobalDistillationIdle": "Toutes les nouvelles cartes, au compte-gouttes",
+  "settingsGlobalDistillationRunning": "En cours · {introduced} sur {total} introduites",
+  "@settingsGlobalDistillationRunning": {
+    "placeholders": {
+      "introduced": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsGlobalDistillationPaused": "En pause · {introduced} sur {total} introduites",
+  "@settingsGlobalDistillationPaused": {
+    "placeholders": {
+      "introduced": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "globalDistillationIntro": "Toutes les cartes jamais révisées, de tous les groupes et sans groupe, dans les deux sens, en ordre aléatoire. Le verso d'une carte arrive toujours après son recto, jamais le même jour.",
+  "globalDistillationStops": "{count, plural, =1{Lancer arrête la distillation en cours ({names}). Ses cartes restantes rejoignent cette file.} other{Lancer arrête les {count} distillations en cours ({names}). Leurs cartes restantes rejoignent cette file.}}",
+  "@globalDistillationStops": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "globalDistillationBlocksGroups": "Aucune distillation de groupe ne pourra démarrer tant que celle-ci tourne.",
+  "globalDistillationEstimate": "{count} à introduire · environ {span} à ce rythme",
+  "@globalDistillationEstimate": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "span": {
+        "type": "String"
+      }
+    }
+  },
+  "spanDays": "{count, plural, =1{1 jour} other{{count} jours}}",
+  "@spanDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "spanWeeks": "{count, plural, =1{1 semaine} other{{count} semaines}}",
+  "@spanWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "spanMonths": "{count} mois",
+  "@spanMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "globalDistillationLaunch": "Lancer la distillation globale",
+  "globalDistillationInProgress": "La distillation globale introduit les nouvelles cartes de tous les groupes. Arrête-la pour en lancer une autre.",
+  "distillBlockedByGlobal": "La distillation globale est en cours : elle introduit déjà les nouvelles cartes de tous les groupes. Arrête-la pour distiller ce groupe.",
+  "groupDistillationGlobal": "La distillation globale en cours introduit aussi les nouvelles cartes de ce groupe."
 }

@@ -27,6 +27,17 @@ extension DistillationLabels on AppLocalizations {
         DistillationOrder.random => distillationOrderRandom,
       }}';
 
+  /// About how long [days] days last: "12 jours", "5 semaines", "7 mois".
+  String approximateSpan(int days) {
+    if (days < 14) {
+      return spanDays(days);
+    } else if (days < 60) {
+      return spanWeeks((days / 7).round());
+    } else {
+      return spanMonths((days / 30).round());
+    }
+  }
+
   String distillRefusal(DistillationRefusal reason) => switch (reason) {
     DistillationRefusal.globalInProgress => distillRefusedGlobal,
     DistillationRefusal.senseTaken => distillRefusedTaken,

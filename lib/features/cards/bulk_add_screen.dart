@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
@@ -97,7 +97,7 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w400,
-            color: RemanenceColors.of(context).textSecondary,
+            color: AlambicColors.of(context).textSecondary,
           ),
         ),
       ],
@@ -123,7 +123,7 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
   );
 
   Widget _report(AppLocalizations strings, BulkParseResult result) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 4,

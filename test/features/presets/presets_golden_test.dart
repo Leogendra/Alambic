@@ -1,15 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/data/data_providers.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/preset_repository.dart';
-import 'package:remanence/features/presets/preset_editor_screen.dart';
-import 'package:remanence/features/presets/presets_screen.dart';
+import 'package:alambic/data/data_providers.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/features/presets/preset_editor_screen.dart';
+import 'package:alambic/features/presets/presets_screen.dart';
 
 import '../../support/golden_harness.dart';
 import '../../support/test_database.dart';
 
 void main() {
-  late RemanenceDatabase database;
+  late AlambicDatabase database;
 
   setUp(() => database = openTestDatabase());
   tearDown(() => database.close());

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/notifications/notification_providers.dart';
@@ -44,7 +44,7 @@ class _ExactAlarmsPanelState extends ConsumerState<ExactAlarmsPanel> {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final allowed = ref.watch(exactAlarmsAllowedProvider).value;
     if (allowed == null) {
       return const SizedBox.shrink();

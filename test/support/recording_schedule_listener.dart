@@ -1,4 +1,4 @@
-import 'package:remanence/application/scheduling/schedule_change_listener.dart';
+import 'package:alambic/application/scheduling/schedule_change_listener.dart';
 
 /// Counts the notifications of schedule changes.
 class RecordingScheduleListener implements ScheduleChangeListener {

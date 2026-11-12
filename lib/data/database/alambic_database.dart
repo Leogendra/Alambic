@@ -36,7 +36,7 @@ import 'tables/flashcards.dart';
 import 'tables/presets.dart';
 import 'tables/review_records.dart';
 
-part 'remanence_database.g.dart';
+part 'alambic_database.g.dart';
 
 /// Local SQLite database: the only store of cards, schedules and history.
 @DriftDatabase(
@@ -51,15 +51,15 @@ part 'remanence_database.g.dart';
     ExtraReminders,
   ],
 )
-class RemanenceDatabase extends _$RemanenceDatabase {
-  RemanenceDatabase(super.executor);
+class AlambicDatabase extends _$AlambicDatabase {
+  AlambicDatabase(super.executor);
 
   /// Opens the database file of the app. The connection is shared between
   /// isolates, so that answers given from a notification in the background
   /// refresh the screens of the running app.
-  factory RemanenceDatabase.open() => RemanenceDatabase(
+  factory AlambicDatabase.open() => AlambicDatabase(
     driftDatabase(
-      name: 'remanence',
+      name: 'alambic',
       native: const DriftNativeOptions(shareAcrossIsolates: true),
     ),
   );

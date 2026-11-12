@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/preset_labels.dart';
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/count_stepper.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
@@ -48,7 +48,7 @@ class _DistillationLaunchScreenState
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final summary = ref.watch(groupSummaryProvider(widget.groupId));
     final cards = ref.watch(groupCardsProvider(widget.groupId)).value ?? [];
     final taken = {
@@ -180,7 +180,7 @@ class _DistillationLaunchScreenState
 
   Widget _footer(
     AppLocalizations strings,
-    RemanenceColors colors,
+    AlambicColors colors,
     int remaining, {
     required VoidCallback onLaunch,
   }) {

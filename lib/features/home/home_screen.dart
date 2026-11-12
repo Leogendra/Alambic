@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/section_label.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/groups/group_summary.dart';
@@ -83,7 +83,7 @@ class HomeScreen extends ConsumerWidget {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w500,
-            color: RemanenceColors.of(context).textSecondary,
+            color: AlambicColors.of(context).textSecondary,
           ),
         ),
       ],
@@ -103,7 +103,7 @@ class _DuePanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final due = overview.dueCount;
     final total = due + overview.doneCount;
     return Container(
@@ -200,7 +200,7 @@ class _GroupGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,

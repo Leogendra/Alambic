@@ -1,12 +1,12 @@
 import 'package:drift/drift.dart';
 
 import '../../domain/groups/card_group.dart';
-import '../database/remanence_database.dart';
+import '../database/alambic_database.dart';
 
 class GroupRepository {
   const GroupRepository(this._database);
 
-  final RemanenceDatabase _database;
+  final AlambicDatabase _database;
 
   Stream<List<CardGroup>> watchAll() => (_database.select(
     _database.cardGroups,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/count_badge.dart';
 import '../../application/groups/group_summary.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -19,7 +19,7 @@ class GroupSummaryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final cards = strings.cardCount(summary.cardCount);
     final group = summary.group;
     return Material(

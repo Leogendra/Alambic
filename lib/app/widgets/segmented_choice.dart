@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/remanence_colors.dart';
+import '../theme/alambic_colors.dart';
 import 'segment_option.dart';
 
 /// Grey track with equal segments; the selected one is a white pill.
@@ -18,7 +18,7 @@ class SegmentedChoice<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -37,7 +37,7 @@ class SegmentedChoice<T> extends StatelessWidget {
   Widget _segment(
     SegmentOption<T> option,
     bool isSelected,
-    RemanenceColors colors,
+    AlambicColors colors,
   ) => Semantics(
     selected: isSelected,
     button: true,

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/interval_labels.dart';
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/reviews/review_providers.dart';
 import '../../domain/presets/preset.dart';
@@ -27,7 +27,7 @@ class ReviewHistoryList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final history =
         ref.watch(directionHistoryProvider(directionId)).value ?? const [];
     if (history.isEmpty) {
@@ -46,7 +46,7 @@ class ReviewHistoryList extends ConsumerWidget {
 
   Widget _row(
     AppLocalizations strings,
-    RemanenceColors colors,
+    AlambicColors colors,
     ReviewRecord record,
   ) {
     final isFailure = record.outcome == ReviewOutcome.again && !record.isBonus;
@@ -91,22 +91,21 @@ class ReviewHistoryList extends ConsumerWidget {
     );
   }
 
-  Widget _bonusTag(AppLocalizations strings, RemanenceColors colors) =>
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: colors.background,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          strings.historyBonus,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: colors.textSecondary,
-          ),
-        ),
-      );
+  Widget _bonusTag(AppLocalizations strings, AlambicColors colors) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    decoration: BoxDecoration(
+      color: colors.background,
+      borderRadius: BorderRadius.circular(6),
+    ),
+    child: Text(
+      strings.historyBonus,
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: colors.textSecondary,
+      ),
+    ),
+  );
 
   /// The step reached is read against the current preset, which may differ
   /// from the one in force at the time of the answer.

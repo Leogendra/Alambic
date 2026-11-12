@@ -1,4 +1,4 @@
-# Lexicon — Remanence
+# Lexicon — Alambic
 
 The only place where terms are defined. Specs link here instead of redefining them. The name used in the code is given in parentheses; the French interface word follows when it differs.
 

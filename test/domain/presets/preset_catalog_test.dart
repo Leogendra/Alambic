@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/domain/cards/flashcard.dart';
-import 'package:remanence/domain/presets/preset_catalog.dart';
+import 'package:alambic/domain/cards/flashcard.dart';
+import 'package:alambic/domain/presets/preset_catalog.dart';
 
 import '../test_presets.dart';
 

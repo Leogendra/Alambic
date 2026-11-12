@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../data/repositories/card_with_directions.dart';
@@ -27,7 +27,7 @@ class SessionCardView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final prompt = card.card.promptFor(direction.sense).text ?? '';
     final answer = card.card.answerFor(direction.sense).text ?? '';
     return Container(
@@ -94,7 +94,7 @@ class SessionCardView extends ConsumerWidget {
     WidgetRef ref,
     AppLocalizations strings,
   ) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final groupId = card.card.groupId;
     final groupName = groupId == null
         ? strings.noGroup

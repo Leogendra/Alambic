@@ -5,7 +5,7 @@ import '../../domain/cards/direction_sense.dart';
 import '../../domain/cards/direction_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/scheduling/direction_schedule.dart';
-import '../database/remanence_database.dart';
+import '../database/alambic_database.dart';
 import 'card_with_directions.dart';
 
 /// Cards and their directions. Scheduling decisions are taken by the
@@ -13,7 +13,7 @@ import 'card_with_directions.dart';
 class CardRepository {
   const CardRepository(this._database);
 
-  final RemanenceDatabase _database;
+  final AlambicDatabase _database;
 
   Future<T> transaction<T>(Future<T> Function() action) =>
       _database.transaction(action);

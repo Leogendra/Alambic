@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/distillation/distillation_progress.dart';
 import '../../application/distillation/distillation_providers.dart';
@@ -24,7 +24,7 @@ class TodayTimeline extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     if (overview.timeline.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -63,7 +63,7 @@ class TodayTimeline extends ConsumerWidget {
 
   Widget _row(
     AppLocalizations strings,
-    RemanenceColors colors,
+    AlambicColors colors,
     TimelineEntry entry, {
     required String Function(int? groupId) groupName,
     required Map<int, DistillationProgress> distillations,
@@ -179,7 +179,7 @@ class TodayTimeline extends ConsumerWidget {
       : strings.homeTimelineDistillationMany(group, entry.count);
 
   Widget _dot(
-    RemanenceColors colors, {
+    AlambicColors colors, {
     required bool isPast,
     required bool isNext,
   }) => Container(

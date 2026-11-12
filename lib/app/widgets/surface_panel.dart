@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/remanence_colors.dart';
+import '../theme/alambic_colors.dart';
 
 /// Rounded white panel holding rows separated by thin dividers.
 class SurfacePanel extends StatelessWidget {
@@ -15,7 +15,7 @@ class SurfacePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return Container(
       decoration: BoxDecoration(
         color: colors.surface,

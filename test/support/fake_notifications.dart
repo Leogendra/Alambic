@@ -1,16 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
-import 'package:remanence/application/clock.dart';
-import 'package:remanence/application/notifications/alarm_scheduler.dart';
-import 'package:remanence/application/notifications/answer_reveal.dart';
-import 'package:remanence/application/notifications/notification_presenter.dart';
-import 'package:remanence/application/notifications/notification_providers.dart';
-import 'package:remanence/application/notifications/planned_alarm_store.dart';
-import 'package:remanence/application/notifications/review_notification_key.dart';
-import 'package:remanence/application/notifications/review_prompt.dart';
-import 'package:remanence/application/scheduling/scheduling_providers.dart';
-import 'package:remanence/data/data_providers.dart';
-import 'package:remanence/data/database/remanence_database.dart';
+import 'package:alambic/application/clock.dart';
+import 'package:alambic/application/notifications/alarm_scheduler.dart';
+import 'package:alambic/application/notifications/answer_reveal.dart';
+import 'package:alambic/application/notifications/notification_presenter.dart';
+import 'package:alambic/application/notifications/notification_providers.dart';
+import 'package:alambic/application/notifications/planned_alarm_store.dart';
+import 'package:alambic/application/notifications/review_notification_key.dart';
+import 'package:alambic/application/notifications/review_prompt.dart';
+import 'package:alambic/application/scheduling/scheduling_providers.dart';
+import 'package:alambic/data/data_providers.dart';
+import 'package:alambic/data/database/alambic_database.dart';
 
 import 'fixed_clock.dart';
 
@@ -87,7 +87,7 @@ class InMemoryAlarmStore implements PlannedAlarmStore {
 /// The services of the app over [database], with fake notifications and the
 /// planner listening to schedule changes, as in the app.
 class NotificationHarness {
-  factory NotificationHarness(RemanenceDatabase database, FixedClock clock) {
+  factory NotificationHarness(AlambicDatabase database, FixedClock clock) {
     final alarms = FakeAlarmScheduler();
     final presenter = FakePresenter();
     final store = InMemoryAlarmStore();

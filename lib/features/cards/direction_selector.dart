@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../data/repositories/card_with_directions.dart';
 import '../../domain/cards/direction_sense.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -24,7 +24,7 @@ class DirectionSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return Semantics(
       label: AppLocalizations.of(context).cardSheetShownDirection,
       child: Container(
@@ -47,7 +47,7 @@ class DirectionSelector extends StatelessWidget {
   Widget _segment(
     BuildContext context,
     DirectionSense sense,
-    RemanenceColors colors,
+    AlambicColors colors,
   ) {
     final strings = AppLocalizations.of(context);
     final isSelected = sense == selected;

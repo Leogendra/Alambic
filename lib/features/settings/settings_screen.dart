@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
@@ -51,7 +51,7 @@ class _RepetitionPanel extends ConsumerWidget {
     final valueStyle = TextStyle(
       fontSize: 15,
       fontWeight: FontWeight.w600,
-      color: RemanenceColors.of(context).accentText,
+      color: AlambicColors.of(context).accentText,
     );
     return SurfacePanel(
       children: [

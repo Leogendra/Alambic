@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/domain/cards/card_direction.dart';
-import 'package:remanence/domain/cards/direction_sense.dart';
-import 'package:remanence/domain/cards/direction_state.dart';
-import 'package:remanence/domain/scheduling/due_policy.dart';
-import 'package:remanence/domain/scheduling/scheduling_calendar.dart';
+import 'package:alambic/domain/cards/card_direction.dart';
+import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/scheduling/due_policy.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 CardDirection direction({
   DirectionState state = DirectionState.active,

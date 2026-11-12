@@ -1,13 +1,13 @@
 import 'package:drift/drift.dart';
 
 import '../../domain/reviews/extra_reminder.dart';
-import '../database/remanence_database.dart';
+import '../database/alambic_database.dart';
 
 /// One-off reminders added with "Review soon".
 class ReminderRepository {
   const ReminderRepository(this._database);
 
-  final RemanenceDatabase _database;
+  final AlambicDatabase _database;
 
   Future<int> insert(int directionId, DateTime remindAt) => _database
       .into(_database.extraReminders)

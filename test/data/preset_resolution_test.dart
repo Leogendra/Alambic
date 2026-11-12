@@ -1,16 +1,16 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/card_repository.dart';
-import 'package:remanence/data/repositories/group_repository.dart';
-import 'package:remanence/data/repositories/preset_repository.dart';
-import 'package:remanence/domain/cards/direction_sense.dart';
-import 'package:remanence/domain/cards/direction_state.dart';
-import 'package:remanence/domain/presets/built_in_preset_key.dart';
-import 'package:remanence/domain/scheduling/direction_schedule.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/presets/built_in_preset_key.dart';
+import 'package:alambic/domain/scheduling/direction_schedule.dart';
 
 void main() {
-  late RemanenceDatabase database;
+  late AlambicDatabase database;
   late PresetRepository presets;
   late GroupRepository groups;
   late CardRepository cards;
@@ -18,7 +18,7 @@ void main() {
   late int intensiveId;
 
   setUp(() async {
-    database = RemanenceDatabase(NativeDatabase.memory());
+    database = AlambicDatabase(NativeDatabase.memory());
     presets = PresetRepository(database);
     groups = GroupRepository(database);
     cards = CardRepository(database);

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/application/reviews/review_session.dart';
-import 'package:remanence/application/reviews/session_item.dart';
-import 'package:remanence/domain/reviews/review_outcome.dart';
+import 'package:alambic/application/reviews/review_session.dart';
+import 'package:alambic/application/reviews/session_item.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
 
 void main() {
   const first = SessionItem(cardId: 1, directionId: 10);

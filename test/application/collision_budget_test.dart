@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/card_repository.dart';
-import 'package:remanence/domain/cards/card_direction.dart';
-import 'package:remanence/domain/cards/direction_sense.dart';
-import 'package:remanence/domain/cards/direction_state.dart';
-import 'package:remanence/domain/distillation/distillation_settings.dart';
-import 'package:remanence/domain/reviews/review_outcome.dart';
-import 'package:remanence/domain/reviews/review_source.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/domain/cards/card_direction.dart';
+import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/distillation/distillation_settings.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
+import 'package:alambic/domain/reviews/review_source.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/sample_data.dart';
@@ -15,7 +15,7 @@ import '../support/test_database.dart';
 /// The example of the specification: 3 cards a day, Standard preset (1 day,
 /// 2 days, 1 week...), every card answered correctly when it comes.
 void main() {
-  late RemanenceDatabase database;
+  late AlambicDatabase database;
   late FixedClock clock;
   late SampleServices services;
   late CardRepository cards;

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/domain/distillation/collision_budget.dart';
+import 'package:alambic/domain/distillation/collision_budget.dart';
 
 void main() {
   BudgetedReminder reminder(int id, int days, {int hour = 12}) =>

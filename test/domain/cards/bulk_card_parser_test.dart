@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/domain/cards/bulk/bulk_card_parser.dart';
-import 'package:remanence/domain/cards/bulk/bulk_line_error_kind.dart';
+import 'package:alambic/domain/cards/bulk/bulk_card_parser.dart';
+import 'package:alambic/domain/cards/bulk/bulk_line_error_kind.dart';
 
 void main() {
   test('reads one card per line and trims both faces', () {

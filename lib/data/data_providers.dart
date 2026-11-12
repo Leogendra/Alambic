@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'database/remanence_database.dart';
+import 'database/alambic_database.dart';
 import 'repositories/card_repository.dart';
 import 'repositories/distillation_repository.dart';
 import 'repositories/group_repository.dart';
@@ -9,7 +9,7 @@ import 'repositories/reminder_repository.dart';
 
 /// The open database. Always overridden: by the app entry point with the
 /// database file, by tests with an in-memory database.
-final databaseProvider = Provider<RemanenceDatabase>(
+final databaseProvider = Provider<AlambicDatabase>(
   (ref) => throw UnimplementedError('databaseProvider must be overridden'),
 );
 

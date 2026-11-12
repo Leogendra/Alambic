@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
@@ -37,7 +37,7 @@ class _GlobalDistillationScreenState
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final global = ref.watch(globalDistillationProvider);
     return Scaffold(
       appBar: AppBar(title: Text(strings.settingsGlobalDistillation)),
@@ -77,13 +77,13 @@ class _GlobalDistillationScreenState
         strings.globalDistillationInProgress,
         style: TextStyle(
           fontSize: 14,
-          color: RemanenceColors.of(context).textSecondary,
+          color: AlambicColors.of(context).textSecondary,
         ),
       ),
     ),
   ];
 
-  List<Widget> _launchForm(AppLocalizations strings, RemanenceColors colors) {
+  List<Widget> _launchForm(AppLocalizations strings, AlambicColors colors) {
     final cards = ref.watch(allCardsProvider).value ?? [];
     final remaining = DistillationService.queueableGlobally(cards);
     final stopped = ref.watch(distillationProgressesProvider);

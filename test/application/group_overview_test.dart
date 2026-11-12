@@ -1,18 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/application/groups/group_overview.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/card_repository.dart';
-import 'package:remanence/data/repositories/group_repository.dart';
-import 'package:remanence/data/repositories/preset_repository.dart';
-import 'package:remanence/domain/scheduling/due_policy.dart';
-import 'package:remanence/domain/scheduling/scheduling_calendar.dart';
+import 'package:alambic/application/groups/group_overview.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/domain/scheduling/due_policy.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/sample_data.dart';
 import '../support/test_database.dart';
 
 void main() {
-  late RemanenceDatabase database;
+  late AlambicDatabase database;
   late SampleServices services;
   const overview = GroupOverview(DuePolicy(SchedulingCalendar()));
 

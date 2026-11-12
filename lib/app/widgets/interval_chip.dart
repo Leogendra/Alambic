@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/remanence_colors.dart';
+import '../theme/alambic_colors.dart';
 
 /// A step of a sequence ("1 sem"), highlighted when it is the current step.
 class IntervalChip extends StatelessWidget {
@@ -19,7 +19,7 @@ class IntervalChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     return Container(
       padding: EdgeInsets.fromLTRB(10, 6, onDeleted == null ? 10 : 4, 6),
       decoration: BoxDecoration(

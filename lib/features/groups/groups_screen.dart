@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../app/widgets/text_input_dialog.dart';
 import '../../application/cards/card_providers.dart';
@@ -82,7 +82,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
         child: Text(
           strings.groupsNoResult,
           textAlign: TextAlign.center,
-          style: TextStyle(color: RemanenceColors.of(context).textSecondary),
+          style: TextStyle(color: AlambicColors.of(context).textSecondary),
         ),
       );
     } else {

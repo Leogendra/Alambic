@@ -1,19 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/card_repository.dart';
-import 'package:remanence/data/repositories/distillation_repository.dart';
-import 'package:remanence/data/repositories/group_repository.dart';
-import 'package:remanence/domain/cards/direction_sense.dart';
-import 'package:remanence/domain/cards/direction_state.dart';
-import 'package:remanence/domain/distillation/distillation_order.dart';
-import 'package:remanence/domain/distillation/distillation_settings.dart';
-import 'package:remanence/domain/distillation/distillation_status.dart';
-import 'package:remanence/domain/scheduling/direction_schedule.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/distillation_repository.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/distillation/distillation_order.dart';
+import 'package:alambic/domain/distillation/distillation_settings.dart';
+import 'package:alambic/domain/distillation/distillation_status.dart';
+import 'package:alambic/domain/scheduling/direction_schedule.dart';
 
 import '../support/test_database.dart';
 
 void main() {
-  late RemanenceDatabase database;
+  late AlambicDatabase database;
   late DistillationRepository distillations;
   late CardRepository cards;
   late int groupId;

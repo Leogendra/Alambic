@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-import 'remanence_colors.dart';
+import 'alambic_colors.dart';
 
 /// Material 3 themes built on the "hybride" tokens: DM Sans, accent #1447FF.
-abstract final class RemanenceTheme {
+abstract final class AlambicTheme {
   static const String fontFamily = 'DM Sans';
 
-  static ThemeData light() => _build(Brightness.light, RemanenceColors.light);
+  static ThemeData light() => _build(Brightness.light, AlambicColors.light);
 
-  static ThemeData dark() => _build(Brightness.dark, RemanenceColors.dark);
+  static ThemeData dark() => _build(Brightness.dark, AlambicColors.dark);
 
-  static ThemeData _build(Brightness brightness, RemanenceColors colors) {
+  static ThemeData _build(Brightness brightness, AlambicColors colors) {
     final colorScheme =
         ColorScheme.fromSeed(
           seedColor: colors.accent,
@@ -108,7 +108,7 @@ abstract final class RemanenceTheme {
     );
   }
 
-  static TextTheme _textTheme(TextTheme base, RemanenceColors colors) =>
+  static TextTheme _textTheme(TextTheme base, AlambicColors colors) =>
       base.apply(
         fontFamily: fontFamily,
         bodyColor: colors.textPrimary,

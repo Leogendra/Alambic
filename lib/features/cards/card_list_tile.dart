@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/remanence_colors.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../data/repositories/card_with_directions.dart';
 import 'card_status_formatter.dart';
 
@@ -19,7 +19,7 @@ class CardListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = RemanenceColors.of(context);
+    final colors = AlambicColors.of(context);
     final dueLabel = formatter.dueLabel(card);
     final isDue = dueLabel == formatter.strings.dueNow;
     final back = card.card.backText ?? '';

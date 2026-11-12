@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/remanence_colors.dart';
+import '../theme/alambic_colors.dart';
 
 /// Small uppercase title above a panel.
 class SectionLabel extends StatelessWidget {
@@ -17,7 +17,7 @@ class SectionLabel extends StatelessWidget {
         fontSize: 13,
         fontWeight: FontWeight.w500,
         letterSpacing: 0.8,
-        color: RemanenceColors.of(context).textSecondary,
+        color: AlambicColors.of(context).textSecondary,
       ),
     ),
   );

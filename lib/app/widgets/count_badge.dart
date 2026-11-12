@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/remanence_colors.dart';
+import '../theme/alambic_colors.dart';
 
 /// Accent pill showing a number of due cards.
 class CountBadge extends StatelessWidget {
@@ -13,7 +13,7 @@ class CountBadge extends StatelessWidget {
     constraints: const BoxConstraints(minWidth: 32),
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
     decoration: BoxDecoration(
-      color: RemanenceColors.of(context).accent,
+      color: AlambicColors.of(context).accent,
       borderRadius: BorderRadius.circular(12),
     ),
     child: Text(

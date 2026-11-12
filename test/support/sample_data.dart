@@ -1,26 +1,26 @@
 import 'dart:math';
 
 import 'package:flutter_riverpod/misc.dart';
-import 'package:remanence/application/cards/card_draft.dart';
-import 'package:remanence/application/cards/card_service.dart';
-import 'package:remanence/application/clock.dart';
-import 'package:remanence/application/distillation/distillation_service.dart';
-import 'package:remanence/application/groups/group_service.dart';
-import 'package:remanence/application/reminders/reminder_service.dart';
-import 'package:remanence/application/reviews/review_service.dart';
-import 'package:remanence/application/scheduling/ignored_schedule_changes.dart';
-import 'package:remanence/application/time/minute_ticker.dart';
-import 'package:remanence/data/data_providers.dart';
-import 'package:remanence/data/database/remanence_database.dart';
-import 'package:remanence/data/repositories/card_repository.dart';
-import 'package:remanence/data/repositories/distillation_repository.dart';
-import 'package:remanence/data/repositories/group_repository.dart';
-import 'package:remanence/data/repositories/preset_repository.dart';
-import 'package:remanence/data/repositories/reminder_repository.dart';
-import 'package:remanence/data/repositories/review_repository.dart';
-import 'package:remanence/domain/scheduling/due_policy.dart';
-import 'package:remanence/domain/scheduling/review_scheduler.dart';
-import 'package:remanence/domain/scheduling/scheduling_calendar.dart';
+import 'package:alambic/application/cards/card_draft.dart';
+import 'package:alambic/application/cards/card_service.dart';
+import 'package:alambic/application/clock.dart';
+import 'package:alambic/application/distillation/distillation_service.dart';
+import 'package:alambic/application/groups/group_service.dart';
+import 'package:alambic/application/reminders/reminder_service.dart';
+import 'package:alambic/application/reviews/review_service.dart';
+import 'package:alambic/application/scheduling/ignored_schedule_changes.dart';
+import 'package:alambic/application/time/minute_ticker.dart';
+import 'package:alambic/data/data_providers.dart';
+import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/distillation_repository.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/data/repositories/reminder_repository.dart';
+import 'package:alambic/data/repositories/review_repository.dart';
+import 'package:alambic/domain/scheduling/due_policy.dart';
+import 'package:alambic/domain/scheduling/review_scheduler.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 import 'fixed_clock.dart';
 
@@ -32,7 +32,7 @@ final DateTime sampleNow = DateTime(2026, 11, 10, 9);
 /// distillations.
 class SampleServices {
   factory SampleServices(
-    RemanenceDatabase database,
+    AlambicDatabase database,
     FixedClock clock, {
     Random? random,
   }) => SampleServices._(
@@ -80,7 +80,7 @@ class SampleServices {
         scheduleChangeListener: const IgnoredScheduleChanges(),
       );
 
-  final RemanenceDatabase database;
+  final AlambicDatabase database;
   final FixedClock clock;
   final DistillationService distillations;
   final CardService cards;
@@ -123,7 +123,7 @@ Future<int> seedSampleData(SampleServices services) async {
 }
 
 /// Overrides rendering screens over [database] at the fixed moment [now].
-List<Override> screenOverrides(RemanenceDatabase database, DateTime now) => [
+List<Override> screenOverrides(AlambicDatabase database, DateTime now) => [
   databaseProvider.overrideWithValue(database),
   clockProvider.overrideWithValue(() => now),
   currentMomentProvider.overrideWith((ref) => Stream.value(now)),

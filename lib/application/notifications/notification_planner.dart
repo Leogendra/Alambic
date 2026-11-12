@@ -1,6 +1,8 @@
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/card_with_directions.dart';
+import '../../data/repositories/distillation_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
+import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/notifications/notification_timing.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../clock.dart';
@@ -14,10 +16,15 @@ import 'planned_alarm_store.dart';
 /// needed, and withdraws the notifications of cards that are no longer due,
 /// for example a card reviewed in the app before its notification was
 /// answered.
+///
+/// A running distillation also wakes the app up at the start of the next day
+/// it has to process, so that its cards are introduced with the app closed.
 class NotificationPlanner implements ScheduleChangeListener {
   const NotificationPlanner({
     required this._cards,
     required this._reminders,
+    required this._distillations,
+    required this._rhythm,
     required this._alarms,
     required this._store,
     required this._presenter,
@@ -31,6 +38,8 @@ class NotificationPlanner implements ScheduleChangeListener {
 
   final CardRepository _cards;
   final ReminderRepository _reminders;
+  final DistillationRepository _distillations;
+  final DistillationRhythm _rhythm;
   final AlarmScheduler _alarms;
   final PlannedAlarmStore _store;
   final NotificationPresenter _presenter;
@@ -56,6 +65,7 @@ class NotificationPlanner implements ScheduleChangeListener {
           for (final direction in card.directions)
             if (direction.isScheduled) direction.dueAt!,
       for (final reminder in reminders) reminder.remindAt,
+      ...await _distillationPasses(now),
     ];
     final wanted = {
       for (final wakeUp in NotificationTiming.wakeUps(
@@ -79,6 +89,23 @@ class NotificationPlanner implements ScheduleChangeListener {
     }
     await _store.save(wanted);
     await _withdrawAnswered(cards, now);
+  }
+
+  /// Start of the next day each running distillation has to process: every
+  /// day when it spends a budget on its reminders, otherwise the day of its
+  /// next batch.
+  Future<List<DateTime>> _distillationPasses(DateTime now) async {
+    final calendar = _rhythm.calendar;
+    final today = calendar.dayOf(now);
+    return [
+      for (final distillation in await _distillations.getAll())
+        if (distillation.isRunning)
+          calendar.startOf(
+            distillation.avoidCollisions
+                ? calendar.addDays(distillation.lastAdvancedDay ?? today, 1)
+                : _rhythm.nextIntroductionDay(distillation, today),
+          ),
+    ];
   }
 
   Future<void> _withdrawAnswered(

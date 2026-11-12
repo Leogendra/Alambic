@@ -180,7 +180,8 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
   Future<void> _review(CardDirection? direction) async {
     if (direction == null ||
         direction.state == DirectionState.inactive ||
-        direction.state == DirectionState.unstarted) {
+        direction.state == DirectionState.unstarted ||
+        direction.state == DirectionState.pending) {
       return;
     }
     await openSession(context, [

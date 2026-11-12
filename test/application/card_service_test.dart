@@ -1,8 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:remanence/application/cards/card_draft.dart';
 import 'package:remanence/application/cards/card_service.dart';
+import 'package:remanence/application/distillation/distillation_service.dart';
+import 'package:remanence/application/scheduling/ignored_schedule_changes.dart';
 import 'package:remanence/data/database/remanence_database.dart';
 import 'package:remanence/data/repositories/card_repository.dart';
+import 'package:remanence/data/repositories/distillation_repository.dart';
 import 'package:remanence/data/repositories/preset_repository.dart';
 import 'package:remanence/domain/cards/card_direction.dart';
 import 'package:remanence/domain/cards/direction_sense.dart';
@@ -31,6 +34,15 @@ void main() {
       cards: cards,
       presets: PresetRepository(database),
       scheduler: const ReviewScheduler(SchedulingCalendar()),
+      distillations: DistillationService(
+        distillations: DistillationRepository(database),
+        cards: cards,
+        presets: PresetRepository(database),
+        scheduler: const ReviewScheduler(SchedulingCalendar()),
+        calendar: const SchedulingCalendar(),
+        clock: clock.call,
+        scheduleChangeListener: const IgnoredScheduleChanges(),
+      ),
       clock: clock.call,
       scheduleChangeListener: listener,
     );

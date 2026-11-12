@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data_providers.dart';
 import '../clock.dart';
+import '../distillation/distillation_providers.dart';
 import '../reviews/review_providers.dart';
 import '../scheduling/scheduling_providers.dart';
 import 'alarm_scheduler.dart';
@@ -33,6 +34,8 @@ final notificationPlannerProvider = Provider(
   (ref) => NotificationPlanner(
     cards: ref.watch(cardRepositoryProvider),
     reminders: ref.watch(reminderRepositoryProvider),
+    distillations: ref.watch(distillationRepositoryProvider),
+    rhythm: ref.watch(distillationRhythmProvider),
     alarms: ref.watch(alarmSchedulerProvider),
     store: ref.watch(plannedAlarmStoreProvider),
     presenter: ref.watch(notificationPresenterProvider),
@@ -47,6 +50,7 @@ final notificationDispatcherProvider = Provider(
     groups: ref.watch(groupRepositoryProvider),
     presets: ref.watch(presetRepositoryProvider),
     reminders: ref.watch(reminderRepositoryProvider),
+    distillations: ref.watch(distillationServiceProvider),
     presenter: ref.watch(notificationPresenterProvider),
     planner: ref.watch(notificationPlannerProvider),
     clock: ref.watch(clockProvider),

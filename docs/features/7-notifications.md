@@ -20,7 +20,7 @@ The application decides what to notify and when; a platform layer decides how. T
 
 ### Planning the wake-ups
 
-`NotificationPlanner` listens to every schedule change: an answer, a start, a reset, a suspension, a deletion, a reminder added or removed. Each time, it computes the next wake-ups from the [due dates](../lexicon.md#due-date) of the scheduled directions of non-suspended cards and from the upcoming [extra reminders](../lexicon.md#extra-reminder):
+`NotificationPlanner` listens to every schedule change: an answer, a start, a reset, a suspension, a deletion, a reminder added or removed. Each time, it computes the next wake-ups from the [due dates](../lexicon.md#due-date) of the scheduled directions of non-suspended cards and from the upcoming [extra reminders](../lexicon.md#extra-reminder), plus the start of the next day each running [distillation](8-distillation.md) has to process:
 
 - one wake-up per distinct minute, a due moment with seconds (after a sub-day interval) being rounded up to the next minute;
 - at most 48 wake-ups ahead, since each wake-up plans the next ones;
@@ -32,7 +32,7 @@ The planner also withdraws the notifications of cards that are no longer [due](.
 
 ### Showing a card
 
-When the app wakes up, `NotificationDispatcher` shows one notification per direction whose due moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app.
+When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per direction whose due moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app.
 
 The notification shows the asked face as its title, the [step](../lexicon.md#step) ("Cran 2 sur 6", "Nouvelle carte", with "verso → recto" for the reverse direction) as its text, the group as its sub-text, and two buttons, "Correct" and "Again". An extra reminder shows the same card with a "no effect on the schedule" mention.
 

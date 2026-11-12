@@ -1,12 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:remanence/application/cards/card_draft.dart';
 import 'package:remanence/application/cards/card_providers.dart';
+import 'package:remanence/application/distillation/distillation_providers.dart';
 import 'package:remanence/application/notifications/notification_providers.dart';
 import 'package:remanence/application/notifications/review_notification_key.dart';
 import 'package:remanence/application/reviews/review_providers.dart';
 import 'package:remanence/data/database/remanence_database.dart';
 import 'package:remanence/data/repositories/card_repository.dart';
 import 'package:remanence/domain/cards/direction_sense.dart';
+import 'package:remanence/domain/cards/direction_state.dart';
+import 'package:remanence/domain/distillation/distillation_settings.dart';
 import 'package:remanence/domain/reviews/review_outcome.dart';
 import 'package:remanence/domain/reviews/review_source.dart';
 
@@ -120,5 +123,47 @@ void main() {
     expect(harness.alarms.scheduleCount, count);
     await planner.replan(force: true);
     expect(harness.alarms.scheduleCount, count + 1);
+  });
+
+  test('a distillation wakes the app up at the start of the next day, '
+      'which introduces its next card', () async {
+    final groupId = await SampleServices(
+      database,
+      harness.clock,
+    ).groups.create('Capitales');
+    final cards = harness.read(cardServiceProvider);
+    final cardIds = [
+      for (final country in ['Mongolie', 'Pérou'])
+        await cards.create(
+          CardDraft(
+            frontText: country,
+            backText: 'capitale',
+            groupId: groupId,
+            presetId: null,
+            alsoReverse: false,
+          ),
+        ),
+    ];
+    await harness
+        .read(distillationServiceProvider)
+        .launchForGroup(
+          groupId,
+          DirectionSense.frontToBack,
+          const DistillationSettings(),
+        );
+    expect(scheduledMoments(), [
+      DateTime(2026, 11, 10, 12),
+      DateTime(2026, 11, 11, 4),
+    ]);
+
+    harness.clock.now = DateTime(2026, 11, 11, 4);
+    await harness.read(notificationDispatcherProvider).dispatchDue();
+    final second = (await CardRepository(database).getDirections(
+      cardIds[1],
+    )).firstWhere((direction) => direction.sense == DirectionSense.frontToBack);
+    expect(second.state, DirectionState.active);
+    expect(second.dueAt, DateTime(2026, 11, 11, 12));
+    expect(harness.presenter.prompts, isEmpty);
+    expect(scheduledMoments(), contains(DateTime(2026, 11, 11, 12)));
   });
 }

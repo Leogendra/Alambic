@@ -41,11 +41,13 @@ class DistillationRepository {
   )..where((row) => row.id.equals(distillationId))).getSingle();
 
   /// In launch order.
-  Stream<List<Distillation>> watchAll() => (_database.select(
-    _database.distillations,
-  )..orderBy([(row) => OrderingTerm.asc(row.id)])).watch();
+  Stream<List<Distillation>> watchAll() => _selectAll().watch();
 
-  Future<List<Distillation>> getAll() => watchAll().first;
+  Future<List<Distillation>> getAll() => _selectAll().get();
+
+  SimpleSelectStatement<$DistillationsTable, Distillation> _selectAll() =>
+      _database.select(_database.distillations)
+        ..orderBy([(row) => OrderingTerm.asc(row.id)]);
 
   Future<void> setStatus(int distillationId, DistillationStatus status) =>
       (_database.update(_database.distillations)

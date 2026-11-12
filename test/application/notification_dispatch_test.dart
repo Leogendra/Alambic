@@ -67,6 +67,35 @@ void main() {
       expect(harness.presenter.prompts, isEmpty);
     });
 
+    test('notifies an ignored card again the next day, at the slot', () async {
+      await dispatchAt(DateTime(2026, 11, 10, 12));
+      final mongolia = ReviewNotificationKey(
+        directionId: await mongoliaFront(),
+      );
+      expect(harness.presenter.prompts.keys, contains(mongolia));
+      harness.presenter.prompts.clear();
+      await dispatchAt(DateTime(2026, 11, 10, 18));
+      expect(harness.presenter.prompts, isEmpty);
+      expect(
+        harness.alarms.scheduled.values,
+        contains(DateTime(2026, 11, 11, 12)),
+      );
+      await dispatchAt(DateTime(2026, 11, 11, 12));
+      expect(harness.presenter.prompts.keys, contains(mongolia));
+      harness.presenter.prompts.clear();
+      await dispatchAt(DateTime(2026, 11, 11, 12, 30));
+      expect(harness.presenter.prompts.keys, isNot(contains(mongolia)));
+    });
+
+    test('notifies the next day a card not shown for being late', () async {
+      await dispatchAt(DateTime(2026, 11, 10, 13, 30));
+      await dispatchAt(DateTime(2026, 11, 11, 12));
+      expect(
+        harness.presenter.prompts.keys,
+        contains(ReviewNotificationKey(directionId: await mongoliaFront())),
+      );
+    });
+
     test('shows a Review soon reminder as a bonus', () async {
       final direction = await mongoliaFront();
       final reminderId = await SampleServices(database, harness.clock).reminders

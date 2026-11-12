@@ -42,13 +42,18 @@ void main() {
     groupId: groupId,
   );
 
+  Map<int, DateTime> plan(
+    List<DeliveryCandidate> candidates, {
+    DateTime? now,
+  }) => planner.plan(candidates, now: now ?? DateTime(2026, 11, 10, 8));
+
   group('a time range', () {
     test('spreads the cards of a day evenly, in the order of their ids', () {
       final rangeStart = DateTime(2026, 11, 10, 9);
-      final plan = planner.plan([
+      final moments = plan([
         for (final id in [4, 2, 3, 1]) candidate(id, rangeStart),
       ]);
-      expect(plan, {
+      expect(moments, {
         1: DateTime(2026, 11, 10, 9),
         2: DateTime(2026, 11, 10, 11),
         3: DateTime(2026, 11, 10, 13),
@@ -58,38 +63,38 @@ void main() {
 
     test('rounds the moments down to the minute', () {
       final rangeStart = DateTime(2026, 11, 10, 9);
-      final plan = planner.plan([
+      final moments = plan([
         for (final id in [1, 2, 3, 4, 5, 6, 7]) candidate(id, rangeStart),
       ]);
       // 8 hours / 7 = 1 h 08 min 34 s.
-      expect(plan[2], DateTime(2026, 11, 10, 10, 8));
-      expect(plan[7], DateTime(2026, 11, 10, 15, 51));
+      expect(moments[2], DateTime(2026, 11, 10, 10, 8));
+      expect(moments[7], DateTime(2026, 11, 10, 15, 51));
     });
 
     test('spreads each day and each preset on its own', () {
       final other = range.copyWith(id: 4);
-      final plan = planner.plan([
+      final moments = plan([
         candidate(1, DateTime(2026, 11, 10, 9)),
         candidate(2, DateTime(2026, 11, 10, 9)),
         candidate(3, DateTime(2026, 11, 11, 9)),
         candidate(4, DateTime(2026, 11, 10, 9), preset: other),
       ]);
-      expect(plan[2], DateTime(2026, 11, 10, 13));
-      expect(plan[3], DateTime(2026, 11, 11, 9));
-      expect(plan[4], DateTime(2026, 11, 10, 9));
+      expect(moments[2], DateTime(2026, 11, 10, 13));
+      expect(moments[3], DateTime(2026, 11, 11, 9));
+      expect(moments[4], DateTime(2026, 11, 10, 9));
     });
 
     test('leaves a sub-day due moment and a grouped reminder alone', () {
       final grouped = range.copyWith(
         notificationMode: NotificationMode.grouped,
       );
-      final plan = planner.plan([
+      final moments = plan([
         candidate(1, DateTime(2026, 11, 10, 15, 17)),
         candidate(2, DateTime(2026, 11, 10, 9)),
         candidate(3, DateTime(2026, 11, 10, 9), preset: grouped),
         candidate(4, DateTime(2026, 11, 10, 9), preset: grouped),
       ]);
-      expect(plan, {
+      expect(moments, {
         1: DateTime(2026, 11, 10, 15, 17),
         2: DateTime(2026, 11, 10, 9),
         3: DateTime(2026, 11, 10, 9),
@@ -100,10 +105,54 @@ void main() {
 
   test('a fixed time notifies at the due date', () {
     final noon = DateTime(2026, 11, 10, 12);
-    final plan = planner.plan([
+    final moments = plan([
       candidate(1, noon, preset: BuiltInPresets.standard),
       candidate(2, noon, preset: BuiltInPresets.standard),
     ]);
-    expect(plan, {1: noon, 2: noon});
+    expect(moments, {1: noon, 2: noon});
+  });
+
+  group('a direction still due from an earlier day', () {
+    test('is notified again today, at the slot of its preset', () {
+      final moments = plan([
+        candidate(
+          1,
+          DateTime(2026, 11, 9, 12),
+          preset: BuiltInPresets.standard,
+        ),
+        candidate(
+          2,
+          DateTime(2026, 11, 2, 12),
+          preset: BuiltInPresets.standard,
+        ),
+        candidate(
+          3,
+          DateTime(2026, 11, 9, 15, 17),
+          preset: BuiltInPresets.intensive,
+        ),
+        candidate(
+          4,
+          DateTime(2026, 11, 10, 18),
+          preset: BuiltInPresets.standard,
+        ),
+      ], now: DateTime(2026, 11, 10, 8));
+      expect(moments, {
+        1: DateTime(2026, 11, 10, 12),
+        2: DateTime(2026, 11, 10, 12),
+        3: DateTime(2026, 11, 10, 12),
+        4: DateTime(2026, 11, 10, 18),
+      });
+    });
+
+    test('shares the time range of the day with the cards due today', () {
+      final moments = plan([
+        candidate(1, DateTime(2026, 11, 9, 9)),
+        candidate(2, DateTime(2026, 11, 10, 9)),
+      ], now: DateTime(2026, 11, 10, 8));
+      expect(moments, {
+        1: DateTime(2026, 11, 10, 9),
+        2: DateTime(2026, 11, 10, 13),
+      });
+    });
   });
 }

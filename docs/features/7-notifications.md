@@ -32,7 +32,11 @@ The planner also withdraws the notifications of cards that are no longer [due](.
 
 ### Notification moment
 
-`DeliveryPlanner`, in the domain, decides when each scheduled direction is notified. The moment is its due date, except with a time range in one-notification-per-card mode: the directions due at the start of the range on a day are spread evenly over the range, in the order of their ids. With 4 cards and a 9:00 – 17:00 range, they arrive at 9:00, 11:00, 13:00 and 15:00; the moments are rounded down to the minute. A grouped reminder stays at the start of the range, and so does a due date after an interval of less than a day, which keeps its own moment.
+`DeliveryPlanner`, in the domain, decides when each scheduled direction is notified. The moment is its due date, with two exceptions.
+
+A direction still due from an earlier day is notified again today, at the slot of its preset: its notification was ignored or swiped, or was not shown because it was found too late. It never counts as an answer, neither a success nor a failure. "Notified" is therefore kept per day: a direction notified yesterday and still due is notified again today, once.
+
+Then, with a time range in one-notification-per-card mode: the directions due at the start of the range on a day are spread evenly over the range, in the order of their ids. With 4 cards and a 9:00 – 17:00 range, they arrive at 9:00, 11:00, 13:00 and 15:00; the moments are rounded down to the minute. A grouped reminder stays at the start of the range, and so does a due date after an interval of less than a day, which keeps its own moment.
 
 The spreading depends on the cards due that day: when a card is answered in the app before its notification, the others of the range move. A notification that moves to a moment already passed is shown at once, through a wake-up planned for the next minute.
 
@@ -40,7 +44,7 @@ Home's timeline lists the same moments, so a range shows one line per notificati
 
 ### Showing a card
 
-When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per direction whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app.
+When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per direction whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app, and is notified again the next day at its slot.
 
 The notification shows the asked face as its title, the [step](../lexicon.md#step) ("Cran 2 sur 6", "Nouvelle carte", with "verso → recto" for the reverse direction) as its text, the group as its sub-text, and two buttons, "Correct" and "Again". An extra reminder shows the same card with a "no effect on the schedule" mention.
 
@@ -95,6 +99,7 @@ The notification permission of Android 13 is asked at launch until the onboardin
 - [x] "Correct" records the answer from the notification and closes it; "Again" records the failure and shows the answer, the new step and the next review, with "OK".
 - [x] A card reviewed in the app before its slot is not notified, and a notification already shown is withdrawn.
 - [x] A suspended card is never notified; a reminder more than an hour late is not shown.
+- [x] A notification ignored or swiped, or not shown for being late, is sent again the next day at the preset slot, without any effect on the step.
 - [x] A "Review soon" reminder is notified at its moment, and its answer is a bonus review.
 - [x] Without the exact alarm permission, reminders are still planned as inexact alarms, and Settings offers to allow exact alarms.
 - [x] Wake-ups are planned again after a phone restart and at each launch.

@@ -3,6 +3,7 @@ import 'package:alambic/domain/cards/card_direction.dart';
 import 'package:alambic/domain/cards/direction_sense.dart';
 import 'package:alambic/domain/cards/direction_state.dart';
 import 'package:alambic/domain/notifications/notification_timing.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 void main() {
   CardDirection direction({
@@ -28,6 +29,7 @@ void main() {
         cardSuspended: false,
         deliverAt: direction.dueAt ?? DateTime(2026, 11, 10, 12),
         now: now,
+        calendar: const SchedulingCalendar(),
       );
 
   group('a reminder is shown', () {
@@ -46,6 +48,20 @@ void main() {
       expect(shouldNotify(notified, DateTime(2026, 11, 10, 12, 1)), false);
     });
 
+    test('again the next day when it was ignored', () {
+      final ignored = direction(notifiedAt: DateTime(2026, 11, 9, 12));
+      expect(
+        NotificationTiming.shouldNotify(
+          ignored,
+          cardSuspended: false,
+          deliverAt: DateTime(2026, 11, 10, 12),
+          now: DateTime(2026, 11, 10, 12),
+          calendar: const SchedulingCalendar(),
+        ),
+        true,
+      );
+    });
+
     test('never for a suspended card or a direction not scheduled', () {
       expect(
         NotificationTiming.shouldNotify(
@@ -53,6 +69,7 @@ void main() {
           cardSuspended: true,
           deliverAt: DateTime(2026, 11, 10, 12),
           now: DateTime(2026, 11, 10, 12),
+          calendar: const SchedulingCalendar(),
         ),
         false,
       );

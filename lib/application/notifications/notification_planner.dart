@@ -72,7 +72,7 @@ class NotificationPlanner implements ScheduleChangeListener {
     final cards = await _cards.getAll();
     final reminders = await _reminders.getAllUpcoming();
     final candidates = deliveryCandidates(cards, await _presets.loadCatalog());
-    final deliveries = _deliveryPlanner.plan(candidates);
+    final deliveries = _deliveryPlanner.plan(candidates, now: now);
     final moments = [
       ...deliveries.values,
       for (final reminder in reminders) reminder.remindAt,
@@ -80,12 +80,13 @@ class NotificationPlanner implements ScheduleChangeListener {
       // A notification moved earlier than now, when a card sharing its time
       // range left it, is shown at once.
       if (candidates.any(
-        (candidate) =>
-            candidate.direction.notifiedAt == null &&
-            NotificationTiming.isOnTime(
-              deliveries[candidate.direction.id]!,
-              now,
-            ),
+        (candidate) => NotificationTiming.shouldNotify(
+          candidate.direction,
+          cardSuspended: false,
+          deliverAt: deliveries[candidate.direction.id]!,
+          now: now,
+          calendar: _deliveryPlanner.calendar,
+        ),
       ))
         now.add(const Duration(seconds: 1)),
     ];

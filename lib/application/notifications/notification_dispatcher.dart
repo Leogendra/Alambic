@@ -4,12 +4,14 @@ import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
 import '../../domain/cards/card_direction.dart';
+import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/notification_timing.dart';
 import '../../domain/presets/notification_mode.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../domain/reviews/extra_reminder.dart';
 import '../clock.dart';
 import '../distillation/distillation_service.dart';
+import 'delivery_candidates.dart';
 import 'group_reminder_key.dart';
 import 'grouped_reminders.dart';
 import 'notification_planner.dart';
@@ -33,6 +35,7 @@ class NotificationDispatcher {
     required this._groupedReminders,
     required this._presenter,
     required this._planner,
+    required this._deliveryPlanner,
     required this._clock,
   });
 
@@ -44,6 +47,7 @@ class NotificationDispatcher {
   final GroupedReminders _groupedReminders;
   final NotificationPresenter _presenter;
   final NotificationPlanner _planner;
+  final DeliveryPlanner _deliveryPlanner;
   final Clock _clock;
 
   Future<void> dispatchDue() async {
@@ -54,14 +58,20 @@ class NotificationDispatcher {
       for (final group in await _groups.watchAll().first) group.id: group.name,
     };
     final cards = await _cards.getAll();
+    final deliveries = _deliveryPlanner.plan(
+      deliveryCandidates(cards, catalog),
+    );
     final groupedReminders = <GroupReminderKey>{};
     for (final card in cards) {
       for (final direction in card.directions) {
-        if (NotificationTiming.shouldNotify(
-          direction,
-          cardSuspended: card.card.suspended,
-          now: now,
-        )) {
+        final deliverAt = deliveries[direction.id];
+        if (deliverAt != null &&
+            NotificationTiming.shouldNotify(
+              direction,
+              cardSuspended: card.card.suspended,
+              deliverAt: deliverAt,
+              now: now,
+            )) {
           if (catalog.presetForCard(card.card).notificationMode ==
               NotificationMode.grouped) {
             groupedReminders.add(GroupReminderKey(card.card.groupId));

@@ -3,10 +3,12 @@ import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/flashcard.dart';
+import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/presets/grouped_reminder_action.dart';
 import '../../domain/presets/notification_mode.dart';
 import '../../domain/presets/preset.dart';
 import '../clock.dart';
+import 'delivery_candidates.dart';
 import 'group_reminder.dart';
 import 'group_reminder_key.dart';
 import 'notification_presenter.dart';
@@ -23,6 +25,7 @@ class GroupedReminders {
     required this._groups,
     required this._presets,
     required this._presenter,
+    required this._deliveryPlanner,
     required this._clock,
   });
 
@@ -30,6 +33,7 @@ class GroupedReminders {
   final GroupRepository _groups;
   final PresetRepository _presets;
   final NotificationPresenter _presenter;
+  final DeliveryPlanner _deliveryPlanner;
   final Clock _clock;
 
   /// Shows the reminder of [key] with its current count, or closes it when
@@ -86,17 +90,21 @@ class GroupedReminders {
     }
   }
 
-  /// Due cards of the group whose preset asks for a grouped reminder, the
-  /// earliest due first.
+  /// Cards of the group whose preset asks for a grouped reminder and whose
+  /// notification moment has come, the earliest due first.
   Future<List<_Waiting>> _waiting(GroupReminderKey key) async {
     final now = _clock();
+    final cards = await _cards.getCardsOfGroup(key.groupId);
     final catalog = await _presets.loadCatalog();
+    final deliveries = _deliveryPlanner.plan(
+      deliveryCandidates(cards, catalog),
+    );
     final waiting = [
-      for (final card in await _cards.getCardsOfGroup(key.groupId))
-        if (!card.card.suspended)
-          for (final direction in card.directions)
-            if (direction.isScheduled && !direction.dueAt!.isAfter(now))
-              _Waiting(card.card, direction, catalog.presetForCard(card.card)),
+      for (final card in cards)
+        for (final direction in card.directions)
+          if (deliveries[direction.id] case final deliverAt?
+              when !deliverAt.isAfter(now))
+            _Waiting(card.card, direction, catalog.presetForCard(card.card)),
     ].where((item) => item.preset.notificationMode == NotificationMode.grouped);
     return waiting.toList()..sort(_earliestDueFirst);
   }

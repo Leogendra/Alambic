@@ -1,8 +1,10 @@
 import '../../data/repositories/card_with_directions.dart';
+import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../domain/reviews/extra_reminder.dart';
 import '../../domain/reviews/review_record.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
+import '../notifications/delivery_candidates.dart';
 import 'timeline_entry.dart';
 import 'today_overview.dart';
 
@@ -33,26 +35,29 @@ class TodayPlanner {
     ]..sort((first, second) => first.at.compareTo(second.at)),
   );
 
-  /// Directions of active cards due today, grouped by group and moment. The
-  /// new cards of a distillation in progress get lines of their own.
+  /// Directions of active cards notified today, grouped by group and moment
+  /// of notification. The new cards of a distillation in progress get lines
+  /// of their own.
   Iterable<TimelineEntry> _groupEntries(
     List<CardWithDirections> cards,
     PresetCatalog catalog,
     Set<int> distillationIds,
     DateTime now,
   ) {
+    final deliveries = DeliveryPlanner(_calendar)
+        .plan(deliveryCandidates(cards, catalog));
     final counts = <(int?, DateTime, int?), int>{};
-    for (final card in cards.where((card) => !card.card.suspended)) {
+    for (final card in cards) {
       for (final direction in card.directions) {
-        final dueAt = direction.dueAt;
-        if (direction.isScheduled && _isToday(dueAt!, now)) {
+        final deliverAt = deliveries[direction.id];
+        if (deliverAt != null && _isToday(deliverAt, now)) {
           final distillationId = direction.distillationId;
           final isNewKnowledge =
               direction.step == null &&
               distillationIds.contains(distillationId);
           final key = (
             card.card.groupId,
-            dueAt,
+            deliverAt,
             isNewKnowledge ? distillationId : null,
           );
           counts[key] = (counts[key] ?? 0) + 1;

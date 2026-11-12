@@ -7,20 +7,19 @@ abstract final class NotificationTiming {
   /// hours late would be noise.
   static const Duration lateness = Duration(hours: 1);
 
-  /// Whether [direction] must be notified now: it is scheduled, its due
-  /// moment has come within [lateness], and it was not notified yet.
+  /// Whether [direction] must be notified now: it is scheduled, the moment
+  /// [deliverAt] planned for its notification has come within [lateness],
+  /// and it was not notified yet.
   static bool shouldNotify(
     CardDirection direction, {
     required bool cardSuspended,
+    required DateTime deliverAt,
     required DateTime now,
-  }) {
-    final dueAt = direction.dueAt;
-    return !cardSuspended &&
-        direction.isScheduled &&
-        direction.notifiedAt == null &&
-        dueAt != null &&
-        isOnTime(dueAt, now);
-  }
+  }) =>
+      !cardSuspended &&
+      direction.isScheduled &&
+      direction.notifiedAt == null &&
+      isOnTime(deliverAt, now);
 
   /// Whether a reminder planned at [moment] is due now and not too late.
   static bool isOnTime(DateTime moment, DateTime now) =>

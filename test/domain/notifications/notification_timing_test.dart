@@ -26,6 +26,7 @@ void main() {
       NotificationTiming.shouldNotify(
         direction,
         cardSuspended: false,
+        deliverAt: direction.dueAt ?? DateTime(2026, 11, 10, 12),
         now: now,
       );
 
@@ -50,6 +51,7 @@ void main() {
         NotificationTiming.shouldNotify(
           direction(),
           cardSuspended: true,
+          deliverAt: DateTime(2026, 11, 10, 12),
           now: DateTime(2026, 11, 10, 12),
         ),
         false,

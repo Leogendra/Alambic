@@ -49,9 +49,13 @@ void main() {
     for (final cardId in cardIds) (await direction(cardId, sense)).state,
   ];
 
+  /// Without the budget unless told otherwise, so that the rhythm alone
+  /// decides.
   Future<int> launch({
     DirectionSense sense = DirectionSense.frontToBack,
-    DistillationSettings settings = const DistillationSettings(),
+    DistillationSettings settings = const DistillationSettings(
+      avoidCollisions: false,
+    ),
   }) => services.distillations.launchForGroup(groupId, sense, settings);
 
   void moveTo(DateTime moment) => clock.now = moment;
@@ -131,7 +135,12 @@ void main() {
   );
 
   test('the distillation ends when its queue is empty', () async {
-    await launch(settings: const DistillationSettings(cardsPerBatch: 3));
+    await launch(
+      settings: const DistillationSettings(
+        cardsPerBatch: 3,
+        avoidCollisions: false,
+      ),
+    );
     moveTo(DateTime(2026, 11, 11, 9));
     await services.distillations.advance();
     expect(await states(), [active, active, active, active]);

@@ -7,15 +7,19 @@ import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/direction_sense.dart';
 import '../../domain/cards/direction_state.dart';
+import '../../domain/distillation/collision_budget.dart';
 import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_order.dart';
 import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../domain/distillation/distillation_status.dart';
+import '../../domain/presets/preset.dart';
 import '../../domain/presets/preset_catalog.dart';
+import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/review_scheduler.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
+import '../../domain/scheduling/sequence_engine.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
 
@@ -136,8 +140,9 @@ class DistillationService {
   });
 
   /// Runs the pass of the current day for every running distillation that
-  /// has not had it yet: introduces the cards the rhythm owes, and deletes
-  /// a distillation whose queue is empty. Returns whether a schedule moved.
+  /// has not had it yet: spends its budget when it avoids collisions,
+  /// introduces the cards the rhythm owes, and deletes a distillation whose
+  /// queue is empty. Returns whether a schedule moved.
   Future<bool> advance() async {
     var changed = false;
     for (final distillation in await _distillations.getAll()) {
@@ -175,8 +180,24 @@ class DistillationService {
       return false;
     }
     final cards = await _cards.getAll();
-    final count = _rhythm.cardsDue(distillation, today);
-    final introduced = await _introduce(distillation, cards, count, now);
+    final catalog = await _presets.loadCatalog();
+    var count = _rhythm.cardsDue(distillation, today);
+    var postponed = 0;
+    if (distillation.avoidCollisions) {
+      final split = CollisionBudget.split(
+        _dueReminders(distillation, cards, catalog, now),
+        budget: distillation.cardsPerBatch,
+      );
+      postponed = await _postpone(split.postponed, cards, catalog, now);
+      count = min(count, split.newCardRoom);
+    }
+    final introduced = await _introduce(
+      distillation,
+      cards,
+      catalog,
+      count,
+      now,
+    );
     final progress = _rhythm.afterIntroducing(distillation, introduced, today);
     await _distillations.saveProgress(
       distillation.id,
@@ -188,21 +209,85 @@ class DistillationService {
     if (DistillationQueue.remaining(distilled) == 0) {
       await _distillations.delete(distillation.id);
     }
-    return introduced > 0;
+    return introduced > 0 || postponed > 0;
   });
+
+  /// Reminders of the cards [distillation] introduced that are due today.
+  List<BudgetedReminder> _dueReminders(
+    Distillation distillation,
+    List<CardWithDirections> cards,
+    PresetCatalog catalog,
+    DateTime now,
+  ) {
+    final duePolicy = DuePolicy(_calendar);
+    return [
+      for (final card in cards)
+        for (final direction in card.directions)
+          if (direction.distillationId == distillation.id &&
+              duePolicy.isDueToday(
+                direction,
+                cardSuspended: card.card.suspended,
+                now: now,
+              ))
+            BudgetedReminder(
+              directionId: direction.id,
+              interval: _waitedInterval(
+                direction,
+                catalog.presetForCard(card.card),
+              ),
+              dueAt: direction.dueAt!,
+            ),
+    ];
+  }
+
+  /// Interval that led to the current due date of [direction].
+  Duration _waitedInterval(CardDirection direction, Preset preset) {
+    final step = SequenceEngine.clampToSequence(direction.step, preset);
+    return step == null ? Duration.zero : preset.intervals[step].length;
+  }
+
+  /// Moves the reminders over the budget to the next day, keeping their step.
+  Future<int> _postpone(
+    List<int> directionIds,
+    List<CardWithDirections> cards,
+    PresetCatalog catalog,
+    DateTime now,
+  ) async {
+    for (final directionId in directionIds) {
+      final card = cards.firstWhere(
+        (card) => card.directions.any((other) => other.id == directionId),
+      );
+      final direction = card.directions.firstWhere(
+        (other) => other.id == directionId,
+      );
+      final opposite = (await _cards.getDirections(card.card.id))
+          .where((other) => other.id != directionId && other.isScheduled)
+          .firstOrNull;
+      await _cards.applySchedule(
+        directionId,
+        _scheduler.postponed(
+          step: direction.step,
+          preset: catalog.presetForCard(card.card),
+          now: now,
+          oppositeDueAt: opposite?.dueAt,
+        ),
+      );
+    }
+    return directionIds.length;
+  }
 
   /// Introduces the [count] next directions of the queue: each one becomes
   /// due today at its preset slot. Returns how many were introduced.
   Future<int> _introduce(
     Distillation distillation,
     List<CardWithDirections> cards,
+    PresetCatalog catalog,
     int count,
     DateTime now,
   ) async {
     if (count <= 0) {
       return 0;
     }
-    final catalog = await _presets.loadCatalog();
     final cardsById = {for (final card in cards) card.card.id: card};
     final picked = DistillationQueue.next(
       [

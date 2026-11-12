@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/review_scheduler.dart';
 import '../clock.dart';
@@ -8,6 +9,10 @@ import 'schedule_change_listener.dart';
 
 final reviewSchedulerProvider = Provider(
   (ref) => ReviewScheduler(ref.watch(schedulingCalendarProvider)),
+);
+
+final deliveryPlannerProvider = Provider(
+  (ref) => DeliveryPlanner(ref.watch(schedulingCalendarProvider)),
 );
 
 final duePolicyProvider = Provider(

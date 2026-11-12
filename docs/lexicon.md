@@ -48,9 +48,13 @@ A direction is due today (*à réviser*) when its due date has passed, or when i
 
 A one-off reminder added to a direction with "Review soon" (`ExtraReminder`; *rappel ponctuel*). Answering it is a [bonus review](#bonus-review).
 
+### Notification moment
+
+Moment at which a scheduled direction is notified (`DeliveryPlanner`). It is usually its [due date](#due-date), but a time range spreads the directions of a day over the range.
+
 ### Wake-up
 
-A moment at which the app is woken up by an alarm to show what is due (*réveil*). Wake-ups are planned from the due dates; the notifications themselves are built when the wake-up fires.
+A moment at which the app is woken up by an alarm to show what is due (*réveil*). Wake-ups are planned from the [notification moments](#notification-moment); the notifications themselves are built when the wake-up fires.
 
 ### Bonus review
 

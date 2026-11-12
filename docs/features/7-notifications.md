@@ -4,7 +4,7 @@ Status: in progress (2026-11-11)
 
 ## Goal
 
-Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. A preset can also gather the due cards of a group in a single grouped reminder. Time ranges and the daily safeguards come later.
+Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. A preset can also gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. The daily safeguards come later.
 
 ## Implementation overview
 
@@ -20,7 +20,7 @@ The application decides what to notify and when; a platform layer decides how. T
 
 ### Planning the wake-ups
 
-`NotificationPlanner` listens to every schedule change: an answer, a start, a reset, a suspension, a deletion, a reminder added or removed. Each time, it computes the next wake-ups from the [due dates](../lexicon.md#due-date) of the scheduled directions of non-suspended cards and from the upcoming [extra reminders](../lexicon.md#extra-reminder), plus the start of the next day each running [distillation](8-distillation.md) has to process:
+`NotificationPlanner` listens to every schedule change: an answer, a start, a reset, a suspension, a deletion, a reminder added or removed. Each time, it computes the next wake-ups from the [notification moments](../lexicon.md#notification-moment) of the scheduled directions of non-suspended cards and from the upcoming [extra reminders](../lexicon.md#extra-reminder), plus the start of the next day each running [distillation](8-distillation.md) has to process:
 
 - one wake-up per distinct minute, a due moment with seconds (after a sub-day interval) being rounded up to the next minute;
 - at most 48 wake-ups ahead, since each wake-up plans the next ones;
@@ -30,9 +30,17 @@ A wake-up only says "look at what is due now". The content of the notification i
 
 The planner also withdraws the notifications of cards that are no longer [due](../lexicon.md#due). A card reviewed in the app at 8:00 loses both its 12:00 wake-up, since its due date moved, and any notification already on screen. It never gets a duplicate reminder.
 
+### Notification moment
+
+`DeliveryPlanner`, in the domain, decides when each scheduled direction is notified. The moment is its due date, except with a time range in one-notification-per-card mode: the directions due at the start of the range on a day are spread evenly over the range, in the order of their ids. With 4 cards and a 9:00 – 17:00 range, they arrive at 9:00, 11:00, 13:00 and 15:00; the moments are rounded down to the minute. A grouped reminder stays at the start of the range, and so does a due date after an interval of less than a day, which keeps its own moment.
+
+The spreading depends on the cards due that day: when a card is answered in the app before its notification, the others of the range move. A notification that moves to a moment already passed is shown at once, through a wake-up planned for the next minute.
+
+Home's timeline lists the same moments, so a range shows one line per notification.
+
 ### Showing a card
 
-When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per direction whose due moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app.
+When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per direction whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app.
 
 The notification shows the asked face as its title, the [step](../lexicon.md#step) ("Cran 2 sur 6", "Nouvelle carte", with "verso → recto" for the reverse direction) as its text, the group as its sub-text, and two buttons, "Correct" and "Again". An extra reminder shows the same card with a "no effect on the schedule" mention.
 
@@ -94,10 +102,11 @@ The notification permission of Android 13 is asked at launch until the onboardin
 - [x] In grouped reminder mode, the due cards of a group are announced by one notification with their count, which opens the app on the group.
 - [x] With chaining, the cards of the reminder are answered one after the other inside the notification, with "Open" to switch to the app.
 - [x] A grouped reminder follows the answers given in the app, and closes when no card is left.
+- [x] With a time range, the cards of the day are notified one by one, spread evenly over the range; a grouped reminder arrives at the start of the range.
 
 ## Test strategy
 
-- The timing rules (shown once, within an hour, wake-ups rounded and capped) and the typed answer comparison are tested as pure domain logic.
+- The timing rules (shown once, within an hour, wake-ups rounded and capped), the notification moments and the typed answer comparison are tested as pure domain logic.
 - The planner, the dispatcher and the action handler are tested together on an in-memory database, through the same providers as the app, with in-memory fakes of the three platform interfaces that behave like an alarm manager and a notification shade.
 - The notification texts and the payload carried by a notification are tested without a device.
 - The exact alarm panel is tested on screen, with a golden test of the refused state.
@@ -105,7 +114,7 @@ The notification permission of Android 13 is asked at launch until the onboardin
 
 ## File mapping
 
-- `lib/domain/notifications/` — when to show a reminder and when to wake up.
+- `lib/domain/notifications/` — when each direction is notified, when to show a reminder and when to wake up.
 - `lib/domain/reviews/typed_answer_match.dart` — comparison of a typed answer.
 - `lib/application/notifications/` — the platform interfaces, the planner, the dispatcher, the grouped reminders, the action handler and their providers.
 - `lib/notifications/` — notification texts and the store of planned wake-ups.

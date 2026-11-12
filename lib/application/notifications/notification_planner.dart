@@ -1,13 +1,16 @@
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/card_with_directions.dart';
 import '../../data/repositories/distillation_repository.dart';
+import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
+import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/notification_timing.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
 import 'alarm_scheduler.dart';
+import 'delivery_candidates.dart';
 import 'grouped_reminders.dart';
 import 'notification_presenter.dart';
 import 'planned_alarm_store.dart';
@@ -25,6 +28,7 @@ import 'planned_alarm_store.dart';
 class NotificationPlanner implements ScheduleChangeListener {
   const NotificationPlanner({
     required this._cards,
+    required this._presets,
     required this._reminders,
     required this._distillations,
     required this._rhythm,
@@ -32,6 +36,7 @@ class NotificationPlanner implements ScheduleChangeListener {
     required this._store,
     required this._presenter,
     required this._groupedReminders,
+    required this._deliveryPlanner,
     required this._duePolicy,
     required this._clock,
   });
@@ -41,6 +46,7 @@ class NotificationPlanner implements ScheduleChangeListener {
   static const int wakeUpLimit = 48;
 
   final CardRepository _cards;
+  final PresetRepository _presets;
   final ReminderRepository _reminders;
   final DistillationRepository _distillations;
   final DistillationRhythm _rhythm;
@@ -48,6 +54,7 @@ class NotificationPlanner implements ScheduleChangeListener {
   final PlannedAlarmStore _store;
   final NotificationPresenter _presenter;
   final GroupedReminders _groupedReminders;
+  final DeliveryPlanner _deliveryPlanner;
   final DuePolicy _duePolicy;
   final Clock _clock;
 
@@ -64,13 +71,23 @@ class NotificationPlanner implements ScheduleChangeListener {
     final now = _clock();
     final cards = await _cards.getAll();
     final reminders = await _reminders.getAllUpcoming();
+    final candidates = deliveryCandidates(cards, await _presets.loadCatalog());
+    final deliveries = _deliveryPlanner.plan(candidates);
     final moments = [
-      for (final card in cards)
-        if (!card.card.suspended)
-          for (final direction in card.directions)
-            if (direction.isScheduled) direction.dueAt!,
+      ...deliveries.values,
       for (final reminder in reminders) reminder.remindAt,
       ...await _distillationPasses(now),
+      // A notification moved earlier than now, when a card sharing its time
+      // range left it, is shown at once.
+      if (candidates.any(
+        (candidate) =>
+            candidate.direction.notifiedAt == null &&
+            NotificationTiming.isOnTime(
+              deliveries[candidate.direction.id]!,
+              now,
+            ),
+      ))
+        now.add(const Duration(seconds: 1)),
     ];
     final wanted = {
       for (final wakeUp in NotificationTiming.wakeUps(

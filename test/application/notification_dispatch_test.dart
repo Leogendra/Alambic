@@ -4,9 +4,11 @@ import 'package:alambic/application/notifications/notification_providers.dart';
 import 'package:alambic/application/notifications/review_notification_key.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/presets/schedule_kind.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
@@ -171,5 +173,47 @@ void main() {
           .first;
       expect(history.single.outcome, ReviewOutcome.again);
     });
+  });
+
+  test('spreads the cards of a time range over the range', () async {
+    final services = SampleServices(database, harness.clock);
+    final presets = PresetRepository(database);
+    final standard = (await presets.loadCatalog()).globalPreset;
+    final rangeId = await presets.insert(
+      standard.copyWith(
+        name: 'Journée',
+        builtInKey: () => null,
+        scheduleKind: ScheduleKind.timeRange,
+        rangeStart: const ClockTime(9, 0),
+        rangeEnd: const ClockTime(17, 0),
+      ),
+    );
+    final verbs = await services.groups.create('Verbes');
+    await GroupRepository(database).setPreset(verbs, rangeId);
+    for (final verb in ['être', 'avoir', 'aller', 'faire']) {
+      await services.card(verb, verb, groupId: verbs);
+    }
+    harness.clock.now = DateTime(2026, 11, 10, 8);
+    await services.cards.startGroup(verbs);
+    await harness.read(notificationPlannerProvider).replan();
+    expect(
+      harness.alarms.scheduled.values.where(
+        (wakeUp) => wakeUp.day == 10 && wakeUp.hour < 17,
+      ),
+      containsAll([
+        DateTime(2026, 11, 10, 9),
+        DateTime(2026, 11, 10, 11),
+        DateTime(2026, 11, 10, 13),
+        DateTime(2026, 11, 10, 15),
+      ]),
+    );
+    await dispatchAt(DateTime(2026, 11, 10, 9));
+    await dispatchAt(DateTime(2026, 11, 10, 11));
+    expect(
+      harness.presenter.prompts.values
+          .where((prompt) => prompt.groupName == 'Verbes')
+          .map((prompt) => prompt.prompt),
+      ['être', 'avoir'],
+    );
   });
 }

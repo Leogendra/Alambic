@@ -91,6 +91,7 @@ class PauseService {
             DirectionSchedule(
               state: direction.state,
               step: direction.step,
+              memory: direction.memory,
               dueAt: shifted,
             ),
           );

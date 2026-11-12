@@ -10,7 +10,9 @@ import 'package:alambic/application/reviews/review_result.dart';
 import 'package:alambic/domain/cards/direction_state.dart';
 import 'package:alambic/domain/presets/built_in_presets.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
+import 'package:alambic/domain/scheduling/direction_progress.dart';
 import 'package:alambic/domain/scheduling/direction_schedule.dart';
+import 'package:alambic/domain/scheduling/fsrs/fsrs_memory.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 import 'package:alambic/l10n/generated/app_localizations.dart';
 import 'package:alambic/notifications/android/notification_payload.dart';
@@ -31,8 +33,13 @@ void main() {
     key: key,
     prompt: 'Pérou',
     groupName: null,
-    step: step,
-    sequenceLength: 6,
+    progress: step == null
+        ? const NewProgress()
+        : SequenceProgress(
+            step: step,
+            sequenceLength: 6,
+            interval: const Duration(days: 2),
+          ),
     isReverse: isReverse,
     typedAnswer: false,
   );
@@ -88,6 +95,39 @@ void main() {
       'Compté raté · retour au cran 1, revue demain',
     );
     expect(texts.verdict(reveal(isBonus: true)), 'Révision bonus · sans effet');
+  });
+
+  test('an adaptive card tells its interval instead of a step', () {
+    expect(
+      texts.promptDetail(
+        ReviewPrompt(
+          key: key,
+          prompt: 'Pérou',
+          groupName: null,
+          progress: const AdaptiveProgress(
+            memory: FsrsMemory(stability: 11.7, difficulty: 5.3),
+            intervalDays: 12,
+          ),
+          isReverse: false,
+          typedAnswer: false,
+        ),
+      ),
+      'Intervalle 12 j',
+    );
+    expect(
+      texts.verdict(
+        reveal(
+          isBonus: false,
+          schedule: DirectionSchedule(
+            state: DirectionState.active,
+            step: null,
+            memory: const FsrsMemory(stability: 2.2, difficulty: 6.8),
+            dueAt: DateTime(2026, 11, 12, 12),
+          ),
+        ),
+      ),
+      'Compté raté · revue dans 2 j',
+    );
   });
 
   test('tells how a typed answer compared, then what it did', () {
@@ -199,8 +239,7 @@ void main() {
           ),
           prompt: 'Pérou',
           groupName: 'Capitales',
-          step: null,
-          sequenceLength: 6,
+          progress: const NewProgress(),
           isReverse: false,
           typedAnswer: false,
           chainRemaining: 3,

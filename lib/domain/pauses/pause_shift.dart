@@ -15,9 +15,7 @@ class PauseShift {
 
   /// Days a pause from [pausedAt] to [resumedAt] lasted.
   int days(DateTime pausedAt, DateTime resumedAt) =>
-      (calendar.dayOf(resumedAt).difference(calendar.dayOf(pausedAt)).inHours /
-              24)
-          .round();
+      calendar.daysBetween(pausedAt, resumedAt);
 
   /// The due date of [direction] once the pause ends, `null` when it does not
   /// move.

@@ -16,6 +16,7 @@ import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
+import 'package:alambic/domain/scheduling/direction_progress.dart';
 
 import '../support/fake_notifications.dart';
 import '../support/fixed_clock.dart';
@@ -62,8 +63,7 @@ void main() {
           .prompts[ReviewNotificationKey(directionId: await mongoliaFront())]!;
       expect(mongolia.prompt, 'Mongolie');
       expect(mongolia.groupName, 'Capitales');
-      expect(mongolia.step, isNull);
-      expect(mongolia.sequenceLength, 6);
+      expect(mongolia.progress, isA<NewProgress>());
       harness.presenter.prompts.clear();
       await dispatchAt(DateTime(2026, 11, 10, 12, 1));
       expect(harness.presenter.prompts, isEmpty);

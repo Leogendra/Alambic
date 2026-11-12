@@ -16,5 +16,6 @@ class ReviewRecords extends Table {
   BoolColumn get isBonus => boolean()();
   IntColumn get stepBefore => integer().nullable()();
   IntColumn get stepAfter => integer().nullable()();
+  DateTimeColumn get dueAtAfter => dateTime().nullable()();
   TextColumn get source => textEnum<ReviewSource>()();
 }

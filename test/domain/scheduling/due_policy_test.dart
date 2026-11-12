@@ -15,6 +15,8 @@ CardDirection direction({
   sense: DirectionSense.frontToBack,
   state: state,
   step: 0,
+  stability: null,
+  difficulty: null,
   dueAt: dueAt,
   lastReviewedAt: lastReviewedAt,
   notifiedAt: null,

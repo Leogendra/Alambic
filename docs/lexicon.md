@@ -30,7 +30,11 @@ A complete set of repetition rules (`Preset`): engine, interval sequence, behavi
 
 ### Step
 
-Position of a direction in its preset's sequence (`step`; *cran*): the index of the interval currently waited, displayed from 1 ("step 2 of 6"). A direction never reviewed has no step.
+Position of a direction in its preset's sequence (`step`; *cran*): the index of the interval currently waited, displayed from 1 ("step 2 of 6"). A direction never reviewed has no step, nor does a direction followed by the [adaptive engine](#adaptive-engine).
+
+### Adaptive engine
+
+The engine of a preset that computes each interval with FSRS (`SchedulingEngineKind.adaptive`; *adaptatif*), instead of walking a fixed sequence. It keeps a memory per direction (`FsrsMemory`): a stability, in days, and a difficulty from 1 to 10. Its interval brings the probability of recalling the card down to the preset's target retention (*rétention visée*).
 
 ### Due date
 

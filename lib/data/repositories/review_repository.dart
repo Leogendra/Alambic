@@ -18,6 +18,7 @@ class ReviewRepository {
     required bool isBonus,
     required int? stepBefore,
     required int? stepAfter,
+    required DateTime? dueAtAfter,
     required ReviewSource source,
   }) => _database
       .into(_database.reviewRecords)
@@ -29,6 +30,7 @@ class ReviewRepository {
           isBonus: isBonus,
           stepBefore: Value(stepBefore),
           stepAfter: Value(stepAfter),
+          dueAtAfter: Value(dueAtAfter),
           source: source,
         ),
       );

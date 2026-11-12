@@ -63,5 +63,35 @@ abstract final class BuiltInPresets {
     targetRetention: 0.9,
   );
 
-  static const List<Preset> shippedInFirstRelease = [standard, intensive];
+  /// FSRS, one grouped reminder per group. Its sequence, unused by the
+  /// adaptive engine, is the Standard one, ready if the engine is switched.
+  static const Preset adaptive = Preset(
+    id: 0,
+    name: 'Adaptatif',
+    builtInKey: BuiltInPresetKey.adaptive,
+    engine: SchedulingEngineKind.adaptive,
+    intervals: [
+      PresetInterval(1, IntervalUnit.day),
+      PresetInterval(2, IntervalUnit.day),
+      PresetInterval(1, IntervalUnit.week),
+      PresetInterval(1, IntervalUnit.month),
+      PresetInterval(3, IntervalUnit.month),
+      PresetInterval(6, IntervalUnit.month),
+    ],
+    failureBehavior: FailureBehavior.stepBack,
+    endBehavior: SequenceEndBehavior.repeatLast,
+    typedAnswer: false,
+    scheduleKind: ScheduleKind.fixedTime,
+    fixedTime: defaultTime,
+    rangeStart: ClockTime(9, 0),
+    rangeEnd: ClockTime(18, 0),
+    notificationMode: NotificationMode.grouped,
+    groupedAction: GroupedReminderAction.openApp,
+    targetRetention: defaultRetention,
+  );
+
+  /// Target retention of a new adaptive preset.
+  static const double defaultRetention = 0.9;
+
+  static const List<Preset> all = [standard, intensive, adaptive];
 }

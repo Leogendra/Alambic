@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/formatting/clock_time_conversions.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/theme/alambic_colors.dart';
+import '../../app/widgets/count_stepper.dart';
 import '../../app/widgets/interval_chip.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
@@ -16,12 +17,14 @@ import '../../domain/presets/grouped_reminder_action.dart';
 import '../../domain/presets/notification_mode.dart';
 import '../../domain/presets/preset.dart';
 import '../../domain/presets/schedule_kind.dart';
+import '../../domain/presets/scheduling_engine_kind.dart';
 import '../../domain/presets/sequence_end_behavior.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'step_dialog.dart';
 
-/// Creates or edits a sequence preset. Changes are kept in a draft until saved.
+/// Creates or edits a preset, following a sequence or FSRS. Changes are kept
+/// in a draft until saved.
 class PresetEditorScreen extends ConsumerStatefulWidget {
   const PresetEditorScreen({required this.initialPreset, super.key});
 
@@ -70,11 +73,18 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
         children: [
           _nameField(strings),
           const SizedBox(height: 24),
-          _stepsSection(strings),
+          _engineSection(strings),
           const SizedBox(height: 24),
-          _failureSection(strings),
-          const SizedBox(height: 24),
-          _endSection(strings),
+          ...switch (_draft.engine) {
+            SchedulingEngineKind.sequence => [
+              _stepsSection(strings),
+              const SizedBox(height: 24),
+              _failureSection(strings),
+              const SizedBox(height: 24),
+              _endSection(strings),
+            ],
+            SchedulingEngineKind.adaptive => [_retentionSection(strings)],
+          },
           const SizedBox(height: 24),
           _typedAnswerSection(strings),
           const SizedBox(height: 24),
@@ -92,6 +102,61 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
     textCapitalization: TextCapitalization.sentences,
     onChanged: (name) => _update((draft) => draft.copyWith(name: name)),
   );
+
+  Widget _engineSection(AppLocalizations strings) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _choiceSection(
+        strings.presetEditorEngine,
+        SegmentedChoice<SchedulingEngineKind>(
+          options: [
+            SegmentOption(
+              SchedulingEngineKind.sequence,
+              strings.presetEditorEngineSequence,
+            ),
+            SegmentOption(
+              SchedulingEngineKind.adaptive,
+              strings.presetEditorEngineAdaptive,
+            ),
+          ],
+          selected: _draft.engine,
+          onSelected: (value) =>
+              _update((draft) => draft.copyWith(engine: value)),
+        ),
+      ),
+      if (_draft.engine == SchedulingEngineKind.adaptive)
+        _hint(strings.presetEditorAdaptiveHint),
+    ],
+  );
+
+  /// Target retention in whole percents, from 70 % to 97 %.
+  Widget _retentionSection(AppLocalizations strings) {
+    final percent = (_draft.targetRetention * 100).round();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SurfacePanel(
+          children: [
+            PanelRow(
+              title: strings.presetEditorRetention,
+              trailing: CountStepper(
+                value: percent,
+                label: strings.presetRetentionValue(percent),
+                min: (Preset.minRetention * 100).round(),
+                max: (Preset.maxRetention * 100).round(),
+                decreaseTooltip: strings.presetEditorRetentionLower,
+                increaseTooltip: strings.presetEditorRetentionHigher,
+                onChanged: (value) => _update(
+                  (draft) => draft.copyWith(targetRetention: value / 100),
+                ),
+              ),
+            ),
+          ],
+        ),
+        _hint(strings.presetEditorRetentionHint),
+      ],
+    );
+  }
 
   Widget _stepsSection(AppLocalizations strings) {
     final intervals = _draft.intervals;

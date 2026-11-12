@@ -15,6 +15,8 @@ class CardDirections extends Table {
   TextColumn get sense => textEnum<DirectionSense>()();
   TextColumn get state => textEnum<DirectionState>()();
   IntColumn get step => integer().nullable()();
+  RealColumn get stability => real().nullable()();
+  RealColumn get difficulty => real().nullable()();
   DateTimeColumn get dueAt => dateTime().nullable()();
   DateTimeColumn get lastReviewedAt => dateTime().nullable()();
   DateTimeColumn get notifiedAt => dateTime().nullable()();

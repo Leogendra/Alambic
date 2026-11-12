@@ -4,6 +4,7 @@ import '../application/notifications/answer_reveal.dart';
 import '../application/notifications/group_reminder.dart';
 import '../application/notifications/notification_digest.dart';
 import '../application/notifications/review_prompt.dart';
+import '../domain/scheduling/direction_progress.dart';
 import '../domain/reviews/typed_answer_match.dart';
 import '../domain/scheduling/scheduling_calendar.dart';
 import '../l10n/generated/app_localizations.dart';
@@ -16,16 +17,20 @@ class ReviewTexts {
   final AppLocalizations strings;
   final SchedulingCalendar calendar;
 
-  /// Line under the asked face: "Cran 2 sur 6", "verso → recto · Nouvelle
-  /// carte", or the bonus mention of an extra reminder.
+  /// Line under the asked face: "Cran 2 sur 6", "Intervalle 12 j", "verso →
+  /// recto · Nouvelle carte", or the bonus mention of an extra reminder.
   String promptDetail(ReviewPrompt prompt) {
     if (prompt.key.isExtraReminder) {
       return strings.notificationExtra;
     }
-    final step = prompt.step;
-    final position = step == null
-        ? strings.notificationNewCard
-        : strings.cardSheetStepOf(step + 1, prompt.sequenceLength);
+    final position = switch (prompt.progress) {
+      NewProgress() => strings.notificationNewCard,
+      SequenceProgress(:final step, :final sequenceLength) =>
+        strings.cardSheetStepOf(step + 1, sequenceLength),
+      AdaptiveProgress(:final intervalDays) => strings.cardSheetInterval(
+        strings.intervalDays(intervalDays),
+      ),
+    };
     return prompt.isReverse
         ? '${strings.sessionReverseBadge} · $position'
         : position;
@@ -103,8 +108,13 @@ class ReviewTexts {
       now: reveal.answeredAt,
       calendar: calendar,
     );
-    return correct
-        ? strings.notificationNextReview(when)
-        : strings.notificationFailed((schedule.step ?? 0) + 1, when);
+    if (correct) {
+      return strings.notificationNextReview(when);
+    }
+    // Only the sequence engine has steps.
+    return switch (schedule.step) {
+      final step? => strings.notificationFailed(step + 1, when),
+      null => strings.notificationFailedAdaptive(when),
+    };
   }
 }

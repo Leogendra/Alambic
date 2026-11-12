@@ -11,6 +11,7 @@ class ReviewRecord {
     required this.isBonus,
     required this.stepBefore,
     required this.stepAfter,
+    required this.dueAtAfter,
     required this.source,
   });
 
@@ -26,5 +27,9 @@ class ReviewRecord {
   /// Step reached after the answer; `null` when the direction became acquired
   /// or for a bonus review.
   final int? stepAfter;
+
+  /// Due date the answer gave; `null` for a bonus review, once acquired, and
+  /// for the answers recorded before it was stored.
+  final DateTime? dueAtAfter;
   final ReviewSource source;
 }

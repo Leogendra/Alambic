@@ -2472,6 +2472,28 @@ class $CardDirectionsTable extends CardDirections
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _stabilityMeta = const VerificationMeta(
+    'stability',
+  );
+  @override
+  late final GeneratedColumn<double> stability = GeneratedColumn<double>(
+    'stability',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _difficultyMeta = const VerificationMeta(
+    'difficulty',
+  );
+  @override
+  late final GeneratedColumn<double> difficulty = GeneratedColumn<double>(
+    'difficulty',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _dueAtMeta = const VerificationMeta('dueAt');
   @override
   late final GeneratedColumn<DateTime> dueAt = GeneratedColumn<DateTime>(
@@ -2536,6 +2558,8 @@ class $CardDirectionsTable extends CardDirections
     sense,
     state,
     step,
+    stability,
+    difficulty,
     dueAt,
     lastReviewedAt,
     notifiedAt,
@@ -2569,6 +2593,18 @@ class $CardDirectionsTable extends CardDirections
       context.handle(
         _stepMeta,
         step.isAcceptableOrUnknown(data['step']!, _stepMeta),
+      );
+    }
+    if (data.containsKey('stability')) {
+      context.handle(
+        _stabilityMeta,
+        stability.isAcceptableOrUnknown(data['stability']!, _stabilityMeta),
+      );
+    }
+    if (data.containsKey('difficulty')) {
+      context.handle(
+        _difficultyMeta,
+        difficulty.isAcceptableOrUnknown(data['difficulty']!, _difficultyMeta),
       );
     }
     if (data.containsKey('due_at')) {
@@ -2647,6 +2683,14 @@ class $CardDirectionsTable extends CardDirections
         DriftSqlType.int,
         data['${effectivePrefix}step'],
       ),
+      stability: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}stability'],
+      ),
+      difficulty: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}difficulty'],
+      ),
       dueAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}due_at'],
@@ -2687,6 +2731,8 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
   final Value<DirectionSense> sense;
   final Value<DirectionState> state;
   final Value<int?> step;
+  final Value<double?> stability;
+  final Value<double?> difficulty;
   final Value<DateTime?> dueAt;
   final Value<DateTime?> lastReviewedAt;
   final Value<DateTime?> notifiedAt;
@@ -2698,6 +2744,8 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
     this.sense = const Value.absent(),
     this.state = const Value.absent(),
     this.step = const Value.absent(),
+    this.stability = const Value.absent(),
+    this.difficulty = const Value.absent(),
     this.dueAt = const Value.absent(),
     this.lastReviewedAt = const Value.absent(),
     this.notifiedAt = const Value.absent(),
@@ -2710,6 +2758,8 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
     required DirectionSense sense,
     required DirectionState state,
     this.step = const Value.absent(),
+    this.stability = const Value.absent(),
+    this.difficulty = const Value.absent(),
     this.dueAt = const Value.absent(),
     this.lastReviewedAt = const Value.absent(),
     this.notifiedAt = const Value.absent(),
@@ -2724,6 +2774,8 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
     Expression<String>? sense,
     Expression<String>? state,
     Expression<int>? step,
+    Expression<double>? stability,
+    Expression<double>? difficulty,
     Expression<DateTime>? dueAt,
     Expression<DateTime>? lastReviewedAt,
     Expression<DateTime>? notifiedAt,
@@ -2736,6 +2788,8 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
       if (sense != null) 'sense': sense,
       if (state != null) 'state': state,
       if (step != null) 'step': step,
+      if (stability != null) 'stability': stability,
+      if (difficulty != null) 'difficulty': difficulty,
       if (dueAt != null) 'due_at': dueAt,
       if (lastReviewedAt != null) 'last_reviewed_at': lastReviewedAt,
       if (notifiedAt != null) 'notified_at': notifiedAt,
@@ -2750,6 +2804,8 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
     Value<DirectionSense>? sense,
     Value<DirectionState>? state,
     Value<int?>? step,
+    Value<double?>? stability,
+    Value<double?>? difficulty,
     Value<DateTime?>? dueAt,
     Value<DateTime?>? lastReviewedAt,
     Value<DateTime?>? notifiedAt,
@@ -2762,6 +2818,8 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
       sense: sense ?? this.sense,
       state: state ?? this.state,
       step: step ?? this.step,
+      stability: stability ?? this.stability,
+      difficulty: difficulty ?? this.difficulty,
       dueAt: dueAt ?? this.dueAt,
       lastReviewedAt: lastReviewedAt ?? this.lastReviewedAt,
       notifiedAt: notifiedAt ?? this.notifiedAt,
@@ -2792,6 +2850,12 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
     if (step.present) {
       map['step'] = Variable<int>(step.value);
     }
+    if (stability.present) {
+      map['stability'] = Variable<double>(stability.value);
+    }
+    if (difficulty.present) {
+      map['difficulty'] = Variable<double>(difficulty.value);
+    }
     if (dueAt.present) {
       map['due_at'] = Variable<DateTime>(dueAt.value);
     }
@@ -2818,6 +2882,8 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
           ..write('sense: $sense, ')
           ..write('state: $state, ')
           ..write('step: $step, ')
+          ..write('stability: $stability, ')
+          ..write('difficulty: $difficulty, ')
           ..write('dueAt: $dueAt, ')
           ..write('lastReviewedAt: $lastReviewedAt, ')
           ..write('notifiedAt: $notifiedAt, ')
@@ -2917,6 +2983,17 @@ class $ReviewRecordsTable extends ReviewRecords
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _dueAtAfterMeta = const VerificationMeta(
+    'dueAtAfter',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dueAtAfter = GeneratedColumn<DateTime>(
+    'due_at_after',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   late final GeneratedColumnWithTypeConverter<ReviewSource, String> source =
       GeneratedColumn<String>(
@@ -2935,6 +3012,7 @@ class $ReviewRecordsTable extends ReviewRecords
     isBonus,
     stepBefore,
     stepAfter,
+    dueAtAfter,
     source,
   ];
   @override
@@ -2991,6 +3069,15 @@ class $ReviewRecordsTable extends ReviewRecords
         stepAfter.isAcceptableOrUnknown(data['step_after']!, _stepAfterMeta),
       );
     }
+    if (data.containsKey('due_at_after')) {
+      context.handle(
+        _dueAtAfterMeta,
+        dueAtAfter.isAcceptableOrUnknown(
+          data['due_at_after']!,
+          _dueAtAfterMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -3030,6 +3117,10 @@ class $ReviewRecordsTable extends ReviewRecords
         DriftSqlType.int,
         data['${effectivePrefix}step_after'],
       ),
+      dueAtAfter: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}due_at_after'],
+      ),
       source: $ReviewRecordsTable.$convertersource.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -3058,6 +3149,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
   final Value<bool> isBonus;
   final Value<int?> stepBefore;
   final Value<int?> stepAfter;
+  final Value<DateTime?> dueAtAfter;
   final Value<ReviewSource> source;
   const ReviewRecordsCompanion({
     this.id = const Value.absent(),
@@ -3067,6 +3159,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     this.isBonus = const Value.absent(),
     this.stepBefore = const Value.absent(),
     this.stepAfter = const Value.absent(),
+    this.dueAtAfter = const Value.absent(),
     this.source = const Value.absent(),
   });
   ReviewRecordsCompanion.insert({
@@ -3077,6 +3170,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     required bool isBonus,
     this.stepBefore = const Value.absent(),
     this.stepAfter = const Value.absent(),
+    this.dueAtAfter = const Value.absent(),
     required ReviewSource source,
   }) : directionId = Value(directionId),
        reviewedAt = Value(reviewedAt),
@@ -3091,6 +3185,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     Expression<bool>? isBonus,
     Expression<int>? stepBefore,
     Expression<int>? stepAfter,
+    Expression<DateTime>? dueAtAfter,
     Expression<String>? source,
   }) {
     return RawValuesInsertable({
@@ -3101,6 +3196,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
       if (isBonus != null) 'is_bonus': isBonus,
       if (stepBefore != null) 'step_before': stepBefore,
       if (stepAfter != null) 'step_after': stepAfter,
+      if (dueAtAfter != null) 'due_at_after': dueAtAfter,
       if (source != null) 'source': source,
     });
   }
@@ -3113,6 +3209,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     Value<bool>? isBonus,
     Value<int?>? stepBefore,
     Value<int?>? stepAfter,
+    Value<DateTime?>? dueAtAfter,
     Value<ReviewSource>? source,
   }) {
     return ReviewRecordsCompanion(
@@ -3123,6 +3220,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
       isBonus: isBonus ?? this.isBonus,
       stepBefore: stepBefore ?? this.stepBefore,
       stepAfter: stepAfter ?? this.stepAfter,
+      dueAtAfter: dueAtAfter ?? this.dueAtAfter,
       source: source ?? this.source,
     );
   }
@@ -3153,6 +3251,9 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     if (stepAfter.present) {
       map['step_after'] = Variable<int>(stepAfter.value);
     }
+    if (dueAtAfter.present) {
+      map['due_at_after'] = Variable<DateTime>(dueAtAfter.value);
+    }
     if (source.present) {
       map['source'] = Variable<String>(
         $ReviewRecordsTable.$convertersource.toSql(source.value),
@@ -3171,6 +3272,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
           ..write('isBonus: $isBonus, ')
           ..write('stepBefore: $stepBefore, ')
           ..write('stepAfter: $stepAfter, ')
+          ..write('dueAtAfter: $dueAtAfter, ')
           ..write('source: $source')
           ..write(')'))
         .toString();
@@ -6281,6 +6383,8 @@ typedef $$CardDirectionsTableCreateCompanionBuilder =
       required DirectionSense sense,
       required DirectionState state,
       Value<int?> step,
+      Value<double?> stability,
+      Value<double?> difficulty,
       Value<DateTime?> dueAt,
       Value<DateTime?> lastReviewedAt,
       Value<DateTime?> notifiedAt,
@@ -6294,6 +6398,8 @@ typedef $$CardDirectionsTableUpdateCompanionBuilder =
       Value<DirectionSense> sense,
       Value<DirectionState> state,
       Value<int?> step,
+      Value<double?> stability,
+      Value<double?> difficulty,
       Value<DateTime?> dueAt,
       Value<DateTime?> lastReviewedAt,
       Value<DateTime?> notifiedAt,
@@ -6412,6 +6518,16 @@ class $$CardDirectionsTableFilterComposer
 
   ColumnFilters<int> get step => $composableBuilder(
     column: $table.step,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get stability => $composableBuilder(
+    column: $table.stability,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get difficulty => $composableBuilder(
+    column: $table.difficulty,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6561,6 +6677,16 @@ class $$CardDirectionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get stability => $composableBuilder(
+    column: $table.stability,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get dueAt => $composableBuilder(
     column: $table.dueAt,
     builder: (column) => ColumnOrderings(column),
@@ -6648,6 +6774,14 @@ class $$CardDirectionsTableAnnotationComposer
 
   GeneratedColumn<int> get step =>
       $composableBuilder(column: $table.step, builder: (column) => column);
+
+  GeneratedColumn<double> get stability =>
+      $composableBuilder(column: $table.stability, builder: (column) => column);
+
+  GeneratedColumn<double> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get dueAt =>
       $composableBuilder(column: $table.dueAt, builder: (column) => column);
@@ -6804,6 +6938,8 @@ class $$CardDirectionsTableTableManager
                 Value<DirectionSense> sense = const Value.absent(),
                 Value<DirectionState> state = const Value.absent(),
                 Value<int?> step = const Value.absent(),
+                Value<double?> stability = const Value.absent(),
+                Value<double?> difficulty = const Value.absent(),
                 Value<DateTime?> dueAt = const Value.absent(),
                 Value<DateTime?> lastReviewedAt = const Value.absent(),
                 Value<DateTime?> notifiedAt = const Value.absent(),
@@ -6815,6 +6951,8 @@ class $$CardDirectionsTableTableManager
                 sense: sense,
                 state: state,
                 step: step,
+                stability: stability,
+                difficulty: difficulty,
                 dueAt: dueAt,
                 lastReviewedAt: lastReviewedAt,
                 notifiedAt: notifiedAt,
@@ -6828,6 +6966,8 @@ class $$CardDirectionsTableTableManager
                 required DirectionSense sense,
                 required DirectionState state,
                 Value<int?> step = const Value.absent(),
+                Value<double?> stability = const Value.absent(),
+                Value<double?> difficulty = const Value.absent(),
                 Value<DateTime?> dueAt = const Value.absent(),
                 Value<DateTime?> lastReviewedAt = const Value.absent(),
                 Value<DateTime?> notifiedAt = const Value.absent(),
@@ -6839,6 +6979,8 @@ class $$CardDirectionsTableTableManager
                 sense: sense,
                 state: state,
                 step: step,
+                stability: stability,
+                difficulty: difficulty,
                 dueAt: dueAt,
                 lastReviewedAt: lastReviewedAt,
                 notifiedAt: notifiedAt,
@@ -6985,6 +7127,7 @@ typedef $$ReviewRecordsTableCreateCompanionBuilder =
       required bool isBonus,
       Value<int?> stepBefore,
       Value<int?> stepAfter,
+      Value<DateTime?> dueAtAfter,
       required ReviewSource source,
     });
 typedef $$ReviewRecordsTableUpdateCompanionBuilder =
@@ -6996,6 +7139,7 @@ typedef $$ReviewRecordsTableUpdateCompanionBuilder =
       Value<bool> isBonus,
       Value<int?> stepBefore,
       Value<int?> stepAfter,
+      Value<DateTime?> dueAtAfter,
       Value<ReviewSource> source,
     });
 
@@ -7064,6 +7208,11 @@ class $$ReviewRecordsTableFilterComposer
 
   ColumnFilters<int> get stepAfter => $composableBuilder(
     column: $table.stepAfter,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dueAtAfter => $composableBuilder(
+    column: $table.dueAtAfter,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7136,6 +7285,11 @@ class $$ReviewRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get dueAtAfter => $composableBuilder(
+    column: $table.dueAtAfter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get source => $composableBuilder(
     column: $table.source,
     builder: (column) => ColumnOrderings(column),
@@ -7195,6 +7349,11 @@ class $$ReviewRecordsTableAnnotationComposer
 
   GeneratedColumn<int> get stepAfter =>
       $composableBuilder(column: $table.stepAfter, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dueAtAfter => $composableBuilder(
+    column: $table.dueAtAfter,
+    builder: (column) => column,
+  );
 
   GeneratedColumnWithTypeConverter<ReviewSource, String> get source =>
       $composableBuilder(column: $table.source, builder: (column) => column);
@@ -7260,6 +7419,7 @@ class $$ReviewRecordsTableTableManager
                 Value<bool> isBonus = const Value.absent(),
                 Value<int?> stepBefore = const Value.absent(),
                 Value<int?> stepAfter = const Value.absent(),
+                Value<DateTime?> dueAtAfter = const Value.absent(),
                 Value<ReviewSource> source = const Value.absent(),
               }) => ReviewRecordsCompanion(
                 id: id,
@@ -7269,6 +7429,7 @@ class $$ReviewRecordsTableTableManager
                 isBonus: isBonus,
                 stepBefore: stepBefore,
                 stepAfter: stepAfter,
+                dueAtAfter: dueAtAfter,
                 source: source,
               ),
           createCompanionCallback:
@@ -7280,6 +7441,7 @@ class $$ReviewRecordsTableTableManager
                 required bool isBonus,
                 Value<int?> stepBefore = const Value.absent(),
                 Value<int?> stepAfter = const Value.absent(),
+                Value<DateTime?> dueAtAfter = const Value.absent(),
                 required ReviewSource source,
               }) => ReviewRecordsCompanion.insert(
                 id: id,
@@ -7289,6 +7451,7 @@ class $$ReviewRecordsTableTableManager
                 isBonus: isBonus,
                 stepBefore: stepBefore,
                 stepAfter: stepAfter,
+                dueAtAfter: dueAtAfter,
                 source: source,
               ),
           withReferenceMapper: (p0) => p0

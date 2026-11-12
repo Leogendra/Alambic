@@ -1,4 +1,5 @@
 import '../cards/direction_state.dart';
+import 'fsrs/fsrs_memory.dart';
 
 /// New scheduling values of a direction after an answer or an activation.
 class DirectionSchedule {
@@ -6,6 +7,7 @@ class DirectionSchedule {
     required this.state,
     required this.step,
     required this.dueAt,
+    this.memory,
   });
 
   /// A direction that is not studied: no step, no due date.
@@ -25,4 +27,7 @@ class DirectionSchedule {
   final DirectionState state;
   final int? step;
   final DateTime? dueAt;
+
+  /// FSRS memory, for a direction followed by the adaptive engine.
+  final FsrsMemory? memory;
 }

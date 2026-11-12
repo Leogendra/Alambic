@@ -6,6 +6,7 @@ import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/card_direction.dart';
 import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/due_policy.dart';
@@ -74,6 +75,41 @@ void main() {
     expect(history.single.isBonus, isFalse);
     expect(history.single.stepBefore, isNull);
     expect(history.single.stepAfter, 0);
+  });
+
+  test('an adaptive card is spaced by FSRS', () async {
+    final presets = PresetRepository(database);
+    final adaptive = (await presets.watchAll().first).firstWhere(
+      (preset) => preset.builtInKey == BuiltInPresetKey.adaptive,
+    );
+    await presets.setGlobalPresetId(adaptive.id);
+    final cardId = await dueCard();
+    clock.now = DateTime(2026, 11, 10, 12, 5);
+    await reviews.answer(
+      (await front(cardId)).id,
+      ReviewOutcome.correct,
+      source: ReviewSource.notification,
+    );
+    var direction = await front(cardId);
+    expect(direction.step, isNull);
+    expect(direction.memory?.stability, 3.173);
+    expect(direction.dueAt, DateTime(2026, 11, 13, 12));
+    clock.now = DateTime(2026, 11, 13, 12, 1);
+    await reviews.answer(
+      direction.id,
+      ReviewOutcome.correct,
+      source: ReviewSource.notification,
+    );
+    direction = await front(cardId);
+    expect(direction.memory!.stability, closeTo(10.739, 0.01));
+    expect(direction.dueAt, DateTime(2026, 11, 24, 12));
+    final history = await ReviewRepository(database)
+        .watchHistory(direction.id)
+        .first;
+    expect(history.map((record) => record.dueAtAfter), [
+      DateTime(2026, 11, 24, 12),
+      DateTime(2026, 11, 13, 12),
+    ]);
   });
 
   test('a card due later today can be answered before its slot', () async {

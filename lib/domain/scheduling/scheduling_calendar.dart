@@ -31,6 +31,10 @@ class SchedulingCalendar {
   DateTime addDays(DateTime day, int days) =>
       DateTime(day.year, day.month, day.day + days);
 
+  /// Scheduling days from the day of [from] to the day of [to].
+  int daysBetween(DateTime from, DateTime to) =>
+      (dayOf(to).difference(dayOf(from)).inHours / 24).round();
+
   bool isSameDay(DateTime first, DateTime second) =>
       dayOf(first) == dayOf(second);
 

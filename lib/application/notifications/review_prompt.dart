@@ -2,6 +2,7 @@ import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/direction_sense.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/presets/preset.dart';
+import '../../domain/scheduling/direction_progress.dart';
 import 'review_notification_key.dart';
 
 /// Content of a notification asking a card: the asked face and where the
@@ -11,8 +12,7 @@ class ReviewPrompt {
     required this.key,
     required this.prompt,
     required this.groupName,
-    required this.step,
-    required this.sequenceLength,
+    required this.progress,
     required this.isReverse,
     required this.typedAnswer,
     this.chainRemaining,
@@ -30,8 +30,7 @@ class ReviewPrompt {
     key: key,
     prompt: card.promptFor(direction.sense).text ?? '',
     groupName: groupName,
-    step: direction.step,
-    sequenceLength: preset.sequenceLength,
+    progress: DirectionProgress.of(direction, preset),
     isReverse: direction.sense == DirectionSense.backToFront,
     // Without text on the answer face, there is nothing to compare with.
     typedAnswer: preset.typedAnswer && card.answerFor(direction.sense).hasText,
@@ -46,9 +45,8 @@ class ReviewPrompt {
   /// `null` for a card outside any group.
   final String? groupName;
 
-  /// Current step, `null` for a direction never answered.
-  final int? step;
-  final int sequenceLength;
+  /// Where the direction stands in the engine of its preset.
+  final DirectionProgress progress;
 
   /// Back → front direction.
   final bool isReverse;

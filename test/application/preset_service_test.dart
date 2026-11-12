@@ -5,6 +5,7 @@ import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/presets/interval_unit.dart';
 import 'package:alambic/domain/presets/preset_interval.dart';
+import 'package:alambic/domain/presets/scheduling_engine_kind.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
 
 import '../support/test_database.dart';
@@ -61,6 +62,24 @@ void main() {
     expect(
       () => service.save(draft.copyWith(intervals: const [])),
       throwsArgumentError,
+    );
+  });
+
+  test('an adaptive preset aims at a retention from 70 % to 97 %', () async {
+    final draft = service
+        .newDraft('FSRS')
+        .copyWith(engine: SchedulingEngineKind.adaptive);
+    expect(
+      () => service.save(draft.copyWith(targetRetention: 0.6)),
+      throwsArgumentError,
+    );
+    expect(
+      () => service.save(draft.copyWith(targetRetention: 0.99)),
+      throwsArgumentError,
+    );
+    expect(
+      await service.save(draft.copyWith(targetRetention: 0.85)),
+      isPositive,
     );
   });
 }

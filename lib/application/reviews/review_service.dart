@@ -66,6 +66,7 @@ class ReviewService {
           isBonus: false,
           stepBefore: direction.step,
           stepAfter: schedule.step,
+          dueAtAfter: schedule.dueAt,
           source: source,
         );
         return ReviewResult(isBonus: false, schedule: schedule, preset: preset);
@@ -115,7 +116,7 @@ class ReviewService {
         .where((other) => other.id != direction.id && other.isScheduled)
         .firstOrNull;
     return _scheduler.afterAnswer(
-      currentStep: direction.step,
+      direction: direction,
       outcome: outcome,
       preset: preset,
       answeredAt: now,
@@ -135,6 +136,7 @@ class ReviewService {
     isBonus: true,
     stepBefore: direction.step,
     stepAfter: direction.step,
+    dueAtAfter: null,
     source: source,
   );
 

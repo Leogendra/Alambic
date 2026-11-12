@@ -171,6 +171,30 @@
     }
   },
   "presetEditorName": "Nom",
+  "presetEditorEngine": "Moteur",
+  "presetEditorEngineSequence": "Séquence fixe",
+  "presetEditorEngineAdaptive": "Adaptatif",
+  "presetEditorRetention": "Rétention visée",
+  "presetEditorRetentionLower": "Baisser la rétention visée",
+  "presetEditorRetentionHigher": "Augmenter la rétention visée",
+  "presetEditorRetentionHint": "Chance de te souvenir d'une carte le jour où elle revient. Plus elle est haute, plus les révisions sont rapprochées.",
+  "presetEditorAdaptiveHint": "FSRS calcule chaque intervalle selon tes réponses : pas de crans à régler.",
+  "presetRetentionValue": "{percent} %",
+  "@presetRetentionValue": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "presetAdaptiveDescription": "Intervalles calculés selon tes réponses. Rétention visée {percent} %.",
+  "@presetAdaptiveDescription": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "presetEditorSteps": "Crans",
   "presetEditorAddStep": "Cran",
   "presetEditorRemoveStep": "Retirer ce cran",
@@ -339,6 +363,14 @@
       }
     }
   },
+  "cardStatusInterval": "intervalle {interval}",
+  "@cardStatusInterval": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
   "cardStatusNew": "nouvelle",
   "cardStatusUnstarted": "pas commencée",
   "cardStatusPending": "en attente de distillation",
@@ -504,6 +536,25 @@
       },
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "cardSheetInterval": "Intervalle {interval}",
+  "@cardSheetInterval": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "cardSheetMemory": "Stabilité {stability} j · difficulté {difficulty} sur 10",
+  "@cardSheetMemory": {
+    "placeholders": {
+      "stability": {
+        "type": "String"
+      },
+      "difficulty": {
+        "type": "String"
       }
     }
   },
@@ -696,6 +747,14 @@
       "step": {
         "type": "int"
       },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationFailedAdaptive": "Compté raté · revue {when}",
+  "@notificationFailedAdaptive": {
+    "placeholders": {
       "when": {
         "type": "String"
       }

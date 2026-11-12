@@ -1,3 +1,5 @@
+import '../../data/images/image_store.dart';
+import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
@@ -6,11 +8,15 @@ import '../scheduling/schedule_change_listener.dart';
 class GroupService {
   const GroupService({
     required this._groups,
+    required this._cards,
+    required this._images,
     required this._clock,
     required this._scheduleChangeListener,
   });
 
   final GroupRepository _groups;
+  final CardRepository _cards;
+  final ImageStore _images;
   final Clock _clock;
   final ScheduleChangeListener _scheduleChangeListener;
 
@@ -32,9 +38,17 @@ class GroupService {
     await _scheduleChangeListener.onSchedulesChanged();
   }
 
-  /// Deletes the group with all its cards and their history.
+  /// Deletes the group with all its cards, their history and their images.
   Future<void> delete(int groupId) async {
+    final images = [
+      for (final card in await _cards.getCardsOfGroup(groupId))
+        for (final image in [card.card.frontImagePath, card.card.backImagePath])
+          ?image,
+    ];
     await _groups.delete(groupId);
+    for (final image in images) {
+      await _images.delete(image);
+    }
     await _scheduleChangeListener.onSchedulesChanged();
   }
 

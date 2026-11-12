@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/alambic_colors.dart';
 import '../../data/repositories/card_with_directions.dart';
+import 'card_image.dart';
 import 'card_status_formatter.dart';
 
 /// A card in a list: its front, its back with its status, and when it is due.
+/// A front image shows as a thumbnail; a face without text reads "Image".
 class CardListTile extends StatelessWidget {
   const CardListTile({
     required this.card,
@@ -22,20 +24,32 @@ class CardListTile extends StatelessWidget {
     final colors = AlambicColors.of(context);
     final dueLabel = formatter.dueLabel(card);
     final isDue = dueLabel == formatter.strings.dueNow;
-    final back = card.card.backText ?? '';
+    final imageOnly = formatter.strings.cardImageOnly;
+    final back = card.card.backText ?? imageOnly;
+    final frontImage = card.card.frontImagePath;
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
+            if (frontImage != null) ...[
+              CardImage.stored(
+                frontImage,
+                width: 44,
+                height: 44,
+                fit: BoxFit.cover,
+                radius: 8,
+              ),
+              const SizedBox(width: 12),
+            ],
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 2,
                 children: [
                   Text(
-                    card.card.frontText ?? '',
+                    card.card.frontText ?? imageOnly,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

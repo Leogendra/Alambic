@@ -32,6 +32,7 @@ void main() {
   }) => ReviewPrompt(
     key: key,
     prompt: 'Pérou',
+    image: null,
     groupName: null,
     progress: step == null
         ? const NewProgress()
@@ -53,6 +54,7 @@ void main() {
     key: key,
     prompt: 'Pérou',
     answer: 'Lima',
+    answerImage: null,
     result: ReviewResult(
       isBonus: isBonus,
       schedule: isBonus
@@ -97,12 +99,35 @@ void main() {
     expect(texts.verdict(reveal(isBonus: true)), 'Révision bonus · sans effet');
   });
 
+  test('a face that is an image alone is named as such', () {
+    expect(texts.promptTitle('Pérou'), 'Pérou');
+    expect(texts.promptTitle(''), 'Que montre cette image ?');
+    expect(
+      texts.answerLine(
+        AnswerReveal(
+          key: key,
+          prompt: 'Drapeau',
+          answer: '',
+          answerImage: 'flag.png',
+          result: ReviewResult(
+            isBonus: true,
+            schedule: null,
+            preset: BuiltInPresets.standard,
+          ),
+          answeredAt: DateTime(2026, 11, 10, 12, 5),
+        ),
+      ),
+      'Réponse en image',
+    );
+  });
+
   test('an adaptive card tells its interval instead of a step', () {
     expect(
       texts.promptDetail(
         ReviewPrompt(
           key: key,
           prompt: 'Pérou',
+          image: null,
           groupName: null,
           progress: const AdaptiveProgress(
             memory: FsrsMemory(stability: 11.7, difficulty: 5.3),
@@ -238,6 +263,7 @@ void main() {
             chain: GroupReminderKey(4),
           ),
           prompt: 'Pérou',
+          image: null,
           groupName: 'Capitales',
           progress: const NewProgress(),
           isReverse: false,

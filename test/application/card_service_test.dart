@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/cards/card_draft.dart';
+import 'package:alambic/application/cards/draft_image.dart';
 import 'package:alambic/application/cards/card_service.dart';
 import 'package:alambic/application/distillation/distillation_service.dart';
 import 'package:alambic/application/scheduling/ignored_schedule_changes.dart';
 import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/images/image_store.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
@@ -18,6 +22,7 @@ import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 import '../support/fixed_clock.dart';
 import '../support/recording_schedule_listener.dart';
 import '../support/test_database.dart';
+import '../support/test_images.dart';
 
 void main() {
   late AlambicDatabase database;
@@ -25,15 +30,18 @@ void main() {
   late CardService service;
   late FixedClock clock;
   late RecordingScheduleListener listener;
+  late ImageStore images;
 
   setUp(() {
     database = openTestDatabase();
     cards = CardRepository(database);
     clock = FixedClock(DateTime(2026, 11, 10, 9));
     listener = RecordingScheduleListener();
+    images = openTestImageStore();
     service = CardService(
       cards: cards,
       presets: PresetRepository(database),
+      images: images,
       scheduler: const ReviewScheduler(SchedulingCalendar()),
       distillations: DistillationService(
         distillations: DistillationRepository(database),
@@ -133,6 +141,70 @@ void main() {
       alsoReverse: false,
     );
     expect(() => service.create(incomplete), throwsArgumentError);
+  });
+
+  group('images', () {
+    const flag = 'test/support/fixtures/flag.png';
+
+    CardDraft imageCard({DraftImage? front, String frontText = ''}) =>
+        CardDraft(
+          frontText: frontText,
+          backText: 'Pérou',
+          frontImage: front,
+          groupId: null,
+          presetId: null,
+          alsoReverse: false,
+        );
+
+    bool stored(String? name) =>
+        name != null && File(images.pathOf(name)).existsSync();
+
+    test('a face can be an image alone, copied into the store', () async {
+      final cardId = await service.create(
+        imageCard(front: const PickedImage(flag)),
+      );
+      final card = await cards.getCard(cardId);
+      expect(card.frontText, isNull);
+      expect(card.front.hasImage, isTrue);
+      expect(stored(card.frontImagePath), isTrue);
+      expect(
+        File(images.pathOf(card.frontImagePath!)).lengthSync(),
+        File(flag).lengthSync(),
+      );
+    });
+
+    test('replacing or removing an image deletes its file', () async {
+      final cardId = await service.create(
+        imageCard(front: const PickedImage(flag)),
+      );
+      final first = (await cards.getCard(cardId)).frontImagePath!;
+      await service.update(
+        cardId,
+        imageCard(front: StoredImage(first), frontText: 'Drapeau'),
+      );
+      expect(stored(first), isTrue, reason: 'kept when unchanged');
+      await service.update(cardId, imageCard(front: const PickedImage(flag)));
+      final second = (await cards.getCard(cardId)).frontImagePath!;
+      expect(second, isNot(first));
+      expect(stored(first), isFalse);
+      await service.update(cardId, imageCard(frontText: 'Drapeau'));
+      expect((await cards.getCard(cardId)).frontImagePath, isNull);
+      expect(stored(second), isFalse);
+    });
+
+    test('deleting a card deletes its images', () async {
+      final cardId = await service.create(
+        imageCard(front: const PickedImage(flag)),
+      );
+      final name = (await cards.getCard(cardId)).frontImagePath;
+      await service.delete(cardId);
+      expect(stored(name), isFalse);
+    });
+
+    test('a face needs a text or an image', () {
+      expect(imageCard().isComplete, isFalse);
+      expect(imageCard(front: const PickedImage(flag)).isComplete, isTrue);
+    });
   });
 
   test('resetting forgets the step and makes the card due today', () async {

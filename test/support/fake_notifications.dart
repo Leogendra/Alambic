@@ -16,6 +16,7 @@ import 'package:alambic/data/data_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 
 import 'fixed_clock.dart';
+import 'test_images.dart';
 
 /// Alarms kept in memory: what is scheduled, and whether exactly.
 class FakeAlarmScheduler implements AlarmScheduler {
@@ -136,6 +137,7 @@ class NotificationHarness {
     final container = ProviderContainer(
       overrides: [
         databaseProvider.overrideWithValue(database),
+        imageStoreProvider.overrideWithValue(openTestImageStore()),
         clockProvider.overrideWithValue(clock.call),
         alarmSchedulerProvider.overrideWithValue(alarms),
         notificationPresenterProvider.overrideWithValue(presenter),

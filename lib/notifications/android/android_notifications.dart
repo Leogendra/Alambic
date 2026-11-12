@@ -9,6 +9,7 @@ import '../../application/clock.dart';
 import '../../application/notifications/notification_providers.dart';
 import '../../application/notifications/notification_target.dart';
 import '../../application/scheduling/scheduling_providers.dart';
+import '../../data/data_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../review_texts.dart';
 import '../shared_preferences_alarm_store.dart';
@@ -67,6 +68,7 @@ abstract final class AndroidNotifications {
       (ref) => AndroidNotificationPresenter(
         _plugin,
         ReviewTexts(_strings(), ref.watch(schedulingCalendarProvider)),
+        ref.watch(imageStoreProvider),
       ),
     ),
     plannedAlarmStoreProvider.overrideWithValue(SharedPreferencesAlarmStore()),

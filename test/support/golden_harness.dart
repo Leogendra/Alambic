@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,3 +44,19 @@ Future<void> pumpGolden(
   );
   await tester.pumpAndSettle();
 }
+
+/// Decodes the image file at [path] into the image cache. A widget test does
+/// no real I/O outside [WidgetTester.runAsync]: an image shown before being
+/// cached would never load.
+Future<void> precacheImageFile(WidgetTester tester, String path) =>
+    tester.runAsync(() async {
+      final loaded = Completer<void>();
+      final stream = FileImage(File(path)).resolve(ImageConfiguration.empty);
+      final listener = ImageStreamListener(
+        (image, synchronousCall) => loaded.complete(),
+        onError: loaded.completeError,
+      );
+      stream.addListener(listener);
+      await loaded.future;
+      stream.removeListener(listener);
+    });

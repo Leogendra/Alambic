@@ -71,6 +71,7 @@ class NotificationActionHandler {
           key: key,
           prompt: card.promptFor(direction.sense).text ?? '',
           answer: answer,
+          answerImage: card.answerFor(direction.sense).imagePath,
           result: result,
           answeredAt: _clock(),
           typed: typed,

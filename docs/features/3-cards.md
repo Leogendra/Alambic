@@ -1,16 +1,24 @@
 # Feature 3 — Cards
 
-Status: in progress (2026-11-11)
+Status: in progress (2026-11-12)
 
 ## Goal
 
-Create and edit front / back [cards](../lexicon.md#card), choose to review them in one direction or both, put them in a group and give them a preset, then follow and manage each card from its sheet. For now a face only holds text; images will come later.
+Create and edit front / back [cards](../lexicon.md#card), choose to review them in one direction or both, put them in a group and give them a preset, then follow and manage each card from its sheet. A face holds a text, an image, or both.
 
 ## Implementation overview
 
 The "+" button of the navigation opens an empty card editor. The same screen edits an existing card. It shows the front, the back, the "Also in the other direction" option, the group ("No group" by default, or the group the user came from) and the preset, inherited until one is chosen. The preset row says where it comes from: "Inherited from the group: Standard" or "Global preset: Standard".
 
-The front and the back are required. Text is stored without leading and trailing spaces.
+Each face needs a text, an image, or both. Text is stored without leading and trailing spaces; an empty text is stored as no text.
+
+### Images
+
+Each face takes one image at most. "Image", next to the face label, opens the phone gallery; the picture is scaled down to 1600 px on its longest side. The editor shows a thumbnail with a button to remove it. Nothing is stored before "Create" or "Save": the card service then copies the picked picture into the image store, a folder of the app next to the database, and the card keeps the file name only.
+
+An image replaced or removed, the images of a deleted card, and those of the cards of a deleted group leave the store with them.
+
+The image shows under the text of the face on the card sheet, above the text in a session, as a thumbnail before the front in the card lists, and in the expanded notification ([Feature 7](7-notifications.md#showing-a-cards-image)). A face without text reads "Image" in the lists. The typed answer is off for a card whose answer face has no text.
 
 ### Created directions
 
@@ -68,6 +76,7 @@ Every operation that touches due dates or reminders notifies the notification pl
 ## Acceptance criteria
 
 - [x] A card is created with a text front and back; an empty face is refused.
+- [x] Each face takes an image from the gallery, alone or with a text; the image is copied into the app and leaves it with its card, its group, or when it is replaced or removed.
 - [x] A new card is not due: its front → back direction is unstarted, and so is the back → front one with the option; without it, the reverse is inactive.
 - [x] "Start all" on a group page makes every unstarted direction of the group due today, the reverse of a card the next day.
 - [x] Editing a card changes its text, its group, its preset, and adds or stops the reverse direction.
@@ -87,6 +96,7 @@ Every operation that touches due dates or reminders notifies the notification pl
 - The bulk-add screen is tested end to end on an in-memory database: report before adding, separator change, cards created in the group with both directions.
 - The days offered by "Review soon" are tested as pure logic, Saturday and Sunday included; the reminder service is tested on an in-memory database (added, refused in the past, removed).
 - The editor, the bulk add and the card sheet (with history, bonus reviews and a reminder) are covered by golden tests; starting a direction from the sheet is tested on screen.
+- Images are tested on a store in a temporary folder with a PNG fixture (`test/support/fixtures/flag.png`): copied on creation, kept, replaced and removed on update, deleted with the card and the group. The editor picks an image through a fake picker, shows it and stores it with the card; a golden test shows it, another one shows it in a session.
 
 ## File mapping
 
@@ -95,8 +105,11 @@ Every operation that touches due dates or reminders notifies the notification pl
 - `lib/domain/reviews/review_soon_days.dart` — the days offered by "Review soon".
 - `lib/data/repositories/card_repository.dart` — storage of cards and their directions, streams of cards with their directions.
 - `lib/domain/cards/bulk/` — parsing of bulk-add lines.
-- `lib/features/cards/` — card editor, card sheet and its panels, "Review soon" sheet, bulk add, group picker, card row of the lists.
+- `lib/features/cards/` — card editor, card sheet and its panels, "Review soon" sheet, bulk add, group picker, card row of the lists, card image and gallery picker.
+- `lib/data/images/image_store.dart` — the folder of the card images.
 
 ## Technical details
+
+A widget test reads no file outside `runAsync`: an `Image.file` built before its file is decoded never loads, and precaching it afterwards waits forever on the first, stuck load. The tests decode the file into the image cache first (`precacheImageFile`), then build the screen.
 
 The card streams (`watchCard`, `watchCardsOfGroup`, `watchSearch`) observe both the card table and the direction table, and reread both at each change. An answer changes a direction without touching its card: a stream observing only the cards would show stale steps and due dates.

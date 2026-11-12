@@ -21,7 +21,9 @@ class CardRepository {
   Future<int> insertCard({
     required int? groupId,
     required String? frontText,
+    required String? frontImagePath,
     required String? backText,
+    required String? backImagePath,
     required int? presetId,
     required DateTime createdAt,
   }) => _database
@@ -30,7 +32,9 @@ class CardRepository {
         FlashcardsCompanion.insert(
           groupId: Value(groupId),
           frontText: Value(frontText),
+          frontImagePath: Value(frontImagePath),
           backText: Value(backText),
+          backImagePath: Value(backImagePath),
           presetId: Value(presetId),
           createdAt: createdAt,
         ),
@@ -40,7 +44,9 @@ class CardRepository {
     required int cardId,
     required int? groupId,
     required String? frontText,
+    required String? frontImagePath,
     required String? backText,
+    required String? backImagePath,
     required int? presetId,
   }) =>
       (_database.update(
@@ -49,7 +55,9 @@ class CardRepository {
         FlashcardsCompanion(
           groupId: Value(groupId),
           frontText: Value(frontText),
+          frontImagePath: Value(frontImagePath),
           backText: Value(backText),
+          backImagePath: Value(backImagePath),
           presetId: Value(presetId),
         ),
       );

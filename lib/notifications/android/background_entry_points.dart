@@ -8,6 +8,7 @@ import '../../application/notifications/notification_action.dart';
 import '../../application/notifications/notification_providers.dart';
 import '../../data/data_providers.dart';
 import '../../data/database/alambic_database.dart';
+import '../../data/images/image_store.dart';
 import 'android_notifications.dart';
 import 'notification_payload.dart';
 
@@ -57,6 +58,7 @@ Future<void> _runInBackground(
   final container = ProviderContainer(
     overrides: [
       databaseProvider.overrideWithValue(database),
+      imageStoreProvider.overrideWithValue(await ImageStore.open()),
       ...AndroidNotifications.overrides(),
     ],
   );

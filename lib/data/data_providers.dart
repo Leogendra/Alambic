@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'database/alambic_database.dart';
+import 'images/image_store.dart';
 import 'repositories/card_repository.dart';
 import 'repositories/distillation_repository.dart';
 import 'repositories/group_repository.dart';
@@ -13,6 +14,11 @@ import 'repositories/reminder_repository.dart';
 /// database file, by tests with an in-memory database.
 final databaseProvider = Provider<AlambicDatabase>(
   (ref) => throw UnimplementedError('databaseProvider must be overridden'),
+);
+
+/// The folder of the card images. Always overridden, like [databaseProvider].
+final imageStoreProvider = Provider<ImageStore>(
+  (ref) => throw UnimplementedError('imageStoreProvider must be overridden'),
 );
 
 final presetRepositoryProvider = Provider(

@@ -10,6 +10,7 @@ class AnswerReveal {
     required this.key,
     required this.prompt,
     required this.answer,
+    required this.answerImage,
     required this.result,
     required this.answeredAt,
     this.typed,
@@ -19,6 +20,9 @@ class AnswerReveal {
   final ReviewNotificationKey key;
   final String prompt;
   final String answer;
+
+  /// Image of the answer face, by its name in the image store.
+  final String? answerImage;
   final ReviewResult result;
   final DateTime answeredAt;
 

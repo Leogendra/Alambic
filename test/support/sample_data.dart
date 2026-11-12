@@ -12,6 +12,7 @@ import 'package:alambic/application/scheduling/ignored_schedule_changes.dart';
 import 'package:alambic/application/time/minute_ticker.dart';
 import 'package:alambic/data/data_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/images/image_store.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
@@ -24,6 +25,7 @@ import 'package:alambic/domain/scheduling/review_scheduler.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 import 'fixed_clock.dart';
+import 'test_images.dart';
 
 /// Moment at which sample data is created and screens are rendered:
 /// Tuesday 10 November 2026, 9am.
@@ -36,9 +38,11 @@ class SampleServices {
     AlambicDatabase database,
     FixedClock clock, {
     Random? random,
+    ImageStore? images,
   }) => SampleServices._(
     database,
     clock,
+    images ?? openTestImageStore(),
     DistillationService(
       distillations: DistillationRepository(database),
       cards: CardRepository(database),
@@ -52,10 +56,11 @@ class SampleServices {
     ),
   );
 
-  SampleServices._(this.database, this.clock, this.distillations)
+  SampleServices._(this.database, this.clock, this.images, this.distillations)
     : cards = CardService(
         cards: CardRepository(database),
         presets: PresetRepository(database),
+        images: images,
         scheduler: const ReviewScheduler(SchedulingCalendar()),
         distillations: distillations,
         clock: clock.call,
@@ -63,6 +68,8 @@ class SampleServices {
       ),
       groups = GroupService(
         groups: GroupRepository(database),
+        cards: CardRepository(database),
+        images: images,
         clock: clock.call,
         scheduleChangeListener: const IgnoredScheduleChanges(),
       ),
@@ -84,6 +91,7 @@ class SampleServices {
 
   final AlambicDatabase database;
   final FixedClock clock;
+  final ImageStore images;
   final DistillationService distillations;
   final CardService cards;
   final GroupService groups;
@@ -125,8 +133,13 @@ Future<int> seedSampleData(SampleServices services) async {
 }
 
 /// Overrides rendering screens over [database] at the fixed moment [now].
-List<Override> screenOverrides(AlambicDatabase database, DateTime now) => [
+List<Override> screenOverrides(
+  AlambicDatabase database,
+  DateTime now, {
+  ImageStore? images,
+}) => [
   databaseProvider.overrideWithValue(database),
+  imageStoreProvider.overrideWithValue(images ?? openTestImageStore()),
   clockProvider.overrideWithValue(() => now),
   currentMomentProvider.overrideWith((ref) => Stream.value(now)),
 ];

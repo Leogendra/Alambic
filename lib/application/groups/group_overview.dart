@@ -48,7 +48,7 @@ class GroupOverview {
         )
         .length,
     unstartedCount: cards
-        .where((card) => _hasState(card, DirectionState.unstarted))
+        .where((card) => card.directions.any((d) => d.isStartable))
         .length,
   );
 

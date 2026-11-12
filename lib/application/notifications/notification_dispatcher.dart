@@ -9,14 +9,15 @@ import '../../domain/notifications/notification_timing.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../domain/reviews/extra_reminder.dart';
 import '../clock.dart';
+import '../distillation/distillation_service.dart';
 import 'notification_planner.dart';
 import 'notification_presenter.dart';
 import 'review_notification_key.dart';
 import 'review_prompt.dart';
 
-/// Runs when the app wakes up: shows a notification for every direction and
-/// every "Review soon" reminder whose moment has come, then plans the next
-/// wake-ups. The content is read from the database at that moment, never
+/// Runs when the app wakes up: runs the daily pass of the distillations,
+/// shows a notification for every direction and every "Review soon" reminder
+/// whose moment has come, then plans the next wake-ups. The content is read from the database at that moment, never
 /// fixed when the wake-up was planned.
 class NotificationDispatcher {
   const NotificationDispatcher({
@@ -24,6 +25,7 @@ class NotificationDispatcher {
     required this._groups,
     required this._presets,
     required this._reminders,
+    required this._distillations,
     required this._presenter,
     required this._planner,
     required this._clock,
@@ -33,11 +35,13 @@ class NotificationDispatcher {
   final GroupRepository _groups;
   final PresetRepository _presets;
   final ReminderRepository _reminders;
+  final DistillationService _distillations;
   final NotificationPresenter _presenter;
   final NotificationPlanner _planner;
   final Clock _clock;
 
   Future<void> dispatchDue() async {
+    await _distillations.advance();
     final now = _clock();
     final catalog = await _presets.loadCatalog();
     final groupNames = {

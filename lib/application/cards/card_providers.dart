@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/data_providers.dart';
 import '../../data/repositories/card_with_directions.dart';
 import '../clock.dart';
+import '../distillation/distillation_providers.dart';
 import '../scheduling/scheduling_providers.dart';
 import 'card_service.dart';
 
@@ -11,6 +12,7 @@ final cardServiceProvider = Provider(
     cards: ref.watch(cardRepositoryProvider),
     presets: ref.watch(presetRepositoryProvider),
     scheduler: ref.watch(reviewSchedulerProvider),
+    distillations: ref.watch(distillationServiceProvider),
     clock: ref.watch(clockProvider),
     scheduleChangeListener: ref.watch(scheduleChangeListenerProvider),
   ),

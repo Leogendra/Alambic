@@ -27,7 +27,7 @@ class GroupSummary {
   /// a distillation queue.
   final int newCount;
 
-  /// Cards with a direction waiting to be started.
+  /// Cards with a direction waiting to be started by hand.
   final int unstartedCount;
 
   int? get groupId => group?.id;

@@ -51,6 +51,13 @@ class DirectionProgressPanel extends StatelessWidget {
     final state = direction?.state ?? DirectionState.inactive;
     return switch (state) {
       DirectionState.inactive => [_message(strings.cardSheetInactive, colors)],
+      DirectionState.pending when direction!.isStartable => [
+        _message(strings.cardSheetPendingStopped, colors),
+        FilledButton.tonal(
+          onPressed: onStart,
+          child: Text(strings.cardSheetStart),
+        ),
+      ],
       DirectionState.pending => [_message(strings.cardSheetPending, colors)],
       DirectionState.unstarted => [
         _message(strings.cardSheetUnstarted, colors),

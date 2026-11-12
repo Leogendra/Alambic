@@ -7,6 +7,7 @@ import '../../domain/presets/preset.dart';
 import '../../domain/scheduling/direction_schedule.dart';
 import '../../domain/scheduling/review_scheduler.dart';
 import '../clock.dart';
+import '../distillation/distillation_service.dart';
 import '../scheduling/schedule_change_listener.dart';
 import 'card_draft.dart';
 
@@ -16,6 +17,7 @@ class CardService {
     required this._cards,
     required this._presets,
     required this._scheduler,
+    required this._distillations,
     required this._clock,
     required this._scheduleChangeListener,
   });
@@ -23,11 +25,13 @@ class CardService {
   final CardRepository _cards;
   final PresetRepository _presets;
   final ReviewScheduler _scheduler;
+  final DistillationService _distillations;
   final Clock _clock;
   final ScheduleChangeListener _scheduleChangeListener;
 
   /// Stores a new card. It is never due by itself: its front → back direction,
-  /// and the reverse one with [CardDraft.alsoReverse], wait to be started.
+  /// and the reverse one with [CardDraft.alsoReverse], wait to be started, or
+  /// join the end of the queue of the distillation covering them.
   Future<int> create(CardDraft draft) async {
     _checkComplete(draft);
     final cardId = await _cards.transaction(() async {
@@ -42,6 +46,7 @@ class CardService {
       await _insertDirections(cardId, draft.alsoReverse);
       return cardId;
     });
+    await _distillations.joinQueues(cardId);
     await _scheduleChangeListener.onSchedulesChanged();
     return cardId;
   }
@@ -49,7 +54,8 @@ class CardService {
   /// Several cards at once, for the bulk add; returns how many were stored.
   Future<int> createAll(List<CardDraft> drafts) async {
     drafts.forEach(_checkComplete);
-    await _cards.transaction(() async {
+    final cardIds = await _cards.transaction(() async {
+      final cardIds = <int>[];
       for (final draft in drafts) {
         final now = _clock();
         final cardId = await _cards.insertCard(
@@ -60,15 +66,21 @@ class CardService {
           createdAt: now,
         );
         await _insertDirections(cardId, draft.alsoReverse);
+        cardIds.add(cardId);
       }
+      return cardIds;
     });
+    for (final cardId in cardIds) {
+      await _distillations.joinQueues(cardId);
+    }
     await _scheduleChangeListener.onSchedulesChanged();
     return drafts.length;
   }
 
   /// Updates the content of a card. Checking "also reverse" adds the reverse
   /// direction, waiting to be started; unchecking it stops it, keeping its
-  /// history.
+  /// history. A card moved to another group follows the distillations of its
+  /// new group.
   Future<void> update(int cardId, CardDraft draft) async {
     _checkComplete(draft);
     await _cards.transaction(() async {
@@ -81,6 +93,7 @@ class CardService {
       );
       await _applyReverseChoice(cardId, draft.alsoReverse);
     });
+    await _distillations.joinQueues(cardId);
     await _scheduleChangeListener.onSchedulesChanged();
   }
 
@@ -89,14 +102,14 @@ class CardService {
     await _scheduleChangeListener.onSchedulesChanged();
   }
 
-  /// Starts every unstarted direction of the cards of [groupId], or of "No
-  /// group" for `null`: they all become due today. Returns how many cards
-  /// started.
+  /// Starts every startable direction of the cards of [groupId], or of "No
+  /// group" for `null`: they all become due today. Directions in the queue of
+  /// a distillation wait for it. Returns how many cards started.
   Future<int> startGroup(int? groupId) async {
     final startedCards = await _cards.transaction(() async {
       var count = 0;
       for (final card in await _cards.getCardsOfGroup(groupId)) {
-        if (await _startUnstarted(card.card.id)) {
+        if (await _startStartable(card.card.id)) {
           count++;
         }
       }
@@ -108,11 +121,11 @@ class CardService {
     return startedCards;
   }
 
-  /// Starts one unstarted direction: it becomes due today.
+  /// Starts one startable direction: it becomes due today.
   Future<void> startDirection(int directionId) async {
     await _cards.transaction(() async {
       final direction = await _cards.getDirection(directionId);
-      await _startUnstarted(direction.cardId, onlyDirectionId: directionId);
+      await _startStartable(direction.cardId, onlyDirectionId: directionId);
     });
     await _scheduleChangeListener.onSchedulesChanged();
   }
@@ -159,15 +172,15 @@ class CardService {
     );
   }
 
-  /// Starts the unstarted directions of a card, front → back first, keeping
+  /// Starts the startable directions of a card, front → back first, keeping
   /// the two directions on different days. Returns whether one started.
-  Future<bool> _startUnstarted(int cardId, {int? onlyDirectionId}) async {
+  Future<bool> _startStartable(int cardId, {int? onlyDirectionId}) async {
     final preset = await _presetOfCard(cardId);
     var started = false;
     for (final direction in await _sortedDirections(cardId)) {
       final isTarget =
           onlyDirectionId == null || direction.id == onlyDirectionId;
-      if (isTarget && direction.state == DirectionState.unstarted) {
+      if (isTarget && direction.isStartable) {
         final opposite = (await _cards.getDirections(cardId))
             .where((other) => other.id != direction.id && other.isScheduled)
             .firstOrNull;

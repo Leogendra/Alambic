@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/misc.dart';
 import 'package:remanence/application/cards/card_draft.dart';
 import 'package:remanence/application/cards/card_service.dart';
 import 'package:remanence/application/clock.dart';
+import 'package:remanence/application/distillation/distillation_service.dart';
 import 'package:remanence/application/groups/group_service.dart';
 import 'package:remanence/application/reminders/reminder_service.dart';
 import 'package:remanence/application/reviews/review_service.dart';
@@ -10,6 +13,7 @@ import 'package:remanence/application/time/minute_ticker.dart';
 import 'package:remanence/data/data_providers.dart';
 import 'package:remanence/data/database/remanence_database.dart';
 import 'package:remanence/data/repositories/card_repository.dart';
+import 'package:remanence/data/repositories/distillation_repository.dart';
 import 'package:remanence/data/repositories/group_repository.dart';
 import 'package:remanence/data/repositories/preset_repository.dart';
 import 'package:remanence/data/repositories/reminder_repository.dart';
@@ -24,13 +28,34 @@ import 'fixed_clock.dart';
 /// Tuesday 10 November 2026, 9am.
 final DateTime sampleNow = DateTime(2026, 11, 10, 9);
 
-/// Services over [database], driven by [clock].
+/// Services over [database], driven by [clock]. [random] orders the random
+/// distillations.
 class SampleServices {
-  SampleServices(this.database, this.clock)
+  factory SampleServices(
+    RemanenceDatabase database,
+    FixedClock clock, {
+    Random? random,
+  }) => SampleServices._(
+    database,
+    clock,
+    DistillationService(
+      distillations: DistillationRepository(database),
+      cards: CardRepository(database),
+      presets: PresetRepository(database),
+      scheduler: const ReviewScheduler(SchedulingCalendar()),
+      calendar: const SchedulingCalendar(),
+      clock: clock.call,
+      scheduleChangeListener: const IgnoredScheduleChanges(),
+      random: random,
+    ),
+  );
+
+  SampleServices._(this.database, this.clock, this.distillations)
     : cards = CardService(
         cards: CardRepository(database),
         presets: PresetRepository(database),
         scheduler: const ReviewScheduler(SchedulingCalendar()),
+        distillations: distillations,
         clock: clock.call,
         scheduleChangeListener: const IgnoredScheduleChanges(),
       ),
@@ -57,6 +82,7 @@ class SampleServices {
 
   final RemanenceDatabase database;
   final FixedClock clock;
+  final DistillationService distillations;
   final CardService cards;
   final GroupService groups;
   final ReviewService reviews;

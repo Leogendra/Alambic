@@ -4,9 +4,12 @@ import 'package:alambic/application/notifications/notification_providers.dart';
 import 'package:alambic/application/notifications/review_notification_key.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
+import 'package:alambic/domain/reviews/typed_answer_match.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
 
 import '../support/fake_notifications.dart';
@@ -126,6 +129,47 @@ void main() {
           .read(notificationActionHandlerProvider)
           .handle(key, NotificationAction.correct);
       expect(harness.presenter.prompts.containsKey(key), isFalse);
+    });
+  });
+
+  group('typed answer', () {
+    late ReviewNotificationKey key;
+
+    setUp(() async {
+      final presets = PresetRepository(database);
+      final catalog = await presets.loadCatalog();
+      await presets.update(catalog.globalPreset.copyWith(typedAnswer: true));
+      key = ReviewNotificationKey(directionId: await mongoliaFront());
+      await dispatchAt(DateTime(2026, 11, 10, 12));
+    });
+
+    test('asks for an answer when the answer face has text', () {
+      expect(harness.presenter.prompts[key]!.typedAnswer, isTrue);
+    });
+
+    test('an answer with one typo counts as correct', () async {
+      await harness
+          .read(notificationActionHandlerProvider)
+          .handle(key, NotificationAction.answer, input: 'oulan bater');
+      final reveal = harness.presenter.reveals[key]!;
+      expect(reveal.match, TypedAnswerMatch.oneTypo);
+      expect(reveal.answer, 'Oulan-Bator');
+      final history = await ReviewRepository(database)
+          .watchHistory(key.directionId)
+          .first;
+      expect(history.single.outcome, ReviewOutcome.correct);
+      expect(reveal.result.schedule!.dueAt, DateTime(2026, 11, 11, 12));
+    });
+
+    test('a wrong answer counts as a failure', () async {
+      await harness
+          .read(notificationActionHandlerProvider)
+          .handle(key, NotificationAction.answer, input: 'Pékin');
+      expect(harness.presenter.reveals[key]!.match, TypedAnswerMatch.wrong);
+      final history = await ReviewRepository(database)
+          .watchHistory(key.directionId)
+          .first;
+      expect(history.single.outcome, ReviewOutcome.again);
     });
   });
 }

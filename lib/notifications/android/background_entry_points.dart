@@ -28,8 +28,9 @@ Future<void> onNotificationResponse(NotificationResponse response) async {
       .firstOrNull;
   if (key != null && action != null) {
     await _runInBackground(
-      (container) =>
-          container.read(notificationActionHandlerProvider).handle(key, action),
+      (container) => container
+          .read(notificationActionHandlerProvider)
+          .handle(key, action, input: response.input),
     );
   }
 }

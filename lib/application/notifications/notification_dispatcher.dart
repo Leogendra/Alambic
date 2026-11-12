@@ -108,15 +108,21 @@ class NotificationDispatcher {
     PresetCatalog catalog,
     Map<int, String> groupNames,
     int? extraReminderId,
-  ) => ReviewPrompt(
-    key: ReviewNotificationKey(
-      directionId: direction.id,
-      extraReminderId: extraReminderId,
-    ),
-    prompt: card.card.promptFor(direction.sense).text ?? '',
-    groupName: groupNames[card.card.groupId],
-    step: direction.step,
-    sequenceLength: catalog.presetForCard(card.card).sequenceLength,
-    isReverse: direction.sense == DirectionSense.backToFront,
-  );
+  ) {
+    final preset = catalog.presetForCard(card.card);
+    return ReviewPrompt(
+      key: ReviewNotificationKey(
+        directionId: direction.id,
+        extraReminderId: extraReminderId,
+      ),
+      prompt: card.card.promptFor(direction.sense).text ?? '',
+      groupName: groupNames[card.card.groupId],
+      step: direction.step,
+      sequenceLength: preset.sequenceLength,
+      isReverse: direction.sense == DirectionSense.backToFront,
+      // Without text on the answer face, there is nothing to compare with.
+      typedAnswer:
+          preset.typedAnswer && card.card.answerFor(direction.sense).hasText,
+    );
+  }
 }

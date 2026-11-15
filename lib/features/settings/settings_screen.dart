@@ -16,6 +16,7 @@ import '../distillation/global_distillation_screen.dart';
 import '../presets/preset_picker.dart';
 import '../presets/presets_screen.dart';
 import 'backup_panel.dart';
+import 'display_panel.dart';
 import 'exact_alarms_panel.dart';
 import 'notification_guards_screen.dart';
 
@@ -43,6 +44,9 @@ class SettingsScreen extends ConsumerWidget {
         const _NotificationsPanel(),
         const SizedBox(height: 14),
         const ExactAlarmsPanel(),
+        const SizedBox(height: 24),
+        SectionLabel(strings.settingsDisplaySection),
+        const DisplayPanel(),
         const SizedBox(height: 24),
         SectionLabel(strings.settingsDataSection),
         const BackupPanel(),

@@ -27,7 +27,7 @@ void main() {
       for (final placeholder in placeholders) {
         expect(
           '${english[key]}',
-          matches(RegExp('\{$placeholder[,}]')),
+          matches(RegExp(r'\{' + placeholder + r'[,}]')),
           reason: '$key uses {$placeholder}',
         );
       }

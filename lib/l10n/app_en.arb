@@ -390,5 +390,14 @@
   "onboardingSkip": "Skip",
   "presetNameStandard": "Standard",
   "presetNameIntensive": "Intensive",
-  "presetNameAdaptive": "Adaptive"
+  "presetNameAdaptive": "Adaptive",
+  "settingsDisplaySection": "Display",
+  "settingsLanguage": "Language",
+  "settingsTheme": "Theme",
+  "languageSystem": "Phone language",
+  "languageFrench": "Français",
+  "languageEnglish": "English",
+  "themeSystem": "Same as the phone",
+  "themeLight": "Light",
+  "themeDark": "Dark"
 }

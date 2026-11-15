@@ -15,16 +15,14 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidNotifications.initialize();
   final database = AlambicDatabase.open();
-  final interfaceSettingsStore = SharedPreferencesInterfaceSettingsStore();
   final container = ProviderContainer(
     overrides: [
       databaseProvider.overrideWithValue(database),
       imageStoreProvider.overrideWithValue(await ImageStore.open()),
-      interfaceSettingsStoreProvider.overrideWithValue(interfaceSettingsStore),
       // Read before the first frame, so that the app opens directly on the
-      // right screen.
-      initialInterfaceSettingsProvider.overrideWithValue(
-        await interfaceSettingsStore.load(),
+      // right screen, in the right language and theme.
+      ...await interfaceSettingsOverrides(
+        SharedPreferencesInterfaceSettingsStore(),
       ),
       ...AndroidNotifications.overrides(),
     ],

@@ -28,4 +28,5 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Images on cards: each face takes a picture from the gallery, alone or with a text. It shows on the card sheet, in the lists, in a session and in the expanded notification.
 - In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.
 - Export and import from Settings: all the cards, their history, the presets, the settings and the images in a single zip file saved where you choose. Importing a file replaces all the current data after a confirmation; a file that is not a valid backup is refused without changing anything.
+- Welcome screens on the first launch: the principle of the app, the notification and exact alarm permissions with the reminder time, and a first card started at once. The notification permission is no longer asked at every launch.
 - App icon on the home screen, following the phone's icon shape and its themed icons, and in the notifications' status bar.

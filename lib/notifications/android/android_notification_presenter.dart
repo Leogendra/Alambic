@@ -35,7 +35,8 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   final ImageStore _images;
 
   @override
-  Future<void> requestPermission() => _plugin.requestNotificationsPermission();
+  Future<bool> requestPermission() async =>
+      await _plugin.requestNotificationsPermission() ?? false;
 
   @override
   Future<void> showPrompt(ReviewPrompt prompt) {

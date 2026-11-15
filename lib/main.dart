@@ -4,26 +4,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/alambic_app.dart';
 import 'application/distillation/distillation_providers.dart';
 import 'application/notifications/notification_providers.dart';
+import 'application/preferences/interface_settings_providers.dart';
 import 'data/data_providers.dart';
 import 'data/database/alambic_database.dart';
 import 'data/images/image_store.dart';
+import 'data/preferences/shared_preferences_interface_settings_store.dart';
 import 'notifications/android/android_notifications.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AndroidNotifications.initialize();
   final database = AlambicDatabase.open();
+  final interfaceSettingsStore = SharedPreferencesInterfaceSettingsStore();
   final container = ProviderContainer(
     overrides: [
       databaseProvider.overrideWithValue(database),
       imageStoreProvider.overrideWithValue(await ImageStore.open()),
+      interfaceSettingsStoreProvider.overrideWithValue(interfaceSettingsStore),
+      // Read before the first frame, so that the app opens directly on the
+      // right screen.
+      initialInterfaceSettingsProvider.overrideWithValue(
+        await interfaceSettingsStore.load(),
+      ),
       ...AndroidNotifications.overrides(),
     ],
   );
   runApp(
     UncontrolledProviderScope(container: container, child: const AlambicApp()),
   );
-  await container.read(notificationPresenterProvider).requestPermission();
   // A day not processed yet by the distillations (the phone was off at the
   // start of the day) is processed now.
   await container.read(distillationServiceProvider).advance();

@@ -53,8 +53,15 @@ class FakePresenter implements NotificationPresenter {
   final Map<GroupReminderKey, GroupReminder> groupReminders = {};
   NotificationDigest? digest;
 
+  /// What the user answers when asked for notifications.
+  bool notificationsAllowed = true;
+  int notificationPermissionRequests = 0;
+
   @override
-  Future<void> requestPermission() async {}
+  Future<bool> requestPermission() async {
+    notificationPermissionRequests++;
+    return notificationsAllowed;
+  }
 
   @override
   Future<void> showPrompt(ReviewPrompt prompt) async {

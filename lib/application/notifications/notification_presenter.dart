@@ -8,8 +8,9 @@ import 'review_prompt.dart';
 /// Shows review notifications. Implemented per platform: the application
 /// decides what to show, the implementation decides how.
 abstract interface class NotificationPresenter {
-  /// Asks the user for the right to post notifications, where needed.
-  Future<void> requestPermission();
+  /// Asks the user for the right to post notifications, where needed, and
+  /// returns whether the app may post them.
+  Future<bool> requestPermission();
 
   /// Shows a card with its "Correct" and "Again" buttons, or "Answer" and
   /// "Again" for a typed answer, plus "Open" when it is chained in a grouped

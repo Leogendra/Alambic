@@ -141,6 +141,12 @@ class CardService {
     return startedCards;
   }
 
+  /// Starts the startable directions of one card: they become due today.
+  Future<void> startCard(int cardId) async {
+    await _cards.transaction(() => _startStartable(cardId));
+    await _scheduleChangeListener.onSchedulesChanged();
+  }
+
   /// Starts one startable direction: it becomes due today.
   Future<void> startDirection(int directionId) async {
     await _cards.transaction(() async {

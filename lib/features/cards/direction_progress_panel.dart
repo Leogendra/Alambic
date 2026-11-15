@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/interval_labels.dart';
+import '../../app/formatting/preset_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/direction_state.dart';
@@ -89,12 +90,13 @@ class DirectionProgressPanel extends StatelessWidget {
     final strings = AppLocalizations.of(context);
     return switch (progress) {
       NewProgress() when preset.engine == SchedulingEngineKind.adaptive => [
-        _title(colors, _capitalized(strings.cardStatusNew)),
+        _title(strings, colors, _capitalized(strings.cardStatusNew)),
       ],
       NewProgress() => _sequence(context, colors, null),
       SequenceProgress(:final step) => _sequence(context, colors, step),
       AdaptiveProgress(:final memory, :final intervalDays) => [
         _title(
+          strings,
           colors,
           strings.cardSheetInterval(strings.intervalDays(intervalDays)),
         ),
@@ -103,22 +105,23 @@ class DirectionProgressPanel extends StatelessWidget {
     };
   }
 
-  Widget _title(AlambicColors colors, String title) => Row(
-    crossAxisAlignment: CrossAxisAlignment.baseline,
-    textBaseline: TextBaseline.alphabetic,
-    children: [
-      Expanded(
-        child: Text(
-          title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ),
-      Text(
-        preset.name,
-        style: TextStyle(fontSize: 13, color: colors.textSecondary),
-      ),
-    ],
-  );
+  Widget _title(AppLocalizations strings, AlambicColors colors, String title) =>
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ),
+          Text(
+            strings.presetName(preset),
+            style: TextStyle(fontSize: 13, color: colors.textSecondary),
+          ),
+        ],
+      );
 
   /// "Stabilité 10,8 j · difficulté 5,3 sur 10".
   Widget _memory(
@@ -145,6 +148,7 @@ class DirectionProgressPanel extends StatelessWidget {
     final length = preset.sequenceLength;
     return [
       _title(
+        strings,
         colors,
         step == null
             ? _capitalized(strings.cardStatusNew)

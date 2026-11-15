@@ -78,7 +78,7 @@ abstract final class AndroidNotifications {
     notificationTargetsProvider.overrideWithValue(_openedTargets()),
   ];
 
-  /// Texts in the language of the phone when the app has it, French
+  /// Texts in the language of the phone when the app has it, English
   /// otherwise. Background tasks have no widget tree to read it from.
   static AppLocalizations _strings() {
     final locale = PlatformDispatcher.instance.locale;
@@ -86,7 +86,7 @@ abstract final class AndroidNotifications {
       (candidate) => candidate.languageCode == locale.languageCode,
     );
     return lookupAppLocalizations(
-      supported ? Locale(locale.languageCode) : const Locale('fr'),
+      supported ? Locale(locale.languageCode) : const Locale('en'),
     );
   }
 }

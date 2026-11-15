@@ -1111,5 +1111,8 @@
   "onboardingFrontHint": "Capitale du Pérou",
   "onboardingBackHint": "Lima",
   "onboardingCreateCard": "Créer et commencer",
-  "onboardingSkip": "Passer"
+  "onboardingSkip": "Passer",
+  "presetNameStandard": "Standard",
+  "presetNameIntensive": "Intensif",
+  "presetNameAdaptive": "Adaptatif"
 }

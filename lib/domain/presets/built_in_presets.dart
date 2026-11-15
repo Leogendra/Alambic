@@ -94,4 +94,10 @@ abstract final class BuiltInPresets {
   static const double defaultRetention = 0.9;
 
   static const List<Preset> all = [standard, intensive, adaptive];
+
+  static Preset of(BuiltInPresetKey key) => switch (key) {
+    BuiltInPresetKey.standard => standard,
+    BuiltInPresetKey.intensive => intensive,
+    BuiltInPresetKey.adaptive => adaptive,
+  };
 }

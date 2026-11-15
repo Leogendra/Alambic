@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/formatting/preset_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/count_badge.dart';
 import '../../application/groups/group_summary.dart';
@@ -54,7 +55,10 @@ class GroupSummaryTile extends StatelessWidget {
                       switch (group) {
                         null => strings.noGroupLine(cards),
                         _ when paused => strings.groupLinePaused(cards),
-                        _ => strings.groupLine(cards, summary.preset.name),
+                        _ => strings.groupLine(
+                          cards,
+                          strings.presetName(summary.preset),
+                        ),
                       },
                       style: TextStyle(
                         fontSize: 13,

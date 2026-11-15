@@ -18,7 +18,7 @@ The database is created with three presets, all at a fixed 12:00 time:
 
 Standard and Intensive send one notification per card, step back one step on failure and repeat the last interval at the end of the sequence. Adaptive keeps the Standard sequence, unused while its engine is adaptive.
 
-Each shipped preset carries a key (`builtInKey`) that recognises it even after a rename, so that its name can be translated.
+Each shipped preset carries a key (`builtInKey`) that recognises it even after a rename. As long as it keeps the name it was created with, it is shown under its name in the language of the interface ("Intensif" in French, "Intensive" in English); once renamed, it shows the name the user gave it. The editor shows the translated name, and the stored name only changes when the field is edited.
 
 ### Cascading resolution
 

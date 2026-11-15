@@ -64,6 +64,21 @@ void main() {
     });
   }
 
+  testWidgets('home in English', (tester) async {
+    await seed(tester);
+    await pumpGolden(
+      tester,
+      const Scaffold(body: SafeArea(child: HomeScreen())),
+      locale: const Locale('en'),
+      overrides: screenOverrides(database, renderAt),
+    );
+    expect(find.text('Review all now'), findsOneWidget);
+    await expectLater(
+      find.byType(HomeScreen),
+      matchesGoldenFile('goldens/home_english.png'),
+    );
+  });
+
   testWidgets('home during the global pause', (tester) async {
     await seed(tester);
     await tester.runAsync(

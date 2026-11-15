@@ -81,7 +81,7 @@ class _GroupBody extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
       children: [
         Text(
-          '${strings.cardCount(summary.cardCount)} · ${summary.preset.name} · '
+          '${strings.cardCount(summary.cardCount)} · ${strings.presetName(summary.preset)} · '
           '${strings.presetModeLabel(summary.preset)} · '
           '${strings.presetScheduleLabel(summary.preset)}',
           style: TextStyle(fontSize: 14, color: colors.textSecondary),

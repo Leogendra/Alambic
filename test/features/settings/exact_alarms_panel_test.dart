@@ -43,6 +43,25 @@ void main() {
     expect(alarms.permissionRequests, 1);
   });
 
+  testWidgets('settings in English, with the shipped preset translated', (
+    tester,
+  ) async {
+    await pumpGolden(
+      tester,
+      const Scaffold(body: SafeArea(child: SettingsScreen())),
+      locale: const Locale('en'),
+      overrides: [
+        ...screenOverrides(database, sampleNow),
+        alarmSchedulerProvider.overrideWithValue(alarms),
+      ],
+    );
+    expect(find.text('Standard'), findsOneWidget);
+    await expectLater(
+      find.byType(SettingsScreen),
+      matchesGoldenFile('goldens/settings_english.png'),
+    );
+  });
+
   testWidgets('says reminders are on time when exact alarms are allowed', (
     tester,
   ) async {

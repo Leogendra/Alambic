@@ -6,6 +6,7 @@ import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/notifications/notification_providers.dart';
 import '../../application/presets/preset_providers.dart';
+import '../../domain/presets/built_in_presets.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'onboarding_page.dart';
@@ -20,9 +21,6 @@ class PermissionsPage extends ConsumerStatefulWidget {
 
   final VoidCallback onNext;
 
-  /// Time of the shipped presets.
-  static const ClockTime defaultTime = ClockTime(12, 0);
-
   @override
   ConsumerState<PermissionsPage> createState() => _PermissionsPageState();
 }
@@ -30,7 +28,7 @@ class PermissionsPage extends ConsumerStatefulWidget {
 class _PermissionsPageState extends ConsumerState<PermissionsPage> {
   late final AppLifecycleListener _lifecycle;
   bool _notificationsAllowed = false;
-  ClockTime _time = PermissionsPage.defaultTime;
+  ClockTime _time = BuiltInPresets.defaultTime;
 
   @override
   void initState() {
@@ -66,7 +64,7 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
   }
 
   Future<void> _continue() async {
-    if (_time != PermissionsPage.defaultTime) {
+    if (_time != BuiltInPresets.defaultTime) {
       await ref.read(presetServiceProvider).setFixedTimeOfAll(_time);
     }
     widget.onNext();

@@ -84,8 +84,8 @@ class GroupSettingsScreen extends ConsumerWidget {
       subtitle: '$sequence\n${strings.presetSummary(preset)}',
       trailing: Text(
         group.presetId == null
-            ? strings.cardPresetInheritedGlobal(preset.name)
-            : preset.name,
+            ? strings.cardPresetInheritedGlobal(strings.presetName(preset))
+            : strings.presetName(preset),
         style: _valueStyle(context),
       ),
       onTap: () async {

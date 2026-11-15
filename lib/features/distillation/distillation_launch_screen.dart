@@ -90,7 +90,7 @@ class _DistillationLaunchScreenState
               child: Text(
                 strings.distillIntro(
                   strings.presetScheduleLabel(summary.preset),
-                  summary.preset.name,
+                  strings.presetName(summary.preset),
                 ),
                 style: TextStyle(
                   fontSize: 15,

@@ -12,11 +12,13 @@ import 'package:alambic/l10n/generated/app_localizations.dart';
 /// Phone-sized surface matching the mockup artboards (390 x 844).
 const Size phoneSize = Size(390, 844);
 
-/// Pumps [screen] inside the app theme and French localizations, at phone size.
+/// Pumps [screen] inside the app theme and the localizations of [locale]
+/// (French by default), at phone size.
 Future<void> pumpGolden(
   WidgetTester tester,
   Widget screen, {
   Brightness brightness = Brightness.light,
+  Locale locale = const Locale('fr'),
   List<Override> overrides = const [],
 }) async {
   tester.view.physicalSize = phoneSize;
@@ -30,7 +32,7 @@ Future<void> pumpGolden(
         theme: brightness == Brightness.light
             ? AlambicTheme.light()
             : AlambicTheme.dark(),
-        locale: const Locale('fr'),
+        locale: locale,
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,

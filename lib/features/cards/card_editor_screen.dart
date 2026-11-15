@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/formatting/preset_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
@@ -272,11 +273,13 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
     final ownPreset = catalog.presetsById[_presetId];
     final inherited = catalog.presetForGroup(_groupId);
     if (ownPreset != null) {
-      return ownPreset.name;
+      return strings.presetName(ownPreset);
     } else if (_groupId != null) {
-      return strings.cardPresetInheritedFromGroup(inherited.name);
+      return strings.cardPresetInheritedFromGroup(
+        strings.presetName(inherited),
+      );
     } else {
-      return strings.cardPresetInheritedGlobal(inherited.name);
+      return strings.cardPresetInheritedGlobal(strings.presetName(inherited));
     }
   }
 

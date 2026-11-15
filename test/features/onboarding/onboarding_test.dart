@@ -49,7 +49,9 @@ void main() {
   }) async {
     tester.view.physicalSize = phoneSize;
     tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.localesTestValue = const [Locale('fr')];
     addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides(onboardingDone: onboardingDone),
@@ -128,6 +130,20 @@ void main() {
     await expectLater(
       find.byType(OnboardingScreen),
       matchesGoldenFile('goldens/onboarding_first_card.png'),
+    );
+  });
+
+  testWidgets('the reminders screen in English', (tester) async {
+    await pumpGolden(
+      tester,
+      const OnboardingScreen(),
+      locale: const Locale('en'),
+      overrides: overrides(),
+    );
+    await tapAndSettle(tester, find.text('Get started'));
+    await expectLater(
+      find.byType(OnboardingScreen),
+      matchesGoldenFile('goldens/onboarding_permissions_english.png'),
     );
   });
 

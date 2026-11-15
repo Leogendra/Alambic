@@ -89,7 +89,7 @@ class _PresetTile extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      preset.name,
+                      strings.presetName(preset),
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,

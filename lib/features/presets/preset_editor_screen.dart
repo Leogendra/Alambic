@@ -11,6 +11,7 @@ import '../../app/widgets/section_label.dart';
 import '../../app/widgets/segment_option.dart';
 import '../../app/widgets/segmented_choice.dart';
 import '../../app/widgets/surface_panel.dart';
+import '../../app/formatting/preset_labels.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../domain/presets/failure_behavior.dart';
 import '../../domain/presets/grouped_reminder_action.dart';
@@ -37,11 +38,20 @@ class PresetEditorScreen extends ConsumerStatefulWidget {
 
 class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
   late Preset _draft = widget.initialPreset;
-  late final TextEditingController _nameController = TextEditingController(
-    text: widget.initialPreset.name,
-  );
+  final TextEditingController _nameController = TextEditingController();
 
   bool get _isStored => _draft.id != 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // A shipped preset shows its name in the language of the interface. The
+    // draft keeps the stored name until the field is edited.
+    if (_nameController.text.isEmpty) {
+      _nameController.text = AppLocalizations.of(context)
+          .presetName(widget.initialPreset);
+    }
+  }
 
   @override
   void dispose() {
@@ -57,7 +67,7 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
     final strings = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(_draft.name),
+        title: Text(strings.presetName(_draft)),
         actions: [
           if (_isStored)
             IconButton(
@@ -394,7 +404,7 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
 
   Future<void> _duplicate() async {
     final strings = AppLocalizations.of(context);
-    final copyName = strings.presetCopyName(_draft.name);
+    final copyName = strings.presetCopyName(strings.presetName(_draft));
     final service = ref.read(presetServiceProvider);
     final copyId = await service.duplicate(_draft, copyName);
     if (!mounted) {

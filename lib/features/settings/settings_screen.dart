@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
+import '../../app/formatting/preset_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
@@ -76,7 +77,10 @@ class _RepetitionPanel extends ConsumerWidget {
         PanelRow(
           title: strings.settingsGlobalPreset,
           subtitle: strings.settingsGlobalPresetHint,
-          trailing: Text(catalog?.globalPreset.name ?? '', style: valueStyle),
+          trailing: Text(
+            catalog == null ? '' : strings.presetName(catalog.globalPreset),
+            style: valueStyle,
+          ),
           onTap: catalog == null
               ? null
               : () async {

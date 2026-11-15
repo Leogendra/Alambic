@@ -33,7 +33,7 @@ Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so
 
 ## Conventions
 
-- Code, comments and documentation in English. Interface texts are French first, English arriving through the ARB files.
+- Code, comments and documentation in English. Interface texts are written in French first, in `app_fr.arb`, then translated in `app_en.arb`; a test fails when a text is missing from one of them.
 - Official Dart style (`dart format`, two-space indentation) and the `flutter_lints` lints, extended in `analysis_options.yaml`. The `.editorconfig` carries these rules to other editors.
 - One class, enum or type per file, named after it.
 - The domain (`lib/domain/`) is pure Dart: it imports neither Flutter, nor drift, nor any plugin. The current time is always passed in as a parameter.

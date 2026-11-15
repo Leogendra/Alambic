@@ -10,7 +10,7 @@ Infrastructure with no functional requirement of its own: the Flutter project `f
 
 The app starts on `AlambicApp`, which applies the theme and the language chosen in Settings (see [Language and theme](#language-and-theme)). The root screen is a shell with four tabs (Home, Groups, Statistics, Settings) and a floating "+" button that creates a card.
 
-The theme starts from a Material 3 `ColorScheme` built on the `#1447FF` accent, then overrides it with the mockup colours. Colours with no Material equivalent (segment background, colours of the "Again" button, secondary and tertiary text) are carried by the `AlambicColors` theme extension, read by screens with `AlambicColors.of(context)`. Each token has a light and a dark value, taken from the mockup.
+The theme starts from a Material 3 `ColorScheme` built on the `#1052d5` accent, then overrides it with the mockup colours. Colours with no Material equivalent (segment background, colours of the "Again" button, secondary and tertiary text) are carried by the `AlambicColors` theme extension, read by screens with `AlambicColors.of(context)`. Each token has a light and a dark value, taken from the mockup.
 
 The DM Sans font is bundled as static weights (400, 500, 600, 700) rather than as a variable font. Flutter does not apply the weight axis of a variable font by itself, whereas it picks the right static file from `fontWeight`.
 
@@ -45,7 +45,7 @@ When the database is created, the Standard, Intensive and Adaptive presets are i
 
 - [x] The Android identifier is `fr.gatienh.alambic` and the displayed name is "Alambic".
 - [x] Dependency versions are pinned exactly in `pubspec.yaml` and `pubspec.lock`.
-- [x] The app follows the light or dark theme of the phone, or the one chosen in Settings, in DM Sans with the `#1447FF` accent.
+- [x] The app follows the light or dark theme of the phone, or the one chosen in Settings, in DM Sans with the `#1052d5` accent.
 - [x] The app and its notifications speak French or English, from the phone language or the choice in Settings.
 - [x] The main navigation shows four tabs and a "+" button.
 - [x] A fresh database contains the Standard, Intensive and Adaptive presets, Standard being the global preset.

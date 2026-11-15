@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'alambic_colors.dart';
 
-/// Material 3 themes built on the "hybride" tokens: DM Sans, accent #1447FF.
+/// Material 3 themes built on the "hybride" tokens: DM Sans, accent #1052d5.
 abstract final class AlambicTheme {
   static const String fontFamily = 'DM Sans';
 

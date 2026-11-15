@@ -1067,5 +1067,29 @@
   "globalDistillationLaunch": "Lancer la distillation globale",
   "globalDistillationInProgress": "La distillation globale introduit les nouvelles cartes de tous les groupes. Arrête-la pour en lancer une autre.",
   "distillBlockedByGlobal": "La distillation globale est en cours : elle introduit déjà les nouvelles cartes de tous les groupes. Arrête-la pour distiller ce groupe.",
-  "groupDistillationGlobal": "La distillation globale en cours introduit aussi les nouvelles cartes de ce groupe."
+  "groupDistillationGlobal": "La distillation globale en cours introduit aussi les nouvelles cartes de ce groupe.",
+  "settingsDataSection": "Données",
+  "backupExport": "Exporter les données",
+  "backupExportHint": "Un fichier .zip avec les cartes, l'historique, les réglages et les images",
+  "backupExportDone": "Export enregistré",
+  "backupImport": "Importer des données",
+  "backupImportHint": "Remplace toutes les données actuelles par celles d'un fichier .zip",
+  "backupImportConfirmTitle": "Remplacer toutes les données ?",
+  "backupImportConfirmBody": "Ce fichier contient {cards, plural, =1{1 carte} other{{cards} cartes}} dans {groups, plural, =1{1 groupe} other{{groups} groupes}}. Toutes les données actuelles (cartes, historique, presets, réglages) seront remplacées, sans retour possible.",
+  "@backupImportConfirmBody": {
+    "placeholders": {
+      "cards": {
+        "type": "int"
+      },
+      "groups": {
+        "type": "int"
+      }
+    }
+  },
+  "backupImportConfirm": "Remplacer",
+  "backupImportDone": "Données importées",
+  "backupNotABackup": "Ce fichier n'est pas une sauvegarde d'Alambic.",
+  "backupIncompatibleVersion": "Cette sauvegarde vient d'une version d'Alambic que celle-ci ne sait pas lire.",
+  "backupCorrupted": "Cette sauvegarde est endommagée ou incomplète.",
+  "backupFailed": "L'opération a échoué. Tes données n'ont pas été modifiées."
 }

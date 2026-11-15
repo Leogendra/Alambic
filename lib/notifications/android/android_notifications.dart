@@ -34,7 +34,7 @@ abstract final class AndroidNotifications {
   static Future<void> initialize() async {
     await AndroidAlarmManager.initialize();
     await _plugin.initialize(
-      settings: const AndroidInitializationSettings('@mipmap/ic_launcher'),
+      settings: const AndroidInitializationSettings('@drawable/ic_notification'),
       onDidReceiveNotificationResponse: _onOpened,
       onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
     );

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from assets/branding/icon.svg at 2026-11-15 22:52:36. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="84" android:viewportHeight="84">
+    <group android:translateX="-8.25" android:translateY="-8">
+        <path android:fillColor="#FFFFFF" android:fillAlpha="0.2"
+            android:pathData="M10.5,50a4.5,4.5 0,1 0,9 0a4.5,4.5 0,1 0,-9 0Z"/>
+        <path android:fillColor="#FFFFFF" android:fillAlpha="0.4"
+            android:pathData="M21.5,50a6.5,6.5 0,1 0,13 0a6.5,6.5 0,1 0,-13 0Z"/>
+        <path android:fillColor="#FFFFFF" android:fillAlpha="0.7"
+            android:pathData="M39,50a9,9 0,1 0,18 0a9,9 0,1 0,-18 0Z"/>
+        <path android:fillColor="#FFFFFF"
+            android:pathData="M66,50a12,12 0,1 0,24 0a12,12 0,1 0,-24 0Z"/>
+    </group>
+</vector>

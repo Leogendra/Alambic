@@ -65,45 +65,13 @@ class AlambicDatabase extends _$AlambicDatabase {
   );
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (migrator) async {
       await migrator.createAll();
       await _seedBuiltInPresets();
-    },
-    onUpgrade: (migrator, from, to) async {
-      if (from < 2) {
-        await migrator.createTable(distillations);
-        await migrator.addColumn(cardDirections, cardDirections.distillationId);
-        await migrator.addColumn(cardDirections, cardDirections.queuePosition);
-      }
-      if (from < 3) {
-        for (final column in [
-          appSettings.dailyNotificationCap,
-          appSettings.quietHoursEnabled,
-          appSettings.quietStart,
-          appSettings.quietEnd,
-          appSettings.autoGroupEnabled,
-          appSettings.autoGroupThreshold,
-          appSettings.notifiedDay,
-          appSettings.notifiedCount,
-        ]) {
-          await migrator.addColumn(appSettings, column);
-        }
-      }
-      if (from < 4) {
-        await migrator.addColumn(cardGroups, cardGroups.pausedAt);
-        await migrator.addColumn(appSettings, appSettings.pausedAt);
-      }
-      if (from < 5) {
-        await migrator.addColumn(cardDirections, cardDirections.stability);
-        await migrator.addColumn(cardDirections, cardDirections.difficulty);
-        await migrator.addColumn(reviewRecords, reviewRecords.dueAtAfter);
-        await into(presets)
-            .insert(PresetCompanions.forInsert(BuiltInPresets.adaptive));
-      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

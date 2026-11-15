@@ -24,11 +24,11 @@ The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_set
 - deleting a group deletes its cards, and with them their directions and history, and its distillations;
 - deleting a distillation releases its directions: a pending one stays pending, outside any queue.
 
-The schema is versioned. Each version bump comes with an upgrade step in `AlambicDatabase.migration`, so that an installed app keeps its data; version 2 added the distillations, version 3 the notification safeguards, version 4 the pauses, version 5 the FSRS memory of the directions, the due date given by each answer and the Adaptive preset.
+The schema is at version 1 and has no upgrade step: until the app has users, a schema change is installed over cleared app data (`adb shell pm clear fr.gatienh.alambic`) rather than migrated. Once real data must survive an update, each version bump comes with an upgrade step in `AlambicDatabase.migration`.
 
 The global preset lives in the database rather than in the preferences, because it is part of the review data: it must be readable from background tasks and travel with the export.
 
-When the database is created, the Standard and Intensive presets are inserted and Standard becomes the global preset. The connection is shared between isolates (`shareAcrossIsolates`): an answer given from a notification, handled in a background isolate, refreshes the screens of the open app.
+When the database is created, the Standard, Intensive and Adaptive presets are inserted and Standard becomes the global preset. The connection is shared between isolates (`shareAcrossIsolates`): an answer given from a notification, handled in a background isolate, refreshes the screens of the open app.
 
 ## Acceptance criteria
 
@@ -36,15 +36,13 @@ When the database is created, the Standard and Intensive presets are inserted an
 - [x] Dependency versions are pinned exactly in `pubspec.yaml` and `pubspec.lock`.
 - [x] The app follows the system light or dark theme, in DM Sans with the `#1447FF` accent.
 - [x] The main navigation shows four tabs and a "+" button.
-- [x] A fresh database contains the Standard and Intensive presets, Standard being the global preset.
+- [x] A fresh database contains the Standard, Intensive and Adaptive presets, Standard being the global preset.
 - [x] Deleting a group deletes its cards; deleting a card deletes its directions and their history.
-- [x] A database created by an earlier version is upgraded on opening, its data kept.
 
 ## Test strategy
 
 - The shell is covered by golden tests, in light and dark theme, at the size of the mockup screens (390 × 844).
 - The schema is tested on a real, not mocked, in-memory SQLite database: initial content and cascading deletion rules.
-- Each upgrade is tested from a fixture holding the SQL of the previous version with a little data (`test/data/fixtures/`): the database opened over it must keep that data.
 - Golden tests load the real fonts (DM Sans and the Material icons); otherwise text would render as blocks and the images would not show the typography.
 
 ## File mapping

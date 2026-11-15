@@ -20,7 +20,7 @@ Either button of the last screen marks the onboarding as done and opens the tabs
 
 ### Interface preferences
 
-The preferences of the interface on this phone (whether the onboarding was done) live in shared_preferences, not in the database: they are not part of the review data and stay out of the export ([Feature 9](9-backup.md)). They are loaded once by the entry point and then held by a Riverpod notifier, which saves each change.
+The preferences of the interface on this phone (whether the onboarding was done, the [language and the theme](0-foundation.md#language-and-theme)) live in shared_preferences, not in the database: they are not part of the review data and stay out of the export ([Feature 9](9-backup.md)). They are loaded once by the entry point, and by each background task for the language of the notifications, then held by a Riverpod notifier, which saves each change.
 
 ## Acceptance criteria
 

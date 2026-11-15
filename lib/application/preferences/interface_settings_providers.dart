@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 
 import '../../data/preferences/interface_settings.dart';
 import '../../data/preferences/interface_settings_store.dart';
@@ -22,3 +23,13 @@ final interfaceSettingsProvider =
     NotifierProvider<InterfaceSettingsController, InterfaceSettings>(
       InterfaceSettingsController.new,
     );
+
+/// Loads the preferences from [store] and gives them to the providers above.
+/// Used by the app entry point and by each background task, which have no
+/// other way to know the language of the notifications.
+Future<List<Override>> interfaceSettingsOverrides(
+  InterfaceSettingsStore store,
+) async => [
+  interfaceSettingsStoreProvider.overrideWithValue(store),
+  initialInterfaceSettingsProvider.overrideWithValue(await store.load()),
+];

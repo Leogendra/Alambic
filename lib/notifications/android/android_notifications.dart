@@ -3,13 +3,17 @@ import 'dart:ui';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 
+import '../../app/app_locale.dart';
 import '../../application/clock.dart';
 import '../../application/notifications/notification_providers.dart';
 import '../../application/notifications/notification_target.dart';
+import '../../application/preferences/interface_settings_providers.dart';
 import '../../application/scheduling/scheduling_providers.dart';
 import '../../data/data_providers.dart';
+import '../../data/preferences/language_choice.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../review_texts.dart';
 import '../shared_preferences_alarm_store.dart';
@@ -67,7 +71,14 @@ abstract final class AndroidNotifications {
     notificationPresenterProvider.overrideWith(
       (ref) => AndroidNotificationPresenter(
         _plugin,
-        ReviewTexts(_strings(), ref.watch(schedulingCalendarProvider)),
+        ReviewTexts(
+          _strings(
+            ref.watch(
+              interfaceSettingsProvider.select((settings) => settings.language),
+            ),
+          ),
+          ref.watch(schedulingCalendarProvider),
+        ),
         ref.watch(imageStoreProvider),
       ),
     ),
@@ -78,15 +89,10 @@ abstract final class AndroidNotifications {
     notificationTargetsProvider.overrideWithValue(_openedTargets()),
   ];
 
-  /// Texts in the language of the phone when the app has it, English
-  /// otherwise. Background tasks have no widget tree to read it from.
-  static AppLocalizations _strings() {
-    final locale = PlatformDispatcher.instance.locale;
-    final supported = AppLocalizations.supportedLocales.any(
-      (candidate) => candidate.languageCode == locale.languageCode,
-    );
-    return lookupAppLocalizations(
-      supported ? Locale(locale.languageCode) : const Locale('en'),
-    );
-  }
+  /// Texts in the language chosen in Settings, resolved like the screens.
+  /// Background tasks have no widget tree to read it from.
+  static AppLocalizations _strings(LanguageChoice language) =>
+      lookupAppLocalizations(
+        AppLocale.resolve(language, PlatformDispatcher.instance.locale),
+      );
 }

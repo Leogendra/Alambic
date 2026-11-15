@@ -29,5 +29,6 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.
 - Export and import from Settings: all the cards, their history, the presets, the settings and the images in a single zip file saved where you choose. Importing a file replaces all the current data after a confirmation; a file that is not a valid backup is refused without changing anything.
 - Welcome screens on the first launch: the principle of the app, the notification and exact alarm permissions with the reminder time, and a first card started at once. The notification permission is no longer asked at every launch.
-- English translation of the whole app, notifications included, chosen from the language of the phone. The shipped presets are named in the language of the interface until they are renamed.
+- English translation of the whole app, notifications included.
+- Language and theme in Settings: the app follows the phone by default, or stays in French or English, light or dark. A phone in another language gets English. The shipped presets are named in the language of the interface until they are renamed.
 - App icon on the home screen, following the phone's icon shape and its themed icons, and in the notifications' status bar.

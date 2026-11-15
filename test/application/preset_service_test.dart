@@ -5,6 +5,7 @@ import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/presets/interval_unit.dart';
 import 'package:alambic/domain/presets/preset_interval.dart';
+import 'package:alambic/domain/presets/schedule_kind.dart';
 import 'package:alambic/domain/presets/scheduling_engine_kind.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
 
@@ -82,4 +83,21 @@ void main() {
       isPositive,
     );
   });
+
+  test(
+    'the onboarding time moves every preset notified at a fixed time',
+    () async {
+      final range = await service.save(
+        service
+            .newDraft('Plage')
+            .copyWith(scheduleKind: ScheduleKind.timeRange),
+      );
+      await service.setFixedTimeOfAll(const ClockTime(8, 30));
+      final all = await presets.watchAll().first;
+      for (final preset in all.where((preset) => preset.id != range)) {
+        expect(preset.fixedTime, const ClockTime(8, 30));
+      }
+      expect((await presets.getById(range)).fixedTime, const ClockTime(12, 0));
+    },
+  );
 }

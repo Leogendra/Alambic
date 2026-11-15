@@ -112,7 +112,7 @@ Exact alarms need a permission that Android 14 refuses by default. Without it, w
 
 Wake-ups survive a restart of the phone: the alarm plugin restores them at boot, and a wake-up whose moment passed while the phone was off fires right away, showing what is less than an hour late. Every launch of the app also schedules all wake-ups again, since a force-stop loses them.
 
-The notification permission of Android 13 is asked at launch until the onboarding takes it over.
+The notification permission of Android 13 and exact alarms are both asked on the second welcome screen ([Feature 10](10-onboarding.md)). A user who refused can still allow exact alarms from Settings, and notifications from the system settings of the app.
 
 ## Acceptance criteria
 
@@ -158,7 +158,7 @@ The notification permission of Android 13 is asked at launch until the onboardin
 - `lib/domain/pauses/`, `lib/application/pauses/`, `lib/data/repositories/pause_repository.dart` — the pauses, their shift on resume, their service and storage.
 - `lib/features/pauses/paused_banner.dart` — "En pause depuis le …" with "Reprendre", on Home and on a group page.
 - `lib/app/shell/main_shell.dart` — opens the group of a grouped reminder touched in the notifications.
-- `lib/main.dart` — initialisation, permission request and planning at launch.
+- `lib/main.dart` — initialisation and planning at launch.
 
 ## Technical details
 

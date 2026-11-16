@@ -50,7 +50,7 @@ class AnswerButtons extends ConsumerWidget {
           label: strings.reviewCorrect,
           hint: hint(preview?.correct),
           background: colors.accent,
-          foreground: Colors.white,
+          foreground: colors.onAccent,
           onPressed: () => onAnswer(ReviewOutcome.correct),
         ),
       ],

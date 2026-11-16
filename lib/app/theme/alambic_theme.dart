@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'alambic_colors.dart';
 
-/// Material 3 themes built on the "hybride" tokens: DM Sans, accent #1052d5.
+/// Material 3 themes built on the "hybride à plat" tokens: DM Sans, flat
+/// surfaces with 1 px borders, no shadow.
 abstract final class AlambicTheme {
   static const String fontFamily = 'DM Sans';
 
@@ -11,67 +12,147 @@ abstract final class AlambicTheme {
   static ThemeData dark() => _build(Brightness.dark, AlambicColors.dark);
 
   static ThemeData _build(Brightness brightness, AlambicColors colors) {
-    final colorScheme =
-        ColorScheme.fromSeed(
-          seedColor: colors.accent,
-          brightness: brightness,
-        ).copyWith(
-          primary: colors.accent,
-          onPrimary: Colors.white,
-          surface: colors.background,
-          onSurface: colors.textPrimary,
-          onSurfaceVariant: colors.textSecondary,
-          surfaceContainerLowest: colors.surface,
-          surfaceContainerLow: colors.surface,
-          surfaceContainer: colors.surface,
-          outline: colors.border,
-          outlineVariant: colors.divider,
-          secondaryContainer: colors.accentTint,
-          onSecondaryContainer: colors.accentText,
-        );
     final base = ThemeData(
       useMaterial3: true,
       brightness: brightness,
-      colorScheme: colorScheme,
+      colorScheme: _colorScheme(brightness, colors),
       fontFamily: fontFamily,
       scaffoldBackgroundColor: colors.background,
       extensions: [colors],
     );
     return base.copyWith(
       textTheme: _textTheme(base.textTheme, colors),
-      appBarTheme: AppBarTheme(
-        backgroundColor: colors.background,
-        foregroundColor: colors.textPrimary,
+      appBarTheme: _appBarTheme(colors),
+      navigationBarTheme: _navigationBarTheme(colors),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: colors.accent,
+        foregroundColor: colors.onAccent,
+        elevation: 0,
+        focusElevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+      filledButtonTheme: _filledButtonTheme(colors),
+      inputDecorationTheme: _inputDecorationTheme(colors),
+      dividerTheme: DividerThemeData(color: colors.divider, space: 1),
+      switchTheme: _switchTheme(colors),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: colors.accent,
+        linearTrackColor: colors.well,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        scrolledUnderElevation: 0,
-        titleTextStyle: TextStyle(
-          fontFamily: fontFamily,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: colors.textPrimary,
+        shape: _outlinedShape(colors, 24),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: colors.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        modalElevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          side: BorderSide(color: colors.border),
         ),
       ),
-      navigationBarTheme: NavigationBarThemeData(
+      popupMenuTheme: PopupMenuThemeData(
+        color: colors.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: _outlinedShape(colors, 14),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: colors.surfaceRaised,
+        contentTextStyle: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 14,
+          color: colors.textPrimary,
+        ),
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+        shape: _outlinedShape(colors, 14),
+      ),
+    );
+  }
+
+  static ColorScheme _colorScheme(
+    Brightness brightness,
+    AlambicColors colors,
+  ) => ColorScheme.fromSeed(seedColor: colors.accent, brightness: brightness)
+      .copyWith(
+        primary: colors.accent,
+        onPrimary: colors.onAccent,
+        surface: colors.background,
+        onSurface: colors.textPrimary,
+        onSurfaceVariant: colors.textSecondary,
+        surfaceContainerLowest: colors.surface,
+        surfaceContainerLow: colors.surface,
+        surfaceContainer: colors.surface,
+        surfaceContainerHigh: colors.surface,
+        surfaceContainerHighest: colors.surfaceRaised,
+        outline: colors.border,
+        outlineVariant: colors.divider,
+        secondaryContainer: colors.accentTint,
+        onSecondaryContainer: colors.accentText,
+        shadow: Colors.transparent,
+      );
+
+  static RoundedRectangleBorder _outlinedShape(
+    AlambicColors colors,
+    double radius,
+  ) => RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(radius),
+    side: BorderSide(color: colors.border),
+  );
+
+  static AppBarTheme _appBarTheme(AlambicColors colors) => AppBarTheme(
+    backgroundColor: colors.background,
+    foregroundColor: colors.textPrimary,
+    surfaceTintColor: Colors.transparent,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+    titleTextStyle: TextStyle(
+      fontFamily: fontFamily,
+      fontSize: 20,
+      fontWeight: FontWeight.w600,
+      color: colors.textPrimary,
+    ),
+  );
+
+  static NavigationBarThemeData _navigationBarTheme(AlambicColors colors) =>
+      NavigationBarThemeData(
         backgroundColor: colors.surface,
         indicatorColor: colors.accentTint,
         surfaceTintColor: Colors.transparent,
-        labelTextStyle: WidgetStatePropertyAll(
-          TextStyle(
-            fontFamily: fontFamily,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: colors.textTertiary,
+        elevation: 0,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? colors.accentText
+                : colors.textSecondary,
           ),
         ),
-      ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: colors.accent,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontFamily: fontFamily,
+            fontSize: 12,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
+            color: states.contains(WidgetState.selected)
+                ? colors.textPrimary
+                : colors.textSecondary,
+          ),
+        ),
+      );
+
+  static FilledButtonThemeData _filledButtonTheme(AlambicColors colors) =>
+      FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          backgroundColor: colors.accent,
+          foregroundColor: colors.onAccent,
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
@@ -82,31 +163,35 @@ abstract final class AlambicTheme {
             fontWeight: FontWeight.w600,
           ),
         ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: colors.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colors.border),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colors.border),
-        ),
-      ),
-      dividerTheme: DividerThemeData(color: colors.divider, space: 1),
-      switchTheme: SwitchThemeData(
-        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
-        thumbColor: const WidgetStatePropertyAll(Colors.white),
-        trackColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? colors.accent
-              : colors.segmentBackground,
-        ),
-      ),
+      );
+
+  static InputDecorationTheme _inputDecorationTheme(AlambicColors colors) {
+    OutlineInputBorder outline(Color color) => OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: color),
+    );
+    return InputDecorationTheme(
+      filled: true,
+      fillColor: colors.well,
+      hintStyle: TextStyle(color: colors.textSecondary),
+      border: outline(colors.border),
+      enabledBorder: outline(colors.border),
+      focusedBorder: outline(colors.accentText),
     );
   }
+
+  static SwitchThemeData _switchTheme(AlambicColors colors) => SwitchThemeData(
+    thumbColor: WidgetStatePropertyAll(colors.onAccent),
+    trackColor: WidgetStateProperty.resolveWith(
+      (states) =>
+          states.contains(WidgetState.selected) ? colors.accent : colors.well,
+    ),
+    trackOutlineColor: WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.selected)
+          ? Colors.transparent
+          : colors.border,
+    ),
+  );
 
   static TextTheme _textTheme(TextTheme base, AlambicColors colors) =>
       base.apply(

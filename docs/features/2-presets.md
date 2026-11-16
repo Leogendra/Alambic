@@ -61,7 +61,7 @@ When the new preset has the other engine, the progression starts over: each engi
 - Keeping the step and the due date is checked on the stored data after the change, not on an in-memory object.
 - The engine change is tested both ways through the review service: the answer after the change is a first answer, the due date and the history stay; the card sheet of such a card is covered by a golden test.
 - Creation, editing, duplication and refusal of an invalid preset are tested through the service, on an in-memory database.
-- The list and the editor are covered by golden tests on the shipped presets.
+- The list and the editor are covered by golden tests on the shipped presets, the editor in light and dark theme.
 
 ## File mapping
 

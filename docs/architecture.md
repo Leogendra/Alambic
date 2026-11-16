@@ -13,7 +13,7 @@ The code is split into layers, from the most stable to the most platform-depende
 - `lib/application/` holds the services that apply domain rules to the data (create a card, answer, duplicate a preset) and the Riverpod providers that expose them. The clock (`clockProvider`) is injected here.
 - `lib/notifications/` is the platform side of the notifications: the Android implementation of the alarm and notification interfaces owned by `lib/application/notifications/`, the texts of a notification, and the entry points of the background isolates. It is the only place that imports the alarm and notification plugins, so iOS can be added as a second implementation. See [Feature 7](features/7-notifications.md).
 - `lib/features/` holds the screens, one folder per screen or family of screens (onboarding, home, groups, cards, session, presets, settings). They read state through providers and act only through services.
-- `lib/app/` is the app shell (`AlambicApp`, tabs, "+" button), the theme, the shared widgets that reproduce the mockup components, and text formatting (intervals, presets). See [Feature 0](features/0-foundation.md).
+- `lib/app/` is the app shell (`AlambicApp`, tabs, "+" button), the theme, the shared widgets that reproduce the mockup components, the margins that keep content clear of the system bars, and text formatting (intervals, presets). See [Feature 0](features/0-foundation.md).
 - `lib/l10n/` holds the interface texts, as ARB files.
 
 ## How the pieces fit

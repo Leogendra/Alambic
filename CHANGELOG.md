@@ -33,3 +33,12 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - English translation of the whole app, notifications included.
 - Language and theme in Settings: the app follows the phone by default, or stays in French or English, light or dark. A phone in another language gets English. The shipped presets are named in the language of the interface until they are renamed.
 - App icon on the home screen, following the phone's icon shape and its themed icons, and in the notifications' status bar.
+
+### Changed
+
+- Sharper dark theme: a darker background, lighter cards and a brighter blue, so cards stand out and the selected option of a choice is clearly visible. Both themes are flat, with outlines instead of shadows.
+- Settings rows show their value in grey with an arrow when they open something, and lists where one option is chosen (preset, group, language, theme) highlight it with a blue outline.
+
+### Fixed
+
+- The Android navigation bar no longer hides the end of a screen: every list can be scrolled above it, and the bulk add button stays visible above the keyboard.

@@ -24,7 +24,7 @@ class GroupSummaryTile extends StatelessWidget {
     final colors = AlambicColors.of(context);
     final cards = strings.cardCount(summary.cardCount);
     final group = summary.group;
-    final paused = group?.isPaused ?? false;
+    final paused = group.isPaused;
     return Material(
       color: colors.surface,
       shape: RoundedRectangleBorder(
@@ -44,7 +44,7 @@ class GroupSummaryTile extends StatelessWidget {
                   spacing: 2,
                   children: [
                     Text(
-                      group?.name ?? strings.noGroup,
+                      group.name,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -52,14 +52,12 @@ class GroupSummaryTile extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      switch (group) {
-                        null => strings.noGroupLine(cards),
-                        _ when paused => strings.groupLinePaused(cards),
-                        _ => strings.groupLine(
-                          cards,
-                          strings.presetName(summary.preset),
-                        ),
-                      },
+                      paused
+                          ? strings.groupLinePaused(cards)
+                          : strings.groupLine(
+                              cards,
+                              strings.presetName(summary.preset),
+                            ),
                       style: TextStyle(
                         fontSize: 13,
                         color: colors.textSecondary,

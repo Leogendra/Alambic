@@ -1,9 +1,8 @@
-/// Identifies the grouped reminder of a group, or of "No group" when
-/// [groupId] is `null`.
+/// Identifies the grouped reminder of a group.
 class GroupReminderKey {
   const GroupReminderKey(this.groupId);
 
-  final int? groupId;
+  final int groupId;
 
   @override
   bool operator ==(Object other) =>

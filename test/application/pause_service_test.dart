@@ -7,7 +7,6 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
@@ -42,12 +41,18 @@ void main() {
     await harness.read(notificationDispatcherProvider).dispatchDue();
   }
 
-  /// Due date of each direction of a group, keyed "front sense".
-  Future<Map<String, DateTime?>> dueDates(int? groupId) async => {
-    for (final card in await CardRepository(database).getCardsOfGroup(groupId))
-      for (final direction in card.directions)
-        '${card.card.frontText} ${direction.sense.name}': direction.dueAt,
-  };
+  /// Due date of each card of a group, or of every card without
+  /// [groupId], keyed by front.
+  Future<Map<String, DateTime?>> dueDates([int? groupId]) async {
+    final cards = CardRepository(database);
+    return {
+      for (final card
+          in groupId == null
+              ? await cards.getAll()
+              : await cards.getCardsOfGroup(groupId))
+        card.frontText!: card.dueAt,
+    };
+  }
 
   group('a paused group', () {
     test('is not notified, the other groups are', () async {
@@ -67,7 +72,7 @@ void main() {
       harness.clock.now = DateTime(2026, 11, 11, 9);
       final mongolia = (await CardRepository(
         database,
-      ).getCardsOfGroup(capitals)).first.direction(DirectionSense.frontToBack)!;
+      ).getCardsOfGroup(capitals)).first;
       await harness
           .read(reviewServiceProvider)
           .answer(
@@ -75,18 +80,17 @@ void main() {
             ReviewOutcome.correct,
             source: ReviewSource.session,
           );
-      final answered = (await dueDates(capitals))['Mongolie frontToBack'];
+      final answered = (await dueDates(capitals))['Mongolie'];
       harness.clock.now = DateTime(2026, 11, 14, 9);
       await harness.read(pauseServiceProvider).resumeGroup(capitals);
       final after = await dueDates(capitals);
-      expect(after['Mongolie frontToBack'], answered);
-      expect(after['Laos frontToBack'], DateTime(2026, 11, 14, 12));
+      expect(after['Mongolie'], answered);
+      expect(before['Laos'], DateTime(2026, 11, 10, 12));
       expect(
-        after['Pérou backToFront'],
-        DateTime(2026, 11, 15, 12),
-        reason: 'due on the 11th, shifted by 4 days',
+        after['Laos'],
+        DateTime(2026, 11, 14, 12),
+        reason: 'due on the 10th, shifted by 4 days',
       );
-      expect(before['Pérou backToFront'], DateTime(2026, 11, 11, 12));
       expect((await PauseRepository(database).loadPauses()).groupsSince, {});
     });
 
@@ -98,11 +102,7 @@ void main() {
       }
       await harness
           .read(distillationServiceProvider)
-          .launchForGroup(
-            verbs,
-            DirectionSense.frontToBack,
-            const DistillationSettings(avoidCollisions: false),
-          );
+          .activate(verbs, const DistillationSettings(avoidCollisions: false));
       await harness.read(pauseServiceProvider).pauseGroup(verbs);
       harness.clock.now = DateTime(2026, 11, 11, 9);
       await harness.read(distillationServiceProvider).advance();
@@ -110,8 +110,7 @@ void main() {
         for (final card in await CardRepository(
           database,
         ).getCardsOfGroup(verbs))
-          if (card.direction(DirectionSense.frontToBack)!.isScheduled)
-            card.card.frontText,
+          if (card.isScheduled) card.frontText,
       ];
       expect(await introduced(), ['être']);
       await harness.read(pauseServiceProvider).resumeGroup(verbs);
@@ -127,10 +126,7 @@ void main() {
       expect(harness.presenter.prompts, isEmpty);
       harness.clock.now = DateTime(2026, 11, 12, 9);
       await harness.read(pauseServiceProvider).resumeAll();
-      expect(
-        (await dueDates(null))['Mitochondrie frontToBack'],
-        DateTime(2026, 11, 12, 12),
-      );
+      expect((await dueDates())['Mitochondrie'], DateTime(2026, 11, 12, 12));
       await dispatchAt(DateTime(2026, 11, 12, 12));
       expect(harness.presenter.prompts, hasLength(7));
     });
@@ -146,10 +142,7 @@ void main() {
         expect(await dueDates(capitals), before);
         harness.clock.now = DateTime(2026, 11, 13, 9);
         await harness.read(pauseServiceProvider).resumeGroup(capitals);
-        expect(
-          (await dueDates(capitals))['Laos frontToBack'],
-          DateTime(2026, 11, 13, 12),
-        );
+        expect((await dueDates(capitals))['Laos'], DateTime(2026, 11, 13, 12));
       },
     );
   });

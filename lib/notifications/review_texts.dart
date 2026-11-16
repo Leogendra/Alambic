@@ -4,7 +4,8 @@ import '../application/notifications/answer_reveal.dart';
 import '../application/notifications/group_reminder.dart';
 import '../application/notifications/notification_digest.dart';
 import '../application/notifications/review_prompt.dart';
-import '../domain/scheduling/direction_progress.dart';
+import '../domain/cards/card_side.dart';
+import '../domain/scheduling/card_progress.dart';
 import '../domain/reviews/typed_answer_match.dart';
 import '../domain/scheduling/scheduling_calendar.dart';
 import '../l10n/generated/app_localizations.dart';
@@ -36,7 +37,7 @@ class ReviewTexts {
         strings.intervalDays(intervalDays),
       ),
     };
-    return prompt.isReverse
+    return prompt.askedSide == CardSide.back
         ? '${strings.sessionReverseBadge} · $position'
         : position;
   }
@@ -44,7 +45,7 @@ class ReviewTexts {
   /// The group, and the cards left when the card is chained in a grouped
   /// reminder: "Capitales · 3 à réviser".
   String groupLabel(ReviewPrompt prompt) {
-    final group = prompt.groupName ?? strings.noGroup;
+    final group = prompt.groupName;
     final remaining = prompt.chainRemaining;
     return remaining == null
         ? group
@@ -53,10 +54,7 @@ class ReviewTexts {
 
   /// "Capitales : 5 cartes à réviser".
   String groupReminderTitle(GroupReminder reminder) =>
-      strings.notificationGroupTitle(
-        reminder.groupName ?? strings.noGroup,
-        reminder.count,
-      );
+      strings.notificationGroupTitle(reminder.groupName, reminder.count);
 
   /// "Environ 3 min".
   String groupReminderDetail(GroupReminder reminder) =>
@@ -68,9 +66,7 @@ class ReviewTexts {
 
   /// "Capitales, Espagnol · Environ 6 min".
   String digestDetail(NotificationDigest digest) {
-    final groups = digest.groupNames
-        .map((name) => name ?? strings.noGroup)
-        .join(', ');
+    final groups = digest.groupNames.join(', ');
     return '$groups · ${strings.reviewDuration(digest.count)}';
   }
 

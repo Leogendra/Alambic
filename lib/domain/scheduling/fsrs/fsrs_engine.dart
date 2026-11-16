@@ -30,7 +30,7 @@ abstract final class FsrsEngine {
   static const double _minimumStability = 0.01;
 
   /// Memory after an answer rated [rating], given [elapsedDays] since the
-  /// previous answer. A direction without [memory] is answered for the first
+  /// previous answer. A card without [memory] is answered for the first
   /// time.
   static FsrsMemory answer({
     required FsrsMemory? memory,

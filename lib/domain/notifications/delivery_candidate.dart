@@ -1,18 +1,13 @@
-import '../cards/card_direction.dart';
+import '../cards/flashcard.dart';
 import '../presets/preset.dart';
 
-/// A scheduled direction of a card that is not suspended, with the preset
-/// deciding how it is notified.
+/// A scheduled card that is not suspended, with the preset deciding how it
+/// is notified.
 class DeliveryCandidate {
-  const DeliveryCandidate({
-    required this.direction,
-    required this.preset,
-    required this.groupId,
-  });
+  const DeliveryCandidate({required this.card, required this.preset});
 
-  final CardDirection direction;
+  final Flashcard card;
   final Preset preset;
 
-  /// `null` for a card outside any group.
-  final int? groupId;
+  int get groupId => card.groupId;
 }

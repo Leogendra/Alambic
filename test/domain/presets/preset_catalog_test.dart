@@ -2,19 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/presets/preset_catalog.dart';
 
+import '../test_cards.dart';
 import '../test_presets.dart';
 
-Flashcard card({int? groupId, int? presetId}) => Flashcard(
-  id: 1,
-  groupId: groupId,
-  frontText: 'Mongolie',
-  frontImagePath: null,
-  backText: 'Oulan-Bator',
-  backImagePath: null,
-  presetId: presetId,
-  suspended: false,
-  createdAt: DateTime(2026, 11, 10),
-);
+Flashcard card({int groupId = 12, int? presetId}) =>
+    testCard(groupId: groupId, presetId: presetId);
 
 void main() {
   final catalog = PresetCatalog(
@@ -41,6 +33,6 @@ void main() {
 
   test('gives the preset inherited by the cards of a group', () {
     expect(catalog.presetForGroup(10), intensivePreset);
-    expect(catalog.presetForGroup(null), standardPreset);
+    expect(catalog.presetForGroup(12), standardPreset);
   });
 }

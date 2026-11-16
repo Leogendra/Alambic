@@ -1,12 +1,12 @@
 /// A reminder due today from a distillation, competing for its budget.
 class BudgetedReminder {
   const BudgetedReminder({
-    required this.directionId,
+    required this.cardId,
     required this.interval,
     required this.dueAt,
   });
 
-  final int directionId;
+  final int cardId;
 
   /// Interval that led to this reminder; zero for a card introduced and not
   /// answered yet.
@@ -41,15 +41,11 @@ abstract final class CollisionBudget {
           return byInterval;
         }
         final byDue = first.dueAt.compareTo(second.dueAt);
-        return byDue != 0
-            ? byDue
-            : first.directionId.compareTo(second.directionId);
+        return byDue != 0 ? byDue : first.cardId.compareTo(second.cardId);
       });
     final kept = ranked.length < budget ? ranked.length : budget;
     return BudgetSplit(
-      postponed: [
-        for (final reminder in ranked.skip(kept)) reminder.directionId,
-      ],
+      postponed: [for (final reminder in ranked.skip(kept)) reminder.cardId],
       newCardRoom: budget - kept,
     );
   }

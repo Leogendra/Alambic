@@ -1,11 +1,11 @@
 import '../../data/repositories/card_repository.dart';
-import '../../data/repositories/card_with_directions.dart';
 import '../../data/repositories/distillation_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/notification_timing.dart';
@@ -86,25 +86,28 @@ class NotificationPlanner implements ScheduleChangeListener {
       await _presets.loadCatalog(),
       await _pauses.loadPauses(),
     );
+    final guards = await _settings.loadGuards();
     final deliveries = _deliveryPlanner.plan(
       candidates,
       now: now,
-      guards: await _settings.loadGuards(),
+      guards: guards,
       notifiedToday: await _settings.notifiedOn(
         _deliveryPlanner.calendar.dayOf(now),
       ),
     );
     final moments = [
       ...deliveries.values,
+      for (final candidate in candidates)
+        if (!deliveries[candidate.card.id]!.isAfter(now))
+          _deliveryPlanner.nextDayRetry(candidate, now: now, guards: guards),
       for (final reminder in reminders) reminder.remindAt,
       ...await _distillationPasses(now),
       // A notification moved earlier than now, when a card sharing its time
       // range left it, is shown at once.
       if (candidates.any(
         (candidate) => NotificationTiming.shouldNotify(
-          candidate.direction,
-          cardSuspended: false,
-          deliverAt: deliveries[candidate.direction.id]!,
+          candidate.card,
+          deliverAt: deliveries[candidate.card.id]!,
           now: now,
           calendar: _deliveryPlanner.calendar,
         ),
@@ -156,10 +159,7 @@ class NotificationPlanner implements ScheduleChangeListener {
   /// Counts again the cards announced today that are still due, when the
   /// notification gathering them is on screen, and closes it once none is
   /// left.
-  Future<void> _refreshDigest(
-    List<CardWithDirections> cards,
-    DateTime now,
-  ) async {
+  Future<void> _refreshDigest(List<Flashcard> cards, DateTime now) async {
     final shownCount = await _presenter.shownDigestCount();
     if (shownCount == null) {
       return;
@@ -167,15 +167,10 @@ class NotificationPlanner implements ScheduleChangeListener {
     final today = _deliveryPlanner.calendar.dayOf(now);
     final groupIds = [
       for (final card in cards)
-        for (final direction in card.directions)
-          if (direction.notifiedAt case final notifiedAt?
-              when _deliveryPlanner.calendar.dayOf(notifiedAt) == today &&
-                  _duePolicy.isDueToday(
-                    direction,
-                    cardSuspended: card.card.suspended,
-                    now: now,
-                  ))
-            card.card.groupId,
+        if (card.notifiedAt case final notifiedAt?
+            when _deliveryPlanner.calendar.dayOf(notifiedAt) == today &&
+                _duePolicy.isDueToday(card, now: now))
+          card.groupId,
     ];
     if (groupIds.isEmpty) {
       await _presenter.dismissDigest();
@@ -189,26 +184,11 @@ class NotificationPlanner implements ScheduleChangeListener {
     }
   }
 
-  Future<void> _withdrawAnswered(
-    List<CardWithDirections> cards,
-    DateTime now,
-  ) async {
-    final directions = {
-      for (final card in cards)
-        for (final direction in card.directions) direction.id: card,
-    };
+  Future<void> _withdrawAnswered(List<Flashcard> cards, DateTime now) async {
+    final cardsById = {for (final card in cards) card.id: card};
     for (final key in await _presenter.shownPrompts()) {
-      final card = directions[key.directionId];
-      final direction = card?.directions
-          .where((direction) => direction.id == key.directionId)
-          .single;
-      final stillDue =
-          direction != null &&
-          _duePolicy.isDueToday(
-            direction,
-            cardSuspended: card!.card.suspended,
-            now: now,
-          );
+      final card = cardsById[key.cardId];
+      final stillDue = card != null && _duePolicy.isDueToday(card, now: now);
       if (key.isExtraReminder || stillDue) {
         continue;
       }

@@ -1,12 +1,16 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/cards/card_draft.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
-import 'package:alambic/domain/cards/card_direction.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/cards/card_state.dart';
+import 'package:alambic/domain/distillation/distillation_order.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
+import 'package:alambic/domain/distillation/distillation_status.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
+import 'package:alambic/domain/reviews/review_source.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/sample_data.dart';
@@ -24,7 +28,7 @@ void main() {
   setUp(() async {
     database = openTestDatabase();
     clock = FixedClock(DateTime(2026, 11, 10, 9));
-    services = SampleServices(database, clock);
+    services = SampleServices(database, clock, random: Random(3));
     cards = CardRepository(database);
     distillations = DistillationRepository(database);
     groupId = await services.groups.create('Capitales');
@@ -36,67 +40,63 @@ void main() {
 
   tearDown(() => database.close());
 
-  Future<CardDirection> direction(
-    int cardId, [
-    DirectionSense sense = DirectionSense.frontToBack,
-  ]) async =>
-      (await cards.getDirections(cardId))
-          .firstWhere((direction) => direction.sense == sense);
-
-  Future<List<DirectionState>> states([
-    DirectionSense sense = DirectionSense.frontToBack,
-  ]) async => [
-    for (final cardId in cardIds) (await direction(cardId, sense)).state,
+  Future<List<CardState>> states() async => [
+    for (final cardId in cardIds) (await cards.getCard(cardId)).state,
   ];
 
   /// Without the budget unless told otherwise, so that the rhythm alone
   /// decides.
-  Future<int> launch({
-    DirectionSense sense = DirectionSense.frontToBack,
+  Future<void> activate({
     DistillationSettings settings = const DistillationSettings(
       avoidCollisions: false,
     ),
-  }) => services.distillations.launchForGroup(groupId, sense, settings);
+  }) => services.distillations.activate(groupId, settings);
 
   void moveTo(DateTime moment) => clock.now = moment;
 
-  const pending = DirectionState.pending;
-  const active = DirectionState.active;
+  const pending = CardState.pending;
+  const active = CardState.active;
 
-  test(
-    'launching queues the new cards and introduces the first one today',
-    () async {
-      final distillationId = await launch();
-      expect(await states(), [active, pending, pending, pending]);
-      final first = await direction(cardIds[0]);
-      expect(first.dueAt, DateTime(2026, 11, 10, 12));
-      expect(first.step, isNull);
-      expect(first.distillationId, distillationId);
-      expect(first.queuePosition, isNull);
-      expect((await direction(cardIds[1])).queuePosition, 1);
-    },
-  );
+  test('cards wait in the queue until the distillation is activated', () async {
+    await services.distillations.advance();
+    expect(await states(), List.filled(4, pending));
+  });
+
+  test('activating introduces the first card today', () async {
+    await activate();
+    expect(await states(), [active, pending, pending, pending]);
+    final first = await cards.getCard(cardIds[0]);
+    expect(first.dueAt, DateTime(2026, 11, 10, 12));
+    expect(first.step, isNull);
+    expect(first.queuePosition, isNull);
+    expect((await cards.getCard(cardIds[1])).queuePosition, 1);
+  });
+
+  test('a group distills once', () async {
+    await activate();
+    expect(activate, throwsStateError);
+  });
 
   test('one card a day: the next one arrives the next day, once', () async {
-    await launch();
+    await activate();
     await services.distillations.advance();
     expect(await states(), [active, pending, pending, pending]);
     moveTo(DateTime(2026, 11, 11, 4, 30));
     expect(await services.distillations.advance(), isTrue);
     expect(await states(), [active, active, pending, pending]);
-    expect((await direction(cardIds[1])).dueAt, DateTime(2026, 11, 11, 12));
+    expect((await cards.getCard(cardIds[1])).dueAt, DateTime(2026, 11, 11, 12));
     expect(await services.distillations.advance(), isFalse);
   });
 
   test('the day starts at 4am', () async {
-    await launch();
+    await activate();
     moveTo(DateTime(2026, 11, 11, 3, 59));
     await services.distillations.advance();
     expect(await states(), [active, pending, pending, pending]);
   });
 
   test('two cards every three days', () async {
-    await launch(
+    await activate(
       settings: const DistillationSettings(
         cardsPerBatch: 2,
         everyDays: 3,
@@ -115,97 +115,162 @@ void main() {
   });
 
   test('a missed day is not caught up', () async {
-    await launch(settings: const DistillationSettings(avoidCollisions: false));
+    await activate();
     moveTo(DateTime(2026, 11, 14, 9));
     await services.distillations.advance();
     expect(await states(), [active, active, pending, pending]);
   });
 
-  test(
-    'a card added during the distillation joins the end of the queue',
-    () async {
-      await launch();
-      final added = await services.card('Kenya', 'Nairobi', groupId: groupId);
-      final queued = await direction(added);
-      expect(queued.state, pending);
-      expect(queued.queuePosition, 4);
-      final outside = await services.card('Japon', 'Tokyo');
-      expect((await direction(outside)).state, DirectionState.unstarted);
-    },
-  );
-
-  test('the distillation ends when its queue is empty', () async {
-    await launch(
+  test('a random order shuffles the queue at activation', () async {
+    await activate(
       settings: const DistillationSettings(
-        cardsPerBatch: 3,
+        order: DistillationOrder.random,
         avoidCollisions: false,
       ),
     );
-    moveTo(DateTime(2026, 11, 11, 9));
-    await services.distillations.advance();
-    expect(await states(), [active, active, active, active]);
-    expect(await distillations.getAll(), isEmpty);
-    expect((await direction(cardIds[3])).distillationId, isNull);
+    final positions = {
+      for (final cardId in cardIds) (await cards.getCard(cardId)).queuePosition,
+    };
+    expect(positions.whereType<int>(), unorderedEquals([1, 2, 3]));
+    expect((await states()).where((state) => state == active), hasLength(1));
   });
 
-  test(
-    'a reverse distillation activates the reverse of one-way cards',
-    () async {
-      await launch(sense: DirectionSense.backToFront);
-      expect(await states(DirectionSense.backToFront), [
-        active,
-        pending,
-        pending,
-        pending,
-      ]);
-      expect(await states(), List.filled(4, DirectionState.unstarted));
-    },
-  );
+  group('the distillation never ends', () {
+    test('it stays once its queue is empty', () async {
+      await activate(
+        settings: const DistillationSettings(
+          cardsPerBatch: 4,
+          avoidCollisions: false,
+        ),
+      );
+      expect(await states(), List.filled(4, active));
+      expect(await distillations.getAll(), hasLength(1));
+    });
+
+    test('a card added to an empty queue comes out with the rhythm', () async {
+      await activate(
+        settings: const DistillationSettings(
+          cardsPerBatch: 4,
+          avoidCollisions: false,
+        ),
+      );
+      final added = await services.card('Kenya', 'Nairobi', groupId: groupId);
+      expect((await cards.getCard(added)).isPending, isTrue);
+      moveTo(DateTime(2026, 11, 11, 9));
+      await services.distillations.advance();
+      expect((await cards.getCard(added)).state, active);
+    });
+  });
+
+  test('with an empty queue, the budget holds no reminder back', () async {
+    await activate(settings: const DistillationSettings(cardsPerBatch: 4));
+    for (final cardId in cardIds) {
+      await services.reviews.answer(
+        cardId,
+        ReviewOutcome.correct,
+        source: ReviewSource.session,
+      );
+    }
+    await services.distillations.adjust(groupId, const DistillationSettings());
+    moveTo(DateTime(2026, 11, 11, 9));
+    expect(await services.distillations.advance(), isFalse);
+    for (final cardId in cardIds) {
+      expect((await cards.getCard(cardId)).dueAt, DateTime(2026, 11, 11, 12));
+    }
+  });
+
+  test('a card added later joins the end of the queue', () async {
+    await activate();
+    final added = await services.card('Kenya', 'Nairobi', groupId: groupId);
+    final queued = await cards.getCard(added);
+    expect(queued.state, pending);
+    expect(queued.queuePosition, 4);
+  });
 
   test('a paused distillation waits, and resumes where it stopped', () async {
-    final distillationId = await launch();
-    await services.distillations.pause(distillationId);
+    await activate();
+    await services.distillations.pause(groupId);
+    expect(
+      (await distillations.find(groupId))!.status,
+      DistillationStatus.paused,
+    );
     moveTo(DateTime(2026, 11, 12, 9));
     await services.distillations.advance();
     expect(await states(), [active, pending, pending, pending]);
-    await services.distillations.resume(distillationId);
+    await services.distillations.resume(groupId);
     expect(await states(), [active, active, pending, pending]);
   });
 
-  test('stopping leaves the rest pending, to start by hand', () async {
-    final distillationId = await launch();
-    await services.distillations.stop(distillationId);
-    final left = await direction(cardIds[1]);
-    expect(left.state, pending);
-    expect(left.isStartable, isTrue);
-    expect(await services.cards.startGroup(groupId), 3);
-    expect(await states(), List.filled(4, active));
+  group('adjusting', () {
+    test('a larger batch completes the current one', () async {
+      await activate();
+      await services.distillations.adjust(
+        groupId,
+        const DistillationSettings(cardsPerBatch: 3, avoidCollisions: false),
+      );
+      moveTo(DateTime(2026, 11, 11, 9));
+      await services.distillations.advance();
+      expect(await states(), [active, active, active, active]);
+    });
+
+    test('a smaller batch already reached waits X days', () async {
+      await activate(
+        settings: const DistillationSettings(
+          cardsPerBatch: 2,
+          avoidCollisions: false,
+        ),
+      );
+      moveTo(DateTime(2026, 11, 11, 9));
+      await services.distillations.advance();
+      await services.distillations.adjust(
+        groupId,
+        const DistillationSettings(everyDays: 3, avoidCollisions: false),
+      );
+      moveTo(DateTime(2026, 11, 13, 9));
+      await services.distillations.advance();
+      expect(await states(), [active, active, active, active]);
+    });
+
+    test('a new order ranks the queue again', () async {
+      await activate();
+      await services.distillations.adjust(
+        groupId,
+        const DistillationSettings(
+          order: DistillationOrder.random,
+          avoidCollisions: false,
+        ),
+      );
+      final ranks = [
+        for (final cardId in cardIds.skip(1))
+          (await cards.getCard(cardId)).queuePosition,
+      ];
+      expect(ranks, unorderedEquals([0, 1, 2]));
+    });
   });
 
   test('a suspended card keeps its place without being introduced', () async {
     await services.cards.setSuspended(cardIds[1], suspended: true);
-    await launch();
+    await activate();
     moveTo(DateTime(2026, 11, 11, 9));
     await services.distillations.advance();
     expect(await states(), [active, pending, active, pending]);
-    expect((await direction(cardIds[1])).queuePosition, 1);
+    expect((await cards.getCard(cardIds[1])).queuePosition, 1);
   });
 
-  test('a card moved to another group leaves the queue', () async {
-    await launch();
+  test('a pending card moved to another group leaves the queue', () async {
+    await activate();
     final otherGroup = await services.groups.create('Autres');
     await services.cards.update(
-      cardIds[2],
+      cardIds[1],
       CardDraft(
-        frontText: 'Laos',
+        frontText: 'Pérou',
         backText: 'capitale',
         groupId: otherGroup,
         presetId: null,
-        alsoReverse: false,
       ),
     );
-    final moved = await direction(cardIds[2]);
-    expect(moved.distillationId, isNull);
-    expect(moved.isStartable, isTrue);
+    moveTo(DateTime(2026, 11, 11, 9));
+    await services.distillations.advance();
+    expect(await states(), [active, pending, active, pending]);
   });
 }

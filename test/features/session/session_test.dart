@@ -5,7 +5,7 @@ import 'package:alambic/application/reviews/session_item.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/cards/card_side.dart';
 import 'package:alambic/features/session/session_screen.dart';
 
 import '../../support/fixed_clock.dart';
@@ -31,10 +31,7 @@ void main() {
           .first;
       items = [
         for (final card in cards.take(2))
-          SessionItem(
-            cardId: card.card.id,
-            directionId: card.direction(DirectionSense.frontToBack)!.id,
-          ),
+          SessionItem(cardId: card.id, askedSide: CardSide.front),
       ];
     });
     await pumpGolden(
@@ -54,22 +51,18 @@ void main() {
         FixedClock(sampleNow),
         images: images,
       );
+      final flags = await services.groups.create('Drapeaux');
       final cardId = await services.cards.create(
-        const CardDraft(
+        CardDraft(
           frontText: 'Quel pays a ce drapeau ?',
           backText: 'Pérou',
-          frontImage: PickedImage('test/support/fixtures/flag.png'),
-          groupId: null,
+          frontImage: const PickedImage('test/support/fixtures/flag.png'),
+          groupId: flags,
           presetId: null,
-          alsoReverse: false,
         ),
       );
-      await services.cards.startGroup(null);
-      final front = (await CardRepository(database).getDirections(cardId))
-          .firstWhere(
-            (direction) => direction.sense == DirectionSense.frontToBack,
-          );
-      flagItems = [SessionItem(cardId: cardId, directionId: front.id)];
+      await services.introduceAll(flags);
+      flagItems = [SessionItem(cardId: cardId, askedSide: CardSide.front)];
       flagPath = images.pathOf(
         (await CardRepository(database).getCard(cardId)).frontImagePath!,
       );
@@ -129,7 +122,7 @@ void main() {
     await tester.pumpAndSettle();
     await answer(tester, 'Correct');
     final history = await tester.runAsync(
-      () => ReviewRepository(database).watchHistory(items[1].directionId).first,
+      () => ReviewRepository(database).watchHistory(items[1].cardId).first,
     );
     expect(history!.map((review) => review.isBonus), [true, false]);
   });

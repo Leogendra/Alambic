@@ -12,20 +12,15 @@ import '../../app/widgets/segmented_choice.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/distillation/distillation_providers.dart';
-import '../../application/distillation/distillation_refused.dart';
-import '../../application/distillation/distillation_service.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/time/minute_ticker.dart';
-import '../../domain/cards/direction_sense.dart';
 import '../../domain/distillation/distillation_order.dart';
+import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../l10n/generated/app_localizations.dart';
-import 'distillation_labels.dart';
-import 'distillation_tile.dart';
-import 'distillation_warning.dart';
 
-/// "Distill": settings of a new distillation of a group, with an estimate of
-/// its last arrival.
+/// "Distill": settings of the distillation of a group, with an estimate of
+/// the last arrival of its queue.
 class DistillationLaunchScreen extends ConsumerStatefulWidget {
   const DistillationLaunchScreen({required this.groupId, super.key});
 
@@ -39,7 +34,6 @@ class DistillationLaunchScreen extends ConsumerStatefulWidget {
 class _DistillationLaunchScreenState
     extends ConsumerState<DistillationLaunchScreen> {
   DistillationSettings _settings = const DistillationSettings();
-  DirectionSense? _chosenSense;
   bool _launching = false;
 
   void _update(DistillationSettings Function(DistillationSettings) change) =>
@@ -51,22 +45,7 @@ class _DistillationLaunchScreenState
     final colors = AlambicColors.of(context);
     final summary = ref.watch(groupSummaryProvider(widget.groupId));
     final cards = ref.watch(groupCardsProvider(widget.groupId)).value ?? [];
-    final taken = {
-      for (final progress in ref.watch(
-        groupDistillationsProvider(widget.groupId),
-      ))
-        progress.distillation.sense,
-    };
-    final sense =
-        _chosenSense ??
-        DirectionSense.values.firstWhere(
-          (sense) => !taken.contains(sense),
-          orElse: () => DirectionSense.frontToBack,
-        );
-    final global = ref.watch(globalDistillationProvider);
-    final remaining = taken.contains(sense)
-        ? 0
-        : DistillationService.queueableInGroup(cards, sense);
+    final remaining = DistillationQueue.remaining(cards);
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -100,57 +79,28 @@ class _DistillationLaunchScreenState
               ),
             ),
           const SizedBox(height: 16),
-          if (global != null) ...[
-            DistillationWarning(strings.distillBlockedByGlobal),
-            const SizedBox(height: 16),
-            DistillationTile(progress: global),
-          ] else ...[
-            SectionLabel(strings.distillSense),
-            SegmentedChoice<DirectionSense>(
-              options: [
-                for (final option in DirectionSense.values)
-                  SegmentOption(
-                    option,
-                    strings.directionName(option),
-                    enabled: !taken.contains(option),
-                  ),
-              ],
-              selected: sense,
-              onSelected: (value) => setState(() => _chosenSense = value),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
-              child: Text(
-                taken.contains(sense)
-                    ? strings.distillSenseTaken
-                    : strings.distillSenseCount(remaining),
-                style: TextStyle(fontSize: 13, color: colors.textSecondary),
+          ..._rhythmSection(strings),
+          const SizedBox(height: 16),
+          SectionLabel(strings.distillOrder),
+          SegmentedChoice<DistillationOrder>(
+            options: [
+              SegmentOption(
+                DistillationOrder.groupOrder,
+                strings.distillOrderGroup,
               ),
-            ),
-            const SizedBox(height: 16),
-            ..._rhythmSection(strings),
-            const SizedBox(height: 16),
-            SectionLabel(strings.distillOrder),
-            SegmentedChoice<DistillationOrder>(
-              options: [
-                SegmentOption(
-                  DistillationOrder.groupOrder,
-                  strings.distillOrderGroup,
-                ),
-                SegmentOption(
-                  DistillationOrder.random,
-                  strings.distillOrderRandom,
-                ),
-              ],
-              selected: _settings.order,
-              onSelected: (value) =>
-                  _update((settings) => settings.copyWith(order: value)),
-            ),
-            const SizedBox(height: 16),
-            _collisionsPanel(strings),
-            const SizedBox(height: 24),
-            _footer(strings, colors, remaining, onLaunch: () => _launch(sense)),
-          ],
+              SegmentOption(
+                DistillationOrder.random,
+                strings.distillOrderRandom,
+              ),
+            ],
+            selected: _settings.order,
+            onSelected: (value) =>
+                _update((settings) => settings.copyWith(order: value)),
+          ),
+          const SizedBox(height: 16),
+          _collisionsPanel(strings),
+          const SizedBox(height: 24),
+          _footer(strings, colors, remaining),
         ],
       ),
     );
@@ -181,9 +131,8 @@ class _DistillationLaunchScreenState
   Widget _footer(
     AppLocalizations strings,
     AlambicColors colors,
-    int remaining, {
-    required VoidCallback onLaunch,
-  }) {
+    int remaining,
+  ) {
     final now = ref.watch(currentMomentProvider).value;
     final rhythm = ref.watch(distillationRhythmProvider);
     final lastArrival = now == null
@@ -216,31 +165,20 @@ class _DistillationLaunchScreenState
           ],
         ),
         FilledButton(
-          onPressed: remaining == 0 || _launching ? null : onLaunch,
+          onPressed: _launching ? null : _launch,
           child: Text(strings.distillLaunch),
         ),
       ],
     );
   }
 
-  Future<void> _launch(DirectionSense sense) async {
-    final strings = AppLocalizations.of(context);
+  Future<void> _launch() async {
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
     setState(() => _launching = true);
-    try {
-      await ref
-          .read(distillationServiceProvider)
-          .launchForGroup(widget.groupId, sense, _settings);
-      navigator.pop();
-    } on DistillationRefused catch (refused) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(strings.distillRefusal(refused.reason))),
-      );
-      if (mounted) {
-        setState(() => _launching = false);
-      }
-    }
+    await ref
+        .read(distillationServiceProvider)
+        .activate(widget.groupId, _settings);
+    navigator.pop();
   }
 }
 

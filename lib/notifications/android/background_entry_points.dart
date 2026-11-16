@@ -36,7 +36,12 @@ Future<void> onNotificationResponse(NotificationResponse response) async {
     await _runInBackground(
       (container) => container
           .read(notificationActionHandlerProvider)
-          .handle(key, action, input: response.input),
+          .handle(
+            key,
+            action,
+            input: response.input,
+            askedSide: NotificationPayload.askedSide(response.payload),
+          ),
     );
   } else if (group != null) {
     await _runInBackground(

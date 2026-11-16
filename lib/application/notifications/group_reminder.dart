@@ -12,8 +12,7 @@ class GroupReminder {
 
   final GroupReminderKey key;
 
-  /// `null` for "No group".
-  final String? groupName;
+  final String groupName;
 
   /// Due cards waiting in the reminder.
   final int count;

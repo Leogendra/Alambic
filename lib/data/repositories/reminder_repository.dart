@@ -9,13 +9,10 @@ class ReminderRepository {
 
   final AlambicDatabase _database;
 
-  Future<int> insert(int directionId, DateTime remindAt) => _database
+  Future<int> insert(int cardId, DateTime remindAt) => _database
       .into(_database.extraReminders)
       .insert(
-        ExtraRemindersCompanion.insert(
-          directionId: directionId,
-          remindAt: remindAt,
-        ),
+        ExtraRemindersCompanion.insert(cardId: cardId, remindAt: remindAt),
       );
 
   Future<void> delete(int reminderId) => (_database.delete(
@@ -26,13 +23,12 @@ class ReminderRepository {
     _database.extraReminders,
   )..where((reminder) => reminder.id.equals(reminderId))).getSingleOrNull();
 
-  /// Reminders of a direction not shown yet, earliest first.
-  Stream<List<ExtraReminder>> watchUpcoming(int directionId) =>
+  /// Reminders of a card not shown yet, earliest first.
+  Stream<List<ExtraReminder>> watchUpcoming(int cardId) =>
       (_database.select(_database.extraReminders)
             ..where(
               (reminder) =>
-                  reminder.directionId.equals(directionId) &
-                  reminder.notifiedAt.isNull(),
+                  reminder.cardId.equals(cardId) & reminder.notifiedAt.isNull(),
             )
             ..orderBy([(reminder) => OrderingTerm.asc(reminder.remindAt)]))
           .watch();

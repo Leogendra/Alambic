@@ -6,7 +6,6 @@ import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/reminder_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
@@ -31,10 +30,8 @@ void main() {
 
   tearDown(() => database.close());
 
-  Future<int> firstFrontOf(int groupId) async {
-    final cards = await CardRepository(database).getCardsOfGroup(groupId);
-    return cards.first.direction(DirectionSense.frontToBack)!.id;
-  }
+  Future<int> firstFrontOf(int groupId) async =>
+      (await CardRepository(database).getCardsOfGroup(groupId)).first.id;
 
   Future<dynamic> overviewAt(DateTime now) async => planner.build(
     cards: await CardRepository(database).getAll(),
@@ -43,11 +40,11 @@ void main() {
         .watchSince(DateTime(2026, 11, 10, 4))
         .first,
     catalog: await PresetRepository(database).loadCatalog(),
-    distillationIds: {
+    distillingGroupIds: {
       for (final distillation in await DistillationRepository(
         database,
       ).getAll())
-        distillation.id,
+        distillation.groupId,
     },
     dueCount: 0,
     now: now,
@@ -76,7 +73,7 @@ void main() {
     expect(overview.nextIndex(DateTime(2026, 11, 10, 19)), isNull);
   });
 
-  test('counts the directions answered today, bonus excluded', () async {
+  test('counts the cards answered today, bonus excluded', () async {
     final direction = await firstFrontOf(capitals);
     samples.clock.now = DateTime(2026, 11, 10, 12, 5);
     await samples.reviews.answer(
@@ -105,16 +102,15 @@ void main() {
     for (final word in ['山', '川', '木']) {
       await samples.card(word, 'sens', groupId: kanji);
     }
-    final distillationId = await samples.distillations.launchForGroup(
+    await samples.distillations.activate(
       kanji,
-      DirectionSense.frontToBack,
       const DistillationSettings(cardsPerBatch: 2, avoidCollisions: false),
     );
     final overview = await overviewAt(sampleNow);
     final distilled = overview.timeline
-        .where((entry) => entry.distillationId != null)
+        .where((entry) => entry.distillingGroupId != null)
         .single;
-    expect(distilled.distillationId, distillationId);
+    expect(distilled.distillingGroupId, kanji);
     expect(distilled.groupId, kanji);
     expect(distilled.count, 2);
     expect(distilled.at, DateTime(2026, 11, 10, 12));

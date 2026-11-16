@@ -1,23 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
-import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
 import 'package:alambic/domain/distillation/distillation_order.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/distillation/distillation_status.dart';
-import 'package:alambic/domain/scheduling/direction_schedule.dart';
 
 import '../support/test_database.dart';
 
 void main() {
   late AlambicDatabase database;
   late DistillationRepository distillations;
-  late CardRepository cards;
   late int groupId;
-  late int directionId;
 
   final now = DateTime(2026, 11, 10, 9);
   final today = DateTime(2026, 11, 10);
@@ -25,30 +19,13 @@ void main() {
   setUp(() async {
     database = openTestDatabase();
     distillations = DistillationRepository(database);
-    cards = CardRepository(database);
     groupId = await GroupRepository(database).create('Capitales', now);
-    final cardId = await cards.insertCard(
-      groupId: groupId,
-      frontText: 'Mongolie',
-      frontImagePath: null,
-      backText: 'Oulan-Bator',
-      backImagePath: null,
-      presetId: null,
-      createdAt: now,
-    );
-    await cards.insertDirection(
-      cardId: cardId,
-      sense: DirectionSense.frontToBack,
-      schedule: DirectionSchedule.unstarted,
-    );
-    directionId = (await cards.getDirections(cardId)).single.id;
   });
 
   tearDown(() => database.close());
 
-  Future<int> launch() => distillations.insert(
+  Future<void> activate() => distillations.insert(
     groupId: groupId,
-    sense: DirectionSense.frontToBack,
     settings: const DistillationSettings(
       cardsPerBatch: 3,
       everyDays: 2,
@@ -59,10 +36,14 @@ void main() {
     firstBatchDay: today,
   );
 
+  test('a group has no distillation until it is activated', () async {
+    expect(await distillations.find(groupId), isNull);
+  });
+
   test('a distillation keeps its settings and starts running', () async {
-    final distillation = await distillations.get(await launch());
+    await activate();
+    final distillation = (await distillations.find(groupId))!;
     expect(distillation.groupId, groupId);
-    expect(distillation.sense, DirectionSense.frontToBack);
     expect(distillation.cardsPerBatch, 3);
     expect(distillation.everyDays, 2);
     expect(distillation.introductionOrder, DistillationOrder.random);
@@ -73,36 +54,34 @@ void main() {
     expect(distillation.lastAdvancedDay, isNull);
   });
 
-  test('a queued direction is pending, with its rank', () async {
-    final distillationId = await launch();
-    await cards.enqueue(
-      directionId,
-      distillationId: distillationId,
-      position: 4,
-    );
-    final direction = await cards.getDirection(directionId);
-    expect(direction.state, DirectionState.pending);
-    expect(direction.distillationId, distillationId);
-    expect(direction.queuePosition, 4);
-    expect(direction.isStartable, isFalse);
+  test('one distillation per group', () async {
+    await activate();
+    expect(activate, throwsA(anything));
   });
 
-  test('deleting a distillation leaves its queue pending, startable', () async {
-    final distillationId = await launch();
-    await cards.enqueue(
-      directionId,
-      distillationId: distillationId,
-      position: 0,
+  test('new settings keep the progress of the batches', () async {
+    await activate();
+    await distillations.saveProgress(
+      groupId,
+      advancedDay: today,
+      nextBatchDay: today,
+      introducedInBatch: 1,
     );
-    await distillations.delete(distillationId);
-    final direction = await cards.getDirection(directionId);
-    expect(direction.state, DirectionState.pending);
-    expect(direction.distillationId, isNull);
-    expect(direction.isStartable, isTrue);
+    await distillations.saveSettings(
+      groupId,
+      const DistillationSettings(cardsPerBatch: 5),
+      nextBatchDay: today,
+      introducedInBatch: 1,
+    );
+    final distillation = (await distillations.find(groupId))!;
+    expect(distillation.cardsPerBatch, 5);
+    expect(distillation.introductionOrder, DistillationOrder.groupOrder);
+    expect(distillation.introducedInBatch, 1);
+    expect(distillation.lastAdvancedDay, today);
   });
 
-  test('deleting a group deletes its distillations', () async {
-    await launch();
+  test('deleting a group deletes its distillation', () async {
+    await activate();
     await GroupRepository(database).delete(groupId);
     expect(await distillations.getAll(), isEmpty);
   });

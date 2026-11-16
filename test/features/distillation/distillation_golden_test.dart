@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/features/distillation/distillation_launch_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
@@ -20,9 +19,9 @@ void main() {
   setUp(() => database = openTestDatabase());
   tearDown(() => database.close());
 
-  /// Sample data, and a "Japonais" group of six cards whose front → back
-  /// direction is distilled one card a day, launched at 9am.
-  Future<void> seed(WidgetTester tester) async {
+  /// Sample data, and a "Japonais" group of six cards distilled one card a
+  /// day, activated at 9am unless [activate] is false.
+  Future<void> seed(WidgetTester tester, {bool activate = true}) async {
     await tester.runAsync(() async {
       final samples = SampleServices(database, FixedClock(sampleNow));
       await seedSampleData(samples);
@@ -37,22 +36,23 @@ void main() {
       ]) {
         await samples.card(word, meaning, groupId: japaneseId);
       }
-      await samples.distillations.launchForGroup(
-        japaneseId,
-        DirectionSense.frontToBack,
-        const DistillationSettings(),
-      );
+      if (activate) {
+        await samples.distillations.activate(
+          japaneseId,
+          const DistillationSettings(),
+        );
+      }
     });
   }
 
-  testWidgets('launching a distillation', (tester) async {
-    await seed(tester);
+  testWidgets('activating a distillation', (tester) async {
+    await seed(tester, activate: false);
     await pumpGolden(
       tester,
       DistillationLaunchScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(find.text('6 cartes à introduire'), findsOneWidget);
+    expect(find.text('6 cartes · dernière arrivée le 15 novembre'), findsOne);
     await expectLater(
       find.byType(DistillationLaunchScreen),
       matchesGoldenFile('goldens/distillation_launch.png'),
@@ -88,10 +88,8 @@ void main() {
     );
   });
 
-  testWidgets('launching the reverse direction from the screen', (
-    tester,
-  ) async {
-    await seed(tester);
+  testWidgets('activates the distillation from the screen', (tester) async {
+    await seed(tester, activate: false);
     await pumpGolden(
       tester,
       DistillationLaunchScreen(groupId: japaneseId),
@@ -105,9 +103,8 @@ void main() {
     final distillations = await tester.runAsync(
       () => DistillationRepository(database).getAll(),
     );
-    final reverse = distillations!.last;
-    expect(reverse.sense, DirectionSense.backToFront);
-    expect(reverse.cardsPerBatch, 2);
+    expect(distillations!.single.groupId, japaneseId);
+    expect(distillations.single.cardsPerBatch, 2);
     expect(find.byType(DistillationLaunchScreen), findsNothing);
   });
 }

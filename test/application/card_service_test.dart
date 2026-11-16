@@ -2,22 +2,14 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/cards/card_draft.dart';
-import 'package:alambic/application/cards/draft_image.dart';
 import 'package:alambic/application/cards/card_service.dart';
-import 'package:alambic/application/distillation/distillation_service.dart';
-import 'package:alambic/application/scheduling/ignored_schedule_changes.dart';
+import 'package:alambic/application/cards/draft_image.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/images/image_store.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
-import 'package:alambic/data/repositories/distillation_repository.dart';
-import 'package:alambic/data/repositories/pause_repository.dart';
-import 'package:alambic/data/repositories/preset_repository.dart';
-import 'package:alambic/domain/cards/card_direction.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
-import 'package:alambic/domain/scheduling/direction_schedule.dart';
-import 'package:alambic/domain/scheduling/review_scheduler.dart';
-import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/domain/cards/card_state.dart';
+import 'package:alambic/domain/scheduling/card_schedule.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/recording_schedule_listener.dart';
@@ -31,8 +23,10 @@ void main() {
   late FixedClock clock;
   late RecordingScheduleListener listener;
   late ImageStore images;
+  late int groupId;
+  late int otherGroupId;
 
-  setUp(() {
+  setUp(() async {
     database = openTestDatabase();
     cards = CardRepository(database);
     clock = FixedClock(DateTime(2026, 11, 10, 9));
@@ -40,105 +34,86 @@ void main() {
     images = openTestImageStore();
     service = CardService(
       cards: cards,
-      presets: PresetRepository(database),
       images: images,
-      scheduler: const ReviewScheduler(SchedulingCalendar()),
-      distillations: DistillationService(
-        distillations: DistillationRepository(database),
-        cards: cards,
-        presets: PresetRepository(database),
-        pauses: PauseRepository(database),
-        scheduler: const ReviewScheduler(SchedulingCalendar()),
-        calendar: const SchedulingCalendar(),
-        clock: clock.call,
-        scheduleChangeListener: const IgnoredScheduleChanges(),
-      ),
       clock: clock.call,
       scheduleChangeListener: listener,
     );
+    final groups = GroupRepository(database);
+    groupId = await groups.create('Capitales', clock());
+    otherGroupId = await groups.create('Géographie', clock());
   });
 
   tearDown(() => database.close());
 
-  CardDraft draft({bool alsoReverse = false}) => CardDraft(
-    frontText: ' Mongolie ',
+  CardDraft draft({String front = ' Mongolie ', int? inGroup}) => CardDraft(
+    frontText: front,
     backText: 'Oulan-Bator',
-    groupId: null,
+    groupId: inGroup ?? groupId,
     presetId: null,
-    alsoReverse: alsoReverse,
   );
 
-  Future<CardDirection> direction(int cardId, DirectionSense sense) async =>
-      (await cards.getDirections(cardId))
-          .firstWhere((direction) => direction.sense == sense);
+  /// Gives a card a progression, as if its distillation had introduced it
+  /// and it had been answered.
+  Future<void> introduce(int cardId) => cards.applySchedule(
+    cardId,
+    CardSchedule(
+      state: CardState.active,
+      step: 3,
+      dueAt: DateTime(2026, 12, 10, 12),
+    ),
+  );
 
-  test('a new card waits to be started, front only', () async {
-    final cardId = await service.create(draft());
-    final front = await direction(cardId, DirectionSense.frontToBack);
-    final reverse = await direction(cardId, DirectionSense.backToFront);
-    expect(front.state, DirectionState.unstarted);
-    expect(front.dueAt, isNull);
-    expect(front.step, isNull);
-    expect(reverse.state, DirectionState.inactive);
-    expect((await cards.getCard(cardId)).frontText, 'Mongolie');
-    expect(listener.changeCount, 1);
+  test('a new card waits at the end of the queue of its group', () async {
+    final first = await service.create(draft());
+    final second = await service.create(draft(front: 'Laos'));
+    final card = await cards.getCard(second);
+    expect(card.state, CardState.pending);
+    expect(card.dueAt, isNull);
+    expect(card.step, isNull);
+    expect((await cards.getCard(first)).frontText, 'Mongolie');
+    expect((await cards.getCard(first)).queuePosition, 0);
+    expect(card.queuePosition, 1);
+    expect(listener.changeCount, 2);
   });
 
-  test('"also reverse" makes the reverse direction wait too', () async {
-    final cardId = await service.create(draft(alsoReverse: true));
-    final reverse = await direction(cardId, DirectionSense.backToFront);
-    expect(reverse.state, DirectionState.unstarted);
-    expect(reverse.dueAt, isNull);
+  test('a bulk add joins the queue in its order', () async {
+    await service.create(draft());
+    await service.createAll([draft(front: 'Laos'), draft(front: 'Pérou')]);
+    final positions = [
+      for (final card in await cards.getCardsOfGroup(groupId))
+        card.queuePosition,
+    ];
+    expect(positions, [0, 1, 2]);
   });
 
-  test('starting a group makes its new cards due today', () async {
-    clock.now = DateTime(2026, 11, 10, 15);
-    final cardId = await service.create(draft(alsoReverse: true));
-    final started = await service.startGroup(null);
-    final front = await direction(cardId, DirectionSense.frontToBack);
-    final reverse = await direction(cardId, DirectionSense.backToFront);
-    expect(started, 1);
-    expect(front.state, DirectionState.active);
-    expect(front.dueAt, DateTime(2026, 11, 10, 12));
-    expect(reverse.dueAt, DateTime(2026, 11, 11, 12));
-    expect(await service.startGroup(null), 0);
-  });
+  group('moving a card to another group', () {
+    test('puts a pending card at the end of the new queue', () async {
+      await service.create(draft(inGroup: otherGroupId));
+      final cardId = await service.create(draft());
+      await service.update(cardId, draft(inGroup: otherGroupId));
+      final card = await cards.getCard(cardId);
+      expect(card.groupId, otherGroupId);
+      expect(card.isPending, isTrue);
+      expect(card.queuePosition, 1);
+    });
 
-  test('starting one direction leaves the other waiting', () async {
-    final cardId = await service.create(draft(alsoReverse: true));
-    final reverse = await direction(cardId, DirectionSense.backToFront);
-    await service.startDirection(reverse.id);
-    final front = await direction(cardId, DirectionSense.frontToBack);
-    expect(front.state, DirectionState.unstarted);
-    expect(
-      (await direction(cardId, DirectionSense.backToFront)).dueAt,
-      DateTime(2026, 11, 10, 12),
-    );
-  });
-
-  test('checking "also reverse" when editing adds a waiting reverse', () async {
-    final cardId = await service.create(draft());
-    await service.update(cardId, draft(alsoReverse: true));
-    final reverse = await direction(cardId, DirectionSense.backToFront);
-    expect(reverse.state, DirectionState.unstarted);
-  });
-
-  test('unchecking "also reverse" stops the reverse direction', () async {
-    final cardId = await service.create(draft(alsoReverse: true));
-    await service.startGroup(null);
-    await service.update(cardId, draft());
-    final reverse = await direction(cardId, DirectionSense.backToFront);
-    expect(reverse.state, DirectionState.inactive);
-    expect(reverse.dueAt, isNull);
+    test('keeps the progression of an introduced card', () async {
+      final cardId = await service.create(draft());
+      await introduce(cardId);
+      await service.update(cardId, draft(inGroup: otherGroupId));
+      final card = await cards.getCard(cardId);
+      expect(card.state, CardState.active);
+      expect(card.step, 3);
+      expect(card.dueAt, DateTime(2026, 12, 10, 12));
+    });
   });
 
   test('a card without back cannot be stored', () async {
     final incomplete = CardDraft(
       frontText: 'Mongolie',
       backText: '  ',
-      groupId: null,
+      groupId: groupId,
       presetId: null,
-      alsoReverse: false,
     );
     expect(() => service.create(incomplete), throwsArgumentError);
   });
@@ -151,9 +126,8 @@ void main() {
           frontText: frontText,
           backText: 'Pérou',
           frontImage: front,
-          groupId: null,
+          groupId: groupId,
           presetId: null,
-          alsoReverse: false,
         );
 
     bool stored(String? name) =>
@@ -207,24 +181,15 @@ void main() {
     });
   });
 
-  test('resetting forgets the step and makes the card due today', () async {
-    final cardId = await service.create(draft(alsoReverse: true));
-    await service.startGroup(null);
-    final front = await direction(cardId, DirectionSense.frontToBack);
-    await cards.applySchedule(
-      front.id,
-      DirectionSchedule(
-        state: DirectionState.active,
-        step: 3,
-        dueAt: DateTime(2026, 12, 10, 12),
-      ),
-    );
-    clock.now = DateTime(2026, 11, 20, 15);
+  test('resetting sends the card back to the end of its queue', () async {
+    final cardId = await service.create(draft());
+    await service.create(draft(front: 'Laos'));
+    await introduce(cardId);
     await service.resetProgress(cardId);
-    final resetFront = await direction(cardId, DirectionSense.frontToBack);
-    final resetReverse = await direction(cardId, DirectionSense.backToFront);
-    expect(resetFront.step, isNull);
-    expect(resetFront.dueAt, DateTime(2026, 11, 20, 12));
-    expect(resetReverse.dueAt, DateTime(2026, 11, 21, 12));
+    final card = await cards.getCard(cardId);
+    expect(card.state, CardState.pending);
+    expect(card.step, isNull);
+    expect(card.dueAt, isNull);
+    expect(card.queuePosition, 2);
   });
 }

@@ -37,7 +37,7 @@ class TodayTimeline extends ConsumerWidget {
     final groups = ref.watch(groupsProvider).value ?? const [];
     final distillations = {
       for (final progress in ref.watch(distillationProgressesProvider))
-        progress.distillation.id: progress,
+        progress.groupId: progress,
     };
     final nextIndex = overview.nextIndex(now);
     return SurfacePanel(
@@ -52,7 +52,7 @@ class TodayTimeline extends ConsumerWidget {
                     .where((group) => group.id == groupId)
                     .map((group) => group.name)
                     .firstOrNull ??
-                strings.noGroup,
+                '',
             distillations: distillations,
             isPast: nextIndex == null || index < nextIndex,
             isNext: index == nextIndex,
@@ -71,7 +71,7 @@ class TodayTimeline extends ConsumerWidget {
     required bool isNext,
   }) {
     final textColor = isPast ? colors.textSecondary : colors.textPrimary;
-    final distillation = distillations[entry.distillationId];
+    final distillation = distillations[entry.distillingGroupId];
     return SizedBox(
       height: 52,
       child: Row(
@@ -174,7 +174,7 @@ class TodayTimeline extends ConsumerWidget {
       ? strings.homeTimelineDistillationOne(
           group,
           progress.introduced,
-          progress.total,
+          progress.introduced + progress.remaining,
         )
       : strings.homeTimelineDistillationMany(group, entry.count);
 

@@ -1,9 +1,10 @@
-import '../../data/repositories/card_with_directions.dart';
-import '../../domain/cards/direction_state.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation.dart';
+import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 
-/// Where a distillation stands, as shown on a group page and on Home.
+/// Where the distillation of a group stands, as shown on its page and on
+/// Home.
 class DistillationProgress {
   const DistillationProgress({
     required this.distillation,
@@ -12,30 +13,18 @@ class DistillationProgress {
     required this.lastArrival,
   });
 
-  /// Counts the directions of [distillation] among [cards] and estimates its
-  /// last arrival seen from [today].
+  /// Counts the cards of the group of [distillation] among [groupCards] and
+  /// estimates the last arrival of its queue seen from [today].
   factory DistillationProgress.of(
     Distillation distillation,
-    List<CardWithDirections> cards,
+    List<Flashcard> groupCards,
     DistillationRhythm rhythm,
     DateTime today,
   ) {
-    var introduced = 0;
-    var remaining = 0;
-    for (final card in cards) {
-      for (final direction in card.directions) {
-        if (direction.distillationId == distillation.id) {
-          if (direction.state == DirectionState.pending) {
-            remaining++;
-          } else {
-            introduced++;
-          }
-        }
-      }
-    }
+    final remaining = DistillationQueue.remaining(groupCards);
     return DistillationProgress(
       distillation: distillation,
-      introduced: introduced,
+      introduced: groupCards.length - remaining,
       remaining: remaining,
       lastArrival: distillation.isRunning
           ? rhythm.lastArrival(
@@ -51,15 +40,15 @@ class DistillationProgress {
 
   final Distillation distillation;
 
-  /// Directions it has introduced so far.
+  /// Cards of the group already introduced.
   final int introduced;
 
-  /// Directions still in its queue.
+  /// Cards still in the queue.
   final int remaining;
 
-  /// Day the last card should arrive if no reminder holds a batch back;
-  /// `null` while paused or when nothing remains.
+  /// Day the last card of the queue should arrive if no reminder holds a
+  /// batch back; `null` while paused or when the queue is empty.
   final DateTime? lastArrival;
 
-  int get total => introduced + remaining;
+  int get groupId => distillation.groupId;
 }

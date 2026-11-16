@@ -7,7 +7,6 @@ class CardDraft {
     required this.backText,
     required this.groupId,
     required this.presetId,
-    required this.alsoReverse,
     this.frontImage,
     this.backImage,
   });
@@ -18,13 +17,12 @@ class CardDraft {
   /// Image of each face, one at most; `null` for none.
   final DraftImage? frontImage;
   final DraftImage? backImage;
-  final int? groupId;
+
+  /// Every card belongs to a group.
+  final int groupId;
 
   /// Preset chosen on the card; `null` inherits from the group.
   final int? presetId;
-
-  /// Studies the back → front direction too.
-  final bool alsoReverse;
 
   /// Each face needs content: text, an image, or both.
   bool get isComplete =>

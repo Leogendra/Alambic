@@ -20,19 +20,17 @@ class PresetCatalog {
   Preset get globalPreset => presetsById[globalPresetId]!;
 
   /// Preset applied to the cards of [groupId] that have no choice of their own.
-  Preset presetForGroup(int? groupId) =>
+  Preset presetForGroup(int groupId) =>
       presetsById[PresetResolver.resolve(
         cardPresetId: null,
-        groupPresetId: groupId == null ? null : groupPresetIds[groupId],
+        groupPresetId: groupPresetIds[groupId],
         globalPresetId: globalPresetId,
       )]!;
 
   Preset presetForCard(Flashcard card) =>
       presetsById[PresetResolver.resolve(
         cardPresetId: card.presetId,
-        groupPresetId: card.groupId == null
-            ? null
-            : groupPresetIds[card.groupId],
+        groupPresetId: groupPresetIds[card.groupId],
         globalPresetId: globalPresetId,
       )]!;
 }

@@ -1,12 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/reviews/review_session.dart';
 import 'package:alambic/application/reviews/session_item.dart';
+import 'package:alambic/domain/cards/card_side.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 
 void main() {
-  const first = SessionItem(cardId: 1, directionId: 10);
-  const second = SessionItem(cardId: 2, directionId: 20);
-  const third = SessionItem(cardId: 3, directionId: 30);
+  const first = SessionItem(cardId: 1, askedSide: CardSide.front);
+  const second = SessionItem(cardId: 2, askedSide: CardSide.back);
+  const third = SessionItem(cardId: 3, askedSide: CardSide.front);
 
   ReviewSession session() => ReviewSession(
     items: const [first, second, third],

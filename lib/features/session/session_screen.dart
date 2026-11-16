@@ -55,14 +55,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   Widget _question(SessionItem item) {
     final strings = AppLocalizations.of(context);
     final card = ref.watch(cardProvider(item.cardId)).value;
-    final direction = card?.directions
-        .where((direction) => direction.id == item.directionId)
-        .firstOrNull;
     return Column(
       children: [
         _header(strings),
         Expanded(
-          child: card == null || direction == null
+          child: card == null
               ? const SizedBox.shrink()
               : Padding(
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
@@ -70,7 +67,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                     onTap: _reveal,
                     child: SessionCardView(
                       card: card,
-                      direction: direction,
+                      askedSide: item.askedSide,
                       isRevealed: _isRevealed,
                       isBonus: widget.isBonus,
                     ),
@@ -81,7 +78,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
           child: _isRevealed
               ? AnswerButtons(
-                  directionId: item.directionId,
+                  cardId: item.cardId,
                   isBonus: widget.isBonus,
                   enabled: !_isAnswering,
                   onAnswer: (outcome) => _answer(item, outcome),
@@ -147,7 +144,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     await ref
         .read(reviewServiceProvider)
         .answer(
-          item.directionId,
+          item.cardId,
           outcome,
           source: ReviewSource.session,
           forceBonus: widget.isBonus,

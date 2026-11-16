@@ -12,8 +12,6 @@ import '../../application/cards/draft_image.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../data/data_providers.dart';
-import '../../domain/cards/direction_sense.dart';
-import '../../domain/cards/direction_state.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../presets/preset_picker.dart';
@@ -22,7 +20,7 @@ import 'group_picker.dart';
 import 'image_picking.dart';
 
 /// Creates a card, or edits an existing one when [cardId] is given. Each face
-/// takes a text, an image, or both.
+/// takes a text, an image, or both; the card needs a group.
 class CardEditorScreen extends ConsumerStatefulWidget {
   const CardEditorScreen({this.cardId, this.initialGroupId, super.key});
 
@@ -40,7 +38,6 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
   DraftImage? _backImage;
   late int? _groupId = widget.initialGroupId;
   int? _presetId;
-  bool _alsoReverse = false;
   bool _isLoaded = false;
 
   bool get _isEditing => widget.cardId != null;
@@ -63,22 +60,19 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
     if (!mounted || loaded == null) {
       return;
     }
-    final reverse = loaded.direction(DirectionSense.backToFront);
     setState(() {
-      _frontController.text = loaded.card.frontText ?? '';
-      _backController.text = loaded.card.backText ?? '';
-      _frontImage = switch (loaded.card.frontImagePath) {
+      _frontController.text = loaded.frontText ?? '';
+      _backController.text = loaded.backText ?? '';
+      _frontImage = switch (loaded.frontImagePath) {
         final name? => StoredImage(name),
         null => null,
       };
-      _backImage = switch (loaded.card.backImagePath) {
+      _backImage = switch (loaded.backImagePath) {
         final name? => StoredImage(name),
         null => null,
       };
-      _groupId = loaded.card.groupId;
-      _presetId = loaded.card.presetId;
-      _alsoReverse =
-          reverse != null && reverse.state != DirectionState.inactive;
+      _groupId = loaded.groupId;
+      _presetId = loaded.presetId;
       _isLoaded = true;
     });
   }
@@ -90,14 +84,13 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
     super.dispose();
   }
 
-  CardDraft get _draft => CardDraft(
+  CardDraft _draftIn(int groupId) => CardDraft(
     frontText: _frontController.text,
     backText: _backController.text,
     frontImage: _frontImage,
     backImage: _backImage,
-    groupId: _groupId,
+    groupId: groupId,
     presetId: _presetId,
-    alsoReverse: _alsoReverse,
   );
 
   @override
@@ -142,8 +135,6 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
             image: _backImage,
             onImageChanged: (image) => setState(() => _backImage = image),
           ),
-          const SizedBox(height: 16),
-          _reversePanel(strings),
           const SizedBox(height: 16),
           _classificationPanel(strings),
         ],
@@ -212,24 +203,6 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
     ],
   );
 
-  Widget _reversePanel(AppLocalizations strings) {
-    final back = _backController.text.trim();
-    return SurfacePanel(
-      children: [
-        PanelRow(
-          title: strings.cardAlsoReverse,
-          subtitle: back.isEmpty
-              ? strings.cardAlsoReverseHintEmpty
-              : strings.cardAlsoReverseHint(back),
-          trailing: Switch(
-            value: _alsoReverse,
-            onChanged: (value) => setState(() => _alsoReverse = value),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _classificationPanel(AppLocalizations strings) {
     final groups = ref.watch(groupsProvider).value ?? const [];
     final catalog = ref.watch(presetCatalogProvider).value;
@@ -246,7 +219,7 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
       children: [
         PanelRow(
           title: strings.cardGroup,
-          trailing: Text(groupName ?? strings.noGroup, style: valueStyle),
+          trailing: Text(groupName ?? strings.cardGroupNone, style: valueStyle),
           onTap: () async {
             final choice = await showGroupPicker(
               context,
@@ -271,15 +244,17 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
 
   String _presetLabel(AppLocalizations strings, PresetCatalog catalog) {
     final ownPreset = catalog.presetsById[_presetId];
-    final inherited = catalog.presetForGroup(_groupId);
+    final groupId = _groupId;
     if (ownPreset != null) {
       return strings.presetName(ownPreset);
-    } else if (_groupId != null) {
+    } else if (groupId != null) {
       return strings.cardPresetInheritedFromGroup(
-        strings.presetName(inherited),
+        strings.presetName(catalog.presetForGroup(groupId)),
       );
     } else {
-      return strings.cardPresetInheritedGlobal(strings.presetName(inherited));
+      return strings.cardPresetInheritedGlobal(
+        strings.presetName(catalog.globalPreset),
+      );
     }
   }
 
@@ -288,7 +263,10 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
       context,
       presets: catalog.presetsById.values.toList(),
       selectedPresetId: _presetId,
-      inheritedPreset: catalog.presetForGroup(_groupId),
+      inheritedPreset: switch (_groupId) {
+        final groupId? => catalog.presetForGroup(groupId),
+        null => catalog.globalPreset,
+      },
     );
     if (choice != null) {
       setState(() => _presetId = choice.presetId);
@@ -296,10 +274,16 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
   }
 
   Future<void> _save() async {
-    final draft = _draft;
-    if (!draft.isComplete) {
+    final strings = AppLocalizations.of(context);
+    final groupId = _groupId;
+    final draft = groupId == null ? null : _draftIn(groupId);
+    if (draft == null || !draft.isComplete) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).cardIncomplete)),
+        SnackBar(
+          content: Text(
+            draft == null ? strings.cardGroupMissing : strings.cardIncomplete,
+          ),
+        ),
       );
       return;
     }

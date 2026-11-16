@@ -12,6 +12,10 @@ class GroupRepository {
     _database.cardGroups,
   )..orderBy([(group) => OrderingTerm.asc(group.name)])).watch();
 
+  Future<CardGroup?> find(int groupId) => (_database.select(
+    _database.cardGroups,
+  )..where((group) => group.id.equals(groupId))).getSingleOrNull();
+
   Stream<CardGroup?> watchById(int groupId) => (_database.select(
     _database.cardGroups,
   )..where((group) => group.id.equals(groupId))).watchSingleOrNull();
@@ -31,7 +35,14 @@ class GroupRepository {
             ..where((group) => group.id.equals(groupId)))
           .write(CardGroupsCompanion(presetId: Value(presetId)));
 
-  /// Its cards, their directions and their history are deleted with it.
+  /// Draws the asked face of each display of its cards, or always asks the
+  /// front. Changes nothing to their progression.
+  Future<void> setReverseEnabled(int groupId, {required bool enabled}) =>
+      (_database.update(_database.cardGroups)
+            ..where((group) => group.id.equals(groupId)))
+          .write(CardGroupsCompanion(reverseEnabled: Value(enabled)));
+
+  /// Its cards, their history and its distillation are deleted with it.
   Future<void> delete(int groupId) => (_database.delete(
     _database.cardGroups,
   )..where((group) => group.id.equals(groupId))).go();

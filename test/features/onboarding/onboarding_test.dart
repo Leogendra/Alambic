@@ -9,7 +9,6 @@ import 'package:alambic/application/preferences/interface_settings_providers.dar
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/preferences/interface_settings.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
 import 'package:alambic/features/onboarding/onboarding_screen.dart';
 
 import '../../support/fake_interface_settings_store.dart';
@@ -91,15 +90,16 @@ void main() {
     expect(alarms.permissionRequests, 1);
     await tapAndSettle(tester, find.text('Continuer'));
 
-    await tester.enterText(find.byType(TextField).at(0), 'Capitale du Pérou');
-    await tester.enterText(find.byType(TextField).at(1), 'Lima');
+    await tester.enterText(find.byType(TextField).at(0), 'Capitales');
+    await tester.enterText(find.byType(TextField).at(1), 'Capitale du Pérou');
+    await tester.enterText(find.byType(TextField).at(2), 'Lima');
     await tester.pump();
     await tapAndSettle(tester, find.text('Créer et commencer'));
 
     final cards = await CardRepository(database).getAll();
     expect(cards, hasLength(1));
-    expect(cards.single.card.frontText, 'Capitale du Pérou');
-    expect(cards.single.directions.first.state, DirectionState.active);
+    expect(cards.single.frontText, 'Capitale du Pérou');
+    expect(cards.single.isPending, isTrue);
     expect(store.saved.onboardingDone, isTrue);
     expect(find.byType(MainShell), findsOneWidget);
   });

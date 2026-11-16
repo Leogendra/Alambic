@@ -1,4 +1,4 @@
-import '../../domain/scheduling/direction_schedule.dart';
+import '../../domain/scheduling/card_schedule.dart';
 
 /// Schedules each answer would give, shown under the answer buttons.
 /// Both are `null` when answering is a bonus review.
@@ -7,8 +7,8 @@ class AnswerPreview {
 
   const AnswerPreview.noEffect() : correct = null, again = null;
 
-  final DirectionSchedule? correct;
-  final DirectionSchedule? again;
+  final CardSchedule? correct;
+  final CardSchedule? again;
 
   bool get isBonus => correct == null;
 }

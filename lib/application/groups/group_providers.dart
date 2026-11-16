@@ -23,7 +23,7 @@ final groupOverviewProvider = Provider(
   (ref) => GroupOverview(ref.watch(duePolicyProvider)),
 );
 
-/// "No group" then every group, with their counts; empty while loading.
+/// Every group, with its counts; empty while loading.
 final groupSummariesProvider = Provider<List<GroupSummary>>((ref) {
   final groups = ref.watch(groupsProvider).value;
   final cards = ref.watch(allCardsProvider).value;
@@ -38,8 +38,8 @@ final groupSummariesProvider = Provider<List<GroupSummary>>((ref) {
   }
 });
 
-/// Summary of one group, or of "No group" for `null`.
-final groupSummaryProvider = Provider.family<GroupSummary?, int?>(
+/// Summary of one group; `null` while loading or once deleted.
+final groupSummaryProvider = Provider.family<GroupSummary?, int>(
   (ref, groupId) => ref
       .watch(groupSummariesProvider)
       .where((summary) => summary.groupId == groupId)

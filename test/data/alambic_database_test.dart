@@ -2,8 +2,7 @@ import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/presets/built_in_presets.dart';
 import 'package:alambic/domain/presets/scheduling_engine_kind.dart';
@@ -36,27 +35,30 @@ void main() {
     },
   );
 
-  Future<int> insertCard({int? groupId}) => database
-      .into(database.flashcards)
+  Future<int> insertGroup() => database
+      .into(database.cardGroups)
       .insert(
-        FlashcardsCompanion.insert(
-          groupId: Value(groupId),
-          frontText: const Value('Mongolie'),
-          backText: const Value('Oulan-Bator'),
+        CardGroupsCompanion.insert(
+          name: 'Capitales',
           createdAt: DateTime(2026, 11, 10),
         ),
       );
 
+  Future<int> insertCard(int groupId) => database
+      .into(database.flashcards)
+      .insert(
+        FlashcardsCompanion.insert(
+          groupId: groupId,
+          frontText: const Value('Mongolie'),
+          backText: const Value('Oulan-Bator'),
+          createdAt: DateTime(2026, 11, 10),
+          state: CardState.pending,
+        ),
+      );
+
   test('deleting a group deletes its cards', () async {
-    final groupId = await database
-        .into(database.cardGroups)
-        .insert(
-          CardGroupsCompanion.insert(
-            name: 'Capitales',
-            createdAt: DateTime(2026, 11, 10),
-          ),
-        );
-    final cardId = await insertCard(groupId: groupId);
+    final groupId = await insertGroup();
+    final cardId = await insertCard(groupId);
     await (database.delete(
       database.cardGroups,
     )..where((group) => group.id.equals(groupId))).go();
@@ -66,22 +68,13 @@ void main() {
     expect(cards, isEmpty);
   });
 
-  test('deleting a card deletes its directions and their history', () async {
-    final cardId = await insertCard();
-    final directionId = await database
-        .into(database.cardDirections)
-        .insert(
-          CardDirectionsCompanion.insert(
-            cardId: cardId,
-            sense: DirectionSense.frontToBack,
-            state: DirectionState.active,
-          ),
-        );
+  test('deleting a card deletes its history', () async {
+    final cardId = await insertCard(await insertGroup());
     await database
         .into(database.reviewRecords)
         .insert(
           ReviewRecordsCompanion.insert(
-            directionId: directionId,
+            cardId: cardId,
             reviewedAt: DateTime(2026, 11, 10),
             outcome: ReviewOutcome.correct,
             isBonus: false,
@@ -91,7 +84,28 @@ void main() {
     await (database.delete(
       database.flashcards,
     )..where((card) => card.id.equals(cardId))).go();
-    expect(await database.select(database.cardDirections).get(), isEmpty);
     expect(await database.select(database.reviewRecords).get(), isEmpty);
+  });
+
+  test('a database of the first schema is dropped and created again', () async {
+    await database.close();
+    database = AlambicDatabase(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw.execute('CREATE TABLE card_directions (id INTEGER PRIMARY KEY)');
+          raw.execute('INSERT INTO card_directions (id) VALUES (1)');
+          raw.execute('CREATE TABLE flashcards (id INTEGER PRIMARY KEY)');
+          raw.userVersion = 1;
+        },
+      ),
+    );
+    expect(await database.select(database.presets).get(), hasLength(3));
+    expect(await database.select(database.flashcards).get(), isEmpty);
+    final tables = await database
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE name = 'card_directions'",
+        )
+        .get();
+    expect(tables, isEmpty);
   });
 }

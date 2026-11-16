@@ -18,8 +18,7 @@ import '../../l10n/generated/app_localizations.dart';
 class BulkAddScreen extends ConsumerStatefulWidget {
   const BulkAddScreen({required this.groupId, super.key});
 
-  /// `null` adds the cards to "No group".
-  final int? groupId;
+  final int groupId;
 
   @override
   ConsumerState<BulkAddScreen> createState() => _BulkAddScreenState();
@@ -30,7 +29,6 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
   final TextEditingController _separatorController = TextEditingController(
     text: BulkCardParser.defaultSeparator,
   );
-  bool _alsoReverse = false;
 
   @override
   void dispose() {
@@ -62,18 +60,6 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
           ),
           const SizedBox(height: 12),
           _report(strings, result),
-          const SizedBox(height: 16),
-          SurfacePanel(
-            children: [
-              PanelRow(
-                title: strings.cardAlsoReverse,
-                trailing: Switch(
-                  value: _alsoReverse,
-                  onChanged: (value) => setState(() => _alsoReverse = value),
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 24),
           FilledButton(
             onPressed: result.drafts.isEmpty ? null : () => _add(result),
@@ -85,9 +71,8 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
   }
 
   Widget _title(AppLocalizations strings) {
-    final groupName = widget.groupId == null
-        ? strings.noGroup
-        : ref.watch(groupProvider(widget.groupId!)).value?.name ?? '';
+    final groupName =
+        ref.watch(groupProvider(widget.groupId)).value?.name ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -162,7 +147,6 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
           backText: draft.back,
           groupId: widget.groupId,
           presetId: null,
-          alsoReverse: _alsoReverse,
         ),
     ]);
     messenger.showSnackBar(SnackBar(content: Text(strings.bulkAdded(count))));

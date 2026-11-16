@@ -1,31 +1,32 @@
-import '../cards/card_direction.dart';
+import '../cards/flashcard.dart';
 import '../presets/preset.dart';
+import '../presets/preset_interval.dart';
 import '../presets/scheduling_engine_kind.dart';
 import 'fsrs/fsrs_engine.dart';
 import 'fsrs/fsrs_memory.dart';
 import 'sequence_engine.dart';
 
-/// Where a direction stands in the engine of its preset.
+/// Where a card stands in the engine of its preset.
 ///
 /// Each engine reads only its own progression: a step for the sequence, a
 /// memory for FSRS. A progression left by the other engine does not count, so
-/// a direction whose preset changed engine starts over.
-sealed class DirectionProgress {
-  const DirectionProgress();
+/// a card whose preset changed engine starts over.
+sealed class CardProgress {
+  const CardProgress();
 
-  factory DirectionProgress.of(CardDirection direction, Preset preset) {
+  factory CardProgress.of(Flashcard card, Preset preset) {
     switch (preset.engine) {
       case SchedulingEngineKind.sequence:
-        final step = SequenceEngine.clampToSequence(direction.step, preset);
+        final step = SequenceEngine.clampToSequence(card.step, preset);
         return step == null
             ? const NewProgress()
             : SequenceProgress(
                 step: step,
                 sequenceLength: preset.sequenceLength,
-                interval: preset.intervals[step].length,
+                interval: preset.intervals[step],
               );
       case SchedulingEngineKind.adaptive:
-        final memory = direction.memory;
+        final memory = card.memory;
         return memory == null
             ? const NewProgress()
             : AdaptiveProgress(
@@ -38,21 +39,21 @@ sealed class DirectionProgress {
     }
   }
 
-  /// Interval the direction currently waits, used to rank directions; zero
-  /// for a direction never answered.
+  /// Interval the card currently waits, used to rank cards; zero for a card
+  /// never answered.
   Duration get waitedInterval;
 }
 
 /// Never answered with the engine of the preset.
-final class NewProgress extends DirectionProgress {
+final class NewProgress extends CardProgress {
   const NewProgress();
 
   @override
   Duration get waitedInterval => Duration.zero;
 }
 
-/// At [step] of a sequence of [sequenceLength] steps.
-final class SequenceProgress extends DirectionProgress {
+/// At [step] of a sequence of [sequenceLength] steps, waiting [interval].
+final class SequenceProgress extends CardProgress {
   const SequenceProgress({
     required this.step,
     required this.sequenceLength,
@@ -61,14 +62,14 @@ final class SequenceProgress extends DirectionProgress {
 
   final int step;
   final int sequenceLength;
-  final Duration interval;
+  final PresetInterval interval;
 
   @override
-  Duration get waitedInterval => interval;
+  Duration get waitedInterval => interval.length;
 }
 
 /// Followed by FSRS, which spaces its reviews by [intervalDays].
-final class AdaptiveProgress extends DirectionProgress {
+final class AdaptiveProgress extends CardProgress {
   const AdaptiveProgress({required this.memory, required this.intervalDays});
 
   final FsrsMemory memory;

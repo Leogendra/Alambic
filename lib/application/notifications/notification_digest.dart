@@ -7,25 +7,23 @@ class NotificationDigest {
     required this.alert,
   });
 
-  /// Gathers the cards of the groups [groupIds], one entry per card, `null`
-  /// standing for "No group".
+  /// Gathers the cards of the groups [groupIds], one entry per card.
   factory NotificationDigest.of(
-    Iterable<int?> groupIds,
+    Iterable<int> groupIds,
     Map<int, String> groupNames, {
     required bool alert,
   }) => NotificationDigest(
     count: groupIds.length,
     groupNames: [
-      for (final groupId in groupIds.toSet())
-        groupId == null ? null : groupNames[groupId],
+      for (final groupId in groupIds.toSet()) groupNames[groupId] ?? '',
     ],
     alert: alert,
   );
 
   final int count;
 
-  /// Groups of the cards, in the order they come; `null` for "No group".
-  final List<String?> groupNames;
+  /// Groups of the cards, in the order they come.
+  final List<String> groupNames;
 
   /// Rings and vibrates; `false` when only the count is refreshed.
   final bool alert;

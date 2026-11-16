@@ -92,7 +92,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
             CardListTile(
               card: card,
               formatter: formatter,
-              onTap: () => openCard(context, card.card.id),
+              onTap: () => openCard(context, card.id),
             ),
         ],
       );

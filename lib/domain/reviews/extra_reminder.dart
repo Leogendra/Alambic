@@ -2,13 +2,13 @@
 class ExtraReminder {
   const ExtraReminder({
     required this.id,
-    required this.directionId,
+    required this.cardId,
     required this.remindAt,
     required this.notifiedAt,
   });
 
   final int id;
-  final int directionId;
+  final int cardId;
   final DateTime remindAt;
   final DateTime? notifiedAt;
 }

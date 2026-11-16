@@ -12,7 +12,6 @@ import 'package:alambic/data/backup/invalid_backup_kind.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/images/image_store.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 
@@ -76,13 +75,11 @@ void main() {
         frontImage: const PickedImage('test/support/fixtures/flag.png'),
         groupId: capitals,
         presetId: null,
-        alsoReverse: false,
       ),
     );
     final cards = await CardRepository(source.database).getAll();
-    final direction = cards.first.direction(DirectionSense.frontToBack)!;
     await source.services.reviews.answer(
-      direction.id,
+      cards.first.id,
       ReviewOutcome.correct,
       source: ReviewSource.session,
     );
@@ -122,7 +119,7 @@ void main() {
     final preview = (await target.backup.pickBackup())!;
 
     expect(preview.cardCount, 8);
-    expect(preview.groupCount, 2);
+    expect(preview.groupCount, 3);
   });
 
   test('importing replaces what the app holds, images included', () async {
@@ -137,7 +134,11 @@ void main() {
 
     expect((await target.images.readAll()).keys, isNot(contains('old.jpg')));
     final groups = (await target.tables())['card_groups']!;
-    expect(groups.map((row) => row['name']), ['Capitales', 'Espagnol']);
+    expect(groups.map((row) => row['name']), [
+      'Capitales',
+      'Espagnol',
+      'Biologie',
+    ]);
   });
 
   test('importing plans the notifications again', () async {
@@ -183,6 +184,22 @@ void main() {
           DatabaseSnapshot(target.database)
               .validate(contents.schemaVersion + 1, contents.tables),
       throwsA(isA<InvalidBackupException>()),
+    );
+  });
+
+  test('a backup of the first schema, with directions, is refused', () async {
+    await source.backup.export();
+    final contents = const BackupArchive().decode(drive.saved!);
+
+    expect(
+      () => DatabaseSnapshot(target.database).validate(1, contents.tables),
+      throwsA(
+        isA<InvalidBackupException>().having(
+          (refusal) => refusal.kind,
+          'kind',
+          InvalidBackupKind.incompatibleVersion,
+        ),
+      ),
     );
   });
 

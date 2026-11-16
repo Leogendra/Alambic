@@ -10,32 +10,29 @@ import '../../domain/reviews/review_soon_days.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Bottom sheet adding a one-off reminder to a direction. Returns the moment
+/// Bottom sheet adding a one-off reminder to a card. Returns the moment
 /// of the reminder, or `null` when dismissed.
 Future<DateTime?> showReviewSoonSheet(
   BuildContext context, {
-  required int directionId,
+  required int cardId,
   required String front,
   required ClockTime defaultTime,
 }) => showModalBottomSheet<DateTime>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
-  builder: (context) => _ReviewSoonSheet(
-    directionId: directionId,
-    front: front,
-    defaultTime: defaultTime,
-  ),
+  builder: (context) =>
+      _ReviewSoonSheet(cardId: cardId, front: front, defaultTime: defaultTime),
 );
 
 class _ReviewSoonSheet extends ConsumerStatefulWidget {
   const _ReviewSoonSheet({
-    required this.directionId,
+    required this.cardId,
     required this.front,
     required this.defaultTime,
   });
 
-  final int directionId;
+  final int cardId;
   final String front;
   final ClockTime defaultTime;
 
@@ -251,9 +248,7 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
   Future<void> _add() async {
     final calendar = ref.read(schedulingCalendarProvider);
     try {
-      await ref
-          .read(reminderServiceProvider)
-          .add(widget.directionId, _day, _time);
+      await ref.read(reminderServiceProvider).add(widget.cardId, _day, _time);
       if (mounted) {
         Navigator.of(context).pop(calendar.momentAt(_day, _time));
       }

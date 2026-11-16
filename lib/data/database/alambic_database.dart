@@ -1,9 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
-import '../../domain/cards/card_direction.dart';
-import '../../domain/cards/direction_sense.dart';
-import '../../domain/cards/direction_state.dart';
+import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_order.dart';
@@ -28,7 +26,6 @@ import 'converters/clock_time_converter.dart';
 import 'converters/preset_interval_list_converter.dart';
 import 'preset_companions.dart';
 import 'tables/app_settings.dart';
-import 'tables/card_directions.dart';
 import 'tables/card_groups.dart';
 import 'tables/distillations.dart';
 import 'tables/extra_reminders.dart';
@@ -46,7 +43,6 @@ part 'alambic_database.g.dart';
     CardGroups,
     Distillations,
     Flashcards,
-    CardDirections,
     ReviewRecords,
     ExtraReminders,
   ],
@@ -64,19 +60,43 @@ class AlambicDatabase extends _$AlambicDatabase {
     ),
   );
 
+  /// Version 2 gives each card a single progression. It has no migration
+  /// step: the data of an earlier version is dropped and must be created
+  /// again.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (migrator) async {
-      await migrator.createAll();
-      await _seedBuiltInPresets();
+    onCreate: _createFresh,
+    onUpgrade: (migrator, from, to) async {
+      await _dropEverything();
+      await _createFresh(migrator);
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
+
+  Future<void> _createFresh(Migrator migrator) async {
+    await migrator.createAll();
+    await _seedBuiltInPresets();
+  }
+
+  /// Drops every table and index of an earlier schema, including the ones
+  /// this version no longer knows. Runs before foreign keys are enforced.
+  Future<void> _dropEverything() async {
+    final entities = await customSelect(
+      'SELECT type, name FROM sqlite_master '
+      "WHERE type IN ('table', 'index') AND name NOT LIKE 'sqlite_%'",
+    ).get();
+    for (final entity in entities) {
+      final type = entity.read<String>('type').toUpperCase();
+      await customStatement(
+        'DROP $type IF EXISTS "${entity.read<String>('name')}"',
+      );
+    }
+  }
 
   /// Creates the shipped presets and makes Standard the global preset.
   Future<void> _seedBuiltInPresets() async {

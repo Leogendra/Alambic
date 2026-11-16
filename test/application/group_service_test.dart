@@ -38,19 +38,19 @@ void main() {
     await services.groups.delete(capitals);
     final cards = await CardRepository(database).getAll();
     expect(cards, hasLength(3));
-    expect(cards.where((card) => card.card.groupId == capitals), isEmpty);
+    expect(cards.where((card) => card.groupId == capitals), isEmpty);
   });
 
   test('deleting a group deletes the images of its cards', () async {
     final flags = await services.groups.create('Drapeaux');
+    final other = await services.groups.create('Autres');
     final cardId = await services.cards.create(
-      const CardDraft(
+      CardDraft(
         frontText: '',
         backText: 'Pérou',
-        frontImage: PickedImage('test/support/fixtures/flag.png'),
-        groupId: null,
+        frontImage: const PickedImage('test/support/fixtures/flag.png'),
+        groupId: other,
         presetId: null,
-        alsoReverse: false,
       ),
     );
     final card = await CardRepository(database).getCard(cardId);
@@ -62,7 +62,6 @@ void main() {
         frontImage: StoredImage(card.frontImagePath!),
         groupId: flags,
         presetId: null,
-        alsoReverse: false,
       ),
     );
     final file = File(services.images.pathOf(card.frontImagePath!));

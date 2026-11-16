@@ -1,21 +1,18 @@
 import 'package:drift/drift.dart';
 
-import '../../domain/cards/direction_sense.dart';
 import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../domain/distillation/distillation_status.dart';
 import '../database/alambic_database.dart';
 
-/// Distillations in progress. A stopped or finished distillation is deleted;
-/// its queued directions stay pending, released from it.
+/// The distillations of the groups, one per group once activated.
 class DistillationRepository {
   const DistillationRepository(this._database);
 
   final AlambicDatabase _database;
 
-  Future<int> insert({
-    required int? groupId,
-    required DirectionSense? sense,
+  Future<void> insert({
+    required int groupId,
     required DistillationSettings settings,
     required DateTime startedAt,
     required DateTime firstBatchDay,
@@ -24,7 +21,6 @@ class DistillationRepository {
       .insert(
         DistillationsCompanion.insert(
           groupId: Value(groupId),
-          sense: Value(sense),
           cardsPerBatch: settings.cardsPerBatch,
           everyDays: settings.everyDays,
           introductionOrder: settings.order,
@@ -36,43 +32,58 @@ class DistillationRepository {
         ),
       );
 
-  Future<Distillation> get(int distillationId) => (_database.select(
+  /// `null` while the distillation of the group was never activated.
+  Future<Distillation?> find(int groupId) => (_database.select(
     _database.distillations,
-  )..where((row) => row.id.equals(distillationId))).getSingle();
+  )..where((row) => row.groupId.equals(groupId))).getSingleOrNull();
 
-  /// In launch order.
   Stream<List<Distillation>> watchAll() => _selectAll().watch();
 
   Future<List<Distillation>> getAll() => _selectAll().get();
 
   SimpleSelectStatement<$DistillationsTable, Distillation> _selectAll() =>
       _database.select(_database.distillations)
-        ..orderBy([(row) => OrderingTerm.asc(row.id)]);
+        ..orderBy([(row) => OrderingTerm.asc(row.groupId)]);
 
-  Future<void> setStatus(int distillationId, DistillationStatus status) =>
+  Future<void> setStatus(int groupId, DistillationStatus status) =>
       (_database.update(_database.distillations)
-            ..where((row) => row.id.equals(distillationId)))
+            ..where((row) => row.groupId.equals(groupId)))
           .write(DistillationsCompanion(status: Value(status)));
+
+  /// Writes new settings and where the current batch stands under them.
+  Future<void> saveSettings(
+    int groupId,
+    DistillationSettings settings, {
+    required DateTime nextBatchDay,
+    required int introducedInBatch,
+  }) =>
+      (_database.update(
+        _database.distillations,
+      )..where((row) => row.groupId.equals(groupId))).write(
+        DistillationsCompanion(
+          cardsPerBatch: Value(settings.cardsPerBatch),
+          everyDays: Value(settings.everyDays),
+          introductionOrder: Value(settings.order),
+          avoidCollisions: Value(settings.avoidCollisions),
+          nextBatchDay: Value(nextBatchDay),
+          introducedInBatch: Value(introducedInBatch),
+        ),
+      );
 
   /// Records the day processed and where the batches stand.
   Future<void> saveProgress(
-    int distillationId, {
+    int groupId, {
     required DateTime advancedDay,
     required DateTime nextBatchDay,
     required int introducedInBatch,
   }) =>
       (_database.update(
         _database.distillations,
-      )..where((row) => row.id.equals(distillationId))).write(
+      )..where((row) => row.groupId.equals(groupId))).write(
         DistillationsCompanion(
           lastAdvancedDay: Value(advancedDay),
           nextBatchDay: Value(nextBatchDay),
           introducedInBatch: Value(introducedInBatch),
         ),
       );
-
-  /// Its pending directions stay pending, released from it.
-  Future<void> delete(int distillationId) => (_database.delete(
-    _database.distillations,
-  )..where((row) => row.id.equals(distillationId))).go();
 }

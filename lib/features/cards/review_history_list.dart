@@ -15,17 +15,17 @@ import '../../domain/scheduling/scheduling_calendar.dart';
 import '../../domain/scheduling/sequence_engine.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Answers given to one direction, most recent first, with their effect:
+/// Answers given to one card, most recent first, with their effect:
 /// "→ 1 mois", "recule à 2 j", "→ 12 j" for FSRS, "acquise" or "sans effet"
 /// for a bonus.
 class ReviewHistoryList extends ConsumerWidget {
   const ReviewHistoryList({
-    required this.directionId,
+    required this.cardId,
     required this.preset,
     super.key,
   });
 
-  final int directionId;
+  final int cardId;
   final Preset preset;
 
   @override
@@ -33,8 +33,7 @@ class ReviewHistoryList extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
     final calendar = ref.watch(schedulingCalendarProvider);
-    final history =
-        ref.watch(directionHistoryProvider(directionId)).value ?? const [];
+    final history = ref.watch(cardHistoryProvider(cardId)).value ?? const [];
     if (history.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18),

@@ -1,4 +1,5 @@
 import '../../data/repositories/card_repository.dart';
+import '../../domain/cards/card_side.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
 import '../../domain/reviews/typed_answer_match.dart';
@@ -29,7 +30,7 @@ class NotificationActionHandler {
   final Clock _clock;
 
   /// "Correct" closes the notification; "Again" replaces it with the
-  /// expected answer and an "OK" button. A typed answer counts as "Correct"
+  /// expected answer, the face opposite [askedSide], and an "OK" button. A typed answer counts as "Correct"
   /// when it matches the expected one and as "Again" otherwise, and is always
   /// followed by the expected answer. Answering an extra reminder is a bonus
   /// review. A card deleted meanwhile only closes the notification.
@@ -40,14 +41,14 @@ class NotificationActionHandler {
     ReviewNotificationKey key,
     NotificationAction action, {
     String? input,
+    CardSide askedSide = CardSide.front,
   }) async {
-    final direction = await _cards.findDirection(key.directionId);
-    if (action == NotificationAction.acknowledge || direction == null) {
+    final card = await _cards.findCard(key.cardId);
+    if (action == NotificationAction.acknowledge || card == null) {
       await _close(key);
       return;
     }
-    final card = await _cards.getCard(direction.cardId);
-    final answer = card.answerFor(direction.sense).text ?? '';
+    final answer = card.answerFor(askedSide).text ?? '';
     final typed = action == NotificationAction.answer ? input ?? '' : null;
     final match = typed == null
         ? null
@@ -58,7 +59,7 @@ class NotificationActionHandler {
       _ => ReviewOutcome.again,
     };
     final result = await _reviews.answer(
-      key.directionId,
+      key.cardId,
       outcome,
       source: ReviewSource.notification,
       forceBonus: key.isExtraReminder,
@@ -69,9 +70,10 @@ class NotificationActionHandler {
       await _presenter.showReveal(
         AnswerReveal(
           key: key,
-          prompt: card.promptFor(direction.sense).text ?? '',
+          askedSide: askedSide,
+          prompt: card.promptFor(askedSide).text ?? '',
           answer: answer,
-          answerImage: card.answerFor(direction.sense).imagePath,
+          answerImage: card.answerFor(askedSide).imagePath,
           result: result,
           answeredAt: _clock(),
           typed: typed,

@@ -40,14 +40,15 @@ class _MainShellState extends ConsumerState<MainShell> {
 
   void _open(NotificationTarget target) {
     final navigator = Navigator.of(context)..popUntil((route) => route.isFirst);
-    if (target.isHome) {
-      setState(() => _selectedTab = 0);
-    } else {
-      navigator.push(
-        MaterialPageRoute<void>(
-          builder: (context) => GroupDetailScreen(groupId: target.groupId),
-        ),
-      );
+    switch (target.groupId) {
+      case final groupId?:
+        navigator.push(
+          MaterialPageRoute<void>(
+            builder: (context) => GroupDetailScreen(groupId: groupId),
+          ),
+        );
+      case null:
+        setState(() => _selectedTab = 0);
     }
   }
 

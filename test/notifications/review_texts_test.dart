@@ -7,11 +7,14 @@ import 'package:alambic/application/notifications/group_reminder_key.dart';
 import 'package:alambic/application/notifications/review_notification_key.dart';
 import 'package:alambic/application/notifications/review_prompt.dart';
 import 'package:alambic/application/reviews/review_result.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/cards/card_side.dart';
+import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/presets/built_in_presets.dart';
+import 'package:alambic/domain/presets/interval_unit.dart';
+import 'package:alambic/domain/presets/preset_interval.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
-import 'package:alambic/domain/scheduling/direction_progress.dart';
-import 'package:alambic/domain/scheduling/direction_schedule.dart';
+import 'package:alambic/domain/scheduling/card_progress.dart';
+import 'package:alambic/domain/scheduling/card_schedule.dart';
 import 'package:alambic/domain/scheduling/fsrs/fsrs_memory.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 import 'package:alambic/l10n/generated/app_localizations.dart';
@@ -23,25 +26,25 @@ void main() {
     lookupAppLocalizations(const Locale('fr')),
     const SchedulingCalendar(),
   );
-  const key = ReviewNotificationKey(directionId: 7);
+  const key = ReviewNotificationKey(cardId: 7);
 
   ReviewPrompt prompt({
     ReviewNotificationKey key = key,
     int? step = 1,
-    bool isReverse = false,
+    CardSide askedSide = CardSide.front,
   }) => ReviewPrompt(
     key: key,
+    askedSide: askedSide,
     prompt: 'Pérou',
     image: null,
-    groupName: null,
+    groupName: 'Capitales',
     progress: step == null
         ? const NewProgress()
         : SequenceProgress(
             step: step,
             sequenceLength: 6,
-            interval: const Duration(days: 2),
+            interval: const PresetInterval(2, IntervalUnit.day),
           ),
-    isReverse: isReverse,
     typedAnswer: false,
   );
 
@@ -49,9 +52,10 @@ void main() {
     required bool isBonus,
     String? typed,
     TypedAnswerMatch? match,
-    DirectionSchedule? schedule,
+    CardSchedule? schedule,
   }) => AnswerReveal(
     key: key,
+    askedSide: CardSide.front,
     prompt: 'Pérou',
     answer: 'Lima',
     answerImage: null,
@@ -60,8 +64,8 @@ void main() {
       schedule: isBonus
           ? null
           : schedule ??
-                DirectionSchedule(
-                  state: DirectionState.active,
+                CardSchedule(
+                  state: CardState.active,
                   step: 0,
                   dueAt: DateTime(2026, 11, 11, 12),
                 ),
@@ -72,22 +76,20 @@ void main() {
     match: match,
   );
 
-  test('describes where the asked direction stands', () {
+  test('describes where the asked card stands', () {
     expect(texts.promptDetail(prompt()), 'Cran 2 sur 6');
     expect(texts.promptDetail(prompt(step: null)), 'Nouvelle carte');
     expect(
-      texts.promptDetail(prompt(isReverse: true)),
+      texts.promptDetail(prompt(askedSide: CardSide.back)),
       'verso → recto · Cran 2 sur 6',
     );
     expect(
       texts.promptDetail(
-        prompt(
-          key: const ReviewNotificationKey(directionId: 7, extraReminderId: 1),
-        ),
+        prompt(key: const ReviewNotificationKey(cardId: 7, extraReminderId: 1)),
       ),
       'Réviser bientôt · sans effet sur le planning',
     );
-    expect(texts.groupLabel(prompt()), 'Sans groupe');
+    expect(texts.groupLabel(prompt()), 'Capitales');
   });
 
   test('tells what a failed answer did', () {
@@ -106,6 +108,7 @@ void main() {
       texts.answerLine(
         AnswerReveal(
           key: key,
+          askedSide: CardSide.front,
           prompt: 'Drapeau',
           answer: '',
           answerImage: 'flag.png',
@@ -126,14 +129,14 @@ void main() {
       texts.promptDetail(
         ReviewPrompt(
           key: key,
+          askedSide: CardSide.front,
           prompt: 'Pérou',
           image: null,
-          groupName: null,
+          groupName: 'Capitales',
           progress: const AdaptiveProgress(
             memory: FsrsMemory(stability: 11.7, difficulty: 5.3),
             intervalDays: 12,
           ),
-          isReverse: false,
           typedAnswer: false,
         ),
       ),
@@ -143,8 +146,8 @@ void main() {
       texts.verdict(
         reveal(
           isBonus: false,
-          schedule: DirectionSchedule(
-            state: DirectionState.active,
+          schedule: CardSchedule(
+            state: CardState.active,
             step: null,
             memory: const FsrsMemory(stability: 2.2, difficulty: 6.8),
             dueAt: DateTime(2026, 11, 12, 12),
@@ -156,8 +159,8 @@ void main() {
   });
 
   test('tells how a typed answer compared, then what it did', () {
-    final next = DirectionSchedule(
-      state: DirectionState.active,
+    final next = CardSchedule(
+      state: CardState.active,
       step: 2,
       dueAt: DateTime(2026, 11, 13, 12),
     );
@@ -178,8 +181,8 @@ void main() {
           isBonus: false,
           typed: 'Lima',
           match: TypedAnswerMatch.exact,
-          schedule: const DirectionSchedule(
-            state: DirectionState.acquired,
+          schedule: const CardSchedule(
+            state: CardState.acquired,
             step: null,
             dueAt: null,
           ),
@@ -202,9 +205,17 @@ void main() {
   });
 
   test('the payload carries the key, and tells prompts from answers', () {
-    const extra = ReviewNotificationKey(directionId: 7, extraReminderId: 3);
-    final prompt = NotificationPayload.encode(extra, isPrompt: true);
-    final answer = NotificationPayload.encode(extra, isPrompt: false);
+    const extra = ReviewNotificationKey(cardId: 7, extraReminderId: 3);
+    final prompt = NotificationPayload.encode(
+      extra,
+      isPrompt: true,
+      askedSide: CardSide.front,
+    );
+    final answer = NotificationPayload.encode(
+      extra,
+      isPrompt: false,
+      askedSide: CardSide.front,
+    );
     expect(NotificationPayload.decode(prompt), extra);
     expect(NotificationPayload.decodePrompt(prompt), extra);
     expect(NotificationPayload.decode(answer), extra);
@@ -213,30 +224,48 @@ void main() {
     expect(NotificationPayload.decode(null), isNull);
   });
 
+  test('the payload carries the asked face, the front by default', () {
+    final back = NotificationPayload.encode(
+      key,
+      isPrompt: true,
+      askedSide: CardSide.back,
+    );
+    expect(NotificationPayload.askedSide(back), CardSide.back);
+    expect(NotificationPayload.askedSide('{"card": 7}'), CardSide.front);
+  });
+
   test('the payload of a grouped reminder leads to its group', () {
     const capitals = GroupReminderKey(4);
-    const noGroup = GroupReminderKey(null);
+    const spanish = GroupReminderKey(5);
     final summary = NotificationPayload.encodeGroup(
       const GroupReminder(
-        key: noGroup,
-        groupName: null,
+        key: spanish,
+        groupName: 'Espagnol',
         count: 5,
         chain: true,
         alert: true,
       ),
     );
-    expect(NotificationPayload.decodeGroup(summary), noGroup);
+    expect(NotificationPayload.decodeGroup(summary), spanish);
     expect(NotificationPayload.decodeGroupCount(summary), 5);
     expect(NotificationPayload.decode(summary), isNull);
-    expect(NotificationPayload.target(summary)!.groupId, isNull);
-    const chained = ReviewNotificationKey(directionId: 7, chain: capitals);
-    final card = NotificationPayload.encode(chained, isPrompt: true);
+    expect(NotificationPayload.target(summary)!.groupId, 5);
+    const chained = ReviewNotificationKey(cardId: 7, chain: capitals);
+    final card = NotificationPayload.encode(
+      chained,
+      isPrompt: true,
+      askedSide: CardSide.front,
+    );
     expect(NotificationPayload.decodePrompt(card), chained);
     expect(NotificationPayload.decodeGroup(card), isNull);
     expect(NotificationPayload.target(card)!.groupId, 4);
     expect(
       NotificationPayload.target(
-        NotificationPayload.encode(key, isPrompt: true),
+        NotificationPayload.encode(
+          key,
+          isPrompt: true,
+          askedSide: CardSide.front,
+        ),
       ),
       isNull,
     );
@@ -259,14 +288,14 @@ void main() {
       texts.groupLabel(
         ReviewPrompt(
           key: const ReviewNotificationKey(
-            directionId: 7,
+            cardId: 7,
             chain: GroupReminderKey(4),
           ),
+          askedSide: CardSide.front,
           prompt: 'Pérou',
           image: null,
           groupName: 'Capitales',
           progress: const NewProgress(),
-          isReverse: false,
           typedAnswer: false,
           chainRemaining: 3,
         ),

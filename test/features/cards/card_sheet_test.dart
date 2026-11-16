@@ -2,8 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
@@ -29,21 +27,12 @@ void main() {
       final clock = FixedClock(sampleNow);
       final samples = SampleServices(database, clock);
       final capitals = await samples.groups.create('Capitales');
-      cardId = await samples.card(
-        'Pérou',
-        'Lima',
-        groupId: capitals,
-        alsoReverse: true,
-      );
-      await samples.cards.startGroup(capitals);
-      final front = (await CardRepository(database).getDirections(cardId))
-          .firstWhere(
-            (direction) => direction.sense == DirectionSense.frontToBack,
-          );
+      cardId = await samples.card('Pérou', 'Lima', groupId: capitals);
+      await samples.introduceAll(capitals);
       Future<void> answer(DateTime at, ReviewOutcome outcome) async {
         clock.now = at;
         await samples.reviews.answer(
-          front.id,
+          cardId,
           outcome,
           source: ReviewSource.notification,
         );
@@ -55,7 +44,7 @@ void main() {
       await answer(DateTime(2026, 11, 12, 8), ReviewOutcome.again);
       clock.now = renderAt;
       await samples.reminders.add(
-        front.id,
+        cardId,
         DateTime(2026, 11, 15),
         const ClockTime(18, 0),
       );
@@ -71,8 +60,7 @@ void main() {
       CardSheetScreen(cardId: cardId),
       overrides: screenOverrides(database, renderAt),
     );
-    expect(find.text('Cran 1 sur 6'), findsOneWidget);
-    expect(find.text('recule à 1 j'), findsOneWidget);
+    expect(find.text('Cran 2 sur 6'), findsOneWidget);
     expect(find.text('bonus'), findsNWidgets(2));
     await expectLater(
       find.byType(CardSheetScreen),
@@ -90,15 +78,11 @@ void main() {
       final samples = SampleServices(database, clock);
       final capitals = await samples.groups.create('Capitales');
       cardId = await samples.card('Pérou', 'Lima', groupId: capitals);
-      await samples.cards.startGroup(capitals);
-      final front = (await CardRepository(database).getDirections(cardId))
-          .firstWhere(
-            (direction) => direction.sense == DirectionSense.frontToBack,
-          );
+      await samples.introduceAll(capitals);
       Future<void> answer(DateTime at) async {
         clock.now = at;
         await samples.reviews.answer(
-          front.id,
+          cardId,
           ReviewOutcome.correct,
           source: ReviewSource.notification,
         );
@@ -131,31 +115,25 @@ void main() {
     );
   });
 
-  testWidgets('starts a direction that waits to be started', (tester) async {
+  testWidgets('a pending card waits for its distillation', (tester) async {
     late int cardId;
     await tester.runAsync(() async {
-      cardId = await SampleServices(
-        database,
-        FixedClock(sampleNow),
-      ).card('Laos', 'Vientiane');
+      final samples = SampleServices(database, FixedClock(sampleNow));
+      cardId = await samples.card(
+        'Laos',
+        'Vientiane',
+        groupId: await samples.groups.create('Capitales'),
+      );
     });
     await pumpGolden(
       tester,
       CardSheetScreen(cardId: cardId),
       overrides: screenOverrides(database, sampleNow),
     );
-    await tester.runAsync(() async {
-      await tester.tap(find.text('Commencer ce sens'));
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-    });
-    await tester.pumpAndSettle();
-    final front = await tester.runAsync(
-      () async => (await CardRepository(database).getDirections(cardId))
-          .firstWhere(
-            (direction) => direction.sense == DirectionSense.frontToBack,
-          ),
+    expect(find.text('En attente de distillation.'), findsOneWidget);
+    final card = await tester.runAsync(
+      () => CardRepository(database).getCard(cardId),
     );
-    expect(front!.state, DirectionState.active);
-    expect(find.text('À réviser maintenant'), findsOneWidget);
+    expect(card!.isPending, isTrue);
   });
 }

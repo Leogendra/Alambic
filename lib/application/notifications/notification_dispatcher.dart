@@ -1,17 +1,16 @@
 import '../../data/repositories/card_repository.dart';
-import '../../data/repositories/card_with_directions.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/pause_repository.dart';
-import '../../domain/pauses/pauses.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
-import '../../domain/cards/card_direction.dart';
+import '../../domain/cards/card_side.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/notification_timing.dart';
+import '../../domain/pauses/pauses.dart';
 import '../../domain/presets/notification_mode.dart';
 import '../../domain/presets/preset_catalog.dart';
-import '../../domain/reviews/extra_reminder.dart';
 import '../clock.dart';
 import '../distillation/distillation_service.dart';
 import 'delivery_candidates.dart';
@@ -24,8 +23,8 @@ import 'review_notification_key.dart';
 import 'review_prompt.dart';
 
 /// Runs when the app wakes up: runs the daily pass of the distillations,
-/// shows a notification for every direction and every "Review soon" reminder
-/// whose moment has come, then plans the next wake-ups. A direction whose
+/// shows a notification for every card and every "Review soon" reminder
+/// whose moment has come, then plans the next wake-ups. A card whose
 /// preset asks for a grouped reminder is announced by the reminder of its
 /// group instead. Beyond the auto grouping threshold, a single notification
 /// replaces all of them. The cards notified count against the daily cap. The
@@ -79,27 +78,24 @@ class NotificationDispatcher {
     );
     final prompts = <ReviewPrompt>[];
     final groupedReminders = <GroupReminderKey>{};
-    final notifiedGroups = <int?>[];
+    final notifiedGroups = <int>[];
     for (final card in cards) {
-      for (final direction in card.directions) {
-        final deliverAt = deliveries[direction.id];
-        if (deliverAt != null &&
-            NotificationTiming.shouldNotify(
-              direction,
-              cardSuspended: card.card.suspended,
-              deliverAt: deliverAt,
-              now: now,
-              calendar: _deliveryPlanner.calendar,
-            )) {
-          if (catalog.presetForCard(card.card).notificationMode ==
-              NotificationMode.grouped) {
-            groupedReminders.add(GroupReminderKey(card.card.groupId));
-          } else {
-            prompts.add(_prompt(card, direction, catalog, groupNames, null));
-          }
-          notifiedGroups.add(card.card.groupId);
-          await _cards.markNotified(direction.id, now);
+      final deliverAt = deliveries[card.id];
+      if (deliverAt != null &&
+          NotificationTiming.shouldNotify(
+            card,
+            deliverAt: deliverAt,
+            now: now,
+            calendar: _deliveryPlanner.calendar,
+          )) {
+        if (catalog.presetForCard(card).notificationMode ==
+            NotificationMode.grouped) {
+          groupedReminders.add(GroupReminderKey(card.groupId));
+        } else {
+          prompts.add(_prompt(card, catalog, groupNames, null));
         }
+        notifiedGroups.add(card.groupId);
+        await _cards.markNotified(card.id, now);
       }
     }
     if (guards.groupsAutomatically(prompts.length + groupedReminders.length)) {
@@ -125,7 +121,7 @@ class NotificationDispatcher {
   /// or falling during a pause of its card, is dropped, like a late reminder
   /// of a due card.
   Future<void> _dispatchExtraReminders(
-    List<CardWithDirections> cards,
+    List<Flashcard> cards,
     PresetCatalog catalog,
     Map<int, String> groupNames,
     Pauses pauses,
@@ -135,46 +131,33 @@ class NotificationDispatcher {
       if (reminder.remindAt.isAfter(now)) {
         continue;
       }
-      final card = _cardOf(cards, reminder);
+      final card = cards
+          .where((card) => card.id == reminder.cardId)
+          .firstOrNull;
       if (card != null &&
-          !pauses.covers(card.card.groupId) &&
+          !pauses.covers(card.groupId) &&
           NotificationTiming.isOnTime(reminder.remindAt, now)) {
-        final direction = card.directions.firstWhere(
-          (direction) => direction.id == reminder.directionId,
-        );
         await _presenter.showPrompt(
-          _prompt(card, direction, catalog, groupNames, reminder.id),
+          _prompt(card, catalog, groupNames, reminder.id),
         );
       }
       await _reminders.markNotified(reminder.id, now);
     }
   }
 
-  CardWithDirections? _cardOf(
-    List<CardWithDirections> cards,
-    ExtraReminder reminder,
-  ) => cards
-      .where(
-        (card) => card.directions.any(
-          (direction) => direction.id == reminder.directionId,
-        ),
-      )
-      .firstOrNull;
-
   ReviewPrompt _prompt(
-    CardWithDirections card,
-    CardDirection direction,
+    Flashcard card,
     PresetCatalog catalog,
     Map<int, String> groupNames,
     int? extraReminderId,
   ) => ReviewPrompt.of(
     key: ReviewNotificationKey(
-      directionId: direction.id,
+      cardId: card.id,
       extraReminderId: extraReminderId,
     ),
-    card: card.card,
-    direction: direction,
-    preset: catalog.presetForCard(card.card),
-    groupName: groupNames[card.card.groupId],
+    card: card,
+    askedSide: CardSide.front,
+    preset: catalog.presetForCard(card),
+    groupName: groupNames[card.groupId] ?? '',
   );
 }

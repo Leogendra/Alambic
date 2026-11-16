@@ -34,14 +34,14 @@ final tomorrowDueCountProvider = Provider<int?>((ref) {
     return null;
   }
   final tomorrow = calendar.addDays(calendar.dayOf(start), 1);
-  return [
-    for (final card in cards)
-      if (!card.card.suspended)
-        for (final direction in card.directions)
-          if (direction.isScheduled &&
-              calendar.dayOf(direction.dueAt!) == tomorrow)
-            direction,
-  ].length;
+  return cards
+      .where(
+        (card) =>
+            !card.suspended &&
+            card.isScheduled &&
+            calendar.dayOf(card.dueAt!) == tomorrow,
+      )
+      .length;
 });
 
 final notificationSettingsServiceProvider = Provider(

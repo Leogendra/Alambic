@@ -3,7 +3,7 @@ import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
-import '../../domain/cards/card_direction.dart';
+import '../../domain/cards/card_side.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/presets/grouped_reminder_action.dart';
@@ -82,12 +82,9 @@ class GroupedReminders {
       final next = waiting.first;
       await _presenter.showPrompt(
         ReviewPrompt.of(
-          key: ReviewNotificationKey(
-            directionId: next.direction.id,
-            chain: key,
-          ),
+          key: ReviewNotificationKey(cardId: next.card.id, chain: key),
           card: next.card,
-          direction: next.direction,
+          askedSide: CardSide.front,
           preset: next.preset,
           groupName: await _groupName(key),
           chainRemaining: waiting.length,
@@ -113,33 +110,25 @@ class GroupedReminders {
     );
     final waiting = [
       for (final card in cards)
-        for (final direction in card.directions)
-          if (deliveries[direction.id] case final deliverAt?
-              when !deliverAt.isAfter(now))
-            _Waiting(card.card, direction, catalog.presetForCard(card.card)),
+        if (deliveries[card.id] case final deliverAt?
+            when !deliverAt.isAfter(now))
+          _Waiting(card, catalog.presetForCard(card)),
     ].where((item) => item.preset.notificationMode == NotificationMode.grouped);
     return waiting.toList()..sort(_earliestDueFirst);
   }
 
   static int _earliestDueFirst(_Waiting first, _Waiting second) {
-    final byDue = first.direction.dueAt!.compareTo(second.direction.dueAt!);
-    return byDue != 0
-        ? byDue
-        : first.direction.id.compareTo(second.direction.id);
+    final byDue = first.card.dueAt!.compareTo(second.card.dueAt!);
+    return byDue != 0 ? byDue : first.card.id.compareTo(second.card.id);
   }
 
-  Future<String?> _groupName(GroupReminderKey key) async {
-    final groupId = key.groupId;
-    return groupId == null
-        ? null
-        : (await _groups.watchById(groupId).first)?.name;
-  }
+  Future<String> _groupName(GroupReminderKey key) async =>
+      (await _groups.find(key.groupId))?.name ?? '';
 }
 
 class _Waiting {
-  const _Waiting(this.card, this.direction, this.preset);
+  const _Waiting(this.card, this.preset);
 
   final Flashcard card;
-  final CardDirection direction;
   final Preset preset;
 }

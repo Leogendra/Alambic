@@ -4,7 +4,7 @@ import 'package:alambic/domain/distillation/collision_budget.dart';
 void main() {
   BudgetedReminder reminder(int id, int days, {int hour = 12}) =>
       BudgetedReminder(
-        directionId: id,
+        cardId: id,
         interval: Duration(days: days),
         dueAt: DateTime(2026, 11, 10, hour),
       );

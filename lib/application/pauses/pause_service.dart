@@ -1,8 +1,8 @@
 import '../../data/repositories/card_repository.dart';
-import '../../data/repositories/card_with_directions.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../data/repositories/pause_repository.dart';
 import '../../domain/pauses/pause_shift.dart';
-import '../../domain/scheduling/direction_schedule.dart';
+import '../../domain/scheduling/card_schedule.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
 
@@ -64,7 +64,7 @@ class PauseService {
     await _cards.transaction(() async {
       await _shiftDueDates(
         (await _cards.getAll()).where(
-          (card) => !pauses.groupsSince.containsKey(card.card.groupId),
+          (card) => !pauses.groupsSince.containsKey(card.groupId),
         ),
         pausedAt,
       );
@@ -74,28 +74,26 @@ class PauseService {
   }
 
   Future<void> _shiftDueDates(
-    Iterable<CardWithDirections> cards,
+    Iterable<Flashcard> cards,
     DateTime pausedAt,
   ) async {
     final now = _clock();
     for (final card in cards) {
-      for (final direction in card.directions) {
-        final shifted = _shift.shiftedDueAt(
-          direction,
-          pausedAt: pausedAt,
-          resumedAt: now,
+      final shifted = _shift.shiftedDueAt(
+        card,
+        pausedAt: pausedAt,
+        resumedAt: now,
+      );
+      if (shifted != null) {
+        await _cards.applySchedule(
+          card.id,
+          CardSchedule(
+            state: card.state,
+            step: card.step,
+            memory: card.memory,
+            dueAt: shifted,
+          ),
         );
-        if (shifted != null) {
-          await _cards.applySchedule(
-            direction.id,
-            DirectionSchedule(
-              state: direction.state,
-              step: direction.step,
-              memory: direction.memory,
-              dueAt: shifted,
-            ),
-          );
-        }
       }
     }
   }

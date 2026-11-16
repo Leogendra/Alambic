@@ -1,31 +1,26 @@
 import 'dart:math';
 
 import '../../data/repositories/card_repository.dart';
-import '../../data/repositories/card_with_directions.dart';
 import '../../data/repositories/distillation_repository.dart';
 import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
-import '../../domain/cards/card_direction.dart';
-import '../../domain/cards/direction_sense.dart';
-import '../../domain/cards/direction_state.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/collision_budget.dart';
 import '../../domain/distillation/distillation.dart';
-import '../../domain/distillation/distillation_order.dart';
 import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../domain/distillation/distillation_status.dart';
 import '../../domain/presets/preset_catalog.dart';
-import '../../domain/scheduling/direction_progress.dart';
+import '../../domain/scheduling/card_progress.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/review_scheduler.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
-import 'distillation_refused.dart';
 
-/// Launches distillations, feeds their queues and introduces their cards day
-/// after day.
+/// Activates and adjusts the distillation of a group, and introduces its
+/// pending cards day after day.
 ///
 /// The daily pass ([advance]) runs whenever the app or a wake-up starts, at
 /// most once per scheduling day and distillation: a new day is processed by
@@ -55,304 +50,172 @@ class DistillationService {
 
   DistillationRhythm get _rhythm => DistillationRhythm(_calendar);
 
-  /// Launches the distillation of the [sense] directions of a group: every
-  /// direction of the group never started joins the queue, and the first
-  /// batch is introduced today. Refused while the global distillation is in
-  /// progress, when the group already distills this direction, or when no
-  /// direction waits. Returns the id of the distillation.
-  Future<int> launchForGroup(
-    int groupId,
-    DirectionSense sense,
-    DistillationSettings settings,
-  ) async {
-    final distillationId = await _cards.transaction(() async {
-      final existing = await _distillations.getAll();
-      if (existing.any((distillation) => distillation.isGlobal)) {
-        throw const DistillationRefused(DistillationRefusal.globalInProgress);
-      } else if (existing.any(
-        (distillation) =>
-            distillation.groupId == groupId && distillation.sense == sense,
-      )) {
-        throw const DistillationRefused(DistillationRefusal.senseTaken);
+  /// Activates the distillation of a group: its queue is ordered by
+  /// [DistillationSettings.order] and the first batch is introduced today.
+  /// A group distills once: activating it again is an error.
+  Future<void> activate(int groupId, DistillationSettings settings) async {
+    await _cards.transaction(() async {
+      if (await _distillations.find(groupId) != null) {
+        throw StateError('The group $groupId already distills.');
       }
-      final queue = [
-        for (final card in await _cards.getCardsOfGroup(groupId))
-          if (card.direction(sense) case final direction?
-              when canJoinGroupQueue(direction))
-            direction,
-      ];
-      return _create(
+      final now = _clock();
+      await _distillations.insert(
         groupId: groupId,
-        sense: sense,
         settings: settings,
-        ranked: _ordered(queue, settings.order),
-        held: const [],
+        startedAt: now,
+        firstBatchDay: _calendar.dayOf(now),
       );
+      await _rankQueue(groupId, settings);
     });
-    await advance();
-    await _scheduleChangeListener.onSchedulesChanged();
-    return distillationId;
+    await _advanceAndReplan();
   }
 
-  /// Launches the global distillation: every direction never started, of
-  /// every card and in both directions, in random order. It stops the other
-  /// distillations, whose remaining directions join its queue. The reverse
-  /// of a card whose front is queued too only gets a rank once its front is
-  /// introduced, so it never arrives first nor the same day.
-  Future<int> launchGlobal(DistillationSettings settings) async {
-    final distillationId = await _cards.transaction(() async {
-      for (final other in await _distillations.getAll()) {
-        await _distillations.delete(other.id);
-      }
-      final ranked = <CardDirection>[];
-      final held = <CardDirection>[];
-      for (final card in await _cards.getAll()) {
-        final front = card.direction(DirectionSense.frontToBack);
-        final reverse = card.direction(DirectionSense.backToFront);
-        final frontQueued = front != null && front.isStartable;
-        if (frontQueued) {
-          ranked.add(front);
-        }
-        if (reverse != null && reverse.isStartable) {
-          (frontQueued ? held : ranked).add(reverse);
-        }
-      }
-      return _create(
-        groupId: null,
-        sense: null,
-        settings: settings.copyWith(order: DistillationOrder.random),
-        ranked: _ordered(ranked, DistillationOrder.random),
-        held: held,
-      );
-    });
-    await advance();
-    await _scheduleChangeListener.onSchedulesChanged();
-    return distillationId;
-  }
-
-  /// Whether a group distillation of its sense would take [direction]: never
-  /// started, or never studied for the reverse, which the distillation then
-  /// activates.
-  static bool canJoinGroupQueue(CardDirection direction) =>
-      direction.isStartable ||
-      (direction.sense == DirectionSense.backToFront &&
-          direction.state == DirectionState.inactive &&
-          direction.lastReviewedAt == null);
-
-  /// Directions of [cards] a group distillation of [sense] would take.
-  static int queueableInGroup(
-    Iterable<CardWithDirections> cards,
-    DirectionSense sense,
-  ) => cards
-      .where(
-        (card) => switch (card.direction(sense)) {
-          final direction? => canJoinGroupQueue(direction),
-          null => false,
-        },
-      )
-      .length;
-
-  /// Directions of [cards] the global distillation would take: the ones
-  /// never started, including those queued by the distillations it stops.
-  static int queueableGlobally(Iterable<CardWithDirections> cards) => cards
-      .expand((card) => card.directions)
-      .where(
-        (direction) =>
-            direction.isStartable || direction.state == DirectionState.pending,
-      )
-      .length;
-
-  /// Puts the directions of a new or edited card in the queue of the
-  /// distillation that covers them, at its end: the global distillation when
-  /// it is in progress, otherwise the distillation of its group and sense. A
-  /// direction queued by the distillation of a group the card has left is
-  /// released first.
-  Future<void> joinQueues(int cardId) => _cards.transaction(() async {
-    final card = await _cards.getCard(cardId);
-    final distillations = await _distillations.getAll();
-    final global = distillations
-        .where((distillation) => distillation.isGlobal)
-        .firstOrNull;
-    for (final sense in DirectionSense.values) {
-      var direction = await _directionOf(cardId, sense);
-      final owner = distillations
-          .where((distillation) => distillation.id == direction.distillationId)
-          .firstOrNull;
-      if (owner != null &&
-          !owner.isGlobal &&
-          owner.groupId != card.groupId &&
-          direction.state == DirectionState.pending) {
-        await _cards.releaseFromDistillation(direction.id);
-        direction = await _cards.getDirection(direction.id);
-      }
-      final target =
-          global ??
-          distillations
-              .where(
-                (distillation) =>
-                    distillation.groupId == card.groupId &&
-                    distillation.sense == sense,
+  /// Applies new settings to the distillation of a group. A new order ranks
+  /// the queue again. A batch already complete under a smaller rhythm closes:
+  /// the next one comes X days after the last day processed.
+  Future<void> adjust(int groupId, DistillationSettings settings) async {
+    await _cards.transaction(() async {
+      final distillation = (await _distillations.find(groupId))!;
+      final batchComplete =
+          distillation.introducedInBatch >= settings.cardsPerBatch;
+      await _distillations.saveSettings(
+        groupId,
+        settings,
+        nextBatchDay: batchComplete
+            ? _calendar.addDays(
+                distillation.lastAdvancedDay ?? _calendar.dayOf(_clock()),
+                settings.everyDays,
               )
-              .firstOrNull;
-      if (target == null || direction.distillationId != null) {
-        continue;
+            : distillation.nextBatchDay,
+        introducedInBatch: batchComplete ? 0 : distillation.introducedInBatch,
+      );
+      if (settings.order != distillation.introductionOrder) {
+        await _rankQueue(groupId, settings);
       }
-      final eligible = target.isGlobal
-          ? direction.isStartable
-          : canJoinGroupQueue(direction);
-      if (eligible) {
-        await _cards.enqueue(
-          direction.id,
-          distillationId: target.id,
-          position: await _joiningPosition(target, direction),
-        );
-      }
-    }
-  });
+    });
+    await _advanceAndReplan();
+  }
+
+  /// No card leaves the queue until it resumes; the cards already introduced
+  /// go on with their preset.
+  Future<void> pause(int groupId) async {
+    await _distillations.setStatus(groupId, DistillationStatus.paused);
+    await _scheduleChangeListener.onSchedulesChanged();
+  }
+
+  /// Resumes a paused distillation; a day not processed yet is processed now.
+  Future<void> resume(int groupId) async {
+    await _distillations.setStatus(groupId, DistillationStatus.running);
+    await _advanceAndReplan();
+  }
 
   /// Runs the pass of the current day for every running distillation that
-  /// has not had it yet: spends its budget when it avoids collisions,
-  /// introduces the cards the rhythm owes, and deletes a distillation whose
-  /// queue is empty. A distillation whose group is paused, or any during the
-  /// global pause, waits for the end of the pause. Returns whether a schedule
-  /// moved.
+  /// has not had it yet: spends its budget when it avoids collisions and
+  /// introduces the cards the rhythm owes. A distillation whose group is
+  /// paused, or any during the global pause, waits for the end of the pause.
+  /// Returns whether a schedule moved.
   Future<bool> advance() async {
     var changed = false;
     final pauses = await _pauses.loadPauses();
     for (final distillation in await _distillations.getAll()) {
-      final paused = distillation.isGlobal
-          ? pauses.isGlobal
-          : pauses.covers(distillation.groupId);
-      if (distillation.isRunning && !paused) {
-        changed = await _advanceOne(distillation.id) || changed;
+      if (distillation.isRunning && !pauses.covers(distillation.groupId)) {
+        changed = await _advanceOne(distillation.groupId) || changed;
       }
     }
     return changed;
   }
 
-  Future<void> pause(int distillationId) =>
-      _distillations.setStatus(distillationId, DistillationStatus.paused);
-
-  /// Resumes a paused distillation; a day not processed yet is processed now.
-  Future<void> resume(int distillationId) async {
-    await _distillations.setStatus(distillationId, DistillationStatus.running);
-    if (await advance()) {
-      await _scheduleChangeListener.onSchedulesChanged();
-    }
+  Future<void> _advanceAndReplan() async {
+    await advance();
+    await _scheduleChangeListener.onSchedulesChanged();
   }
 
-  /// Stops a distillation. Its remaining directions stay pending, outside
-  /// any queue, until another distillation takes them or they are started by
-  /// hand. The cards it already introduced go on with their preset.
-  Future<void> stop(int distillationId) =>
-      _distillations.delete(distillationId);
-
-  Future<bool> _advanceOne(int distillationId) => _cards.transaction(() async {
+  Future<bool> _advanceOne(int groupId) => _cards.transaction(() async {
     // Read again inside the transaction: the app and a wake-up may run
     // the pass at the same time, from two isolates.
-    final distillation = await _distillations.get(distillationId);
+    final distillation = (await _distillations.find(groupId))!;
     final now = _clock();
     final today = _calendar.dayOf(now);
     if (!distillation.isRunning || distillation.lastAdvancedDay == today) {
       return false;
     }
-    final cards = await _cards.getAll();
+    final cards = await _cards.getCardsOfGroup(groupId);
     final catalog = await _presets.loadCatalog();
     var count = _rhythm.cardsDue(distillation, today);
     var postponed = 0;
-    if (distillation.avoidCollisions) {
+    if (_spendsBudget(distillation, cards)) {
       final split = CollisionBudget.split(
-        _dueReminders(distillation, cards, catalog, now),
+        _dueReminders(cards, catalog, now),
         budget: distillation.cardsPerBatch,
       );
       postponed = await _postpone(split.postponed, cards, catalog, now);
       count = min(count, split.newCardRoom);
     }
-    final introduced = await _introduce(
-      distillation,
-      cards,
-      catalog,
-      count,
-      now,
-    );
+    final introduced = await _introduce(cards, catalog, count, now);
     final progress = _rhythm.afterIntroducing(distillation, introduced, today);
     await _distillations.saveProgress(
-      distillation.id,
+      groupId,
       advancedDay: today,
       nextBatchDay: progress.nextBatchDay,
       introducedInBatch: progress.introducedInBatch,
     );
-    final distilled = await _cards.getDistilled(distillation.id);
-    if (DistillationQueue.remaining(distilled) == 0) {
-      await _distillations.delete(distillation.id);
-    }
     return introduced > 0 || postponed > 0;
   });
 
-  /// Reminders of the cards [distillation] introduced that are due today.
+  /// The budget protects the reminders from the new cards: it is spent only
+  /// while cards wait in the queue. With an empty queue, every reminder goes
+  /// through.
+  bool _spendsBudget(Distillation distillation, List<Flashcard> cards) =>
+      distillation.avoidCollisions &&
+      DistillationQueue.next(cards, 1).isNotEmpty;
+
+  /// Reminders of the group due today.
   List<BudgetedReminder> _dueReminders(
-    Distillation distillation,
-    List<CardWithDirections> cards,
+    List<Flashcard> cards,
     PresetCatalog catalog,
     DateTime now,
   ) {
     final duePolicy = DuePolicy(_calendar);
     return [
       for (final card in cards)
-        for (final direction in card.directions)
-          if (direction.distillationId == distillation.id &&
-              duePolicy.isDueToday(
-                direction,
-                cardSuspended: card.card.suspended,
-                now: now,
-              ))
-            BudgetedReminder(
-              directionId: direction.id,
-              interval: DirectionProgress.of(
-                direction,
-                catalog.presetForCard(card.card),
-              ).waitedInterval,
-              dueAt: direction.dueAt!,
-            ),
+        if (duePolicy.isDueToday(card, now: now))
+          BudgetedReminder(
+            cardId: card.id,
+            interval: CardProgress.of(
+              card,
+              catalog.presetForCard(card),
+            ).waitedInterval,
+            dueAt: card.dueAt!,
+          ),
     ];
   }
 
   /// Moves the reminders over the budget to the next day, keeping their
   /// progression.
   Future<int> _postpone(
-    List<int> directionIds,
-    List<CardWithDirections> cards,
+    List<int> cardIds,
+    List<Flashcard> cards,
     PresetCatalog catalog,
     DateTime now,
   ) async {
-    for (final directionId in directionIds) {
-      final card = cards.firstWhere(
-        (card) => card.directions.any((other) => other.id == directionId),
-      );
-      final direction = card.directions.firstWhere(
-        (other) => other.id == directionId,
-      );
-      final opposite = (await _cards.getDirections(card.card.id))
-          .where((other) => other.id != directionId && other.isScheduled)
-          .firstOrNull;
+    for (final cardId in cardIds) {
+      final card = cards.firstWhere((card) => card.id == cardId);
       await _cards.applySchedule(
-        directionId,
+        cardId,
         _scheduler.postponed(
-          direction: direction,
-          preset: catalog.presetForCard(card.card),
+          card: card,
+          preset: catalog.presetForCard(card),
           now: now,
-          oppositeDueAt: opposite?.dueAt,
         ),
       );
     }
-    return directionIds.length;
+    return cardIds.length;
   }
 
-  /// Introduces the [count] next directions of the queue: each one becomes
-  /// due today at its preset slot. Returns how many were introduced.
+  /// Introduces the [count] next cards of the queue: each one becomes due
+  /// today at its preset slot. Returns how many were introduced.
   Future<int> _introduce(
-    Distillation distillation,
-    List<CardWithDirections> cards,
+    List<Flashcard> cards,
     PresetCatalog catalog,
     int count,
     DateTime now,
@@ -360,142 +223,25 @@ class DistillationService {
     if (count <= 0) {
       return 0;
     }
-    final cardsById = {for (final card in cards) card.card.id: card};
-    final picked = DistillationQueue.next(
-      [
-        for (final card in cards)
-          for (final direction in card.directions)
-            if (direction.distillationId == distillation.id) direction,
-      ],
-      suspendedCardIds: {
-        for (final card in cards)
-          if (card.card.suspended) card.card.id,
-      },
-      count: count,
-    );
-    for (final direction in picked) {
-      await _start(cardsById[direction.cardId]!, direction, catalog, now);
-    }
-    if (distillation.isGlobal) {
-      await _rankReverses(distillation, picked);
+    final picked = DistillationQueue.next(cards, count);
+    for (final card in picked) {
+      await _cards.applySchedule(
+        card.id,
+        _scheduler.introduction(preset: catalog.presetForCard(card), now: now),
+      );
     }
     return picked.length;
   }
 
-  Future<void> _start(
-    CardWithDirections card,
-    CardDirection direction,
-    PresetCatalog catalog,
-    DateTime now,
-  ) async {
-    final opposite = (await _cards.getDirections(card.card.id))
-        .where((other) => other.id != direction.id && other.isScheduled)
-        .firstOrNull;
-    final schedule = _scheduler.startSchedule(
-      preset: catalog.presetForCard(card.card),
-      now: now,
-      oppositeDueAt: opposite?.dueAt,
+  /// Ranks the queue of the group again, in the order of [settings].
+  Future<void> _rankQueue(int groupId, DistillationSettings settings) async {
+    final ordered = DistillationQueue.ordered(
+      await _cards.getCardsOfGroup(groupId),
+      settings.order,
+      _random,
     );
-    await _cards.applySchedule(direction.id, schedule);
-    await _cards.setQueuePosition(direction.id, null);
-  }
-
-  /// Creates a distillation whose queue holds [ranked] in that order, and
-  /// [held] without a rank yet.
-  Future<int> _create({
-    required int? groupId,
-    required DirectionSense? sense,
-    required DistillationSettings settings,
-    required List<CardDirection> ranked,
-    required List<CardDirection> held,
-  }) async {
-    if (ranked.isEmpty) {
-      throw const DistillationRefused(DistillationRefusal.nothingToDistill);
-    }
-    final now = _clock();
-    final distillationId = await _distillations.insert(
-      groupId: groupId,
-      sense: sense,
-      settings: settings,
-      startedAt: now,
-      firstBatchDay: _calendar.dayOf(now),
-    );
-    for (final (position, direction) in ranked.indexed) {
-      await _cards.enqueue(
-        direction.id,
-        distillationId: distillationId,
-        position: position,
-      );
-    }
-    for (final direction in held) {
-      await _cards.enqueue(
-        direction.id,
-        distillationId: distillationId,
-        position: null,
-      );
-    }
-    return distillationId;
-  }
-
-  /// Rank of a direction joining [distillation]: the end of the queue, or
-  /// none for a reverse of the global distillation whose front still waits.
-  Future<int?> _joiningPosition(
-    Distillation distillation,
-    CardDirection direction,
-  ) async {
-    if (distillation.isGlobal &&
-        direction.sense == DirectionSense.backToFront) {
-      final front = await _directionOf(
-        direction.cardId,
-        DirectionSense.frontToBack,
-      );
-      if (front.state == DirectionState.pending &&
-          front.distillationId == distillation.id) {
-        return null;
-      }
-    }
-    return DistillationQueue.endPosition(
-      await _cards.getDistilled(distillation.id),
-    );
-  }
-
-  /// In the global distillation, the reverse of a front just introduced gets
-  /// its rank at the end of the queue. The pass of the day is over by then,
-  /// so it never arrives the same day as its front.
-  Future<void> _rankReverses(
-    Distillation distillation,
-    List<CardDirection> introduced,
-  ) async {
-    for (final front in introduced) {
-      if (front.sense != DirectionSense.frontToBack) {
-        continue;
-      }
-      final reverse = await _directionOf(
-        front.cardId,
-        DirectionSense.backToFront,
-      );
-      if (reverse.state == DirectionState.pending &&
-          reverse.distillationId == distillation.id &&
-          reverse.queuePosition == null) {
-        await _cards.setQueuePosition(
-          reverse.id,
-          DistillationQueue.endPosition(
-            await _cards.getDistilled(distillation.id),
-          ),
-        );
-      }
+    for (final (position, card) in ordered.indexed) {
+      await _cards.setQueuePosition(card.id, position);
     }
   }
-
-  Future<CardDirection> _directionOf(int cardId, DirectionSense sense) async =>
-      (await _cards.getDirections(cardId))
-          .firstWhere((direction) => direction.sense == sense);
-
-  List<CardDirection> _ordered(
-    List<CardDirection> directions,
-    DistillationOrder order,
-  ) => switch (order) {
-    DistillationOrder.groupOrder => directions,
-    DistillationOrder.random => [...directions]..shuffle(_random),
-  };
 }

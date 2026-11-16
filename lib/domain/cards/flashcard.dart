@@ -1,7 +1,10 @@
+import '../scheduling/fsrs/fsrs_memory.dart';
 import 'card_face.dart';
-import 'direction_sense.dart';
+import 'card_side.dart';
+import 'card_state.dart';
 
-/// A front / back card. Each of its two directions is scheduled separately.
+/// A front / back card of a group, with its single progression: whichever
+/// face is asked, the card has one step, one due date and one history.
 class Flashcard {
   const Flashcard({
     required this.id,
@@ -13,12 +16,18 @@ class Flashcard {
     required this.presetId,
     required this.suspended,
     required this.createdAt,
+    required this.state,
+    required this.step,
+    required this.stability,
+    required this.difficulty,
+    required this.dueAt,
+    required this.lastReviewedAt,
+    required this.notifiedAt,
+    required this.queuePosition,
   });
 
   final int id;
-
-  /// `null` for cards outside any group ("No group").
-  final int? groupId;
+  final int groupId;
   final String? frontText;
   final String? frontImagePath;
   final String? backText;
@@ -27,20 +36,55 @@ class Flashcard {
   /// Preset chosen on the card itself; `null` inherits from the group.
   final int? presetId;
 
-  /// A suspended card is never due, in both directions.
+  /// A suspended card is never due.
   final bool suspended;
   final DateTime createdAt;
+  final CardState state;
+
+  /// Index, in the preset sequence, of the interval currently waited.
+  /// `null` while the card has never been answered.
+  final int? step;
+
+  /// FSRS memory of a card followed by the adaptive engine; `null`
+  /// otherwise, and while it has never been answered.
+  final double? stability;
+  final double? difficulty;
+
+  /// `null` unless the card is [CardState.active].
+  final DateTime? dueAt;
+  final DateTime? lastReviewedAt;
+
+  /// When a notification was last shown for the current due date.
+  final DateTime? notifiedAt;
+
+  /// Rank in the queue of its group while [CardState.pending]; `null` once
+  /// introduced.
+  final int? queuePosition;
 
   CardFace get front => CardFace(text: frontText, imagePath: frontImagePath);
 
   CardFace get back => CardFace(text: backText, imagePath: backImagePath);
 
-  /// Face shown as the question for [sense].
-  CardFace promptFor(DirectionSense sense) => switch (sense) {
-    DirectionSense.frontToBack => front,
-    DirectionSense.backToFront => back,
+  CardFace face(CardSide side) => switch (side) {
+    CardSide.front => front,
+    CardSide.back => back,
   };
 
-  /// Face expected as the answer for [sense].
-  CardFace answerFor(DirectionSense sense) => promptFor(sense.opposite);
+  /// Face shown as the question when [asked] is drawn.
+  CardFace promptFor(CardSide asked) => face(asked);
+
+  /// Face expected as the answer when [asked] is drawn.
+  CardFace answerFor(CardSide asked) => face(asked.opposite);
+
+  FsrsMemory? get memory => switch ((stability, difficulty)) {
+    (final double stability, final double difficulty) => FsrsMemory(
+      stability: stability,
+      difficulty: difficulty,
+    ),
+    _ => null,
+  };
+
+  bool get isPending => state == CardState.pending;
+
+  bool get isScheduled => state == CardState.active && dueAt != null;
 }

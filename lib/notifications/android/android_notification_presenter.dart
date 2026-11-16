@@ -23,7 +23,7 @@ class AndroidNotificationPresenter implements NotificationPresenter {
 
   static const String channelId = 'reviews';
 
-  /// Ids of extra reminders start here, above any direction id, so that an
+  /// Ids of extra reminders start here, above any card id, so that an
   /// extra reminder never replaces the notification of a due card.
   static const int _extraReminderIdBase = 1000000000;
 
@@ -46,7 +46,11 @@ class AndroidNotificationPresenter implements NotificationPresenter {
       id: _idOf(prompt.key),
       title: title,
       body: detail,
-      payload: NotificationPayload.encode(prompt.key, isPrompt: true),
+      payload: NotificationPayload.encode(
+        prompt.key,
+        isPrompt: true,
+        askedSide: prompt.askedSide,
+      ),
       notificationDetails: _details(
         subText: _texts.groupLabel(prompt),
         style: _picture(prompt.image, title: title, summary: detail),
@@ -98,7 +102,11 @@ class AndroidNotificationPresenter implements NotificationPresenter {
       id: _idOf(reveal.key),
       title: _texts.promptTitle(reveal.prompt),
       body: answer,
-      payload: NotificationPayload.encode(reveal.key, isPrompt: false),
+      payload: NotificationPayload.encode(
+        reveal.key,
+        isPrompt: false,
+        askedSide: reveal.askedSide,
+      ),
       notificationDetails: _details(
         style:
             _picture(reveal.answerImage, title: answer, summary: verdict) ??
@@ -200,13 +208,13 @@ class AndroidNotificationPresenter implements NotificationPresenter {
     } else if (extraReminderId != null) {
       return _extraReminderIdBase + extraReminderId;
     } else {
-      return key.directionId;
+      return key.cardId;
     }
   }
 
   /// Grouped reminders use negative ids, which no card or extra reminder
-  /// uses; "No group" is -1.
-  static int _groupIdOf(GroupReminderKey key) => -1 - (key.groupId ?? 0);
+  /// uses.
+  static int _groupIdOf(GroupReminderKey key) => -1 - key.groupId;
 
   /// The image named [image] in the expanded notification, with [title] and
   /// [summary] in place of the title and text; `null` without an image, or

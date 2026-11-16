@@ -1330,6 +1330,21 @@ class $CardGroupsTable extends CardGroups
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _reverseEnabledMeta = const VerificationMeta(
+    'reverseEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> reverseEnabled = GeneratedColumn<bool>(
+    'reverse_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("reverse_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _pausedAtMeta = const VerificationMeta(
     'pausedAt',
   );
@@ -1347,6 +1362,7 @@ class $CardGroupsTable extends CardGroups
     name,
     presetId,
     createdAt,
+    reverseEnabled,
     pausedAt,
   ];
   @override
@@ -1386,6 +1402,15 @@ class $CardGroupsTable extends CardGroups
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('reverse_enabled')) {
+      context.handle(
+        _reverseEnabledMeta,
+        reverseEnabled.isAcceptableOrUnknown(
+          data['reverse_enabled']!,
+          _reverseEnabledMeta,
+        ),
+      );
+    }
     if (data.containsKey('paused_at')) {
       context.handle(
         _pausedAtMeta,
@@ -1417,6 +1442,10 @@ class $CardGroupsTable extends CardGroups
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      reverseEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}reverse_enabled'],
+      )!,
       pausedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}paused_at'],
@@ -1435,12 +1464,14 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
   final Value<String> name;
   final Value<int?> presetId;
   final Value<DateTime> createdAt;
+  final Value<bool> reverseEnabled;
   final Value<DateTime?> pausedAt;
   const CardGroupsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.presetId = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.reverseEnabled = const Value.absent(),
     this.pausedAt = const Value.absent(),
   });
   CardGroupsCompanion.insert({
@@ -1448,6 +1479,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     required String name,
     this.presetId = const Value.absent(),
     required DateTime createdAt,
+    this.reverseEnabled = const Value.absent(),
     this.pausedAt = const Value.absent(),
   }) : name = Value(name),
        createdAt = Value(createdAt);
@@ -1456,6 +1488,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Expression<String>? name,
     Expression<int>? presetId,
     Expression<DateTime>? createdAt,
+    Expression<bool>? reverseEnabled,
     Expression<DateTime>? pausedAt,
   }) {
     return RawValuesInsertable({
@@ -1463,6 +1496,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
       if (name != null) 'name': name,
       if (presetId != null) 'preset_id': presetId,
       if (createdAt != null) 'created_at': createdAt,
+      if (reverseEnabled != null) 'reverse_enabled': reverseEnabled,
       if (pausedAt != null) 'paused_at': pausedAt,
     });
   }
@@ -1472,6 +1506,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Value<String>? name,
     Value<int?>? presetId,
     Value<DateTime>? createdAt,
+    Value<bool>? reverseEnabled,
     Value<DateTime?>? pausedAt,
   }) {
     return CardGroupsCompanion(
@@ -1479,6 +1514,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
       name: name ?? this.name,
       presetId: presetId ?? this.presetId,
       createdAt: createdAt ?? this.createdAt,
+      reverseEnabled: reverseEnabled ?? this.reverseEnabled,
       pausedAt: pausedAt ?? this.pausedAt,
     );
   }
@@ -1498,6 +1534,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (reverseEnabled.present) {
+      map['reverse_enabled'] = Variable<bool>(reverseEnabled.value);
+    }
     if (pausedAt.present) {
       map['paused_at'] = Variable<DateTime>(pausedAt.value);
     }
@@ -1511,6 +1550,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
           ..write('name: $name, ')
           ..write('presetId: $presetId, ')
           ..write('createdAt: $createdAt, ')
+          ..write('reverseEnabled: $reverseEnabled, ')
           ..write('pausedAt: $pausedAt')
           ..write(')'))
         .toString();
@@ -1523,19 +1563,6 @@ class $DistillationsTable extends Distillations
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $DistillationsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
   static const VerificationMeta _groupIdMeta = const VerificationMeta(
     'groupId',
   );
@@ -1543,22 +1570,13 @@ class $DistillationsTable extends Distillations
   late final GeneratedColumn<int> groupId = GeneratedColumn<int>(
     'group_id',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'REFERENCES card_groups (id) ON DELETE CASCADE',
     ),
   );
-  @override
-  late final GeneratedColumnWithTypeConverter<DirectionSense?, String> sense =
-      GeneratedColumn<String>(
-        'sense',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      ).withConverter<DirectionSense?>($DistillationsTable.$convertersensen);
   static const VerificationMeta _cardsPerBatchMeta = const VerificationMeta(
     'cardsPerBatch',
   );
@@ -1663,9 +1681,7 @@ class $DistillationsTable extends Distillations
       );
   @override
   List<GeneratedColumn> get $columns => [
-    id,
     groupId,
-    sense,
     cardsPerBatch,
     everyDays,
     introductionOrder,
@@ -1688,9 +1704,6 @@ class $DistillationsTable extends Distillations
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
     if (data.containsKey('group_id')) {
       context.handle(
         _groupIdMeta,
@@ -1770,25 +1783,15 @@ class $DistillationsTable extends Distillations
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {groupId};
   @override
   Distillation map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Distillation(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
       groupId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}group_id'],
-      ),
-      sense: $DistillationsTable.$convertersensen.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}sense'],
-        ),
-      ),
+      )!,
       cardsPerBatch: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}cards_per_batch'],
@@ -1838,10 +1841,6 @@ class $DistillationsTable extends Distillations
     return $DistillationsTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<DirectionSense, String, String> $convertersense =
-      const EnumNameConverter<DirectionSense>(DirectionSense.values);
-  static JsonTypeConverter2<DirectionSense?, String?, String?>
-  $convertersensen = JsonTypeConverter2.asNullable($convertersense);
   static JsonTypeConverter2<DistillationOrder, String, String>
   $converterintroductionOrder = const EnumNameConverter<DistillationOrder>(
     DistillationOrder.values,
@@ -1853,9 +1852,7 @@ class $DistillationsTable extends Distillations
 }
 
 class DistillationsCompanion extends UpdateCompanion<Distillation> {
-  final Value<int> id;
-  final Value<int?> groupId;
-  final Value<DirectionSense?> sense;
+  final Value<int> groupId;
   final Value<int> cardsPerBatch;
   final Value<int> everyDays;
   final Value<DistillationOrder> introductionOrder;
@@ -1866,9 +1863,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
   final Value<int> introducedInBatch;
   final Value<DateTime?> lastAdvancedDay;
   const DistillationsCompanion({
-    this.id = const Value.absent(),
     this.groupId = const Value.absent(),
-    this.sense = const Value.absent(),
     this.cardsPerBatch = const Value.absent(),
     this.everyDays = const Value.absent(),
     this.introductionOrder = const Value.absent(),
@@ -1880,9 +1875,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     this.lastAdvancedDay = const Value.absent(),
   });
   DistillationsCompanion.insert({
-    this.id = const Value.absent(),
     this.groupId = const Value.absent(),
-    this.sense = const Value.absent(),
     required int cardsPerBatch,
     required int everyDays,
     required DistillationOrder introductionOrder,
@@ -1901,9 +1894,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
        nextBatchDay = Value(nextBatchDay),
        introducedInBatch = Value(introducedInBatch);
   static Insertable<Distillation> custom({
-    Expression<int>? id,
     Expression<int>? groupId,
-    Expression<String>? sense,
     Expression<int>? cardsPerBatch,
     Expression<int>? everyDays,
     Expression<String>? introductionOrder,
@@ -1915,9 +1906,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     Expression<DateTime>? lastAdvancedDay,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (groupId != null) 'group_id': groupId,
-      if (sense != null) 'sense': sense,
       if (cardsPerBatch != null) 'cards_per_batch': cardsPerBatch,
       if (everyDays != null) 'every_days': everyDays,
       if (introductionOrder != null) 'introduction_order': introductionOrder,
@@ -1931,9 +1920,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
   }
 
   DistillationsCompanion copyWith({
-    Value<int>? id,
-    Value<int?>? groupId,
-    Value<DirectionSense?>? sense,
+    Value<int>? groupId,
     Value<int>? cardsPerBatch,
     Value<int>? everyDays,
     Value<DistillationOrder>? introductionOrder,
@@ -1945,9 +1932,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     Value<DateTime?>? lastAdvancedDay,
   }) {
     return DistillationsCompanion(
-      id: id ?? this.id,
       groupId: groupId ?? this.groupId,
-      sense: sense ?? this.sense,
       cardsPerBatch: cardsPerBatch ?? this.cardsPerBatch,
       everyDays: everyDays ?? this.everyDays,
       introductionOrder: introductionOrder ?? this.introductionOrder,
@@ -1963,16 +1948,8 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (groupId.present) {
       map['group_id'] = Variable<int>(groupId.value);
-    }
-    if (sense.present) {
-      map['sense'] = Variable<String>(
-        $DistillationsTable.$convertersensen.toSql(sense.value),
-      );
     }
     if (cardsPerBatch.present) {
       map['cards_per_batch'] = Variable<int>(cardsPerBatch.value);
@@ -2013,9 +1990,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
   @override
   String toString() {
     return (StringBuffer('DistillationsCompanion(')
-          ..write('id: $id, ')
           ..write('groupId: $groupId, ')
-          ..write('sense: $sense, ')
           ..write('cardsPerBatch: $cardsPerBatch, ')
           ..write('everyDays: $everyDays, ')
           ..write('introductionOrder: $introductionOrder, ')
@@ -2056,9 +2031,9 @@ class $FlashcardsTable extends Flashcards
   late final GeneratedColumn<int> groupId = GeneratedColumn<int>(
     'group_id',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.int,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'REFERENCES card_groups (id) ON DELETE CASCADE',
     ),
@@ -2148,321 +2123,14 @@ class $FlashcardsTable extends Flashcards
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    groupId,
-    frontText,
-    frontImagePath,
-    backText,
-    backImagePath,
-    presetId,
-    suspended,
-    createdAt,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'flashcards';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<Flashcard> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('group_id')) {
-      context.handle(
-        _groupIdMeta,
-        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
-      );
-    }
-    if (data.containsKey('front_text')) {
-      context.handle(
-        _frontTextMeta,
-        frontText.isAcceptableOrUnknown(data['front_text']!, _frontTextMeta),
-      );
-    }
-    if (data.containsKey('front_image_path')) {
-      context.handle(
-        _frontImagePathMeta,
-        frontImagePath.isAcceptableOrUnknown(
-          data['front_image_path']!,
-          _frontImagePathMeta,
-        ),
-      );
-    }
-    if (data.containsKey('back_text')) {
-      context.handle(
-        _backTextMeta,
-        backText.isAcceptableOrUnknown(data['back_text']!, _backTextMeta),
-      );
-    }
-    if (data.containsKey('back_image_path')) {
-      context.handle(
-        _backImagePathMeta,
-        backImagePath.isAcceptableOrUnknown(
-          data['back_image_path']!,
-          _backImagePathMeta,
-        ),
-      );
-    }
-    if (data.containsKey('preset_id')) {
-      context.handle(
-        _presetIdMeta,
-        presetId.isAcceptableOrUnknown(data['preset_id']!, _presetIdMeta),
-      );
-    }
-    if (data.containsKey('suspended')) {
-      context.handle(
-        _suspendedMeta,
-        suspended.isAcceptableOrUnknown(data['suspended']!, _suspendedMeta),
-      );
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Flashcard map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Flashcard(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      groupId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}group_id'],
-      ),
-      frontText: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}front_text'],
-      ),
-      frontImagePath: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}front_image_path'],
-      ),
-      backText: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}back_text'],
-      ),
-      backImagePath: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}back_image_path'],
-      ),
-      presetId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}preset_id'],
-      ),
-      suspended: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}suspended'],
-      )!,
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-    );
-  }
-
-  @override
-  $FlashcardsTable createAlias(String alias) {
-    return $FlashcardsTable(attachedDatabase, alias);
-  }
-}
-
-class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
-  final Value<int> id;
-  final Value<int?> groupId;
-  final Value<String?> frontText;
-  final Value<String?> frontImagePath;
-  final Value<String?> backText;
-  final Value<String?> backImagePath;
-  final Value<int?> presetId;
-  final Value<bool> suspended;
-  final Value<DateTime> createdAt;
-  const FlashcardsCompanion({
-    this.id = const Value.absent(),
-    this.groupId = const Value.absent(),
-    this.frontText = const Value.absent(),
-    this.frontImagePath = const Value.absent(),
-    this.backText = const Value.absent(),
-    this.backImagePath = const Value.absent(),
-    this.presetId = const Value.absent(),
-    this.suspended = const Value.absent(),
-    this.createdAt = const Value.absent(),
-  });
-  FlashcardsCompanion.insert({
-    this.id = const Value.absent(),
-    this.groupId = const Value.absent(),
-    this.frontText = const Value.absent(),
-    this.frontImagePath = const Value.absent(),
-    this.backText = const Value.absent(),
-    this.backImagePath = const Value.absent(),
-    this.presetId = const Value.absent(),
-    this.suspended = const Value.absent(),
-    required DateTime createdAt,
-  }) : createdAt = Value(createdAt);
-  static Insertable<Flashcard> custom({
-    Expression<int>? id,
-    Expression<int>? groupId,
-    Expression<String>? frontText,
-    Expression<String>? frontImagePath,
-    Expression<String>? backText,
-    Expression<String>? backImagePath,
-    Expression<int>? presetId,
-    Expression<bool>? suspended,
-    Expression<DateTime>? createdAt,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (groupId != null) 'group_id': groupId,
-      if (frontText != null) 'front_text': frontText,
-      if (frontImagePath != null) 'front_image_path': frontImagePath,
-      if (backText != null) 'back_text': backText,
-      if (backImagePath != null) 'back_image_path': backImagePath,
-      if (presetId != null) 'preset_id': presetId,
-      if (suspended != null) 'suspended': suspended,
-      if (createdAt != null) 'created_at': createdAt,
-    });
-  }
-
-  FlashcardsCompanion copyWith({
-    Value<int>? id,
-    Value<int?>? groupId,
-    Value<String?>? frontText,
-    Value<String?>? frontImagePath,
-    Value<String?>? backText,
-    Value<String?>? backImagePath,
-    Value<int?>? presetId,
-    Value<bool>? suspended,
-    Value<DateTime>? createdAt,
-  }) {
-    return FlashcardsCompanion(
-      id: id ?? this.id,
-      groupId: groupId ?? this.groupId,
-      frontText: frontText ?? this.frontText,
-      frontImagePath: frontImagePath ?? this.frontImagePath,
-      backText: backText ?? this.backText,
-      backImagePath: backImagePath ?? this.backImagePath,
-      presetId: presetId ?? this.presetId,
-      suspended: suspended ?? this.suspended,
-      createdAt: createdAt ?? this.createdAt,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (groupId.present) {
-      map['group_id'] = Variable<int>(groupId.value);
-    }
-    if (frontText.present) {
-      map['front_text'] = Variable<String>(frontText.value);
-    }
-    if (frontImagePath.present) {
-      map['front_image_path'] = Variable<String>(frontImagePath.value);
-    }
-    if (backText.present) {
-      map['back_text'] = Variable<String>(backText.value);
-    }
-    if (backImagePath.present) {
-      map['back_image_path'] = Variable<String>(backImagePath.value);
-    }
-    if (presetId.present) {
-      map['preset_id'] = Variable<int>(presetId.value);
-    }
-    if (suspended.present) {
-      map['suspended'] = Variable<bool>(suspended.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('FlashcardsCompanion(')
-          ..write('id: $id, ')
-          ..write('groupId: $groupId, ')
-          ..write('frontText: $frontText, ')
-          ..write('frontImagePath: $frontImagePath, ')
-          ..write('backText: $backText, ')
-          ..write('backImagePath: $backImagePath, ')
-          ..write('presetId: $presetId, ')
-          ..write('suspended: $suspended, ')
-          ..write('createdAt: $createdAt')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $CardDirectionsTable extends CardDirections
-    with TableInfo<$CardDirectionsTable, CardDirection> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $CardDirectionsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
-  @override
-  late final GeneratedColumn<int> cardId = GeneratedColumn<int>(
-    'card_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES flashcards (id) ON DELETE CASCADE',
-    ),
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<DirectionSense, String> sense =
-      GeneratedColumn<String>(
-        'sense',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<DirectionSense>($CardDirectionsTable.$convertersense);
-  @override
-  late final GeneratedColumnWithTypeConverter<DirectionState, String> state =
+  late final GeneratedColumnWithTypeConverter<CardState, String> state =
       GeneratedColumn<String>(
         'state',
         aliasedName,
         false,
         type: DriftSqlType.string,
         requiredDuringInsert: true,
-      ).withConverter<DirectionState>($CardDirectionsTable.$converterstate);
+      ).withConverter<CardState>($FlashcardsTable.$converterstate);
   static const VerificationMeta _stepMeta = const VerificationMeta('step');
   @override
   late final GeneratedColumn<int> step = GeneratedColumn<int>(
@@ -2526,20 +2194,6 @@ class $CardDirectionsTable extends CardDirections
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _distillationIdMeta = const VerificationMeta(
-    'distillationId',
-  );
-  @override
-  late final GeneratedColumn<int> distillationId = GeneratedColumn<int>(
-    'distillation_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES distillations (id) ON DELETE SET NULL',
-    ),
-  );
   static const VerificationMeta _queuePositionMeta = const VerificationMeta(
     'queuePosition',
   );
@@ -2554,8 +2208,14 @@ class $CardDirectionsTable extends CardDirections
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    cardId,
-    sense,
+    groupId,
+    frontText,
+    frontImagePath,
+    backText,
+    backImagePath,
+    presetId,
+    suspended,
+    createdAt,
     state,
     step,
     stability,
@@ -2563,17 +2223,16 @@ class $CardDirectionsTable extends CardDirections
     dueAt,
     lastReviewedAt,
     notifiedAt,
-    distillationId,
     queuePosition,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'card_directions';
+  static const String $name = 'flashcards';
   @override
   VerificationContext validateIntegrity(
-    Insertable<CardDirection> instance, {
+    Insertable<Flashcard> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -2581,13 +2240,63 @@ class $CardDirectionsTable extends CardDirections
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('card_id')) {
+    if (data.containsKey('group_id')) {
       context.handle(
-        _cardIdMeta,
-        cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta),
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_cardIdMeta);
+      context.missing(_groupIdMeta);
+    }
+    if (data.containsKey('front_text')) {
+      context.handle(
+        _frontTextMeta,
+        frontText.isAcceptableOrUnknown(data['front_text']!, _frontTextMeta),
+      );
+    }
+    if (data.containsKey('front_image_path')) {
+      context.handle(
+        _frontImagePathMeta,
+        frontImagePath.isAcceptableOrUnknown(
+          data['front_image_path']!,
+          _frontImagePathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('back_text')) {
+      context.handle(
+        _backTextMeta,
+        backText.isAcceptableOrUnknown(data['back_text']!, _backTextMeta),
+      );
+    }
+    if (data.containsKey('back_image_path')) {
+      context.handle(
+        _backImagePathMeta,
+        backImagePath.isAcceptableOrUnknown(
+          data['back_image_path']!,
+          _backImagePathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('preset_id')) {
+      context.handle(
+        _presetIdMeta,
+        presetId.isAcceptableOrUnknown(data['preset_id']!, _presetIdMeta),
+      );
+    }
+    if (data.containsKey('suspended')) {
+      context.handle(
+        _suspendedMeta,
+        suspended.isAcceptableOrUnknown(data['suspended']!, _suspendedMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
     }
     if (data.containsKey('step')) {
       context.handle(
@@ -2628,15 +2337,6 @@ class $CardDirectionsTable extends CardDirections
         notifiedAt.isAcceptableOrUnknown(data['notified_at']!, _notifiedAtMeta),
       );
     }
-    if (data.containsKey('distillation_id')) {
-      context.handle(
-        _distillationIdMeta,
-        distillationId.isAcceptableOrUnknown(
-          data['distillation_id']!,
-          _distillationIdMeta,
-        ),
-      );
-    }
     if (data.containsKey('queue_position')) {
       context.handle(
         _queuePositionMeta,
@@ -2652,28 +2352,46 @@ class $CardDirectionsTable extends CardDirections
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {cardId, sense},
-  ];
-  @override
-  CardDirection map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Flashcard map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return CardDirection(
+    return Flashcard(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      cardId: attachedDatabase.typeMapping.read(
+      groupId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}card_id'],
+        data['${effectivePrefix}group_id'],
       )!,
-      sense: $CardDirectionsTable.$convertersense.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}sense'],
-        )!,
+      frontText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}front_text'],
       ),
-      state: $CardDirectionsTable.$converterstate.fromSql(
+      frontImagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}front_image_path'],
+      ),
+      backText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}back_text'],
+      ),
+      backImagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}back_image_path'],
+      ),
+      presetId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}preset_id'],
+      ),
+      suspended: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}suspended'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      state: $FlashcardsTable.$converterstate.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}state'],
@@ -2703,10 +2421,6 @@ class $CardDirectionsTable extends CardDirections
         DriftSqlType.dateTime,
         data['${effectivePrefix}notified_at'],
       ),
-      distillationId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}distillation_id'],
-      ),
       queuePosition: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}queue_position'],
@@ -2715,33 +2429,42 @@ class $CardDirectionsTable extends CardDirections
   }
 
   @override
-  $CardDirectionsTable createAlias(String alias) {
-    return $CardDirectionsTable(attachedDatabase, alias);
+  $FlashcardsTable createAlias(String alias) {
+    return $FlashcardsTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<DirectionSense, String, String> $convertersense =
-      const EnumNameConverter<DirectionSense>(DirectionSense.values);
-  static JsonTypeConverter2<DirectionState, String, String> $converterstate =
-      const EnumNameConverter<DirectionState>(DirectionState.values);
+  static JsonTypeConverter2<CardState, String, String> $converterstate =
+      const EnumNameConverter<CardState>(CardState.values);
 }
 
-class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
+class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
   final Value<int> id;
-  final Value<int> cardId;
-  final Value<DirectionSense> sense;
-  final Value<DirectionState> state;
+  final Value<int> groupId;
+  final Value<String?> frontText;
+  final Value<String?> frontImagePath;
+  final Value<String?> backText;
+  final Value<String?> backImagePath;
+  final Value<int?> presetId;
+  final Value<bool> suspended;
+  final Value<DateTime> createdAt;
+  final Value<CardState> state;
   final Value<int?> step;
   final Value<double?> stability;
   final Value<double?> difficulty;
   final Value<DateTime?> dueAt;
   final Value<DateTime?> lastReviewedAt;
   final Value<DateTime?> notifiedAt;
-  final Value<int?> distillationId;
   final Value<int?> queuePosition;
-  const CardDirectionsCompanion({
+  const FlashcardsCompanion({
     this.id = const Value.absent(),
-    this.cardId = const Value.absent(),
-    this.sense = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.frontText = const Value.absent(),
+    this.frontImagePath = const Value.absent(),
+    this.backText = const Value.absent(),
+    this.backImagePath = const Value.absent(),
+    this.presetId = const Value.absent(),
+    this.suspended = const Value.absent(),
+    this.createdAt = const Value.absent(),
     this.state = const Value.absent(),
     this.step = const Value.absent(),
     this.stability = const Value.absent(),
@@ -2749,29 +2472,39 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
     this.dueAt = const Value.absent(),
     this.lastReviewedAt = const Value.absent(),
     this.notifiedAt = const Value.absent(),
-    this.distillationId = const Value.absent(),
     this.queuePosition = const Value.absent(),
   });
-  CardDirectionsCompanion.insert({
+  FlashcardsCompanion.insert({
     this.id = const Value.absent(),
-    required int cardId,
-    required DirectionSense sense,
-    required DirectionState state,
+    required int groupId,
+    this.frontText = const Value.absent(),
+    this.frontImagePath = const Value.absent(),
+    this.backText = const Value.absent(),
+    this.backImagePath = const Value.absent(),
+    this.presetId = const Value.absent(),
+    this.suspended = const Value.absent(),
+    required DateTime createdAt,
+    required CardState state,
     this.step = const Value.absent(),
     this.stability = const Value.absent(),
     this.difficulty = const Value.absent(),
     this.dueAt = const Value.absent(),
     this.lastReviewedAt = const Value.absent(),
     this.notifiedAt = const Value.absent(),
-    this.distillationId = const Value.absent(),
     this.queuePosition = const Value.absent(),
-  }) : cardId = Value(cardId),
-       sense = Value(sense),
+  }) : groupId = Value(groupId),
+       createdAt = Value(createdAt),
        state = Value(state);
-  static Insertable<CardDirection> custom({
+  static Insertable<Flashcard> custom({
     Expression<int>? id,
-    Expression<int>? cardId,
-    Expression<String>? sense,
+    Expression<int>? groupId,
+    Expression<String>? frontText,
+    Expression<String>? frontImagePath,
+    Expression<String>? backText,
+    Expression<String>? backImagePath,
+    Expression<int>? presetId,
+    Expression<bool>? suspended,
+    Expression<DateTime>? createdAt,
     Expression<String>? state,
     Expression<int>? step,
     Expression<double>? stability,
@@ -2779,13 +2512,18 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
     Expression<DateTime>? dueAt,
     Expression<DateTime>? lastReviewedAt,
     Expression<DateTime>? notifiedAt,
-    Expression<int>? distillationId,
     Expression<int>? queuePosition,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (cardId != null) 'card_id': cardId,
-      if (sense != null) 'sense': sense,
+      if (groupId != null) 'group_id': groupId,
+      if (frontText != null) 'front_text': frontText,
+      if (frontImagePath != null) 'front_image_path': frontImagePath,
+      if (backText != null) 'back_text': backText,
+      if (backImagePath != null) 'back_image_path': backImagePath,
+      if (presetId != null) 'preset_id': presetId,
+      if (suspended != null) 'suspended': suspended,
+      if (createdAt != null) 'created_at': createdAt,
       if (state != null) 'state': state,
       if (step != null) 'step': step,
       if (stability != null) 'stability': stability,
@@ -2793,29 +2531,39 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
       if (dueAt != null) 'due_at': dueAt,
       if (lastReviewedAt != null) 'last_reviewed_at': lastReviewedAt,
       if (notifiedAt != null) 'notified_at': notifiedAt,
-      if (distillationId != null) 'distillation_id': distillationId,
       if (queuePosition != null) 'queue_position': queuePosition,
     });
   }
 
-  CardDirectionsCompanion copyWith({
+  FlashcardsCompanion copyWith({
     Value<int>? id,
-    Value<int>? cardId,
-    Value<DirectionSense>? sense,
-    Value<DirectionState>? state,
+    Value<int>? groupId,
+    Value<String?>? frontText,
+    Value<String?>? frontImagePath,
+    Value<String?>? backText,
+    Value<String?>? backImagePath,
+    Value<int?>? presetId,
+    Value<bool>? suspended,
+    Value<DateTime>? createdAt,
+    Value<CardState>? state,
     Value<int?>? step,
     Value<double?>? stability,
     Value<double?>? difficulty,
     Value<DateTime?>? dueAt,
     Value<DateTime?>? lastReviewedAt,
     Value<DateTime?>? notifiedAt,
-    Value<int?>? distillationId,
     Value<int?>? queuePosition,
   }) {
-    return CardDirectionsCompanion(
+    return FlashcardsCompanion(
       id: id ?? this.id,
-      cardId: cardId ?? this.cardId,
-      sense: sense ?? this.sense,
+      groupId: groupId ?? this.groupId,
+      frontText: frontText ?? this.frontText,
+      frontImagePath: frontImagePath ?? this.frontImagePath,
+      backText: backText ?? this.backText,
+      backImagePath: backImagePath ?? this.backImagePath,
+      presetId: presetId ?? this.presetId,
+      suspended: suspended ?? this.suspended,
+      createdAt: createdAt ?? this.createdAt,
       state: state ?? this.state,
       step: step ?? this.step,
       stability: stability ?? this.stability,
@@ -2823,7 +2571,6 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
       dueAt: dueAt ?? this.dueAt,
       lastReviewedAt: lastReviewedAt ?? this.lastReviewedAt,
       notifiedAt: notifiedAt ?? this.notifiedAt,
-      distillationId: distillationId ?? this.distillationId,
       queuePosition: queuePosition ?? this.queuePosition,
     );
   }
@@ -2834,17 +2581,33 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (cardId.present) {
-      map['card_id'] = Variable<int>(cardId.value);
+    if (groupId.present) {
+      map['group_id'] = Variable<int>(groupId.value);
     }
-    if (sense.present) {
-      map['sense'] = Variable<String>(
-        $CardDirectionsTable.$convertersense.toSql(sense.value),
-      );
+    if (frontText.present) {
+      map['front_text'] = Variable<String>(frontText.value);
+    }
+    if (frontImagePath.present) {
+      map['front_image_path'] = Variable<String>(frontImagePath.value);
+    }
+    if (backText.present) {
+      map['back_text'] = Variable<String>(backText.value);
+    }
+    if (backImagePath.present) {
+      map['back_image_path'] = Variable<String>(backImagePath.value);
+    }
+    if (presetId.present) {
+      map['preset_id'] = Variable<int>(presetId.value);
+    }
+    if (suspended.present) {
+      map['suspended'] = Variable<bool>(suspended.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
     }
     if (state.present) {
       map['state'] = Variable<String>(
-        $CardDirectionsTable.$converterstate.toSql(state.value),
+        $FlashcardsTable.$converterstate.toSql(state.value),
       );
     }
     if (step.present) {
@@ -2865,9 +2628,6 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
     if (notifiedAt.present) {
       map['notified_at'] = Variable<DateTime>(notifiedAt.value);
     }
-    if (distillationId.present) {
-      map['distillation_id'] = Variable<int>(distillationId.value);
-    }
     if (queuePosition.present) {
       map['queue_position'] = Variable<int>(queuePosition.value);
     }
@@ -2876,10 +2636,16 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
 
   @override
   String toString() {
-    return (StringBuffer('CardDirectionsCompanion(')
+    return (StringBuffer('FlashcardsCompanion(')
           ..write('id: $id, ')
-          ..write('cardId: $cardId, ')
-          ..write('sense: $sense, ')
+          ..write('groupId: $groupId, ')
+          ..write('frontText: $frontText, ')
+          ..write('frontImagePath: $frontImagePath, ')
+          ..write('backText: $backText, ')
+          ..write('backImagePath: $backImagePath, ')
+          ..write('presetId: $presetId, ')
+          ..write('suspended: $suspended, ')
+          ..write('createdAt: $createdAt, ')
           ..write('state: $state, ')
           ..write('step: $step, ')
           ..write('stability: $stability, ')
@@ -2887,7 +2653,6 @@ class CardDirectionsCompanion extends UpdateCompanion<CardDirection> {
           ..write('dueAt: $dueAt, ')
           ..write('lastReviewedAt: $lastReviewedAt, ')
           ..write('notifiedAt: $notifiedAt, ')
-          ..write('distillationId: $distillationId, ')
           ..write('queuePosition: $queuePosition')
           ..write(')'))
         .toString();
@@ -2913,18 +2678,16 @@ class $ReviewRecordsTable extends ReviewRecords
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _directionIdMeta = const VerificationMeta(
-    'directionId',
-  );
+  static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
   @override
-  late final GeneratedColumn<int> directionId = GeneratedColumn<int>(
-    'direction_id',
+  late final GeneratedColumn<int> cardId = GeneratedColumn<int>(
+    'card_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES card_directions (id) ON DELETE CASCADE',
+      'REFERENCES flashcards (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _reviewedAtMeta = const VerificationMeta(
@@ -3006,7 +2769,7 @@ class $ReviewRecordsTable extends ReviewRecords
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    directionId,
+    cardId,
     reviewedAt,
     outcome,
     isBonus,
@@ -3030,16 +2793,13 @@ class $ReviewRecordsTable extends ReviewRecords
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('direction_id')) {
+    if (data.containsKey('card_id')) {
       context.handle(
-        _directionIdMeta,
-        directionId.isAcceptableOrUnknown(
-          data['direction_id']!,
-          _directionIdMeta,
-        ),
+        _cardIdMeta,
+        cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_directionIdMeta);
+      context.missing(_cardIdMeta);
     }
     if (data.containsKey('reviewed_at')) {
       context.handle(
@@ -3091,9 +2851,9 @@ class $ReviewRecordsTable extends ReviewRecords
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      directionId: attachedDatabase.typeMapping.read(
+      cardId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}direction_id'],
+        data['${effectivePrefix}card_id'],
       )!,
       reviewedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -3143,7 +2903,7 @@ class $ReviewRecordsTable extends ReviewRecords
 
 class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
   final Value<int> id;
-  final Value<int> directionId;
+  final Value<int> cardId;
   final Value<DateTime> reviewedAt;
   final Value<ReviewOutcome> outcome;
   final Value<bool> isBonus;
@@ -3153,7 +2913,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
   final Value<ReviewSource> source;
   const ReviewRecordsCompanion({
     this.id = const Value.absent(),
-    this.directionId = const Value.absent(),
+    this.cardId = const Value.absent(),
     this.reviewedAt = const Value.absent(),
     this.outcome = const Value.absent(),
     this.isBonus = const Value.absent(),
@@ -3164,7 +2924,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
   });
   ReviewRecordsCompanion.insert({
     this.id = const Value.absent(),
-    required int directionId,
+    required int cardId,
     required DateTime reviewedAt,
     required ReviewOutcome outcome,
     required bool isBonus,
@@ -3172,14 +2932,14 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     this.stepAfter = const Value.absent(),
     this.dueAtAfter = const Value.absent(),
     required ReviewSource source,
-  }) : directionId = Value(directionId),
+  }) : cardId = Value(cardId),
        reviewedAt = Value(reviewedAt),
        outcome = Value(outcome),
        isBonus = Value(isBonus),
        source = Value(source);
   static Insertable<ReviewRecord> custom({
     Expression<int>? id,
-    Expression<int>? directionId,
+    Expression<int>? cardId,
     Expression<DateTime>? reviewedAt,
     Expression<String>? outcome,
     Expression<bool>? isBonus,
@@ -3190,7 +2950,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (directionId != null) 'direction_id': directionId,
+      if (cardId != null) 'card_id': cardId,
       if (reviewedAt != null) 'reviewed_at': reviewedAt,
       if (outcome != null) 'outcome': outcome,
       if (isBonus != null) 'is_bonus': isBonus,
@@ -3203,7 +2963,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
 
   ReviewRecordsCompanion copyWith({
     Value<int>? id,
-    Value<int>? directionId,
+    Value<int>? cardId,
     Value<DateTime>? reviewedAt,
     Value<ReviewOutcome>? outcome,
     Value<bool>? isBonus,
@@ -3214,7 +2974,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
   }) {
     return ReviewRecordsCompanion(
       id: id ?? this.id,
-      directionId: directionId ?? this.directionId,
+      cardId: cardId ?? this.cardId,
       reviewedAt: reviewedAt ?? this.reviewedAt,
       outcome: outcome ?? this.outcome,
       isBonus: isBonus ?? this.isBonus,
@@ -3231,8 +2991,8 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (directionId.present) {
-      map['direction_id'] = Variable<int>(directionId.value);
+    if (cardId.present) {
+      map['card_id'] = Variable<int>(cardId.value);
     }
     if (reviewedAt.present) {
       map['reviewed_at'] = Variable<DateTime>(reviewedAt.value);
@@ -3266,7 +3026,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
   String toString() {
     return (StringBuffer('ReviewRecordsCompanion(')
           ..write('id: $id, ')
-          ..write('directionId: $directionId, ')
+          ..write('cardId: $cardId, ')
           ..write('reviewedAt: $reviewedAt, ')
           ..write('outcome: $outcome, ')
           ..write('isBonus: $isBonus, ')
@@ -3298,18 +3058,16 @@ class $ExtraRemindersTable extends ExtraReminders
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _directionIdMeta = const VerificationMeta(
-    'directionId',
-  );
+  static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
   @override
-  late final GeneratedColumn<int> directionId = GeneratedColumn<int>(
-    'direction_id',
+  late final GeneratedColumn<int> cardId = GeneratedColumn<int>(
+    'card_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES card_directions (id) ON DELETE CASCADE',
+      'REFERENCES flashcards (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _remindAtMeta = const VerificationMeta(
@@ -3335,7 +3093,7 @@ class $ExtraRemindersTable extends ExtraReminders
     requiredDuringInsert: false,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, directionId, remindAt, notifiedAt];
+  List<GeneratedColumn> get $columns => [id, cardId, remindAt, notifiedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3351,16 +3109,13 @@ class $ExtraRemindersTable extends ExtraReminders
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('direction_id')) {
+    if (data.containsKey('card_id')) {
       context.handle(
-        _directionIdMeta,
-        directionId.isAcceptableOrUnknown(
-          data['direction_id']!,
-          _directionIdMeta,
-        ),
+        _cardIdMeta,
+        cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_directionIdMeta);
+      context.missing(_cardIdMeta);
     }
     if (data.containsKey('remind_at')) {
       context.handle(
@@ -3389,9 +3144,9 @@ class $ExtraRemindersTable extends ExtraReminders
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      directionId: attachedDatabase.typeMapping.read(
+      cardId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}direction_id'],
+        data['${effectivePrefix}card_id'],
       )!,
       remindAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -3412,31 +3167,31 @@ class $ExtraRemindersTable extends ExtraReminders
 
 class ExtraRemindersCompanion extends UpdateCompanion<ExtraReminder> {
   final Value<int> id;
-  final Value<int> directionId;
+  final Value<int> cardId;
   final Value<DateTime> remindAt;
   final Value<DateTime?> notifiedAt;
   const ExtraRemindersCompanion({
     this.id = const Value.absent(),
-    this.directionId = const Value.absent(),
+    this.cardId = const Value.absent(),
     this.remindAt = const Value.absent(),
     this.notifiedAt = const Value.absent(),
   });
   ExtraRemindersCompanion.insert({
     this.id = const Value.absent(),
-    required int directionId,
+    required int cardId,
     required DateTime remindAt,
     this.notifiedAt = const Value.absent(),
-  }) : directionId = Value(directionId),
+  }) : cardId = Value(cardId),
        remindAt = Value(remindAt);
   static Insertable<ExtraReminder> custom({
     Expression<int>? id,
-    Expression<int>? directionId,
+    Expression<int>? cardId,
     Expression<DateTime>? remindAt,
     Expression<DateTime>? notifiedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (directionId != null) 'direction_id': directionId,
+      if (cardId != null) 'card_id': cardId,
       if (remindAt != null) 'remind_at': remindAt,
       if (notifiedAt != null) 'notified_at': notifiedAt,
     });
@@ -3444,13 +3199,13 @@ class ExtraRemindersCompanion extends UpdateCompanion<ExtraReminder> {
 
   ExtraRemindersCompanion copyWith({
     Value<int>? id,
-    Value<int>? directionId,
+    Value<int>? cardId,
     Value<DateTime>? remindAt,
     Value<DateTime?>? notifiedAt,
   }) {
     return ExtraRemindersCompanion(
       id: id ?? this.id,
-      directionId: directionId ?? this.directionId,
+      cardId: cardId ?? this.cardId,
       remindAt: remindAt ?? this.remindAt,
       notifiedAt: notifiedAt ?? this.notifiedAt,
     );
@@ -3462,8 +3217,8 @@ class ExtraRemindersCompanion extends UpdateCompanion<ExtraReminder> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (directionId.present) {
-      map['direction_id'] = Variable<int>(directionId.value);
+    if (cardId.present) {
+      map['card_id'] = Variable<int>(cardId.value);
     }
     if (remindAt.present) {
       map['remind_at'] = Variable<DateTime>(remindAt.value);
@@ -3478,7 +3233,7 @@ class ExtraRemindersCompanion extends UpdateCompanion<ExtraReminder> {
   String toString() {
     return (StringBuffer('ExtraRemindersCompanion(')
           ..write('id: $id, ')
-          ..write('directionId: $directionId, ')
+          ..write('cardId: $cardId, ')
           ..write('remindAt: $remindAt, ')
           ..write('notifiedAt: $notifiedAt')
           ..write(')'))
@@ -3494,12 +3249,11 @@ abstract class _$AlambicDatabase extends GeneratedDatabase {
   late final $CardGroupsTable cardGroups = $CardGroupsTable(this);
   late final $DistillationsTable distillations = $DistillationsTable(this);
   late final $FlashcardsTable flashcards = $FlashcardsTable(this);
-  late final $CardDirectionsTable cardDirections = $CardDirectionsTable(this);
   late final $ReviewRecordsTable reviewRecords = $ReviewRecordsTable(this);
   late final $ExtraRemindersTable extraReminders = $ExtraRemindersTable(this);
-  late final Index cardDirectionsDueAt = Index(
-    'card_directions_due_at',
-    'CREATE INDEX card_directions_due_at ON card_directions (due_at)',
+  late final Index flashcardsDueAt = Index(
+    'flashcards_due_at',
+    'CREATE INDEX flashcards_due_at ON flashcards (due_at)',
   );
   late final Index reviewRecordsReviewedAt = Index(
     'review_records_reviewed_at',
@@ -3515,10 +3269,9 @@ abstract class _$AlambicDatabase extends GeneratedDatabase {
     cardGroups,
     distillations,
     flashcards,
-    cardDirections,
     reviewRecords,
     extraReminders,
-    cardDirectionsDueAt,
+    flashcardsDueAt,
     reviewRecordsReviewedAt,
   ];
   @override
@@ -3542,25 +3295,11 @@ abstract class _$AlambicDatabase extends GeneratedDatabase {
         'flashcards',
         limitUpdateKind: UpdateKind.delete,
       ),
-      result: [TableUpdate('card_directions', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'distillations',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [TableUpdate('card_directions', kind: UpdateKind.update)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'card_directions',
-        limitUpdateKind: UpdateKind.delete,
-      ),
       result: [TableUpdate('review_records', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
-        'card_directions',
+        'flashcards',
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('extra_reminders', kind: UpdateKind.delete)],
@@ -4745,6 +4484,7 @@ typedef $$CardGroupsTableCreateCompanionBuilder = CardGroupsCompanion Function({
   required String name,
   Value<int?> presetId,
   required DateTime createdAt,
+  Value<bool> reverseEnabled,
   Value<DateTime?> pausedAt,
 });
 typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
@@ -4752,6 +4492,7 @@ typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
   Value<String> name,
   Value<int?> presetId,
   Value<DateTime> createdAt,
+  Value<bool> reverseEnabled,
   Value<DateTime?> pausedAt,
 });
 
@@ -4835,6 +4576,11 @@ class $$CardGroupsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get reverseEnabled => $composableBuilder(
+    column: $table.reverseEnabled,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4941,6 +4687,11 @@ class $$CardGroupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get reverseEnabled => $composableBuilder(
+    column: $table.reverseEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get pausedAt => $composableBuilder(
     column: $table.pausedAt,
     builder: (column) => ColumnOrderings(column),
@@ -4987,6 +4738,11 @@ class $$CardGroupsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get reverseEnabled => $composableBuilder(
+    column: $table.reverseEnabled,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get pausedAt =>
       $composableBuilder(column: $table.pausedAt, builder: (column) => column);
@@ -5101,12 +4857,14 @@ class $$CardGroupsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<int?> presetId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> reverseEnabled = const Value.absent(),
                 Value<DateTime?> pausedAt = const Value.absent(),
               }) => CardGroupsCompanion(
                 id: id,
                 name: name,
                 presetId: presetId,
                 createdAt: createdAt,
+                reverseEnabled: reverseEnabled,
                 pausedAt: pausedAt,
               ),
           createCompanionCallback:
@@ -5115,12 +4873,14 @@ class $$CardGroupsTableTableManager
                 required String name,
                 Value<int?> presetId = const Value.absent(),
                 required DateTime createdAt,
+                Value<bool> reverseEnabled = const Value.absent(),
                 Value<DateTime?> pausedAt = const Value.absent(),
               }) => CardGroupsCompanion.insert(
                 id: id,
                 name: name,
                 presetId: presetId,
                 createdAt: createdAt,
+                reverseEnabled: reverseEnabled,
                 pausedAt: pausedAt,
               ),
           withReferenceMapper: (p0) => p0
@@ -5243,9 +5003,7 @@ typedef $$CardGroupsTableProcessedTableManager =
     >;
 typedef $$DistillationsTableCreateCompanionBuilder =
     DistillationsCompanion Function({
-      Value<int> id,
-      Value<int?> groupId,
-      Value<DirectionSense?> sense,
+      Value<int> groupId,
       required int cardsPerBatch,
       required int everyDays,
       required DistillationOrder introductionOrder,
@@ -5258,9 +5016,7 @@ typedef $$DistillationsTableCreateCompanionBuilder =
     });
 typedef $$DistillationsTableUpdateCompanionBuilder =
     DistillationsCompanion Function({
-      Value<int> id,
-      Value<int?> groupId,
-      Value<DirectionSense?> sense,
+      Value<int> groupId,
       Value<int> cardsPerBatch,
       Value<int> everyDays,
       Value<DistillationOrder> introductionOrder,
@@ -5284,9 +5040,9 @@ final class $$DistillationsTableReferences
   static $CardGroupsTable _groupIdTable(_$AlambicDatabase db) =>
       db.cardGroups.createAlias('distillations__group_id__card_groups__id');
 
-  $$CardGroupsTableProcessedTableManager? get groupId {
-    final $_column = $_itemColumn<int>('group_id');
-    if ($_column == null) return null;
+  $$CardGroupsTableProcessedTableManager get groupId {
+    final $_column = $_itemColumn<int>('group_id')!;
+
     final manager = $$CardGroupsTableTableManager(
       $_db,
       $_db.cardGroups,
@@ -5295,25 +5051,6 @@ final class $$DistillationsTableReferences
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static MultiTypedResultKey<$CardDirectionsTable, List<CardDirection>>
-  _cardDirectionsRefsTable(_$AlambicDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.cardDirections,
-        aliasName: 'distillations__id__card_directions__distillation_id',
-      );
-
-  $$CardDirectionsTableProcessedTableManager get cardDirectionsRefs {
-    final manager = $$CardDirectionsTableTableManager(
-      $_db,
-      $_db.cardDirections,
-    ).filter((f) => f.distillationId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_cardDirectionsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
     );
   }
 }
@@ -5327,17 +5064,6 @@ class $$DistillationsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<DirectionSense?, DirectionSense, String>
-  get sense => $composableBuilder(
-    column: $table.sense,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
   ColumnFilters<int> get cardsPerBatch => $composableBuilder(
     column: $table.cardsPerBatch,
     builder: (column) => ColumnFilters(column),
@@ -5407,31 +5133,6 @@ class $$DistillationsTableFilterComposer
     );
     return composer;
   }
-
-  Expression<bool> cardDirectionsRefs(
-    Expression<bool> Function($$CardDirectionsTableFilterComposer f) f,
-  ) {
-    final $$CardDirectionsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.cardDirections,
-      getReferencedColumn: (t) => t.distillationId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardDirectionsTableFilterComposer(
-            $db: $db,
-            $table: $db.cardDirections,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$DistillationsTableOrderingComposer
@@ -5443,16 +5144,6 @@ class $$DistillationsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get sense => $composableBuilder(
-    column: $table.sense,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<int> get cardsPerBatch => $composableBuilder(
     column: $table.cardsPerBatch,
     builder: (column) => ColumnOrderings(column),
@@ -5531,12 +5222,6 @@ class $$DistillationsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<DirectionSense?, String> get sense =>
-      $composableBuilder(column: $table.sense, builder: (column) => column);
-
   GeneratedColumn<int> get cardsPerBatch => $composableBuilder(
     column: $table.cardsPerBatch,
     builder: (column) => column,
@@ -5599,31 +5284,6 @@ class $$DistillationsTableAnnotationComposer
     );
     return composer;
   }
-
-  Expression<T> cardDirectionsRefs<T extends Object>(
-    Expression<T> Function($$CardDirectionsTableAnnotationComposer a) f,
-  ) {
-    final $$CardDirectionsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.cardDirections,
-      getReferencedColumn: (t) => t.distillationId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardDirectionsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.cardDirections,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$DistillationsTableTableManager
@@ -5639,7 +5299,7 @@ class $$DistillationsTableTableManager
           $$DistillationsTableUpdateCompanionBuilder,
           (Distillation, $$DistillationsTableReferences),
           Distillation,
-          PrefetchHooks Function({bool groupId, bool cardDirectionsRefs})
+          PrefetchHooks Function({bool groupId})
         > {
   $$DistillationsTableTableManager(
     _$AlambicDatabase db,
@@ -5656,9 +5316,7 @@ class $$DistillationsTableTableManager
               $$DistillationsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
-                Value<int> id = const Value.absent(),
-                Value<int?> groupId = const Value.absent(),
-                Value<DirectionSense?> sense = const Value.absent(),
+                Value<int> groupId = const Value.absent(),
                 Value<int> cardsPerBatch = const Value.absent(),
                 Value<int> everyDays = const Value.absent(),
                 Value<DistillationOrder> introductionOrder =
@@ -5670,9 +5328,7 @@ class $$DistillationsTableTableManager
                 Value<int> introducedInBatch = const Value.absent(),
                 Value<DateTime?> lastAdvancedDay = const Value.absent(),
               }) => DistillationsCompanion(
-                id: id,
                 groupId: groupId,
-                sense: sense,
                 cardsPerBatch: cardsPerBatch,
                 everyDays: everyDays,
                 introductionOrder: introductionOrder,
@@ -5685,9 +5341,7 @@ class $$DistillationsTableTableManager
               ),
           createCompanionCallback:
               ({
-                Value<int> id = const Value.absent(),
-                Value<int?> groupId = const Value.absent(),
-                Value<DirectionSense?> sense = const Value.absent(),
+                Value<int> groupId = const Value.absent(),
                 required int cardsPerBatch,
                 required int everyDays,
                 required DistillationOrder introductionOrder,
@@ -5698,9 +5352,7 @@ class $$DistillationsTableTableManager
                 required int introducedInBatch,
                 Value<DateTime?> lastAdvancedDay = const Value.absent(),
               }) => DistillationsCompanion.insert(
-                id: id,
                 groupId: groupId,
-                sense: sense,
                 cardsPerBatch: cardsPerBatch,
                 everyDays: everyDays,
                 introductionOrder: introductionOrder,
@@ -5719,69 +5371,45 @@ class $$DistillationsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({groupId = false, cardDirectionsRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (cardDirectionsRefs) db.cardDirections,
-                  ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (groupId) {
-                          state = state.withJoin(
-                            currentTable: table,
-                            currentColumn: table.groupId,
-                            referencedTable: $$DistillationsTableReferences
-                                ._groupIdTable(db),
-                            referencedColumn: $$DistillationsTableReferences
-                                ._groupIdTable(db)
-                                .id,
-                          ) as T;
-                        }
+          prefetchHooksCallback: ({groupId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (groupId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.groupId,
+                        referencedTable: $$DistillationsTableReferences
+                            ._groupIdTable(db),
+                        referencedColumn: $$DistillationsTableReferences
+                            ._groupIdTable(db)
+                            .id,
+                      ) as T;
+                    }
 
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (cardDirectionsRefs)
-                        await $_getPrefetchedDataByColumns<
-                          Distillation,
-                          $DistillationsTable,
-                          CardDirection,
-                          $CardDirectionsTable
-                        >(
-                          currentTable: table,
-                          referencedTable: $$DistillationsTableReferences
-                              ._cardDirectionsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$DistillationsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).cardDirectionsRefs,
-                          currentColumn: 'id',
-                          referencedColumn: 'distillation_id',
-                          typedResults: items,
-                        ),
-                    ];
+                    return state;
                   },
-                );
+              getPrefetchedDataCallback: (items) async {
+                return [];
               },
+            );
+          },
         ),
       );
 }
@@ -5798,11 +5426,11 @@ typedef $$DistillationsTableProcessedTableManager =
       $$DistillationsTableUpdateCompanionBuilder,
       (Distillation, $$DistillationsTableReferences),
       Distillation,
-      PrefetchHooks Function({bool groupId, bool cardDirectionsRefs})
+      PrefetchHooks Function({bool groupId})
     >;
 typedef $$FlashcardsTableCreateCompanionBuilder = FlashcardsCompanion Function({
   Value<int> id,
-  Value<int?> groupId,
+  required int groupId,
   Value<String?> frontText,
   Value<String?> frontImagePath,
   Value<String?> backText,
@@ -5810,10 +5438,18 @@ typedef $$FlashcardsTableCreateCompanionBuilder = FlashcardsCompanion Function({
   Value<int?> presetId,
   Value<bool> suspended,
   required DateTime createdAt,
+  required CardState state,
+  Value<int?> step,
+  Value<double?> stability,
+  Value<double?> difficulty,
+  Value<DateTime?> dueAt,
+  Value<DateTime?> lastReviewedAt,
+  Value<DateTime?> notifiedAt,
+  Value<int?> queuePosition,
 });
 typedef $$FlashcardsTableUpdateCompanionBuilder = FlashcardsCompanion Function({
   Value<int> id,
-  Value<int?> groupId,
+  Value<int> groupId,
   Value<String?> frontText,
   Value<String?> frontImagePath,
   Value<String?> backText,
@@ -5821,6 +5457,14 @@ typedef $$FlashcardsTableUpdateCompanionBuilder = FlashcardsCompanion Function({
   Value<int?> presetId,
   Value<bool> suspended,
   Value<DateTime> createdAt,
+  Value<CardState> state,
+  Value<int?> step,
+  Value<double?> stability,
+  Value<double?> difficulty,
+  Value<DateTime?> dueAt,
+  Value<DateTime?> lastReviewedAt,
+  Value<DateTime?> notifiedAt,
+  Value<int?> queuePosition,
 });
 
 final class $$FlashcardsTableReferences
@@ -5830,9 +5474,9 @@ final class $$FlashcardsTableReferences
   static $CardGroupsTable _groupIdTable(_$AlambicDatabase db) =>
       db.cardGroups.createAlias('flashcards__group_id__card_groups__id');
 
-  $$CardGroupsTableProcessedTableManager? get groupId {
-    final $_column = $_itemColumn<int>('group_id');
-    if ($_column == null) return null;
+  $$CardGroupsTableProcessedTableManager get groupId {
+    final $_column = $_itemColumn<int>('group_id')!;
+
     final manager = $$CardGroupsTableTableManager(
       $_db,
       $_db.cardGroups,
@@ -5861,20 +5505,39 @@ final class $$FlashcardsTableReferences
     );
   }
 
-  static MultiTypedResultKey<$CardDirectionsTable, List<CardDirection>>
-  _cardDirectionsRefsTable(_$AlambicDatabase db) =>
+  static MultiTypedResultKey<$ReviewRecordsTable, List<ReviewRecord>>
+  _reviewRecordsRefsTable(_$AlambicDatabase db) =>
       MultiTypedResultKey.fromTable(
-        db.cardDirections,
-        aliasName: 'flashcards__id__card_directions__card_id',
+        db.reviewRecords,
+        aliasName: 'flashcards__id__review_records__card_id',
       );
 
-  $$CardDirectionsTableProcessedTableManager get cardDirectionsRefs {
-    final manager = $$CardDirectionsTableTableManager(
+  $$ReviewRecordsTableProcessedTableManager get reviewRecordsRefs {
+    final manager = $$ReviewRecordsTableTableManager(
       $_db,
-      $_db.cardDirections,
+      $_db.reviewRecords,
     ).filter((f) => f.cardId.id.sqlEquals($_itemColumn<int>('id')!));
 
-    final cache = $_typedResult.readTableOrNull(_cardDirectionsRefsTable($_db));
+    final cache = $_typedResult.readTableOrNull(_reviewRecordsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ExtraRemindersTable, List<ExtraReminder>>
+  _extraRemindersRefsTable(_$AlambicDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.extraReminders,
+        aliasName: 'flashcards__id__extra_reminders__card_id',
+      );
+
+  $$ExtraRemindersTableProcessedTableManager get extraRemindersRefs {
+    final manager = $$ExtraRemindersTableTableManager(
+      $_db,
+      $_db.extraReminders,
+    ).filter((f) => f.cardId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_extraRemindersRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -5925,6 +5588,47 @@ class $$FlashcardsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnWithTypeConverterFilters<CardState, CardState, String> get state =>
+      $composableBuilder(
+        column: $table.state,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<int> get step => $composableBuilder(
+    column: $table.step,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get stability => $composableBuilder(
+    column: $table.stability,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dueAt => $composableBuilder(
+    column: $table.dueAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastReviewedAt => $composableBuilder(
+    column: $table.lastReviewedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get notifiedAt => $composableBuilder(
+    column: $table.notifiedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get queuePosition => $composableBuilder(
+    column: $table.queuePosition,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CardGroupsTableFilterComposer get groupId {
     final $$CardGroupsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -5971,22 +5675,47 @@ class $$FlashcardsTableFilterComposer
     return composer;
   }
 
-  Expression<bool> cardDirectionsRefs(
-    Expression<bool> Function($$CardDirectionsTableFilterComposer f) f,
+  Expression<bool> reviewRecordsRefs(
+    Expression<bool> Function($$ReviewRecordsTableFilterComposer f) f,
   ) {
-    final $$CardDirectionsTableFilterComposer composer = $composerBuilder(
+    final $$ReviewRecordsTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.cardDirections,
+      referencedTable: $db.reviewRecords,
       getReferencedColumn: (t) => t.cardId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$CardDirectionsTableFilterComposer(
+          }) => $$ReviewRecordsTableFilterComposer(
             $db: $db,
-            $table: $db.cardDirections,
+            $table: $db.reviewRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> extraRemindersRefs(
+    Expression<bool> Function($$ExtraRemindersTableFilterComposer f) f,
+  ) {
+    final $$ExtraRemindersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.extraReminders,
+      getReferencedColumn: (t) => t.cardId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExtraRemindersTableFilterComposer(
+            $db: $db,
+            $table: $db.extraReminders,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -6038,6 +5767,46 @@ class $$FlashcardsTableOrderingComposer
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get state => $composableBuilder(
+    column: $table.state,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get step => $composableBuilder(
+    column: $table.step,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get stability => $composableBuilder(
+    column: $table.stability,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dueAt => $composableBuilder(
+    column: $table.dueAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastReviewedAt => $composableBuilder(
+    column: $table.lastReviewedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get notifiedAt => $composableBuilder(
+    column: $table.notifiedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get queuePosition => $composableBuilder(
+    column: $table.queuePosition,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -6122,6 +5891,38 @@ class $$FlashcardsTableAnnotationComposer
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
+  GeneratedColumnWithTypeConverter<CardState, String> get state =>
+      $composableBuilder(column: $table.state, builder: (column) => column);
+
+  GeneratedColumn<int> get step =>
+      $composableBuilder(column: $table.step, builder: (column) => column);
+
+  GeneratedColumn<double> get stability =>
+      $composableBuilder(column: $table.stability, builder: (column) => column);
+
+  GeneratedColumn<double> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get dueAt =>
+      $composableBuilder(column: $table.dueAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastReviewedAt => $composableBuilder(
+    column: $table.lastReviewedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get notifiedAt => $composableBuilder(
+    column: $table.notifiedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get queuePosition => $composableBuilder(
+    column: $table.queuePosition,
+    builder: (column) => column,
+  );
+
   $$CardGroupsTableAnnotationComposer get groupId {
     final $$CardGroupsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -6168,22 +5969,47 @@ class $$FlashcardsTableAnnotationComposer
     return composer;
   }
 
-  Expression<T> cardDirectionsRefs<T extends Object>(
-    Expression<T> Function($$CardDirectionsTableAnnotationComposer a) f,
+  Expression<T> reviewRecordsRefs<T extends Object>(
+    Expression<T> Function($$ReviewRecordsTableAnnotationComposer a) f,
   ) {
-    final $$CardDirectionsTableAnnotationComposer composer = $composerBuilder(
+    final $$ReviewRecordsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.cardDirections,
+      referencedTable: $db.reviewRecords,
       getReferencedColumn: (t) => t.cardId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$CardDirectionsTableAnnotationComposer(
+          }) => $$ReviewRecordsTableAnnotationComposer(
             $db: $db,
-            $table: $db.cardDirections,
+            $table: $db.reviewRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> extraRemindersRefs<T extends Object>(
+    Expression<T> Function($$ExtraRemindersTableAnnotationComposer a) f,
+  ) {
+    final $$ExtraRemindersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.extraReminders,
+      getReferencedColumn: (t) => t.cardId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExtraRemindersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.extraReminders,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -6210,7 +6036,8 @@ class $$FlashcardsTableTableManager
           PrefetchHooks Function({
             bool groupId,
             bool presetId,
-            bool cardDirectionsRefs,
+            bool reviewRecordsRefs,
+            bool extraRemindersRefs,
           })
         > {
   $$FlashcardsTableTableManager(_$AlambicDatabase db, $FlashcardsTable table)
@@ -6227,7 +6054,7 @@ class $$FlashcardsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int?> groupId = const Value.absent(),
+                Value<int> groupId = const Value.absent(),
                 Value<String?> frontText = const Value.absent(),
                 Value<String?> frontImagePath = const Value.absent(),
                 Value<String?> backText = const Value.absent(),
@@ -6235,6 +6062,14 @@ class $$FlashcardsTableTableManager
                 Value<int?> presetId = const Value.absent(),
                 Value<bool> suspended = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<CardState> state = const Value.absent(),
+                Value<int?> step = const Value.absent(),
+                Value<double?> stability = const Value.absent(),
+                Value<double?> difficulty = const Value.absent(),
+                Value<DateTime?> dueAt = const Value.absent(),
+                Value<DateTime?> lastReviewedAt = const Value.absent(),
+                Value<DateTime?> notifiedAt = const Value.absent(),
+                Value<int?> queuePosition = const Value.absent(),
               }) => FlashcardsCompanion(
                 id: id,
                 groupId: groupId,
@@ -6245,11 +6080,19 @@ class $$FlashcardsTableTableManager
                 presetId: presetId,
                 suspended: suspended,
                 createdAt: createdAt,
+                state: state,
+                step: step,
+                stability: stability,
+                difficulty: difficulty,
+                dueAt: dueAt,
+                lastReviewedAt: lastReviewedAt,
+                notifiedAt: notifiedAt,
+                queuePosition: queuePosition,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int?> groupId = const Value.absent(),
+                required int groupId,
                 Value<String?> frontText = const Value.absent(),
                 Value<String?> frontImagePath = const Value.absent(),
                 Value<String?> backText = const Value.absent(),
@@ -6257,6 +6100,14 @@ class $$FlashcardsTableTableManager
                 Value<int?> presetId = const Value.absent(),
                 Value<bool> suspended = const Value.absent(),
                 required DateTime createdAt,
+                required CardState state,
+                Value<int?> step = const Value.absent(),
+                Value<double?> stability = const Value.absent(),
+                Value<double?> difficulty = const Value.absent(),
+                Value<DateTime?> dueAt = const Value.absent(),
+                Value<DateTime?> lastReviewedAt = const Value.absent(),
+                Value<DateTime?> notifiedAt = const Value.absent(),
+                Value<int?> queuePosition = const Value.absent(),
               }) => FlashcardsCompanion.insert(
                 id: id,
                 groupId: groupId,
@@ -6267,6 +6118,14 @@ class $$FlashcardsTableTableManager
                 presetId: presetId,
                 suspended: suspended,
                 createdAt: createdAt,
+                state: state,
+                step: step,
+                stability: stability,
+                difficulty: difficulty,
+                dueAt: dueAt,
+                lastReviewedAt: lastReviewedAt,
+                notifiedAt: notifiedAt,
+                queuePosition: queuePosition,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -6280,12 +6139,14 @@ class $$FlashcardsTableTableManager
               ({
                 groupId = false,
                 presetId = false,
-                cardDirectionsRefs = false,
+                reviewRecordsRefs = false,
+                extraRemindersRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
-                    if (cardDirectionsRefs) db.cardDirections,
+                    if (reviewRecordsRefs) db.reviewRecords,
+                    if (extraRemindersRefs) db.extraReminders,
                   ],
                   addJoins:
                       <
@@ -6330,22 +6191,42 @@ class $$FlashcardsTableTableManager
                       },
                   getPrefetchedDataCallback: (items) async {
                     return [
-                      if (cardDirectionsRefs)
+                      if (reviewRecordsRefs)
                         await $_getPrefetchedDataByColumns<
                           Flashcard,
                           $FlashcardsTable,
-                          CardDirection,
-                          $CardDirectionsTable
+                          ReviewRecord,
+                          $ReviewRecordsTable
                         >(
                           currentTable: table,
                           referencedTable: $$FlashcardsTableReferences
-                              ._cardDirectionsRefsTable(db),
+                              ._reviewRecordsRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$FlashcardsTableReferences(
                                 db,
                                 table,
                                 p0,
-                              ).cardDirectionsRefs,
+                              ).reviewRecordsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'card_id',
+                          typedResults: items,
+                        ),
+                      if (extraRemindersRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Flashcard,
+                          $FlashcardsTable,
+                          ExtraReminder,
+                          $ExtraRemindersTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$FlashcardsTableReferences
+                              ._extraRemindersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$FlashcardsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).extraRemindersRefs,
                           currentColumn: 'id',
                           referencedColumn: 'card_id',
                           typedResults: items,
@@ -6373,747 +6254,6 @@ typedef $$FlashcardsTableProcessedTableManager =
       PrefetchHooks Function({
         bool groupId,
         bool presetId,
-        bool cardDirectionsRefs,
-      })
-    >;
-typedef $$CardDirectionsTableCreateCompanionBuilder =
-    CardDirectionsCompanion Function({
-      Value<int> id,
-      required int cardId,
-      required DirectionSense sense,
-      required DirectionState state,
-      Value<int?> step,
-      Value<double?> stability,
-      Value<double?> difficulty,
-      Value<DateTime?> dueAt,
-      Value<DateTime?> lastReviewedAt,
-      Value<DateTime?> notifiedAt,
-      Value<int?> distillationId,
-      Value<int?> queuePosition,
-    });
-typedef $$CardDirectionsTableUpdateCompanionBuilder =
-    CardDirectionsCompanion Function({
-      Value<int> id,
-      Value<int> cardId,
-      Value<DirectionSense> sense,
-      Value<DirectionState> state,
-      Value<int?> step,
-      Value<double?> stability,
-      Value<double?> difficulty,
-      Value<DateTime?> dueAt,
-      Value<DateTime?> lastReviewedAt,
-      Value<DateTime?> notifiedAt,
-      Value<int?> distillationId,
-      Value<int?> queuePosition,
-    });
-
-final class $$CardDirectionsTableReferences
-    extends
-        BaseReferences<_$AlambicDatabase, $CardDirectionsTable, CardDirection> {
-  $$CardDirectionsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $FlashcardsTable _cardIdTable(_$AlambicDatabase db) =>
-      db.flashcards.createAlias('card_directions__card_id__flashcards__id');
-
-  $$FlashcardsTableProcessedTableManager get cardId {
-    final $_column = $_itemColumn<int>('card_id')!;
-
-    final manager = $$FlashcardsTableTableManager(
-      $_db,
-      $_db.flashcards,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_cardIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $DistillationsTable _distillationIdTable(_$AlambicDatabase db) => db
-      .distillations
-      .createAlias('card_directions__distillation_id__distillations__id');
-
-  $$DistillationsTableProcessedTableManager? get distillationId {
-    final $_column = $_itemColumn<int>('distillation_id');
-    if ($_column == null) return null;
-    final manager = $$DistillationsTableTableManager(
-      $_db,
-      $_db.distillations,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_distillationIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static MultiTypedResultKey<$ReviewRecordsTable, List<ReviewRecord>>
-  _reviewRecordsRefsTable(_$AlambicDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.reviewRecords,
-        aliasName: 'card_directions__id__review_records__direction_id',
-      );
-
-  $$ReviewRecordsTableProcessedTableManager get reviewRecordsRefs {
-    final manager = $$ReviewRecordsTableTableManager(
-      $_db,
-      $_db.reviewRecords,
-    ).filter((f) => f.directionId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_reviewRecordsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$ExtraRemindersTable, List<ExtraReminder>>
-  _extraRemindersRefsTable(_$AlambicDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.extraReminders,
-        aliasName: 'card_directions__id__extra_reminders__direction_id',
-      );
-
-  $$ExtraRemindersTableProcessedTableManager get extraRemindersRefs {
-    final manager = $$ExtraRemindersTableTableManager(
-      $_db,
-      $_db.extraReminders,
-    ).filter((f) => f.directionId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_extraRemindersRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$CardDirectionsTableFilterComposer
-    extends Composer<_$AlambicDatabase, $CardDirectionsTable> {
-  $$CardDirectionsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<DirectionSense, DirectionSense, String>
-  get sense => $composableBuilder(
-    column: $table.sense,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<DirectionState, DirectionState, String>
-  get state => $composableBuilder(
-    column: $table.state,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<int> get step => $composableBuilder(
-    column: $table.step,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get stability => $composableBuilder(
-    column: $table.stability,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get difficulty => $composableBuilder(
-    column: $table.difficulty,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get dueAt => $composableBuilder(
-    column: $table.dueAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get lastReviewedAt => $composableBuilder(
-    column: $table.lastReviewedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get notifiedAt => $composableBuilder(
-    column: $table.notifiedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get queuePosition => $composableBuilder(
-    column: $table.queuePosition,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$FlashcardsTableFilterComposer get cardId {
-    final $$FlashcardsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.flashcards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FlashcardsTableFilterComposer(
-            $db: $db,
-            $table: $db.flashcards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$DistillationsTableFilterComposer get distillationId {
-    final $$DistillationsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.distillationId,
-      referencedTable: $db.distillations,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DistillationsTableFilterComposer(
-            $db: $db,
-            $table: $db.distillations,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<bool> reviewRecordsRefs(
-    Expression<bool> Function($$ReviewRecordsTableFilterComposer f) f,
-  ) {
-    final $$ReviewRecordsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.reviewRecords,
-      getReferencedColumn: (t) => t.directionId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ReviewRecordsTableFilterComposer(
-            $db: $db,
-            $table: $db.reviewRecords,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> extraRemindersRefs(
-    Expression<bool> Function($$ExtraRemindersTableFilterComposer f) f,
-  ) {
-    final $$ExtraRemindersTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.extraReminders,
-      getReferencedColumn: (t) => t.directionId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ExtraRemindersTableFilterComposer(
-            $db: $db,
-            $table: $db.extraReminders,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$CardDirectionsTableOrderingComposer
-    extends Composer<_$AlambicDatabase, $CardDirectionsTable> {
-  $$CardDirectionsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get sense => $composableBuilder(
-    column: $table.sense,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get state => $composableBuilder(
-    column: $table.state,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get step => $composableBuilder(
-    column: $table.step,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get stability => $composableBuilder(
-    column: $table.stability,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get difficulty => $composableBuilder(
-    column: $table.difficulty,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get dueAt => $composableBuilder(
-    column: $table.dueAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get lastReviewedAt => $composableBuilder(
-    column: $table.lastReviewedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get notifiedAt => $composableBuilder(
-    column: $table.notifiedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get queuePosition => $composableBuilder(
-    column: $table.queuePosition,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$FlashcardsTableOrderingComposer get cardId {
-    final $$FlashcardsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.flashcards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FlashcardsTableOrderingComposer(
-            $db: $db,
-            $table: $db.flashcards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$DistillationsTableOrderingComposer get distillationId {
-    final $$DistillationsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.distillationId,
-      referencedTable: $db.distillations,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DistillationsTableOrderingComposer(
-            $db: $db,
-            $table: $db.distillations,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$CardDirectionsTableAnnotationComposer
-    extends Composer<_$AlambicDatabase, $CardDirectionsTable> {
-  $$CardDirectionsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<DirectionSense, String> get sense =>
-      $composableBuilder(column: $table.sense, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<DirectionState, String> get state =>
-      $composableBuilder(column: $table.state, builder: (column) => column);
-
-  GeneratedColumn<int> get step =>
-      $composableBuilder(column: $table.step, builder: (column) => column);
-
-  GeneratedColumn<double> get stability =>
-      $composableBuilder(column: $table.stability, builder: (column) => column);
-
-  GeneratedColumn<double> get difficulty => $composableBuilder(
-    column: $table.difficulty,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get dueAt =>
-      $composableBuilder(column: $table.dueAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get lastReviewedAt => $composableBuilder(
-    column: $table.lastReviewedAt,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get notifiedAt => $composableBuilder(
-    column: $table.notifiedAt,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get queuePosition => $composableBuilder(
-    column: $table.queuePosition,
-    builder: (column) => column,
-  );
-
-  $$FlashcardsTableAnnotationComposer get cardId {
-    final $$FlashcardsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.flashcards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FlashcardsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.flashcards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$DistillationsTableAnnotationComposer get distillationId {
-    final $$DistillationsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.distillationId,
-      referencedTable: $db.distillations,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$DistillationsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.distillations,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<T> reviewRecordsRefs<T extends Object>(
-    Expression<T> Function($$ReviewRecordsTableAnnotationComposer a) f,
-  ) {
-    final $$ReviewRecordsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.reviewRecords,
-      getReferencedColumn: (t) => t.directionId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ReviewRecordsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.reviewRecords,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<T> extraRemindersRefs<T extends Object>(
-    Expression<T> Function($$ExtraRemindersTableAnnotationComposer a) f,
-  ) {
-    final $$ExtraRemindersTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.extraReminders,
-      getReferencedColumn: (t) => t.directionId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ExtraRemindersTableAnnotationComposer(
-            $db: $db,
-            $table: $db.extraReminders,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$CardDirectionsTableTableManager
-    extends
-        RootTableManager<
-          _$AlambicDatabase,
-          $CardDirectionsTable,
-          CardDirection,
-          $$CardDirectionsTableFilterComposer,
-          $$CardDirectionsTableOrderingComposer,
-          $$CardDirectionsTableAnnotationComposer,
-          $$CardDirectionsTableCreateCompanionBuilder,
-          $$CardDirectionsTableUpdateCompanionBuilder,
-          (CardDirection, $$CardDirectionsTableReferences),
-          CardDirection,
-          PrefetchHooks Function({
-            bool cardId,
-            bool distillationId,
-            bool reviewRecordsRefs,
-            bool extraRemindersRefs,
-          })
-        > {
-  $$CardDirectionsTableTableManager(
-    _$AlambicDatabase db,
-    $CardDirectionsTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$CardDirectionsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$CardDirectionsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$CardDirectionsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<int> cardId = const Value.absent(),
-                Value<DirectionSense> sense = const Value.absent(),
-                Value<DirectionState> state = const Value.absent(),
-                Value<int?> step = const Value.absent(),
-                Value<double?> stability = const Value.absent(),
-                Value<double?> difficulty = const Value.absent(),
-                Value<DateTime?> dueAt = const Value.absent(),
-                Value<DateTime?> lastReviewedAt = const Value.absent(),
-                Value<DateTime?> notifiedAt = const Value.absent(),
-                Value<int?> distillationId = const Value.absent(),
-                Value<int?> queuePosition = const Value.absent(),
-              }) => CardDirectionsCompanion(
-                id: id,
-                cardId: cardId,
-                sense: sense,
-                state: state,
-                step: step,
-                stability: stability,
-                difficulty: difficulty,
-                dueAt: dueAt,
-                lastReviewedAt: lastReviewedAt,
-                notifiedAt: notifiedAt,
-                distillationId: distillationId,
-                queuePosition: queuePosition,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required int cardId,
-                required DirectionSense sense,
-                required DirectionState state,
-                Value<int?> step = const Value.absent(),
-                Value<double?> stability = const Value.absent(),
-                Value<double?> difficulty = const Value.absent(),
-                Value<DateTime?> dueAt = const Value.absent(),
-                Value<DateTime?> lastReviewedAt = const Value.absent(),
-                Value<DateTime?> notifiedAt = const Value.absent(),
-                Value<int?> distillationId = const Value.absent(),
-                Value<int?> queuePosition = const Value.absent(),
-              }) => CardDirectionsCompanion.insert(
-                id: id,
-                cardId: cardId,
-                sense: sense,
-                state: state,
-                step: step,
-                stability: stability,
-                difficulty: difficulty,
-                dueAt: dueAt,
-                lastReviewedAt: lastReviewedAt,
-                notifiedAt: notifiedAt,
-                distillationId: distillationId,
-                queuePosition: queuePosition,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<$CardDirectionsTable, CardDirection>(table),
-                  $$CardDirectionsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback:
-              ({
-                cardId = false,
-                distillationId = false,
-                reviewRecordsRefs = false,
-                extraRemindersRefs = false,
-              }) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (reviewRecordsRefs) db.reviewRecords,
-                    if (extraRemindersRefs) db.extraReminders,
-                  ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (cardId) {
-                          state = state.withJoin(
-                            currentTable: table,
-                            currentColumn: table.cardId,
-                            referencedTable: $$CardDirectionsTableReferences
-                                ._cardIdTable(db),
-                            referencedColumn: $$CardDirectionsTableReferences
-                                ._cardIdTable(db)
-                                .id,
-                          ) as T;
-                        }
-                        if (distillationId) {
-                          state = state.withJoin(
-                            currentTable: table,
-                            currentColumn: table.distillationId,
-                            referencedTable: $$CardDirectionsTableReferences
-                                ._distillationIdTable(db),
-                            referencedColumn: $$CardDirectionsTableReferences
-                                ._distillationIdTable(db)
-                                .id,
-                          ) as T;
-                        }
-
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (reviewRecordsRefs)
-                        await $_getPrefetchedDataByColumns<
-                          CardDirection,
-                          $CardDirectionsTable,
-                          ReviewRecord,
-                          $ReviewRecordsTable
-                        >(
-                          currentTable: table,
-                          referencedTable: $$CardDirectionsTableReferences
-                              ._reviewRecordsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$CardDirectionsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).reviewRecordsRefs,
-                          currentColumn: 'id',
-                          referencedColumn: 'direction_id',
-                          typedResults: items,
-                        ),
-                      if (extraRemindersRefs)
-                        await $_getPrefetchedDataByColumns<
-                          CardDirection,
-                          $CardDirectionsTable,
-                          ExtraReminder,
-                          $ExtraRemindersTable
-                        >(
-                          currentTable: table,
-                          referencedTable: $$CardDirectionsTableReferences
-                              ._extraRemindersRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$CardDirectionsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).extraRemindersRefs,
-                          currentColumn: 'id',
-                          referencedColumn: 'direction_id',
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$CardDirectionsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AlambicDatabase,
-      $CardDirectionsTable,
-      CardDirection,
-      $$CardDirectionsTableFilterComposer,
-      $$CardDirectionsTableOrderingComposer,
-      $$CardDirectionsTableAnnotationComposer,
-      $$CardDirectionsTableCreateCompanionBuilder,
-      $$CardDirectionsTableUpdateCompanionBuilder,
-      (CardDirection, $$CardDirectionsTableReferences),
-      CardDirection,
-      PrefetchHooks Function({
-        bool cardId,
-        bool distillationId,
         bool reviewRecordsRefs,
         bool extraRemindersRefs,
       })
@@ -7121,7 +6261,7 @@ typedef $$CardDirectionsTableProcessedTableManager =
 typedef $$ReviewRecordsTableCreateCompanionBuilder =
     ReviewRecordsCompanion Function({
       Value<int> id,
-      required int directionId,
+      required int cardId,
       required DateTime reviewedAt,
       required ReviewOutcome outcome,
       required bool isBonus,
@@ -7133,7 +6273,7 @@ typedef $$ReviewRecordsTableCreateCompanionBuilder =
 typedef $$ReviewRecordsTableUpdateCompanionBuilder =
     ReviewRecordsCompanion Function({
       Value<int> id,
-      Value<int> directionId,
+      Value<int> cardId,
       Value<DateTime> reviewedAt,
       Value<ReviewOutcome> outcome,
       Value<bool> isBonus,
@@ -7152,18 +6292,17 @@ final class $$ReviewRecordsTableReferences
     super.$_typedResult,
   );
 
-  static $CardDirectionsTable _directionIdTable(_$AlambicDatabase db) => db
-      .cardDirections
-      .createAlias('review_records__direction_id__card_directions__id');
+  static $FlashcardsTable _cardIdTable(_$AlambicDatabase db) =>
+      db.flashcards.createAlias('review_records__card_id__flashcards__id');
 
-  $$CardDirectionsTableProcessedTableManager get directionId {
-    final $_column = $_itemColumn<int>('direction_id')!;
+  $$FlashcardsTableProcessedTableManager get cardId {
+    final $_column = $_itemColumn<int>('card_id')!;
 
-    final manager = $$CardDirectionsTableTableManager(
+    final manager = $$FlashcardsTableTableManager(
       $_db,
-      $_db.cardDirections,
+      $_db.flashcards,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_directionIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_cardIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -7222,20 +6361,20 @@ class $$ReviewRecordsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  $$CardDirectionsTableFilterComposer get directionId {
-    final $$CardDirectionsTableFilterComposer composer = $composerBuilder(
+  $$FlashcardsTableFilterComposer get cardId {
+    final $$FlashcardsTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.directionId,
-      referencedTable: $db.cardDirections,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.flashcards,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$CardDirectionsTableFilterComposer(
+          }) => $$FlashcardsTableFilterComposer(
             $db: $db,
-            $table: $db.cardDirections,
+            $table: $db.flashcards,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7295,20 +6434,20 @@ class $$ReviewRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$CardDirectionsTableOrderingComposer get directionId {
-    final $$CardDirectionsTableOrderingComposer composer = $composerBuilder(
+  $$FlashcardsTableOrderingComposer get cardId {
+    final $$FlashcardsTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.directionId,
-      referencedTable: $db.cardDirections,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.flashcards,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$CardDirectionsTableOrderingComposer(
+          }) => $$FlashcardsTableOrderingComposer(
             $db: $db,
-            $table: $db.cardDirections,
+            $table: $db.flashcards,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7358,20 +6497,20 @@ class $$ReviewRecordsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<ReviewSource, String> get source =>
       $composableBuilder(column: $table.source, builder: (column) => column);
 
-  $$CardDirectionsTableAnnotationComposer get directionId {
-    final $$CardDirectionsTableAnnotationComposer composer = $composerBuilder(
+  $$FlashcardsTableAnnotationComposer get cardId {
+    final $$FlashcardsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.directionId,
-      referencedTable: $db.cardDirections,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.flashcards,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$CardDirectionsTableAnnotationComposer(
+          }) => $$FlashcardsTableAnnotationComposer(
             $db: $db,
-            $table: $db.cardDirections,
+            $table: $db.flashcards,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7395,7 +6534,7 @@ class $$ReviewRecordsTableTableManager
           $$ReviewRecordsTableUpdateCompanionBuilder,
           (ReviewRecord, $$ReviewRecordsTableReferences),
           ReviewRecord,
-          PrefetchHooks Function({bool directionId})
+          PrefetchHooks Function({bool cardId})
         > {
   $$ReviewRecordsTableTableManager(
     _$AlambicDatabase db,
@@ -7413,7 +6552,7 @@ class $$ReviewRecordsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> directionId = const Value.absent(),
+                Value<int> cardId = const Value.absent(),
                 Value<DateTime> reviewedAt = const Value.absent(),
                 Value<ReviewOutcome> outcome = const Value.absent(),
                 Value<bool> isBonus = const Value.absent(),
@@ -7423,7 +6562,7 @@ class $$ReviewRecordsTableTableManager
                 Value<ReviewSource> source = const Value.absent(),
               }) => ReviewRecordsCompanion(
                 id: id,
-                directionId: directionId,
+                cardId: cardId,
                 reviewedAt: reviewedAt,
                 outcome: outcome,
                 isBonus: isBonus,
@@ -7435,7 +6574,7 @@ class $$ReviewRecordsTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int directionId,
+                required int cardId,
                 required DateTime reviewedAt,
                 required ReviewOutcome outcome,
                 required bool isBonus,
@@ -7445,7 +6584,7 @@ class $$ReviewRecordsTableTableManager
                 required ReviewSource source,
               }) => ReviewRecordsCompanion.insert(
                 id: id,
-                directionId: directionId,
+                cardId: cardId,
                 reviewedAt: reviewedAt,
                 outcome: outcome,
                 isBonus: isBonus,
@@ -7462,7 +6601,7 @@ class $$ReviewRecordsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({directionId = false}) {
+          prefetchHooksCallback: ({cardId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -7482,14 +6621,14 @@ class $$ReviewRecordsTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (directionId) {
+                    if (cardId) {
                       state = state.withJoin(
                         currentTable: table,
-                        currentColumn: table.directionId,
+                        currentColumn: table.cardId,
                         referencedTable: $$ReviewRecordsTableReferences
-                            ._directionIdTable(db),
+                            ._cardIdTable(db),
                         referencedColumn: $$ReviewRecordsTableReferences
-                            ._directionIdTable(db)
+                            ._cardIdTable(db)
                             .id,
                       ) as T;
                     }
@@ -7517,19 +6656,19 @@ typedef $$ReviewRecordsTableProcessedTableManager =
       $$ReviewRecordsTableUpdateCompanionBuilder,
       (ReviewRecord, $$ReviewRecordsTableReferences),
       ReviewRecord,
-      PrefetchHooks Function({bool directionId})
+      PrefetchHooks Function({bool cardId})
     >;
 typedef $$ExtraRemindersTableCreateCompanionBuilder =
     ExtraRemindersCompanion Function({
       Value<int> id,
-      required int directionId,
+      required int cardId,
       required DateTime remindAt,
       Value<DateTime?> notifiedAt,
     });
 typedef $$ExtraRemindersTableUpdateCompanionBuilder =
     ExtraRemindersCompanion Function({
       Value<int> id,
-      Value<int> directionId,
+      Value<int> cardId,
       Value<DateTime> remindAt,
       Value<DateTime?> notifiedAt,
     });
@@ -7543,18 +6682,17 @@ final class $$ExtraRemindersTableReferences
     super.$_typedResult,
   );
 
-  static $CardDirectionsTable _directionIdTable(_$AlambicDatabase db) => db
-      .cardDirections
-      .createAlias('extra_reminders__direction_id__card_directions__id');
+  static $FlashcardsTable _cardIdTable(_$AlambicDatabase db) =>
+      db.flashcards.createAlias('extra_reminders__card_id__flashcards__id');
 
-  $$CardDirectionsTableProcessedTableManager get directionId {
-    final $_column = $_itemColumn<int>('direction_id')!;
+  $$FlashcardsTableProcessedTableManager get cardId {
+    final $_column = $_itemColumn<int>('card_id')!;
 
-    final manager = $$CardDirectionsTableTableManager(
+    final manager = $$FlashcardsTableTableManager(
       $_db,
-      $_db.cardDirections,
+      $_db.flashcards,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_directionIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_cardIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -7586,20 +6724,20 @@ class $$ExtraRemindersTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$CardDirectionsTableFilterComposer get directionId {
-    final $$CardDirectionsTableFilterComposer composer = $composerBuilder(
+  $$FlashcardsTableFilterComposer get cardId {
+    final $$FlashcardsTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.directionId,
-      referencedTable: $db.cardDirections,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.flashcards,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$CardDirectionsTableFilterComposer(
+          }) => $$FlashcardsTableFilterComposer(
             $db: $db,
-            $table: $db.cardDirections,
+            $table: $db.flashcards,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7634,20 +6772,20 @@ class $$ExtraRemindersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$CardDirectionsTableOrderingComposer get directionId {
-    final $$CardDirectionsTableOrderingComposer composer = $composerBuilder(
+  $$FlashcardsTableOrderingComposer get cardId {
+    final $$FlashcardsTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.directionId,
-      referencedTable: $db.cardDirections,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.flashcards,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$CardDirectionsTableOrderingComposer(
+          }) => $$FlashcardsTableOrderingComposer(
             $db: $db,
-            $table: $db.cardDirections,
+            $table: $db.flashcards,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7678,20 +6816,20 @@ class $$ExtraRemindersTableAnnotationComposer
     builder: (column) => column,
   );
 
-  $$CardDirectionsTableAnnotationComposer get directionId {
-    final $$CardDirectionsTableAnnotationComposer composer = $composerBuilder(
+  $$FlashcardsTableAnnotationComposer get cardId {
+    final $$FlashcardsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.directionId,
-      referencedTable: $db.cardDirections,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.flashcards,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$CardDirectionsTableAnnotationComposer(
+          }) => $$FlashcardsTableAnnotationComposer(
             $db: $db,
-            $table: $db.cardDirections,
+            $table: $db.flashcards,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7715,7 +6853,7 @@ class $$ExtraRemindersTableTableManager
           $$ExtraRemindersTableUpdateCompanionBuilder,
           (ExtraReminder, $$ExtraRemindersTableReferences),
           ExtraReminder,
-          PrefetchHooks Function({bool directionId})
+          PrefetchHooks Function({bool cardId})
         > {
   $$ExtraRemindersTableTableManager(
     _$AlambicDatabase db,
@@ -7733,24 +6871,24 @@ class $$ExtraRemindersTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> directionId = const Value.absent(),
+                Value<int> cardId = const Value.absent(),
                 Value<DateTime> remindAt = const Value.absent(),
                 Value<DateTime?> notifiedAt = const Value.absent(),
               }) => ExtraRemindersCompanion(
                 id: id,
-                directionId: directionId,
+                cardId: cardId,
                 remindAt: remindAt,
                 notifiedAt: notifiedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int directionId,
+                required int cardId,
                 required DateTime remindAt,
                 Value<DateTime?> notifiedAt = const Value.absent(),
               }) => ExtraRemindersCompanion.insert(
                 id: id,
-                directionId: directionId,
+                cardId: cardId,
                 remindAt: remindAt,
                 notifiedAt: notifiedAt,
               ),
@@ -7762,7 +6900,7 @@ class $$ExtraRemindersTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({directionId = false}) {
+          prefetchHooksCallback: ({cardId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -7782,14 +6920,14 @@ class $$ExtraRemindersTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (directionId) {
+                    if (cardId) {
                       state = state.withJoin(
                         currentTable: table,
-                        currentColumn: table.directionId,
+                        currentColumn: table.cardId,
                         referencedTable: $$ExtraRemindersTableReferences
-                            ._directionIdTable(db),
+                            ._cardIdTable(db),
                         referencedColumn: $$ExtraRemindersTableReferences
-                            ._directionIdTable(db)
+                            ._cardIdTable(db)
                             .id,
                       ) as T;
                     }
@@ -7817,7 +6955,7 @@ typedef $$ExtraRemindersTableProcessedTableManager =
       $$ExtraRemindersTableUpdateCompanionBuilder,
       (ExtraReminder, $$ExtraRemindersTableReferences),
       ExtraReminder,
-      PrefetchHooks Function({bool directionId})
+      PrefetchHooks Function({bool cardId})
     >;
 
 class $AlambicDatabaseManager {
@@ -7833,8 +6971,6 @@ class $AlambicDatabaseManager {
       $$DistillationsTableTableManager(_db, _db.distillations);
   $$FlashcardsTableTableManager get flashcards =>
       $$FlashcardsTableTableManager(_db, _db.flashcards);
-  $$CardDirectionsTableTableManager get cardDirections =>
-      $$CardDirectionsTableTableManager(_db, _db.cardDirections);
   $$ReviewRecordsTableTableManager get reviewRecords =>
       $$ReviewRecordsTableTableManager(_db, _db.reviewRecords);
   $$ExtraRemindersTableTableManager get extraReminders =>

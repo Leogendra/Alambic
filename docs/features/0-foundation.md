@@ -1,6 +1,6 @@
 # Feature 0 — Technical foundation
 
-Status: in progress (2026-11-11)
+Status: in progress (2026-11-16)
 
 ## Goal
 
@@ -27,13 +27,12 @@ Flutter caches the locale it derives from the phone and only derives it again wh
 
 ### Database
 
-All data lives in a local SQLite database managed by drift, `AlambicDatabase`. Tables use the domain classes directly as rows (`@UseRowClass`): a `Preset` or a `CardDirection` read from the database is the very object the business rules manipulate, with no conversion layer. Enums are stored by name, a preset sequence as JSON and times of day as minutes since midnight.
+All data lives in a local SQLite database managed by drift, `AlambicDatabase`. Tables use the domain classes directly as rows (`@UseRowClass`): a `Preset` or a `Flashcard` read from the database is the very object the business rules manipulate, with no conversion layer. Enums are stored by name, a preset sequence as JSON and times of day as minutes since midnight.
 
-The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset, the notification safeguards, the count of cards notified today and the start of the global pause), `card_groups`, `distillations` (the distillations in progress), `flashcards`, `card_directions` (one direction per card and orientation, with the distillation that queued it and its rank in the queue), `review_records` (the history) and `extra_reminders` (the "Review soon" reminders). Foreign keys are enabled at each opening, which gives these deletion rules:
+The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset, the notification safeguards, the count of cards notified today and the start of the global pause), `card_groups` (with the back option), `distillations` (one row per group whose distillation was activated, keyed by the group), `flashcards` (the faces, the group, and the single progression: state, step or FSRS memory, due date, last answer, last notification and rank in the queue), `review_records` (the history) and `extra_reminders` (the "Review soon" reminders). Foreign keys are enabled at each opening, which gives these deletion rules:
 
-- deleting a card deletes its directions, their history and their reminders;
-- deleting a group deletes its cards, and with them their directions and history, and its distillations;
-- deleting a distillation releases its directions: a pending one stays pending, outside any queue.
+- deleting a card deletes its history and its reminders;
+- deleting a group deletes its cards, with their history, and its distillation.
 
 The schema is at version 1 and has no upgrade step: until the app has users, a schema change is installed over cleared app data (`adb shell pm clear fr.gatienh.alambic`) rather than migrated. Once real data must survive an update, each version bump comes with an upgrade step in `AlambicDatabase.migration`.
 
@@ -49,7 +48,7 @@ When the database is created, the Standard, Intensive and Adaptive presets are i
 - [x] The app and its notifications speak French or English, from the phone language or the choice in Settings.
 - [x] The main navigation shows four tabs and a "+" button.
 - [x] A fresh database contains the Standard, Intensive and Adaptive presets, Standard being the global preset.
-- [x] Deleting a group deletes its cards; deleting a card deletes its directions and their history.
+- [x] Deleting a group deletes its cards and its distillation; deleting a card deletes its history and its reminders.
 
 ## Test strategy
 

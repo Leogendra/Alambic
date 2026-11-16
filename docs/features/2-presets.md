@@ -38,9 +38,9 @@ In the list, an adaptive preset shows "Intervals computed from your answers. Tar
 
 ### Preset change
 
-Changing the preset of a card, of a group or the global preset rewrites no card: the step and due date of each direction stay as they are. If the new sequence is shorter, the engine clamps the step to the last step at the next answer ([Feature 1](1-scheduling.md#the-step)).
+Changing the preset of a card, of a group or the global preset rewrites no card: the step and due date of each card stay as they are. If the new sequence is shorter, the engine clamps the step to the last step at the next answer ([Feature 1](1-scheduling.md#the-step)).
 
-When the new preset has the other engine, the progression starts over: each engine only reads its own progression (the step for a sequence, the FSRS memory for the adaptive engine), so the direction counts as new for the new engine. It shows "new", and its next answer is a first answer: a first step, or the initial FSRS memory. Its due date and its history stay. Editing a preset from one engine to the other has the same effect on all its cards, and so does moving a card to a group whose preset has the other engine.
+When the new preset has the other engine, the progression starts over: each engine only reads its own progression (the step for a sequence, the FSRS memory for the adaptive engine), so the card counts as new for the new engine. It shows "new", and its next answer is a first answer: a first step, or the initial FSRS memory. Its due date and its history stay. Editing a preset from one engine to the other has the same effect on all its cards, and so does moving a card to a group whose preset has the other engine.
 
 ## Acceptance criteria
 
@@ -76,4 +76,4 @@ When the new preset has the other engine, the progression starts over: each engi
 
 The catalog stream observes three tables (presets, settings, groups) through a `SELECT 1` witness query declared on these tables, then rereads everything in a transaction. Drift cannot natively combine several queries into one stream; this keeps each emission a consistent snapshot.
 
-The reset is not written at change time: an answer writes the progression of its engine and clears the other one, and `DirectionProgress` ignores a progression left by the other engine. So switching engine and back before any answer gives the step back. An acquired direction stays acquired under an adaptive preset.
+The reset is not written at change time: an answer writes the progression of its engine and clears the other one, and `CardProgress` ignores a progression left by the other engine. So switching engine and back before any answer gives the step back. An acquired card stays acquired under an adaptive preset.

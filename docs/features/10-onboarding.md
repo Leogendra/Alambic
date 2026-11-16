@@ -14,9 +14,9 @@ The three screens follow each other with a "Continue" button; a row of dots show
 
 1. **The principle**: "One piece of knowledge a day", and how the app works in a sentence.
 2. **Reminders**: one row to allow notifications (the Android 13 permission), one row to allow exact alarms (a system settings page, read again when the app comes back to the front), and the reminder time, 12:00 by default. A row shows "Allowed" once its permission is given. Both can be refused: the app still works, with Settings offering exact alarms again ([Feature 7](7-notifications.md#exact-alarms-restarts-and-permissions)). A time other than 12:00 is given to every preset notified at a fixed time, which on a first launch means the shipped presets; presets on a time range keep their range.
-3. **First card**: a front and a back. "Create and start" creates the card outside any group and [starts](../lexicon.md#unstarted) it at once, so that it is due today and its notification comes at the preset slot, or right away when the slot has passed. "Skip" opens the app without a card.
+3. **First card**: the name of a first group, a front and a back. "Create the card" creates the group and the card, which waits [pending](../lexicon.md#pending) in the group's queue. "Skip" opens the app without a group nor a card.
 
-Either button of the last screen marks the onboarding as done and opens the tabs.
+Either button of the last screen marks the onboarding as done and opens the tabs. After "Create the card", the page of the new group opens above them, with "Distill" pointed out by a line: "Your first card is waiting. Distill the group to receive it." Activating the distillation introduces the card the same day, at the preset slot or right away when the slot has passed ([Feature 8](8-distillation.md)). The group to open is handed to the tabs by a notifier (`firstGroupProvider`), which forgets it once opened.
 
 ### Interface preferences
 
@@ -26,18 +26,19 @@ The preferences of the interface on this phone (whether the onboarding was done,
 
 - [x] The first launch opens on the three welcome screens; later launches open on the tabs.
 - [x] The second screen asks for notifications and exact alarms, and sets the reminder time of the presets notified at a fixed time.
-- [x] The third screen creates a first card outside any group, started at once, or is skipped.
+- [x] The third screen creates a first group and its first card, pending, then opens the group page with "Distill" pointed out; or it is skipped.
 - [x] The notification permission is not asked at launch anymore.
 
 ## Test strategy
 
-- The whole path is driven on the real app widget, over an in-memory database and in-memory replacements of the notification permissions and of the preferences: first launch versus later launch, both permission requests, creation of a started card, skip, and the preference saved at the end.
+- The whole path is driven on the real app widget, over an in-memory database and in-memory replacements of the notification permissions and of the preferences: first launch versus later launch, both permission requests, creation of the first group and card with the group page opened, skip, and the preference saved at the end.
 - The time given to the presets is tested on the preset service: fixed-time presets move, time-range presets do not.
 - Each screen is covered by a golden test, and the first one in dark theme.
 
 ## File mapping
 
 - `lib/features/onboarding/` — the three screens and their shared layout.
+- `lib/application/onboarding/` — the group created on the last screen, until the tabs open it.
 - `lib/data/preferences/` — interface preferences and their shared_preferences store.
 - `lib/application/preferences/` — the notifier holding the preferences, and its providers.
 - `lib/app/alambic_app.dart` — chooses between the welcome screens and the tabs.

@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
+import 'package:alambic/domain/reviews/review_source.dart';
+import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/groups/group_settings_screen.dart';
 import 'package:alambic/features/groups/groups_screen.dart';
+import 'package:alambic/features/session/session_screen.dart';
 
 import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
@@ -14,6 +19,7 @@ import '../../support/test_database.dart';
 
 void main() {
   late AlambicDatabase database;
+  late SampleServices samples;
   late int capitalsId;
 
   setUp(() async {
@@ -24,9 +30,8 @@ void main() {
 
   Future<void> seed(WidgetTester tester) async {
     await tester.runAsync(() async {
-      capitalsId = await seedSampleData(
-        SampleServices(database, FixedClock(sampleNow)),
-      );
+      samples = SampleServices(database, FixedClock(sampleNow));
+      capitalsId = await seedSampleData(samples);
     });
   }
 
@@ -119,5 +124,59 @@ void main() {
     );
     expect(group!.reverseEnabled, isTrue);
     expect(find.text('Désactiver le verso'), findsOneWidget);
+  });
+
+  testWidgets('"Distill" opens the activation of the distillation', (
+    tester,
+  ) async {
+    await seed(tester);
+    await pumpGolden(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Distiller'));
+    await tester.pumpAndSettle();
+    expect(find.text('Activer la distillation'), findsOneWidget);
+    expect(find.byType(DistillScreen), findsOneWidget);
+  });
+
+  testWidgets('"Review all" asks the due cards, then the others, then the '
+      'queue', (tester) async {
+    await seed(tester);
+    final ids = (await tester.runAsync(() async {
+      final cards = await CardRepository(database).getCardsOfGroup(capitalsId);
+      await samples.reviews.answer(
+        cards.first.id,
+        ReviewOutcome.correct,
+        source: ReviewSource.session,
+      );
+      final chile = await samples.card(
+        'Chili',
+        'Santiago',
+        groupId: capitalsId,
+      );
+      return [for (final card in cards) card.id, chile];
+    }))!;
+    await pumpGolden(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.ensureVisible(find.text('Tout réviser'));
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Tout réviser'));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    });
+    await tester.pumpAndSettle();
+    final session = tester.widget<SessionScreen>(find.byType(SessionScreen));
+    expect(session.isBonus, isFalse);
+    expect(session.items.map((item) => item.cardId), [
+      ids[1],
+      ids[2],
+      ids[3],
+      ids[0],
+      ids[4],
+    ]);
   });
 }

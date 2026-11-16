@@ -2,17 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data_providers.dart';
 import '../../domain/reviews/extra_reminder.dart';
-import '../../domain/reviews/review_record.dart';
 import '../cards/card_providers.dart';
 import '../clock.dart';
 import '../distillation/distillation_providers.dart';
-import '../notifications/guard_providers.dart';
 import '../pauses/pause_providers.dart';
-import '../presets/preset_providers.dart';
-import '../reviews/review_providers.dart';
+import '../scheduling/scheduling_providers.dart';
 import '../time/minute_ticker.dart';
-import 'today_overview.dart';
-import 'today_planner.dart';
+import 'home_timeline.dart';
+import 'timeline_planner.dart';
 
 /// First moment of the current scheduling day; changes once a day, so the
 /// streams built on it are not rebuilt every minute.
@@ -22,54 +19,35 @@ final todayStartProvider = Provider<DateTime?>((ref) {
   return now == null ? null : calendar.startOf(calendar.dayOf(now));
 });
 
-/// Answers given today, bonus reviews included.
-final todayReviewsProvider = StreamProvider<List<ReviewRecord>>((ref) {
-  final start = ref.watch(todayStartProvider);
-  return start == null
-      ? const Stream.empty()
-      : ref.watch(reviewRepositoryProvider).watchSince(start);
-});
-
 /// "Review soon" reminders not shown yet.
 final upcomingExtraRemindersProvider = StreamProvider<List<ExtraReminder>>(
   (ref) => ref.watch(reminderRepositoryProvider).watchAllUpcoming(),
 );
 
-/// Today as shown on the home screen; `null` while loading.
-final todayOverviewProvider = Provider<TodayOverview?>((ref) {
+/// Home's timeline; `null` while loading.
+final homeTimelineProvider = Provider<HomeTimeline?>((ref) {
   final cards = ref.watch(allCardsProvider).value;
   final reminders = ref.watch(upcomingExtraRemindersProvider).value;
-  final reviews = ref.watch(todayReviewsProvider).value;
-  final catalog = ref.watch(presetCatalogProvider).value;
   final distillations = ref.watch(distillationsProvider).value;
-  final now = ref.watch(currentMomentProvider).value;
-  final guards = ref.watch(notificationGuardsProvider).value;
-  final notifiedToday = ref.watch(notifiedTodayProvider).value;
   final pauses = ref.watch(pausesProvider).value;
+  final now = ref.watch(currentMomentProvider).value;
   if (cards == null ||
-      pauses == null ||
-      guards == null ||
-      notifiedToday == null ||
-      distillations == null ||
       reminders == null ||
-      reviews == null ||
-      catalog == null ||
+      distillations == null ||
+      pauses == null ||
       now == null) {
     return null;
   } else {
-    return TodayPlanner(ref.watch(schedulingCalendarProvider)).build(
+    return TimelinePlanner(
+      calendar: ref.watch(schedulingCalendarProvider),
+      duePolicy: ref.watch(duePolicyProvider),
+      rhythm: ref.watch(distillationRhythmProvider),
+    ).build(
       cards: cards,
       reminders: reminders,
-      reviewsToday: reviews,
-      catalog: catalog,
-      distillingGroupIds: {
-        for (final distillation in distillations) distillation.groupId,
-      },
-      dueCount: ref.watch(dueItemsProvider).length,
-      now: now,
-      guards: guards,
-      notifiedToday: notifiedToday,
+      distillations: distillations,
       pauses: pauses,
+      now: now,
     );
   }
 });

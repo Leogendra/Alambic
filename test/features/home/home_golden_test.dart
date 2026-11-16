@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
+import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
@@ -21,7 +22,7 @@ void main() {
   tearDown(() => database.close());
 
   /// Sample data answered in part at 12:05, a "Review soon" reminder at 18:00
-  /// and a "Japonais" group whose cards wait for their distillation.
+  /// and a "Japonais" group distilling one card a day.
   Future<void> seed(WidgetTester tester) async {
     await tester.runAsync(() async {
       final samples = SampleServices(database, FixedClock(sampleNow));
@@ -29,6 +30,10 @@ void main() {
       final japanese = await samples.groups.create('Japonais');
       await samples.card('猫', 'chat', groupId: japanese);
       await samples.card('犬', 'chien', groupId: japanese);
+      await samples.distillations.activate(
+        japanese,
+        const DistillationSettings(),
+      );
       final cards = await CardRepository(database).getCardsOfGroup(capitals);
       samples.clock.now = DateTime(2026, 11, 10, 12, 5);
       for (final card in cards.take(2)) {
@@ -55,7 +60,9 @@ void main() {
         brightness: brightness,
         overrides: screenOverrides(database, renderAt),
       );
-      expect(find.text('Tout réviser maintenant'), findsOneWidget);
+      expect(find.text('Japonais : 1 nouvelle carte'), findsNWidgets(2));
+      expect(find.text('Capitales : 2 nouvelles cartes'), findsOneWidget);
+      expect(find.text('DEMAIN'), findsOneWidget);
       await expectLater(
         find.byType(HomeScreen),
         matchesGoldenFile('goldens/home_${brightness.name}.png'),
@@ -71,7 +78,7 @@ void main() {
       locale: const Locale('en'),
       overrides: screenOverrides(database, renderAt),
     );
-    expect(find.text('Review all now'), findsOneWidget);
+    expect(find.text('TOMORROW'), findsOneWidget);
     await expectLater(
       find.byType(HomeScreen),
       matchesGoldenFile('goldens/home_english.png'),

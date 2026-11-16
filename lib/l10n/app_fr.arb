@@ -578,7 +578,22 @@
     }
   },
   "reviewSoonPast": "Ce moment est déjà passé.",
-  "homeTitle": "Aujourd'hui",
+  "homeTitle": "À venir",
+  "homeToday": "Aujourd'hui",
+  "homeTomorrow": "Demain",
+  "homeTodayEmpty": "Rien de prévu aujourd'hui.",
+  "homeLate": "en retard",
+  "homeArrivals": "{group} : {count, plural, =1{1 nouvelle carte} other{{count} nouvelles cartes}}",
+  "@homeArrivals": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "pausedSince": "En pause depuis le {date}",
   "@pausedSince": {
     "placeholders": {
@@ -605,7 +620,6 @@
       }
     }
   },
-  "homeDueLabel": "à réviser",
   "homeDuration": "Environ {minutes} min",
   "@homeDuration": {
     "placeholders": {
@@ -614,63 +628,6 @@
       }
     }
   },
-  "homeDoneOf": "{done} sur {total} faits aujourd'hui",
-  "@homeDoneOf": {
-    "placeholders": {
-      "done": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "homeReviewAll": "Tout réviser maintenant",
-  "homeNothingDue": "Rien à réviser pour le moment.",
-  "homeTimeline": "Rappels du jour",
-  "homeTimelineEmpty": "Aucun rappel prévu aujourd'hui.",
-  "homeTimelinePerCard": "{count, plural, =1{1 rappel, une notif par carte} other{{count} rappels, une notif par carte}}",
-  "@homeTimelinePerCard": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeTimelineGrouped": "{count, plural, =1{Rappel groupé · 1 carte} other{Rappel groupé · {count} cartes}}",
-  "@homeTimelineGrouped": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeTimelineChained": "{count, plural, =1{Rappel groupé · 1 carte enchaînée} other{Rappel groupé · {count} cartes enchaînées}}",
-  "@homeTimelineChained": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeTimelineRemaining": "{count, plural, =1{1 restante} other{{count} restantes}}",
-  "@homeTimelineRemaining": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeTimelineExtra": "{count, plural, =1{1 rappel ponctuel} other{{count} rappels ponctuels}}",
-  "@homeTimelineExtra": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeTimelineNext": "Prochain",
-  "homeDueGroups": "Groupes à réviser",
   "notificationChannelName": "Révisions",
   "notificationChannelDescription": "Les cartes à réviser, avec leurs boutons de réponse.",
   "notificationNewCard": "Nouvelle carte",
@@ -869,39 +826,6 @@
     "placeholders": {
       "date": {
         "type": "String"
-      }
-    }
-  },
-  "homeTimelineNewKnowledge": "{count, plural, =1{Nouvelle connaissance} other{Nouvelles connaissances}}",
-  "@homeTimelineNewKnowledge": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "homeTimelineDistillationOne": "{group} · distillation, carte {rank} sur {total}",
-  "@homeTimelineDistillationOne": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      },
-      "rank": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "homeTimelineDistillationMany": "{group} · distillation, {count} cartes",
-  "@homeTimelineDistillationMany": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
       }
     }
   },

@@ -1,0 +1,160 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:alambic/application/home/home_timeline.dart';
+import 'package:alambic/application/home/timeline_planner.dart';
+import 'package:alambic/domain/cards/card_state.dart';
+import 'package:alambic/domain/cards/flashcard.dart';
+import 'package:alambic/domain/distillation/distillation.dart';
+import 'package:alambic/domain/distillation/distillation_order.dart';
+import 'package:alambic/domain/distillation/distillation_rhythm.dart';
+import 'package:alambic/domain/distillation/distillation_status.dart';
+import 'package:alambic/domain/pauses/pauses.dart';
+import 'package:alambic/domain/reviews/extra_reminder.dart';
+import 'package:alambic/domain/scheduling/due_policy.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
+
+import '../domain/test_cards.dart';
+
+void main() {
+  const planner = TimelinePlanner(
+    calendar: SchedulingCalendar(),
+    duePolicy: DuePolicy(SchedulingCalendar()),
+    rhythm: DistillationRhythm(SchedulingCalendar()),
+  );
+  final now = DateTime(2026, 11, 10, 9);
+  final lastWeek = DateTime(2026, 11, 3, 12);
+
+  Distillation distillation({
+    DistillationStatus status = DistillationStatus.running,
+    DateTime? nextBatchDay,
+    DateTime? lastAdvancedDay,
+  }) => Distillation(
+    groupId: 1,
+    cardsPerBatch: 1,
+    everyDays: 2,
+    introductionOrder: DistillationOrder.groupOrder,
+    avoidCollisions: false,
+    status: status,
+    startedAt: DateTime(2026, 11, 1),
+    nextBatchDay: nextBatchDay ?? DateTime(2026, 11, 10),
+    introducedInBatch: 0,
+    lastAdvancedDay: lastAdvancedDay,
+  );
+
+  Flashcard answered(int id, DateTime dueAt) =>
+      testCard(id: id, dueAt: dueAt, lastReviewedAt: lastWeek);
+
+  Flashcard pending(int id) =>
+      testCard(id: id, state: CardState.pending, queuePosition: id);
+
+  HomeTimeline build(
+    List<Flashcard> cards, {
+    List<ExtraReminder> reminders = const [],
+    List<Distillation> distillations = const [],
+    Pauses pauses = Pauses.none,
+  }) => planner.build(
+    cards: cards,
+    reminders: reminders,
+    distillations: distillations,
+    pauses: pauses,
+    now: now,
+  );
+
+  test('today shows the late cards first, then the cards of the day', () {
+    final timeline = build([
+      answered(1, DateTime(2026, 11, 10, 12)),
+      answered(2, DateTime(2026, 11, 8, 12)),
+      answered(3, DateTime(2026, 11, 12, 12)),
+    ]);
+    final today = timeline.today;
+    expect(today.isToday, isTrue);
+    expect(today.cards.map((entry) => entry.card.id), [2, 1]);
+    expect(today.cards.map((entry) => entry.isLate), [true, false]);
+    expect(timeline.days[1].day, DateTime(2026, 11, 12));
+    expect(timeline.days[1].cards.single.card.id, 3);
+  });
+
+  test('today is kept when empty, other empty days and later ones are '
+      'left out', () {
+    final timeline = build([
+      answered(1, DateTime(2026, 11, 13, 12)),
+      answered(2, DateTime(2026, 11, 30, 12)),
+    ]);
+    expect(timeline.days.map((day) => day.day), [
+      DateTime(2026, 11, 10),
+      DateTime(2026, 11, 13),
+    ]);
+    expect(timeline.today.isEmpty, isTrue);
+  });
+
+  test('suspended and pending cards are not reminders', () {
+    final timeline = build([
+      testCard(id: 1, suspended: true, dueAt: DateTime(2026, 11, 10, 12)),
+      pending(2),
+    ]);
+    expect(timeline.days.single.isEmpty, isTrue);
+  });
+
+  test('new cards are counted per group, never named', () {
+    final timeline = build(
+      [
+        testCard(id: 1, dueAt: DateTime(2026, 11, 10, 12)),
+        testCard(id: 2, dueAt: DateTime(2026, 11, 9, 12)),
+        pending(3),
+        pending(4),
+      ],
+      distillations: [
+        distillation(
+          nextBatchDay: DateTime(2026, 11, 12),
+          lastAdvancedDay: DateTime(2026, 11, 10),
+        ),
+      ],
+    );
+    expect(timeline.today.cards, isEmpty);
+    expect(timeline.today.arrivals.single.groupId, 1);
+    expect(timeline.today.arrivals.single.count, 2);
+    expect(
+      timeline.days.skip(1).map((day) => (day.day, day.arrivals.single.count)),
+      [(DateTime(2026, 11, 12), 1), (DateTime(2026, 11, 14), 1)],
+    );
+  });
+
+  test('today owes its batch until the daily pass ran', () {
+    final timeline = build([pending(1)], distillations: [distillation()]);
+    expect(timeline.today.arrivals.single.count, 1);
+  });
+
+  test('a paused distillation or group announces nothing', () {
+    expect(
+      build(
+        [pending(1)],
+        distillations: [distillation(status: DistillationStatus.paused)],
+      ).days.single.isEmpty,
+      isTrue,
+    );
+    expect(
+      build(
+        [pending(1)],
+        distillations: [distillation()],
+        pauses: Pauses(groupsSince: {1: DateTime(2026, 11, 9)}),
+      ).days.single.isEmpty,
+      isTrue,
+    );
+  });
+
+  test('a "Review soon" reminder falls on its day', () {
+    final timeline = build(
+      [answered(1, DateTime(2026, 11, 20, 12))],
+      reminders: [
+        ExtraReminder(
+          id: 1,
+          cardId: 1,
+          remindAt: DateTime(2026, 11, 10, 18),
+          notifiedAt: null,
+        ),
+      ],
+    );
+    final reminder = timeline.today.cards.single;
+    expect(reminder.isExtraReminder, isTrue);
+    expect(reminder.at, DateTime(2026, 11, 10, 18));
+  });
+}

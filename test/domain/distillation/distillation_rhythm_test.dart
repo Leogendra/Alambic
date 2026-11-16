@@ -92,4 +92,33 @@ void main() {
       DateTime(2026, 11, 13),
     );
   });
+
+  test('arrivals follow the batches until the queue is empty', () {
+    expect(
+      rhythm.arrivals(
+        distillation(),
+        remaining: 7,
+        today: DateTime(2026, 11, 10),
+        dayCount: 7,
+      ),
+      {
+        DateTime(2026, 11, 10): 3,
+        DateTime(2026, 11, 12): 3,
+        DateTime(2026, 11, 14): 1,
+      },
+    );
+  });
+
+  test('arrivals skip today once its pass ran, and finish a batch first', () {
+    final today = DateTime(2026, 11, 10);
+    expect(
+      rhythm.arrivals(
+        distillation(introducedInBatch: 2, lastAdvancedDay: today),
+        remaining: 5,
+        today: today,
+        dayCount: 4,
+      ),
+      {DateTime(2026, 11, 11): 1, DateTime(2026, 11, 13): 3},
+    );
+  });
 }

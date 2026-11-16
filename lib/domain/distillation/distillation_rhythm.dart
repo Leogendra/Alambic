@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import '../scheduling/scheduling_calendar.dart';
 import 'distillation.dart';
 
@@ -29,8 +31,56 @@ class DistillationRhythm {
     Distillation distillation,
     int count,
     DateTime day,
+  ) => _afterIntroducing(
+    (
+      nextBatchDay: distillation.nextBatchDay,
+      introducedInBatch: distillation.introducedInBatch,
+    ),
+    distillation,
+    count,
+    day,
+  );
+
+  /// New cards [distillation] should introduce on each of the [dayCount]
+  /// days from [today], when every batch goes through and [remaining] cards
+  /// wait in its queue. Days without arrival are left out; today counts only
+  /// while its pass has not run yet.
+  Map<DateTime, int> arrivals(
+    Distillation distillation, {
+    required int remaining,
+    required DateTime today,
+    required int dayCount,
+  }) {
+    final arrivals = <DateTime, int>{};
+    var progress = (
+      nextBatchDay: distillation.nextBatchDay,
+      introducedInBatch: distillation.introducedInBatch,
+    );
+    var left = remaining;
+    final first = distillation.lastAdvancedDay == today ? 1 : 0;
+    for (var offset = first; offset < dayCount && left > 0; offset++) {
+      final day = calendar.addDays(today, offset);
+      if (!day.isBefore(progress.nextBatchDay)) {
+        final count = min(
+          distillation.cardsPerBatch - progress.introducedInBatch,
+          left,
+        );
+        arrivals[day] = count;
+        left -= count;
+        progress = _afterIntroducing(progress, distillation, count, day);
+      }
+    }
+    return arrivals;
+  }
+
+  /// A batch completed on [day] opens the next one X days later.
+  BatchProgress _afterIntroducing(
+    BatchProgress progress,
+    Distillation distillation,
+    int count,
+    DateTime day,
   ) {
-    final introduced = distillation.introducedInBatch + count;
+    final introduced = progress.introducedInBatch + count;
     if (introduced >= distillation.cardsPerBatch) {
       return (
         nextBatchDay: calendar.addDays(day, distillation.everyDays),
@@ -38,7 +88,7 @@ class DistillationRhythm {
       );
     } else {
       return (
-        nextBatchDay: distillation.nextBatchDay,
+        nextBatchDay: progress.nextBatchDay,
         introducedInBatch: introduced,
       );
     }

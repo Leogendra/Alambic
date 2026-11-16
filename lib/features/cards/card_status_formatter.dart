@@ -46,11 +46,13 @@ class CardStatusFormatter {
   String dueDateLabel(DateTime dueAt) =>
       strings.dueDateLabel(dueAt, now: now, calendar: calendar);
 
+  /// "S1"; `null` for a card never answered or followed by FSRS.
+  String? reminderLabel(Flashcard card) =>
+      strings.progressLabel(CardProgress.of(card, catalog.presetForCard(card)));
+
   String _scheduled(Flashcard card) {
     final when = isDue(card) ? strings.dueNow : dueDateLabel(card.dueAt!);
-    final label = strings.progressLabel(
-      CardProgress.of(card, catalog.presetForCard(card)),
-    );
+    final label = reminderLabel(card);
     return label == null ? when : '$label · $when';
   }
 }

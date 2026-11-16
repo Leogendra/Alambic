@@ -1,22 +1,22 @@
 # Feature 2 — Presets
 
-Status: in progress (2026-11-11)
+Status: in progress (2026-11-16)
 
 ## Goal
 
-A [preset](../lexicon.md#preset) gathers all the repetition rules of a card: interval sequence, failure behaviour, end of sequence, schedule, notification mode. The user has nothing to set up to begin (Standard applies everywhere), then can pick another preset for a group or a card, or create their own.
+A [preset](../lexicon.md#preset) gathers the rhythm of the reviews of a card: interval sequence, failure behaviour, end of sequence. When in the day and how the cards are notified is the [schedule](../lexicon.md#schedule) of the app, set in Settings. The user has nothing to set up to begin (Standard applies everywhere), then can pick another preset for a group or a card, or create their own.
 
 ## Implementation overview
 
 ### Shipped presets
 
-The database is created with three presets, all at a fixed 12:00 time:
+The database is created with three presets:
 
 - **Standard**: 1 d, 2 d, 1 wk, 1 mo, 3 mo, 6 mo. It is the initial global preset.
 - **Intensive** (*Intensif*): 10 min, 1 h, 1 d, 3 d, 1 wk.
-- **Adaptive** (*Adaptatif*): the adaptive engine ([Feature 1](1-scheduling.md#the-adaptive-engine)) at a 90 % target retention, one grouped reminder per group opening the app.
+- **Adaptive** (*Adaptatif*): the adaptive engine ([Feature 1](1-scheduling.md#the-adaptive-engine)) at a 90 % target retention.
 
-Standard and Intensive send one notification per card, step back one step on failure and repeat the last interval at the end of the sequence. Adaptive keeps the Standard sequence, unused while its engine is adaptive.
+Standard and Intensive step back one step on failure and repeat the last interval at the end of the sequence. Adaptive keeps the Standard sequence, unused while its engine is adaptive.
 
 Each shipped preset carries a key (`builtInKey`) that recognises it even after a rename. As long as it keeps the name it was created with, it is shown under its name in the language of the interface ("Intensif" in French, "Intensive" in English); once renamed, it shows the name the user gave it. The editor shows the translated name, and the stored name only changes when the field is edited.
 
@@ -28,9 +28,9 @@ This rule has a single implementation, `PresetResolver`. Screens and services go
 
 ### Preset management
 
-The preset list opens from Settings, which also lets the user choose the global preset. Each preset shows its sequence, its schedule and its notification mode; the global preset carries a badge.
+The preset list opens from Settings, which also lets the user choose the global preset. Each preset shows its sequence; the global preset carries a badge.
 
-The editor works on a draft and writes nothing before "Save". It first sets the engine: fixed sequence or adaptive. A sequence preset then sets the sequence (adding a step as a duration and a unit, removing a step as long as another one remains), the failure behaviour and the end of sequence; an adaptive preset sets instead its target retention, from 70 % to 97 % by steps of 1 %. Both then set the typed answer, the schedule (fixed time or time range) and the notification mode (one per card, or a grouped reminder that opens the app or chains the cards). These last three settings are stored already; the notifications that use them are described in their own feature.
+The editor works on a draft and writes nothing before "Save". It first sets the engine: fixed sequence or adaptive. A sequence preset then sets the sequence (adding a step as a duration and a unit, removing a step as long as another one remains), the failure behaviour and the end of sequence; an adaptive preset sets instead its target retention, from 70 % to 97 % by steps of 1 %. Both then set the typed answer.
 
 "New" opens a draft with the Standard values. "Duplicate" immediately stores a copy named "<name> (copy)" and opens its editor. A copy is never a shipped preset, even when it copies Standard. Shipped presets remain editable.
 
@@ -44,7 +44,7 @@ When the new preset has the other engine, the progression starts over: each engi
 
 ## Acceptance criteria
 
-- [x] A fresh database contains Standard and Intensive, with the intervals above and the fixed 12:00 time.
+- [x] A fresh database contains Standard and Intensive, with the intervals above.
 - [x] A card with no choice follows its group's preset, a group with no choice follows the global preset.
 - [x] The choice made on a card wins over its group's.
 - [x] Changing preset (same engine) keeps the step and the due date; a step that is too high is clamped to the last step.

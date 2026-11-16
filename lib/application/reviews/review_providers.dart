@@ -22,6 +22,7 @@ final reviewServiceProvider = Provider(
   (ref) => ReviewService(
     cards: ref.watch(cardRepositoryProvider),
     presets: ref.watch(presetRepositoryProvider),
+    settings: ref.watch(notificationSettingsRepositoryProvider),
     reviews: ref.watch(reviewRepositoryProvider),
     scheduler: ref.watch(reviewSchedulerProvider),
     duePolicy: ref.watch(duePolicyProvider),

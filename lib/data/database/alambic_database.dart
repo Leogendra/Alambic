@@ -6,15 +6,15 @@ import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_order.dart';
 import '../../domain/distillation/distillation_status.dart';
+import '../../domain/notifications/grouped_reminder_action.dart';
+import '../../domain/notifications/notification_mode.dart';
+import '../../domain/notifications/schedule_kind.dart';
 import '../../domain/groups/card_group.dart';
 import '../../domain/presets/built_in_preset_key.dart';
 import '../../domain/presets/built_in_presets.dart';
 import '../../domain/presets/failure_behavior.dart';
-import '../../domain/presets/grouped_reminder_action.dart';
-import '../../domain/presets/notification_mode.dart';
 import '../../domain/presets/preset.dart';
 import '../../domain/presets/preset_interval.dart';
-import '../../domain/presets/schedule_kind.dart';
 import '../../domain/presets/scheduling_engine_kind.dart';
 import '../../domain/presets/sequence_end_behavior.dart';
 import '../../domain/reviews/extra_reminder.dart';
@@ -60,19 +60,40 @@ class AlambicDatabase extends _$AlambicDatabase {
     ),
   );
 
+  /// Raised at every schema change. There is no migration: a database of
+  /// another version is erased and created again.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (migrator) async {
-      await migrator.createAll();
-      await _seedBuiltInPresets();
+    onCreate: _create,
+    onUpgrade: (migrator, from, to) async {
+      await _dropAllTables();
+      await _create(migrator);
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
+
+  Future<void> _create(Migrator migrator) async {
+    await migrator.createAll();
+    await _seedBuiltInPresets();
+  }
+
+  /// Drops every table found in the file, including those of an older
+  /// schema that this one no longer declares.
+  Future<void> _dropAllTables() async {
+    final tables = await customSelect(
+      "SELECT name FROM sqlite_master WHERE type = 'table' "
+      "AND name NOT LIKE 'sqlite_%' AND name != 'android_metadata'",
+    ).get();
+    await customStatement('PRAGMA foreign_keys = OFF');
+    for (final table in tables) {
+      await customStatement('DROP TABLE "${table.read<String>('name')}"');
+    }
+  }
 
   /// Creates the shipped presets and makes Standard the global preset.
   Future<void> _seedBuiltInPresets() async {

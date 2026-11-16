@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/preset_labels.dart';
+import '../../app/formatting/reminder_settings_labels.dart';
 import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/count_stepper.dart';
@@ -14,6 +15,7 @@ import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../application/groups/group_providers.dart';
+import '../../application/notifications/guard_providers.dart';
 import '../../application/time/minute_ticker.dart';
 import '../../domain/distillation/distillation_order.dart';
 import '../../domain/distillation/distillation_queue.dart';
@@ -50,6 +52,7 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
     final summary = ref.watch(groupSummaryProvider(widget.groupId));
+    final reminders = ref.watch(reminderSettingsProvider).value;
     final cards = ref.watch(groupCardsProvider(widget.groupId)).value ?? [];
     final remaining = DistillationQueue.remaining(cards);
     return Scaffold(
@@ -81,7 +84,7 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
                 strings.distillIntro(
-                  strings.presetScheduleLabel(summary.preset),
+                  reminders == null ? '' : strings.scheduleLabel(reminders),
                   strings.presetName(summary.preset),
                 ),
                 style: TextStyle(

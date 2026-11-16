@@ -1,10 +1,6 @@
-import '../scheduling/clock_time.dart';
 import 'built_in_preset_key.dart';
 import 'failure_behavior.dart';
-import 'grouped_reminder_action.dart';
-import 'notification_mode.dart';
 import 'preset_interval.dart';
-import 'schedule_kind.dart';
 import 'scheduling_engine_kind.dart';
 import 'sequence_end_behavior.dart';
 
@@ -20,12 +16,6 @@ class Preset {
     required this.failureBehavior,
     required this.endBehavior,
     required this.typedAnswer,
-    required this.scheduleKind,
-    required this.fixedTime,
-    required this.rangeStart,
-    required this.rangeEnd,
-    required this.notificationMode,
-    required this.groupedAction,
     required this.targetRetention,
   });
 
@@ -37,12 +27,6 @@ class Preset {
   final FailureBehavior failureBehavior;
   final SequenceEndBehavior endBehavior;
   final bool typedAnswer;
-  final ScheduleKind scheduleKind;
-  final ClockTime fixedTime;
-  final ClockTime rangeStart;
-  final ClockTime rangeEnd;
-  final NotificationMode notificationMode;
-  final GroupedReminderAction groupedAction;
 
   /// Probability of recalling a card on its due date aimed at by the adaptive
   /// engine, between [minRetention] and [maxRetention].
@@ -50,15 +34,6 @@ class Preset {
 
   static const double minRetention = 0.7;
   static const double maxRetention = 0.97;
-
-  /// Time at which day-based reviews of this preset become due.
-  ///
-  /// With a range, dues are anchored at its start; spreading the notifications
-  /// over the range is the job of the notification planning.
-  ClockTime get dailySlot => switch (scheduleKind) {
-    ScheduleKind.fixedTime => fixedTime,
-    ScheduleKind.timeRange => rangeStart,
-  };
 
   /// Number of steps of the sequence; the last valid step index is `length - 1`.
   int get sequenceLength => intervals.length;
@@ -72,12 +47,6 @@ class Preset {
     FailureBehavior? failureBehavior,
     SequenceEndBehavior? endBehavior,
     bool? typedAnswer,
-    ScheduleKind? scheduleKind,
-    ClockTime? fixedTime,
-    ClockTime? rangeStart,
-    ClockTime? rangeEnd,
-    NotificationMode? notificationMode,
-    GroupedReminderAction? groupedAction,
     double? targetRetention,
   }) => Preset(
     id: id ?? this.id,
@@ -88,12 +57,6 @@ class Preset {
     failureBehavior: failureBehavior ?? this.failureBehavior,
     endBehavior: endBehavior ?? this.endBehavior,
     typedAnswer: typedAnswer ?? this.typedAnswer,
-    scheduleKind: scheduleKind ?? this.scheduleKind,
-    fixedTime: fixedTime ?? this.fixedTime,
-    rangeStart: rangeStart ?? this.rangeStart,
-    rangeEnd: rangeEnd ?? this.rangeEnd,
-    notificationMode: notificationMode ?? this.notificationMode,
-    groupedAction: groupedAction ?? this.groupedAction,
     targetRetention: targetRetention ?? this.targetRetention,
   );
 }

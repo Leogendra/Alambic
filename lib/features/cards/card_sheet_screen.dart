@@ -8,6 +8,7 @@ import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
+import '../../application/notifications/guard_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../application/reminders/reminder_providers.dart';
 import '../../domain/cards/card_face.dart';
@@ -114,7 +115,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
           icon: Icons.schedule,
           label: strings.cardSheetReviewSoon,
           isAccent: true,
-          onPressed: card.isPending ? null : () => _reviewSoon(card, preset),
+          onPressed: card.isPending ? null : () => _reviewSoon(card),
         ),
         _ActionButton(
           icon: suspended ? Icons.play_arrow : Icons.pause,
@@ -141,14 +142,19 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
     await openSession(context, ref, [card.id]);
   }
 
-  Future<void> _reviewSoon(Flashcard card, Preset preset) async {
+  /// The reminder time of the app is offered first.
+  Future<void> _reviewSoon(Flashcard card) async {
     final strings = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    final reminders = await ref.read(reminderSettingsProvider.future);
+    if (!mounted) {
+      return;
+    }
     final remindAt = await showReviewSoonSheet(
       context,
       cardId: card.id,
       front: card.frontText ?? strings.cardImageOnly,
-      defaultTime: preset.dailySlot,
+      defaultTime: reminders.dailySlot,
     );
     if (remindAt != null) {
       messenger.showSnackBar(

@@ -5,9 +5,7 @@ import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/presets/interval_unit.dart';
 import 'package:alambic/domain/presets/preset_interval.dart';
-import 'package:alambic/domain/presets/schedule_kind.dart';
 import 'package:alambic/domain/presets/scheduling_engine_kind.dart';
-import 'package:alambic/domain/scheduling/clock_time.dart';
 
 import '../support/test_database.dart';
 
@@ -35,13 +33,9 @@ void main() {
   test('saving a stored preset updates it in place', () async {
     final standard = (await presets.loadCatalog()).globalPreset;
     await service.save(
-      standard.copyWith(
-        fixedTime: const ClockTime(18, 0),
-        intervals: const [PresetInterval(3, IntervalUnit.day)],
-      ),
+      standard.copyWith(intervals: const [PresetInterval(3, IntervalUnit.day)]),
     );
     final stored = await presets.getById(standard.id);
-    expect(stored.fixedTime, const ClockTime(18, 0));
     expect(stored.intervals, const [PresetInterval(3, IntervalUnit.day)]);
     expect(stored.builtInKey, BuiltInPresetKey.standard);
   });
@@ -54,7 +48,7 @@ void main() {
     expect(copy.name, 'Standard (copie)');
     expect(copy.builtInKey, isNull);
     expect(copy.intervals, standard.intervals);
-    expect(copy.fixedTime, standard.fixedTime);
+    expect(copy.failureBehavior, standard.failureBehavior);
   });
 
   test('a preset needs a name and at least one step', () async {
@@ -83,21 +77,4 @@ void main() {
       isPositive,
     );
   });
-
-  test(
-    'the onboarding time moves every preset notified at a fixed time',
-    () async {
-      final range = await service.save(
-        service
-            .newDraft('Plage')
-            .copyWith(scheduleKind: ScheduleKind.timeRange),
-      );
-      await service.setFixedTimeOfAll(const ClockTime(8, 30));
-      final all = await presets.watchAll().first;
-      for (final preset in all.where((preset) => preset.id != range)) {
-        expect(preset.fixedTime, const ClockTime(8, 30));
-      }
-      expect((await presets.getById(range)).fixedTime, const ClockTime(12, 0));
-    },
-  );
 }

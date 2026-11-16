@@ -16,7 +16,7 @@ A card created in the group, moved into it while pending, or reset joins the end
 
 ### Rhythm
 
-A batch of N cards is owed from its batch day on; the next batch comes X days after the day the previous one was completed. Introducing a card makes it due today at its preset slot, due right away when the slot has passed. It arrives as a new card ("New card") and then follows its preset.
+A batch of N cards is owed from its batch day on; the next batch comes X days after the day the previous one was completed. Introducing a card makes it due today at the [daily slot](../lexicon.md#daily-slot), due right away when the slot has passed. It arrives as a new card ("New card") and then follows its preset.
 
 Each scheduling day is processed once per distillation, by the first pass that sees it: at app launch, or at any wake-up of the app. A running distillation plans a wake-up at the start of the next day it has to process (4am), so cards are introduced with the app closed. A missed day is not caught up: at most one batch is introduced per day. A suspended card keeps its place in the queue and is skipped. When the queue is empty, the distillation simply waits for new cards.
 
@@ -26,7 +26,7 @@ The settings stay editable: "N cards every X days", order and "Avoid collisions"
 
 ### Avoiding collisions
 
-With "Avoid collisions" (on by default), a distillation has a budget of N notifications a day, N being its cards per batch. When the day is processed, the reminders due today of the cards of the group come first, the shortest interval first (a D+1 reminder before a D+2 one; a card introduced and not answered yet counts as the shortest). Those over the budget move to the next day at their preset slot, keeping their step: no penalty. New cards only get what is left of the budget; the part of the batch they cannot take waits for the next days.
+With "Avoid collisions" (on by default), a distillation has a budget of N notifications a day, N being its cards per batch. When the day is processed, the reminders due today of the cards of the group come first, the shortest interval first (a D+1 reminder before a D+2 one; a card introduced and not answered yet counts as the shortest). Those over the budget move to the next day at the daily slot, keeping their step: no penalty. New cards only get what is left of the budget; the part of the batch they cannot take waits for the next days.
 
 With 3 cards a day on the Standard preset, every card answered correctly: day 1 brings three new cards, day 2 their three D+1 reminders and no new card, day 3 three new cards, day 4 the three D+1 reminders while the three D+2 reminders move to day 5.
 
@@ -40,7 +40,7 @@ A paused distillation introduces nothing and spends no budget; its introduced ca
 
 While the group does not distill, its page shows a large "Distill" button ([Feature 4](4-groups.md#group-page)). Once activated, a "Distillation" section takes its place: "In progress" or "Paused", "Adjust", a pause / resume button, the rhythm and order ("1 card per day · group order"), the waiting cards ("5 cards waiting") and the estimated day of the last arrival.
 
-The "Distill" screen shows the preset slot and the preset the cards will follow, then the settings: "N cards every X days" (1 / 1 by default), order (group order by default) and "Avoid collisions" (on, explaining the daily budget). An estimate follows ("44 cards · last arrival on 23 December"), computed as if every batch went through, or a line saying no card waits. It ends on "Start distilling"; opened from "Adjust", it is titled "Adjust the distillation", starts from the current settings and ends on "Save".
+The "Distill" screen shows the [schedule](../lexicon.md#schedule) of the app and the preset the cards will follow, then the settings: "N cards every X days" (1 / 1 by default), order (group order by default) and "Avoid collisions" (on, explaining the daily budget). An estimate follows ("44 cards · last arrival on 23 December"), computed as if every batch went through, or a line saying no card waits. It ends on "Start distilling"; opened from "Adjust", it is titled "Adjust the distillation", starts from the current settings and ends on "Save".
 
 On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#new-cards)).
 

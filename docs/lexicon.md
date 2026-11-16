@@ -34,7 +34,7 @@ A flat list of cards sharing a [preset](#preset) (`CardGroup`; *groupe*), with i
 
 ### Preset
 
-A complete set of repetition rules (`Preset`): engine, interval sequence, behaviour on failure and at the end of the sequence, schedule, notification mode. A level (card, group, global) picks a whole preset or inherits from the next level.
+The rhythm of the reviews (`Preset`): engine, interval sequence, behaviour on failure and at the end of the sequence. It says nothing of when in the day nor how a card is notified: that is the [schedule](#schedule) of the app. A level (card, group, global) picks a whole preset or inherits from the next level.
 
 ### Step
 
@@ -50,7 +50,15 @@ The engine of a preset that computes each interval with FSRS (`SchedulingEngineK
 
 ### Due date
 
-Moment when a card becomes [due](#due) again (`dueAt`; *échéance*). For an interval of a day or more, it is the preset slot on the target day; for a shorter interval, the answer moment plus the interval.
+Moment when a card becomes [due](#due) again (`dueAt`; *échéance*). For an interval of a day or more, it is the [daily slot](#daily-slot) on the target day; for a shorter interval, the answer moment plus the interval.
+
+### Schedule
+
+When the reviews are notified (`ReminderSettings`; *horaire*): a fixed time (12:00 by default) or a time range. One for the whole app, set in Settings with the notification mode (one notification per card, or one grouped reminder per group).
+
+### Daily slot
+
+Time of day at which the due dates of a day or more fall (`ReminderSettings.dailySlot`): the fixed time of the [schedule](#schedule), or the start of its time range.
 
 ### Day
 

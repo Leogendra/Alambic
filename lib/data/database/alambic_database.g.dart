@@ -89,60 +89,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
       'CHECK ("typed_answer" IN (0, 1))',
     ),
   );
-  @override
-  late final GeneratedColumnWithTypeConverter<ScheduleKind, String>
-  scheduleKind = GeneratedColumn<String>(
-    'schedule_kind',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<ScheduleKind>($PresetsTable.$converterscheduleKind);
-  @override
-  late final GeneratedColumnWithTypeConverter<ClockTime, int> fixedTime =
-      GeneratedColumn<int>(
-        'fixed_time',
-        aliasedName,
-        false,
-        type: DriftSqlType.int,
-        requiredDuringInsert: true,
-      ).withConverter<ClockTime>($PresetsTable.$converterfixedTime);
-  @override
-  late final GeneratedColumnWithTypeConverter<ClockTime, int> rangeStart =
-      GeneratedColumn<int>(
-        'range_start',
-        aliasedName,
-        false,
-        type: DriftSqlType.int,
-        requiredDuringInsert: true,
-      ).withConverter<ClockTime>($PresetsTable.$converterrangeStart);
-  @override
-  late final GeneratedColumnWithTypeConverter<ClockTime, int> rangeEnd =
-      GeneratedColumn<int>(
-        'range_end',
-        aliasedName,
-        false,
-        type: DriftSqlType.int,
-        requiredDuringInsert: true,
-      ).withConverter<ClockTime>($PresetsTable.$converterrangeEnd);
-  @override
-  late final GeneratedColumnWithTypeConverter<NotificationMode, String>
-  notificationMode = GeneratedColumn<String>(
-    'notification_mode',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<NotificationMode>($PresetsTable.$converternotificationMode);
-  @override
-  late final GeneratedColumnWithTypeConverter<GroupedReminderAction, String>
-  groupedAction = GeneratedColumn<String>(
-    'grouped_action',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<GroupedReminderAction>($PresetsTable.$convertergroupedAction);
   static const VerificationMeta _targetRetentionMeta = const VerificationMeta(
     'targetRetention',
   );
@@ -164,12 +110,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
     failureBehavior,
     endBehavior,
     typedAnswer,
-    scheduleKind,
-    fixedTime,
-    rangeStart,
-    rangeEnd,
-    notificationMode,
-    groupedAction,
     targetRetention,
   ];
   @override
@@ -268,42 +208,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
         DriftSqlType.bool,
         data['${effectivePrefix}typed_answer'],
       )!,
-      scheduleKind: $PresetsTable.$converterscheduleKind.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}schedule_kind'],
-        )!,
-      ),
-      fixedTime: $PresetsTable.$converterfixedTime.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}fixed_time'],
-        )!,
-      ),
-      rangeStart: $PresetsTable.$converterrangeStart.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}range_start'],
-        )!,
-      ),
-      rangeEnd: $PresetsTable.$converterrangeEnd.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}range_end'],
-        )!,
-      ),
-      notificationMode: $PresetsTable.$converternotificationMode.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}notification_mode'],
-        )!,
-      ),
-      groupedAction: $PresetsTable.$convertergroupedAction.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}grouped_action'],
-        )!,
-      ),
       targetRetention: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}target_retention'],
@@ -336,24 +240,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
   $converterendBehavior = const EnumNameConverter<SequenceEndBehavior>(
     SequenceEndBehavior.values,
   );
-  static JsonTypeConverter2<ScheduleKind, String, String>
-  $converterscheduleKind = const EnumNameConverter<ScheduleKind>(
-    ScheduleKind.values,
-  );
-  static TypeConverter<ClockTime, int> $converterfixedTime =
-      const ClockTimeConverter();
-  static TypeConverter<ClockTime, int> $converterrangeStart =
-      const ClockTimeConverter();
-  static TypeConverter<ClockTime, int> $converterrangeEnd =
-      const ClockTimeConverter();
-  static JsonTypeConverter2<NotificationMode, String, String>
-  $converternotificationMode = const EnumNameConverter<NotificationMode>(
-    NotificationMode.values,
-  );
-  static JsonTypeConverter2<GroupedReminderAction, String, String>
-  $convertergroupedAction = const EnumNameConverter<GroupedReminderAction>(
-    GroupedReminderAction.values,
-  );
 }
 
 class PresetsCompanion extends UpdateCompanion<Preset> {
@@ -365,12 +251,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
   final Value<FailureBehavior> failureBehavior;
   final Value<SequenceEndBehavior> endBehavior;
   final Value<bool> typedAnswer;
-  final Value<ScheduleKind> scheduleKind;
-  final Value<ClockTime> fixedTime;
-  final Value<ClockTime> rangeStart;
-  final Value<ClockTime> rangeEnd;
-  final Value<NotificationMode> notificationMode;
-  final Value<GroupedReminderAction> groupedAction;
   final Value<double> targetRetention;
   const PresetsCompanion({
     this.id = const Value.absent(),
@@ -381,12 +261,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
     this.failureBehavior = const Value.absent(),
     this.endBehavior = const Value.absent(),
     this.typedAnswer = const Value.absent(),
-    this.scheduleKind = const Value.absent(),
-    this.fixedTime = const Value.absent(),
-    this.rangeStart = const Value.absent(),
-    this.rangeEnd = const Value.absent(),
-    this.notificationMode = const Value.absent(),
-    this.groupedAction = const Value.absent(),
     this.targetRetention = const Value.absent(),
   });
   PresetsCompanion.insert({
@@ -398,12 +272,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
     required FailureBehavior failureBehavior,
     required SequenceEndBehavior endBehavior,
     required bool typedAnswer,
-    required ScheduleKind scheduleKind,
-    required ClockTime fixedTime,
-    required ClockTime rangeStart,
-    required ClockTime rangeEnd,
-    required NotificationMode notificationMode,
-    required GroupedReminderAction groupedAction,
     required double targetRetention,
   }) : name = Value(name),
        engine = Value(engine),
@@ -411,12 +279,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
        failureBehavior = Value(failureBehavior),
        endBehavior = Value(endBehavior),
        typedAnswer = Value(typedAnswer),
-       scheduleKind = Value(scheduleKind),
-       fixedTime = Value(fixedTime),
-       rangeStart = Value(rangeStart),
-       rangeEnd = Value(rangeEnd),
-       notificationMode = Value(notificationMode),
-       groupedAction = Value(groupedAction),
        targetRetention = Value(targetRetention);
   static Insertable<Preset> custom({
     Expression<int>? id,
@@ -427,12 +289,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
     Expression<String>? failureBehavior,
     Expression<String>? endBehavior,
     Expression<bool>? typedAnswer,
-    Expression<String>? scheduleKind,
-    Expression<int>? fixedTime,
-    Expression<int>? rangeStart,
-    Expression<int>? rangeEnd,
-    Expression<String>? notificationMode,
-    Expression<String>? groupedAction,
     Expression<double>? targetRetention,
   }) {
     return RawValuesInsertable({
@@ -444,12 +300,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
       if (failureBehavior != null) 'failure_behavior': failureBehavior,
       if (endBehavior != null) 'end_behavior': endBehavior,
       if (typedAnswer != null) 'typed_answer': typedAnswer,
-      if (scheduleKind != null) 'schedule_kind': scheduleKind,
-      if (fixedTime != null) 'fixed_time': fixedTime,
-      if (rangeStart != null) 'range_start': rangeStart,
-      if (rangeEnd != null) 'range_end': rangeEnd,
-      if (notificationMode != null) 'notification_mode': notificationMode,
-      if (groupedAction != null) 'grouped_action': groupedAction,
       if (targetRetention != null) 'target_retention': targetRetention,
     });
   }
@@ -463,12 +313,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
     Value<FailureBehavior>? failureBehavior,
     Value<SequenceEndBehavior>? endBehavior,
     Value<bool>? typedAnswer,
-    Value<ScheduleKind>? scheduleKind,
-    Value<ClockTime>? fixedTime,
-    Value<ClockTime>? rangeStart,
-    Value<ClockTime>? rangeEnd,
-    Value<NotificationMode>? notificationMode,
-    Value<GroupedReminderAction>? groupedAction,
     Value<double>? targetRetention,
   }) {
     return PresetsCompanion(
@@ -480,12 +324,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
       failureBehavior: failureBehavior ?? this.failureBehavior,
       endBehavior: endBehavior ?? this.endBehavior,
       typedAnswer: typedAnswer ?? this.typedAnswer,
-      scheduleKind: scheduleKind ?? this.scheduleKind,
-      fixedTime: fixedTime ?? this.fixedTime,
-      rangeStart: rangeStart ?? this.rangeStart,
-      rangeEnd: rangeEnd ?? this.rangeEnd,
-      notificationMode: notificationMode ?? this.notificationMode,
-      groupedAction: groupedAction ?? this.groupedAction,
       targetRetention: targetRetention ?? this.targetRetention,
     );
   }
@@ -527,36 +365,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
     if (typedAnswer.present) {
       map['typed_answer'] = Variable<bool>(typedAnswer.value);
     }
-    if (scheduleKind.present) {
-      map['schedule_kind'] = Variable<String>(
-        $PresetsTable.$converterscheduleKind.toSql(scheduleKind.value),
-      );
-    }
-    if (fixedTime.present) {
-      map['fixed_time'] = Variable<int>(
-        $PresetsTable.$converterfixedTime.toSql(fixedTime.value),
-      );
-    }
-    if (rangeStart.present) {
-      map['range_start'] = Variable<int>(
-        $PresetsTable.$converterrangeStart.toSql(rangeStart.value),
-      );
-    }
-    if (rangeEnd.present) {
-      map['range_end'] = Variable<int>(
-        $PresetsTable.$converterrangeEnd.toSql(rangeEnd.value),
-      );
-    }
-    if (notificationMode.present) {
-      map['notification_mode'] = Variable<String>(
-        $PresetsTable.$converternotificationMode.toSql(notificationMode.value),
-      );
-    }
-    if (groupedAction.present) {
-      map['grouped_action'] = Variable<String>(
-        $PresetsTable.$convertergroupedAction.toSql(groupedAction.value),
-      );
-    }
     if (targetRetention.present) {
       map['target_retention'] = Variable<double>(targetRetention.value);
     }
@@ -574,12 +382,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
           ..write('failureBehavior: $failureBehavior, ')
           ..write('endBehavior: $endBehavior, ')
           ..write('typedAnswer: $typedAnswer, ')
-          ..write('scheduleKind: $scheduleKind, ')
-          ..write('fixedTime: $fixedTime, ')
-          ..write('rangeStart: $rangeStart, ')
-          ..write('rangeEnd: $rangeEnd, ')
-          ..write('notificationMode: $notificationMode, ')
-          ..write('groupedAction: $groupedAction, ')
           ..write('targetRetention: $targetRetention')
           ..write(')'))
         .toString();
@@ -616,6 +418,72 @@ class $AppSettingsTable extends AppSettings
       'REFERENCES presets (id)',
     ),
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<ScheduleKind, String>
+  scheduleKind = GeneratedColumn<String>(
+    'schedule_kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: Constant(ScheduleKind.fixedTime.name),
+  ).withConverter<ScheduleKind>($AppSettingsTable.$converterscheduleKind);
+  @override
+  late final GeneratedColumnWithTypeConverter<ClockTime, int> fixedTime =
+      GeneratedColumn<int>(
+        'fixed_time',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(12 * 60),
+      ).withConverter<ClockTime>($AppSettingsTable.$converterfixedTime);
+  @override
+  late final GeneratedColumnWithTypeConverter<ClockTime, int> rangeStart =
+      GeneratedColumn<int>(
+        'range_start',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(9 * 60),
+      ).withConverter<ClockTime>($AppSettingsTable.$converterrangeStart);
+  @override
+  late final GeneratedColumnWithTypeConverter<ClockTime, int> rangeEnd =
+      GeneratedColumn<int>(
+        'range_end',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(18 * 60),
+      ).withConverter<ClockTime>($AppSettingsTable.$converterrangeEnd);
+  @override
+  late final GeneratedColumnWithTypeConverter<NotificationMode, String>
+  notificationMode =
+      GeneratedColumn<String>(
+        'notification_mode',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: Constant(NotificationMode.perCard.name),
+      ).withConverter<NotificationMode>(
+        $AppSettingsTable.$converternotificationMode,
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<GroupedReminderAction, String>
+  groupedAction =
+      GeneratedColumn<String>(
+        'grouped_action',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: Constant(GroupedReminderAction.openApp.name),
+      ).withConverter<GroupedReminderAction>(
+        $AppSettingsTable.$convertergroupedAction,
+      );
   static const VerificationMeta _dailyNotificationCapMeta =
       const VerificationMeta('dailyNotificationCap');
   @override
@@ -726,6 +594,12 @@ class $AppSettingsTable extends AppSettings
   List<GeneratedColumn> get $columns => [
     id,
     globalPresetId,
+    scheduleKind,
+    fixedTime,
+    rangeStart,
+    rangeEnd,
+    notificationMode,
+    groupedAction,
     dailyNotificationCap,
     quietHoursEnabled,
     quietStart,
@@ -839,6 +713,42 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.int,
         data['${effectivePrefix}global_preset_id'],
       )!,
+      scheduleKind: $AppSettingsTable.$converterscheduleKind.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}schedule_kind'],
+        )!,
+      ),
+      fixedTime: $AppSettingsTable.$converterfixedTime.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}fixed_time'],
+        )!,
+      ),
+      rangeStart: $AppSettingsTable.$converterrangeStart.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}range_start'],
+        )!,
+      ),
+      rangeEnd: $AppSettingsTable.$converterrangeEnd.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}range_end'],
+        )!,
+      ),
+      notificationMode: $AppSettingsTable.$converternotificationMode.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}notification_mode'],
+        )!,
+      ),
+      groupedAction: $AppSettingsTable.$convertergroupedAction.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}grouped_action'],
+        )!,
+      ),
       dailyNotificationCap: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}daily_notification_cap'],
@@ -887,6 +797,24 @@ class $AppSettingsTable extends AppSettings
     return $AppSettingsTable(attachedDatabase, alias);
   }
 
+  static JsonTypeConverter2<ScheduleKind, String, String>
+  $converterscheduleKind = const EnumNameConverter<ScheduleKind>(
+    ScheduleKind.values,
+  );
+  static TypeConverter<ClockTime, int> $converterfixedTime =
+      const ClockTimeConverter();
+  static TypeConverter<ClockTime, int> $converterrangeStart =
+      const ClockTimeConverter();
+  static TypeConverter<ClockTime, int> $converterrangeEnd =
+      const ClockTimeConverter();
+  static JsonTypeConverter2<NotificationMode, String, String>
+  $converternotificationMode = const EnumNameConverter<NotificationMode>(
+    NotificationMode.values,
+  );
+  static JsonTypeConverter2<GroupedReminderAction, String, String>
+  $convertergroupedAction = const EnumNameConverter<GroupedReminderAction>(
+    GroupedReminderAction.values,
+  );
   static TypeConverter<ClockTime, int> $converterquietStart =
       const ClockTimeConverter();
   static TypeConverter<ClockTime, int> $converterquietEnd =
@@ -897,6 +825,14 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   /// Always 1: the table holds a single row.
   final int id;
   final int globalPresetId;
+
+  /// Schedule and notification mode of the whole app, see `ReminderSettings`.
+  final ScheduleKind scheduleKind;
+  final ClockTime fixedTime;
+  final ClockTime rangeStart;
+  final ClockTime rangeEnd;
+  final NotificationMode notificationMode;
+  final GroupedReminderAction groupedAction;
 
   /// Notification safeguards, see `NotificationGuards`.
   final int dailyNotificationCap;
@@ -915,6 +851,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   const AppSettingsRow({
     required this.id,
     required this.globalPresetId,
+    required this.scheduleKind,
+    required this.fixedTime,
+    required this.rangeStart,
+    required this.rangeEnd,
+    required this.notificationMode,
+    required this.groupedAction,
     required this.dailyNotificationCap,
     required this.quietHoursEnabled,
     required this.quietStart,
@@ -930,6 +872,36 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['global_preset_id'] = Variable<int>(globalPresetId);
+    {
+      map['schedule_kind'] = Variable<String>(
+        $AppSettingsTable.$converterscheduleKind.toSql(scheduleKind),
+      );
+    }
+    {
+      map['fixed_time'] = Variable<int>(
+        $AppSettingsTable.$converterfixedTime.toSql(fixedTime),
+      );
+    }
+    {
+      map['range_start'] = Variable<int>(
+        $AppSettingsTable.$converterrangeStart.toSql(rangeStart),
+      );
+    }
+    {
+      map['range_end'] = Variable<int>(
+        $AppSettingsTable.$converterrangeEnd.toSql(rangeEnd),
+      );
+    }
+    {
+      map['notification_mode'] = Variable<String>(
+        $AppSettingsTable.$converternotificationMode.toSql(notificationMode),
+      );
+    }
+    {
+      map['grouped_action'] = Variable<String>(
+        $AppSettingsTable.$convertergroupedAction.toSql(groupedAction),
+      );
+    }
     map['daily_notification_cap'] = Variable<int>(dailyNotificationCap);
     map['quiet_hours_enabled'] = Variable<bool>(quietHoursEnabled);
     {
@@ -958,6 +930,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     return AppSettingsCompanion(
       id: Value(id),
       globalPresetId: Value(globalPresetId),
+      scheduleKind: Value(scheduleKind),
+      fixedTime: Value(fixedTime),
+      rangeStart: Value(rangeStart),
+      rangeEnd: Value(rangeEnd),
+      notificationMode: Value(notificationMode),
+      groupedAction: Value(groupedAction),
       dailyNotificationCap: Value(dailyNotificationCap),
       quietHoursEnabled: Value(quietHoursEnabled),
       quietStart: Value(quietStart),
@@ -982,6 +960,18 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     return AppSettingsRow(
       id: serializer.fromJson<int>(json['id']),
       globalPresetId: serializer.fromJson<int>(json['globalPresetId']),
+      scheduleKind: $AppSettingsTable.$converterscheduleKind.fromJson(
+        serializer.fromJson<String>(json['scheduleKind']),
+      ),
+      fixedTime: serializer.fromJson<ClockTime>(json['fixedTime']),
+      rangeStart: serializer.fromJson<ClockTime>(json['rangeStart']),
+      rangeEnd: serializer.fromJson<ClockTime>(json['rangeEnd']),
+      notificationMode: $AppSettingsTable.$converternotificationMode.fromJson(
+        serializer.fromJson<String>(json['notificationMode']),
+      ),
+      groupedAction: $AppSettingsTable.$convertergroupedAction.fromJson(
+        serializer.fromJson<String>(json['groupedAction']),
+      ),
       dailyNotificationCap: serializer.fromJson<int>(
         json['dailyNotificationCap'],
       ),
@@ -1001,6 +991,18 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'globalPresetId': serializer.toJson<int>(globalPresetId),
+      'scheduleKind': serializer.toJson<String>(
+        $AppSettingsTable.$converterscheduleKind.toJson(scheduleKind),
+      ),
+      'fixedTime': serializer.toJson<ClockTime>(fixedTime),
+      'rangeStart': serializer.toJson<ClockTime>(rangeStart),
+      'rangeEnd': serializer.toJson<ClockTime>(rangeEnd),
+      'notificationMode': serializer.toJson<String>(
+        $AppSettingsTable.$converternotificationMode.toJson(notificationMode),
+      ),
+      'groupedAction': serializer.toJson<String>(
+        $AppSettingsTable.$convertergroupedAction.toJson(groupedAction),
+      ),
       'dailyNotificationCap': serializer.toJson<int>(dailyNotificationCap),
       'quietHoursEnabled': serializer.toJson<bool>(quietHoursEnabled),
       'quietStart': serializer.toJson<ClockTime>(quietStart),
@@ -1016,6 +1018,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   AppSettingsRow copyWith({
     int? id,
     int? globalPresetId,
+    ScheduleKind? scheduleKind,
+    ClockTime? fixedTime,
+    ClockTime? rangeStart,
+    ClockTime? rangeEnd,
+    NotificationMode? notificationMode,
+    GroupedReminderAction? groupedAction,
     int? dailyNotificationCap,
     bool? quietHoursEnabled,
     ClockTime? quietStart,
@@ -1028,6 +1036,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   }) => AppSettingsRow(
     id: id ?? this.id,
     globalPresetId: globalPresetId ?? this.globalPresetId,
+    scheduleKind: scheduleKind ?? this.scheduleKind,
+    fixedTime: fixedTime ?? this.fixedTime,
+    rangeStart: rangeStart ?? this.rangeStart,
+    rangeEnd: rangeEnd ?? this.rangeEnd,
+    notificationMode: notificationMode ?? this.notificationMode,
+    groupedAction: groupedAction ?? this.groupedAction,
     dailyNotificationCap: dailyNotificationCap ?? this.dailyNotificationCap,
     quietHoursEnabled: quietHoursEnabled ?? this.quietHoursEnabled,
     quietStart: quietStart ?? this.quietStart,
@@ -1044,6 +1058,20 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       globalPresetId: data.globalPresetId.present
           ? data.globalPresetId.value
           : this.globalPresetId,
+      scheduleKind: data.scheduleKind.present
+          ? data.scheduleKind.value
+          : this.scheduleKind,
+      fixedTime: data.fixedTime.present ? data.fixedTime.value : this.fixedTime,
+      rangeStart: data.rangeStart.present
+          ? data.rangeStart.value
+          : this.rangeStart,
+      rangeEnd: data.rangeEnd.present ? data.rangeEnd.value : this.rangeEnd,
+      notificationMode: data.notificationMode.present
+          ? data.notificationMode.value
+          : this.notificationMode,
+      groupedAction: data.groupedAction.present
+          ? data.groupedAction.value
+          : this.groupedAction,
       dailyNotificationCap: data.dailyNotificationCap.present
           ? data.dailyNotificationCap.value
           : this.dailyNotificationCap,
@@ -1075,6 +1103,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     return (StringBuffer('AppSettingsRow(')
           ..write('id: $id, ')
           ..write('globalPresetId: $globalPresetId, ')
+          ..write('scheduleKind: $scheduleKind, ')
+          ..write('fixedTime: $fixedTime, ')
+          ..write('rangeStart: $rangeStart, ')
+          ..write('rangeEnd: $rangeEnd, ')
+          ..write('notificationMode: $notificationMode, ')
+          ..write('groupedAction: $groupedAction, ')
           ..write('dailyNotificationCap: $dailyNotificationCap, ')
           ..write('quietHoursEnabled: $quietHoursEnabled, ')
           ..write('quietStart: $quietStart, ')
@@ -1092,6 +1126,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   int get hashCode => Object.hash(
     id,
     globalPresetId,
+    scheduleKind,
+    fixedTime,
+    rangeStart,
+    rangeEnd,
+    notificationMode,
+    groupedAction,
     dailyNotificationCap,
     quietHoursEnabled,
     quietStart,
@@ -1108,6 +1148,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       (other is AppSettingsRow &&
           other.id == this.id &&
           other.globalPresetId == this.globalPresetId &&
+          other.scheduleKind == this.scheduleKind &&
+          other.fixedTime == this.fixedTime &&
+          other.rangeStart == this.rangeStart &&
+          other.rangeEnd == this.rangeEnd &&
+          other.notificationMode == this.notificationMode &&
+          other.groupedAction == this.groupedAction &&
           other.dailyNotificationCap == this.dailyNotificationCap &&
           other.quietHoursEnabled == this.quietHoursEnabled &&
           other.quietStart == this.quietStart &&
@@ -1122,6 +1168,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
 class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
   final Value<int> id;
   final Value<int> globalPresetId;
+  final Value<ScheduleKind> scheduleKind;
+  final Value<ClockTime> fixedTime;
+  final Value<ClockTime> rangeStart;
+  final Value<ClockTime> rangeEnd;
+  final Value<NotificationMode> notificationMode;
+  final Value<GroupedReminderAction> groupedAction;
   final Value<int> dailyNotificationCap;
   final Value<bool> quietHoursEnabled;
   final Value<ClockTime> quietStart;
@@ -1134,6 +1186,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
   const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.globalPresetId = const Value.absent(),
+    this.scheduleKind = const Value.absent(),
+    this.fixedTime = const Value.absent(),
+    this.rangeStart = const Value.absent(),
+    this.rangeEnd = const Value.absent(),
+    this.notificationMode = const Value.absent(),
+    this.groupedAction = const Value.absent(),
     this.dailyNotificationCap = const Value.absent(),
     this.quietHoursEnabled = const Value.absent(),
     this.quietStart = const Value.absent(),
@@ -1147,6 +1205,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
   AppSettingsCompanion.insert({
     this.id = const Value.absent(),
     required int globalPresetId,
+    this.scheduleKind = const Value.absent(),
+    this.fixedTime = const Value.absent(),
+    this.rangeStart = const Value.absent(),
+    this.rangeEnd = const Value.absent(),
+    this.notificationMode = const Value.absent(),
+    this.groupedAction = const Value.absent(),
     this.dailyNotificationCap = const Value.absent(),
     this.quietHoursEnabled = const Value.absent(),
     this.quietStart = const Value.absent(),
@@ -1160,6 +1224,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
   static Insertable<AppSettingsRow> custom({
     Expression<int>? id,
     Expression<int>? globalPresetId,
+    Expression<String>? scheduleKind,
+    Expression<int>? fixedTime,
+    Expression<int>? rangeStart,
+    Expression<int>? rangeEnd,
+    Expression<String>? notificationMode,
+    Expression<String>? groupedAction,
     Expression<int>? dailyNotificationCap,
     Expression<bool>? quietHoursEnabled,
     Expression<int>? quietStart,
@@ -1173,6 +1243,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (globalPresetId != null) 'global_preset_id': globalPresetId,
+      if (scheduleKind != null) 'schedule_kind': scheduleKind,
+      if (fixedTime != null) 'fixed_time': fixedTime,
+      if (rangeStart != null) 'range_start': rangeStart,
+      if (rangeEnd != null) 'range_end': rangeEnd,
+      if (notificationMode != null) 'notification_mode': notificationMode,
+      if (groupedAction != null) 'grouped_action': groupedAction,
       if (dailyNotificationCap != null)
         'daily_notification_cap': dailyNotificationCap,
       if (quietHoursEnabled != null) 'quiet_hours_enabled': quietHoursEnabled,
@@ -1190,6 +1266,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
   AppSettingsCompanion copyWith({
     Value<int>? id,
     Value<int>? globalPresetId,
+    Value<ScheduleKind>? scheduleKind,
+    Value<ClockTime>? fixedTime,
+    Value<ClockTime>? rangeStart,
+    Value<ClockTime>? rangeEnd,
+    Value<NotificationMode>? notificationMode,
+    Value<GroupedReminderAction>? groupedAction,
     Value<int>? dailyNotificationCap,
     Value<bool>? quietHoursEnabled,
     Value<ClockTime>? quietStart,
@@ -1203,6 +1285,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     return AppSettingsCompanion(
       id: id ?? this.id,
       globalPresetId: globalPresetId ?? this.globalPresetId,
+      scheduleKind: scheduleKind ?? this.scheduleKind,
+      fixedTime: fixedTime ?? this.fixedTime,
+      rangeStart: rangeStart ?? this.rangeStart,
+      rangeEnd: rangeEnd ?? this.rangeEnd,
+      notificationMode: notificationMode ?? this.notificationMode,
+      groupedAction: groupedAction ?? this.groupedAction,
       dailyNotificationCap: dailyNotificationCap ?? this.dailyNotificationCap,
       quietHoursEnabled: quietHoursEnabled ?? this.quietHoursEnabled,
       quietStart: quietStart ?? this.quietStart,
@@ -1223,6 +1311,38 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     }
     if (globalPresetId.present) {
       map['global_preset_id'] = Variable<int>(globalPresetId.value);
+    }
+    if (scheduleKind.present) {
+      map['schedule_kind'] = Variable<String>(
+        $AppSettingsTable.$converterscheduleKind.toSql(scheduleKind.value),
+      );
+    }
+    if (fixedTime.present) {
+      map['fixed_time'] = Variable<int>(
+        $AppSettingsTable.$converterfixedTime.toSql(fixedTime.value),
+      );
+    }
+    if (rangeStart.present) {
+      map['range_start'] = Variable<int>(
+        $AppSettingsTable.$converterrangeStart.toSql(rangeStart.value),
+      );
+    }
+    if (rangeEnd.present) {
+      map['range_end'] = Variable<int>(
+        $AppSettingsTable.$converterrangeEnd.toSql(rangeEnd.value),
+      );
+    }
+    if (notificationMode.present) {
+      map['notification_mode'] = Variable<String>(
+        $AppSettingsTable.$converternotificationMode.toSql(
+          notificationMode.value,
+        ),
+      );
+    }
+    if (groupedAction.present) {
+      map['grouped_action'] = Variable<String>(
+        $AppSettingsTable.$convertergroupedAction.toSql(groupedAction.value),
+      );
     }
     if (dailyNotificationCap.present) {
       map['daily_notification_cap'] = Variable<int>(dailyNotificationCap.value);
@@ -1263,6 +1383,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     return (StringBuffer('AppSettingsCompanion(')
           ..write('id: $id, ')
           ..write('globalPresetId: $globalPresetId, ')
+          ..write('scheduleKind: $scheduleKind, ')
+          ..write('fixedTime: $fixedTime, ')
+          ..write('rangeStart: $rangeStart, ')
+          ..write('rangeEnd: $rangeEnd, ')
+          ..write('notificationMode: $notificationMode, ')
+          ..write('groupedAction: $groupedAction, ')
           ..write('dailyNotificationCap: $dailyNotificationCap, ')
           ..write('quietHoursEnabled: $quietHoursEnabled, ')
           ..write('quietStart: $quietStart, ')
@@ -3316,12 +3442,6 @@ typedef $$PresetsTableCreateCompanionBuilder = PresetsCompanion Function({
   required FailureBehavior failureBehavior,
   required SequenceEndBehavior endBehavior,
   required bool typedAnswer,
-  required ScheduleKind scheduleKind,
-  required ClockTime fixedTime,
-  required ClockTime rangeStart,
-  required ClockTime rangeEnd,
-  required NotificationMode notificationMode,
-  required GroupedReminderAction groupedAction,
   required double targetRetention,
 });
 typedef $$PresetsTableUpdateCompanionBuilder = PresetsCompanion Function({
@@ -3333,12 +3453,6 @@ typedef $$PresetsTableUpdateCompanionBuilder = PresetsCompanion Function({
   Value<FailureBehavior> failureBehavior,
   Value<SequenceEndBehavior> endBehavior,
   Value<bool> typedAnswer,
-  Value<ScheduleKind> scheduleKind,
-  Value<ClockTime> fixedTime,
-  Value<ClockTime> rangeStart,
-  Value<ClockTime> rangeEnd,
-  Value<NotificationMode> notificationMode,
-  Value<GroupedReminderAction> groupedAction,
   Value<double> targetRetention,
 });
 
@@ -3465,46 +3579,6 @@ class $$PresetsTableFilterComposer
   ColumnFilters<bool> get typedAnswer => $composableBuilder(
     column: $table.typedAnswer,
     builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<ScheduleKind, ScheduleKind, String>
-  get scheduleKind => $composableBuilder(
-    column: $table.scheduleKind,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<ClockTime, ClockTime, int> get fixedTime =>
-      $composableBuilder(
-        column: $table.fixedTime,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
-
-  ColumnWithTypeConverterFilters<ClockTime, ClockTime, int> get rangeStart =>
-      $composableBuilder(
-        column: $table.rangeStart,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
-
-  ColumnWithTypeConverterFilters<ClockTime, ClockTime, int> get rangeEnd =>
-      $composableBuilder(
-        column: $table.rangeEnd,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
-
-  ColumnWithTypeConverterFilters<NotificationMode, NotificationMode, String>
-  get notificationMode => $composableBuilder(
-    column: $table.notificationMode,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<
-    GroupedReminderAction,
-    GroupedReminderAction,
-    String
-  >
-  get groupedAction => $composableBuilder(
-    column: $table.groupedAction,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<double> get targetRetention => $composableBuilder(
@@ -3637,36 +3711,6 @@ class $$PresetsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get scheduleKind => $composableBuilder(
-    column: $table.scheduleKind,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get fixedTime => $composableBuilder(
-    column: $table.fixedTime,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get rangeStart => $composableBuilder(
-    column: $table.rangeStart,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get rangeEnd => $composableBuilder(
-    column: $table.rangeEnd,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notificationMode => $composableBuilder(
-    column: $table.notificationMode,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get groupedAction => $composableBuilder(
-    column: $table.groupedAction,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<double> get targetRetention => $composableBuilder(
     column: $table.targetRetention,
     builder: (column) => ColumnOrderings(column),
@@ -3715,36 +3759,6 @@ class $$PresetsTableAnnotationComposer
 
   GeneratedColumn<bool> get typedAnswer => $composableBuilder(
     column: $table.typedAnswer,
-    builder: (column) => column,
-  );
-
-  GeneratedColumnWithTypeConverter<ScheduleKind, String> get scheduleKind =>
-      $composableBuilder(
-        column: $table.scheduleKind,
-        builder: (column) => column,
-      );
-
-  GeneratedColumnWithTypeConverter<ClockTime, int> get fixedTime =>
-      $composableBuilder(column: $table.fixedTime, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<ClockTime, int> get rangeStart =>
-      $composableBuilder(
-        column: $table.rangeStart,
-        builder: (column) => column,
-      );
-
-  GeneratedColumnWithTypeConverter<ClockTime, int> get rangeEnd =>
-      $composableBuilder(column: $table.rangeEnd, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<NotificationMode, String>
-  get notificationMode => $composableBuilder(
-    column: $table.notificationMode,
-    builder: (column) => column,
-  );
-
-  GeneratedColumnWithTypeConverter<GroupedReminderAction, String>
-  get groupedAction => $composableBuilder(
-    column: $table.groupedAction,
     builder: (column) => column,
   );
 
@@ -3869,13 +3883,6 @@ class $$PresetsTableTableManager
                 Value<FailureBehavior> failureBehavior = const Value.absent(),
                 Value<SequenceEndBehavior> endBehavior = const Value.absent(),
                 Value<bool> typedAnswer = const Value.absent(),
-                Value<ScheduleKind> scheduleKind = const Value.absent(),
-                Value<ClockTime> fixedTime = const Value.absent(),
-                Value<ClockTime> rangeStart = const Value.absent(),
-                Value<ClockTime> rangeEnd = const Value.absent(),
-                Value<NotificationMode> notificationMode = const Value.absent(),
-                Value<GroupedReminderAction> groupedAction =
-                    const Value.absent(),
                 Value<double> targetRetention = const Value.absent(),
               }) => PresetsCompanion(
                 id: id,
@@ -3886,12 +3893,6 @@ class $$PresetsTableTableManager
                 failureBehavior: failureBehavior,
                 endBehavior: endBehavior,
                 typedAnswer: typedAnswer,
-                scheduleKind: scheduleKind,
-                fixedTime: fixedTime,
-                rangeStart: rangeStart,
-                rangeEnd: rangeEnd,
-                notificationMode: notificationMode,
-                groupedAction: groupedAction,
                 targetRetention: targetRetention,
               ),
           createCompanionCallback:
@@ -3904,12 +3905,6 @@ class $$PresetsTableTableManager
                 required FailureBehavior failureBehavior,
                 required SequenceEndBehavior endBehavior,
                 required bool typedAnswer,
-                required ScheduleKind scheduleKind,
-                required ClockTime fixedTime,
-                required ClockTime rangeStart,
-                required ClockTime rangeEnd,
-                required NotificationMode notificationMode,
-                required GroupedReminderAction groupedAction,
                 required double targetRetention,
               }) => PresetsCompanion.insert(
                 id: id,
@@ -3920,12 +3915,6 @@ class $$PresetsTableTableManager
                 failureBehavior: failureBehavior,
                 endBehavior: endBehavior,
                 typedAnswer: typedAnswer,
-                scheduleKind: scheduleKind,
-                fixedTime: fixedTime,
-                rangeStart: rangeStart,
-                rangeEnd: rangeEnd,
-                notificationMode: notificationMode,
-                groupedAction: groupedAction,
                 targetRetention: targetRetention,
               ),
           withReferenceMapper: (p0) => p0
@@ -4042,6 +4031,12 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
     AppSettingsCompanion Function({
       Value<int> id,
       required int globalPresetId,
+      Value<ScheduleKind> scheduleKind,
+      Value<ClockTime> fixedTime,
+      Value<ClockTime> rangeStart,
+      Value<ClockTime> rangeEnd,
+      Value<NotificationMode> notificationMode,
+      Value<GroupedReminderAction> groupedAction,
       Value<int> dailyNotificationCap,
       Value<bool> quietHoursEnabled,
       Value<ClockTime> quietStart,
@@ -4056,6 +4051,12 @@ typedef $$AppSettingsTableUpdateCompanionBuilder =
     AppSettingsCompanion Function({
       Value<int> id,
       Value<int> globalPresetId,
+      Value<ScheduleKind> scheduleKind,
+      Value<ClockTime> fixedTime,
+      Value<ClockTime> rangeStart,
+      Value<ClockTime> rangeEnd,
+      Value<NotificationMode> notificationMode,
+      Value<GroupedReminderAction> groupedAction,
       Value<int> dailyNotificationCap,
       Value<bool> quietHoursEnabled,
       Value<ClockTime> quietStart,
@@ -4102,6 +4103,46 @@ class $$AppSettingsTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ScheduleKind, ScheduleKind, String>
+  get scheduleKind => $composableBuilder(
+    column: $table.scheduleKind,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ClockTime, ClockTime, int> get fixedTime =>
+      $composableBuilder(
+        column: $table.fixedTime,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<ClockTime, ClockTime, int> get rangeStart =>
+      $composableBuilder(
+        column: $table.rangeStart,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<ClockTime, ClockTime, int> get rangeEnd =>
+      $composableBuilder(
+        column: $table.rangeEnd,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<NotificationMode, NotificationMode, String>
+  get notificationMode => $composableBuilder(
+    column: $table.notificationMode,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    GroupedReminderAction,
+    GroupedReminderAction,
+    String
+  >
+  get groupedAction => $composableBuilder(
+    column: $table.groupedAction,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<int> get dailyNotificationCap => $composableBuilder(
@@ -4189,6 +4230,36 @@ class $$AppSettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get scheduleKind => $composableBuilder(
+    column: $table.scheduleKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fixedTime => $composableBuilder(
+    column: $table.fixedTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rangeStart => $composableBuilder(
+    column: $table.rangeStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rangeEnd => $composableBuilder(
+    column: $table.rangeEnd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notificationMode => $composableBuilder(
+    column: $table.notificationMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get groupedAction => $composableBuilder(
+    column: $table.groupedAction,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get dailyNotificationCap => $composableBuilder(
     column: $table.dailyNotificationCap,
     builder: (column) => ColumnOrderings(column),
@@ -4269,6 +4340,36 @@ class $$AppSettingsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ScheduleKind, String> get scheduleKind =>
+      $composableBuilder(
+        column: $table.scheduleKind,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<ClockTime, int> get fixedTime =>
+      $composableBuilder(column: $table.fixedTime, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ClockTime, int> get rangeStart =>
+      $composableBuilder(
+        column: $table.rangeStart,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<ClockTime, int> get rangeEnd =>
+      $composableBuilder(column: $table.rangeEnd, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<NotificationMode, String>
+  get notificationMode => $composableBuilder(
+    column: $table.notificationMode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<GroupedReminderAction, String>
+  get groupedAction => $composableBuilder(
+    column: $table.groupedAction,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get dailyNotificationCap => $composableBuilder(
     column: $table.dailyNotificationCap,
@@ -4366,6 +4467,13 @@ class $$AppSettingsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<int> globalPresetId = const Value.absent(),
+                Value<ScheduleKind> scheduleKind = const Value.absent(),
+                Value<ClockTime> fixedTime = const Value.absent(),
+                Value<ClockTime> rangeStart = const Value.absent(),
+                Value<ClockTime> rangeEnd = const Value.absent(),
+                Value<NotificationMode> notificationMode = const Value.absent(),
+                Value<GroupedReminderAction> groupedAction =
+                    const Value.absent(),
                 Value<int> dailyNotificationCap = const Value.absent(),
                 Value<bool> quietHoursEnabled = const Value.absent(),
                 Value<ClockTime> quietStart = const Value.absent(),
@@ -4378,6 +4486,12 @@ class $$AppSettingsTableTableManager
               }) => AppSettingsCompanion(
                 id: id,
                 globalPresetId: globalPresetId,
+                scheduleKind: scheduleKind,
+                fixedTime: fixedTime,
+                rangeStart: rangeStart,
+                rangeEnd: rangeEnd,
+                notificationMode: notificationMode,
+                groupedAction: groupedAction,
                 dailyNotificationCap: dailyNotificationCap,
                 quietHoursEnabled: quietHoursEnabled,
                 quietStart: quietStart,
@@ -4392,6 +4506,13 @@ class $$AppSettingsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required int globalPresetId,
+                Value<ScheduleKind> scheduleKind = const Value.absent(),
+                Value<ClockTime> fixedTime = const Value.absent(),
+                Value<ClockTime> rangeStart = const Value.absent(),
+                Value<ClockTime> rangeEnd = const Value.absent(),
+                Value<NotificationMode> notificationMode = const Value.absent(),
+                Value<GroupedReminderAction> groupedAction =
+                    const Value.absent(),
                 Value<int> dailyNotificationCap = const Value.absent(),
                 Value<bool> quietHoursEnabled = const Value.absent(),
                 Value<ClockTime> quietStart = const Value.absent(),
@@ -4404,6 +4525,12 @@ class $$AppSettingsTableTableManager
               }) => AppSettingsCompanion.insert(
                 id: id,
                 globalPresetId: globalPresetId,
+                scheduleKind: scheduleKind,
+                fixedTime: fixedTime,
+                rangeStart: rangeStart,
+                rangeEnd: rangeEnd,
+                notificationMode: notificationMode,
+                groupedAction: groupedAction,
                 dailyNotificationCap: dailyNotificationCap,
                 quietHoursEnabled: quietHoursEnabled,
                 quietStart: quietStart,

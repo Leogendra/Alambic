@@ -87,9 +87,11 @@ class NotificationPlanner implements ScheduleChangeListener {
       await _pauses.loadPauses(),
     );
     final guards = await _settings.loadGuards();
+    final reminderSettings = await _settings.loadReminderSettings();
     final deliveries = _deliveryPlanner.plan(
       candidates,
       now: now,
+      reminders: reminderSettings,
       guards: guards,
       notifiedToday: await _settings.notifiedOn(
         _deliveryPlanner.calendar.dayOf(now),
@@ -99,7 +101,11 @@ class NotificationPlanner implements ScheduleChangeListener {
       ...deliveries.values,
       for (final candidate in candidates)
         if (!deliveries[candidate.card.id]!.isAfter(now))
-          _deliveryPlanner.nextDayRetry(candidate, now: now, guards: guards),
+          _deliveryPlanner.nextDayRetry(
+            now: now,
+            reminders: reminderSettings,
+            guards: guards,
+          ),
       for (final reminder in reminders) reminder.remindAt,
       ...await _distillationPasses(now),
       // A notification moved earlier than now, when a card sharing its time

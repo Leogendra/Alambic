@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/formatting/clock_time_conversions.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/layout/scroll_padding.dart';
@@ -15,13 +14,9 @@ import '../../app/widgets/surface_panel.dart';
 import '../../app/formatting/preset_labels.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../domain/presets/failure_behavior.dart';
-import '../../domain/presets/grouped_reminder_action.dart';
-import '../../domain/presets/notification_mode.dart';
 import '../../domain/presets/preset.dart';
-import '../../domain/presets/schedule_kind.dart';
 import '../../domain/presets/scheduling_engine_kind.dart';
 import '../../domain/presets/sequence_end_behavior.dart';
-import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'step_dialog.dart';
 
@@ -101,10 +96,6 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
           },
           const SizedBox(height: 24),
           _typedAnswerSection(strings),
-          const SizedBox(height: 24),
-          _scheduleSection(strings),
-          const SizedBox(height: 24),
-          _notificationSection(strings),
         ],
       ),
     );
@@ -249,114 +240,6 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
       ),
     ],
   );
-
-  Widget _scheduleSection(AppLocalizations strings) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SectionLabel(strings.presetEditorSchedule),
-      SegmentedChoice<ScheduleKind>(
-        options: [
-          SegmentOption(ScheduleKind.fixedTime, strings.presetScheduleFixed),
-          SegmentOption(ScheduleKind.timeRange, strings.presetScheduleRange),
-        ],
-        selected: _draft.scheduleKind,
-        onSelected: (value) =>
-            _update((draft) => draft.copyWith(scheduleKind: value)),
-      ),
-      const SizedBox(height: 12),
-      SurfacePanel(children: _scheduleRows(strings)),
-    ],
-  );
-
-  List<Widget> _scheduleRows(AppLocalizations strings) =>
-      switch (_draft.scheduleKind) {
-        ScheduleKind.fixedTime => [
-          _timeRow(
-            strings.presetEditorFixedTime,
-            _draft.fixedTime,
-            (time) => _draft.copyWith(fixedTime: time),
-          ),
-        ],
-        ScheduleKind.timeRange => [
-          _timeRow(
-            strings.presetEditorRangeStart,
-            _draft.rangeStart,
-            (time) => _draft.copyWith(rangeStart: time),
-          ),
-          _timeRow(
-            strings.presetEditorRangeEnd,
-            _draft.rangeEnd,
-            (time) => _draft.copyWith(rangeEnd: time),
-          ),
-        ],
-      };
-
-  Widget _timeRow(
-    String title,
-    ClockTime time,
-    Preset Function(ClockTime time) withTime,
-  ) => PanelRow(
-    title: title,
-    value: time.toString(),
-    onTap: () async {
-      final picked = await showTimePicker(
-        context: context,
-        initialTime: time.toTimeOfDay(),
-      );
-      if (picked != null) {
-        _update((_) => withTime(picked.toClockTime()));
-      }
-    },
-  );
-
-  Widget _notificationSection(AppLocalizations strings) {
-    final isGrouped = _draft.notificationMode == NotificationMode.grouped;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SectionLabel(strings.presetEditorNotifications),
-        SegmentedChoice<NotificationMode>(
-          options: [
-            SegmentOption(
-              NotificationMode.perCard,
-              strings.presetNotifyPerCard,
-            ),
-            SegmentOption(
-              NotificationMode.grouped,
-              strings.presetNotifyGrouped,
-            ),
-          ],
-          selected: _draft.notificationMode,
-          onSelected: (value) =>
-              _update((draft) => draft.copyWith(notificationMode: value)),
-        ),
-        _hint(
-          isGrouped ? strings.presetGroupedHint : strings.presetPerCardHint,
-        ),
-        if (isGrouped) ...[
-          const SizedBox(height: 12),
-          _choiceSection(
-            strings.presetEditorGroupedTap,
-            SegmentedChoice<GroupedReminderAction>(
-              options: [
-                SegmentOption(
-                  GroupedReminderAction.openApp,
-                  strings.presetGroupedOpenApp,
-                ),
-                SegmentOption(
-                  GroupedReminderAction.chainInNotification,
-                  strings.presetGroupedChain,
-                ),
-              ],
-              selected: _draft.groupedAction,
-              onSelected: (value) =>
-                  _update((draft) => draft.copyWith(groupedAction: value)),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
 
   Widget _choiceSection(String title, Widget choice) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,

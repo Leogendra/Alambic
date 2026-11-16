@@ -4,15 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/surface_panel.dart';
+import '../../application/notifications/guard_providers.dart';
 import '../../application/notifications/notification_providers.dart';
-import '../../application/presets/preset_providers.dart';
-import '../../domain/presets/built_in_presets.dart';
+import '../../domain/notifications/reminder_settings.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'onboarding_page.dart';
 
 /// Second screen: the right to post notifications, exact alarms, and the time
-/// of the reminders, which every preset notified at a fixed time takes.
+/// of the reminders, written into the schedule of the app.
 ///
 /// Exact alarms are allowed from a system settings page; the permission is
 /// read again when the app comes back to the front.
@@ -28,7 +28,7 @@ class PermissionsPage extends ConsumerStatefulWidget {
 class _PermissionsPageState extends ConsumerState<PermissionsPage> {
   late final AppLifecycleListener _lifecycle;
   bool _notificationsAllowed = false;
-  ClockTime _time = BuiltInPresets.defaultTime;
+  ClockTime _time = ReminderSettings.defaults.fixedTime;
 
   @override
   void initState() {
@@ -64,8 +64,9 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
   }
 
   Future<void> _continue() async {
-    if (_time != BuiltInPresets.defaultTime) {
-      await ref.read(presetServiceProvider).setFixedTimeOfAll(_time);
+    // A fresh database is already at the default time.
+    if (_time != ReminderSettings.defaults.fixedTime) {
+      await ref.read(notificationSettingsServiceProvider).setFixedTime(_time);
     }
     widget.onNext();
   }

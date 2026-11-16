@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/reviews/review_service.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/flashcard.dart';
@@ -34,6 +35,7 @@ void main() {
     reviews = ReviewService(
       cards: cards,
       presets: PresetRepository(database),
+      settings: NotificationSettingsRepository(database),
       reviews: ReviewRepository(database),
       scheduler: const ReviewScheduler(SchedulingCalendar()),
       duePolicy: const DuePolicy(SchedulingCalendar()),

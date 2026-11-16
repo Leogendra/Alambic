@@ -63,7 +63,7 @@ Touching the faces opens a one-card session; when the card is not due, the answe
 
 Three actions sit under the progress panel:
 
-- "Review soon" adds an [extra reminder](../lexicon.md#extra-reminder) on a chosen day (tomorrow, the day after, the coming weekend, or any date) at a chosen time, the preset slot by default. A moment already past is refused. It is offered only for an introduced card.
+- "Review soon" adds an [extra reminder](../lexicon.md#extra-reminder) on a chosen day (tomorrow, the day after, the coming weekend, or any date) at a chosen time, the [daily slot](../lexicon.md#daily-slot) by default. A moment already past is refused. It is offered only for an introduced card.
 - "Suspend" / "Resume": a suspended card is never due.
 - "Reset", after confirmation: the card goes back to the end of its group's queue, history kept.
 

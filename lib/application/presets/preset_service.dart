@@ -1,8 +1,6 @@
 import '../../data/repositories/preset_repository.dart';
 import '../../domain/presets/built_in_presets.dart';
 import '../../domain/presets/preset.dart';
-import '../../domain/presets/schedule_kind.dart';
-import '../../domain/scheduling/clock_time.dart';
 import '../scheduling/ignored_schedule_changes.dart';
 import '../scheduling/schedule_change_listener.dart';
 
@@ -15,8 +13,8 @@ class PresetService {
 
   final PresetRepository _presets;
 
-  /// Told when a preset is edited: its schedule and notification mode decide
-  /// when its cards are notified.
+  /// Told when a preset is edited: its steps decide when its cards come
+  /// back.
   final ScheduleChangeListener _scheduleChangeListener;
 
   /// A new preset starts from the Standard values.
@@ -40,18 +38,6 @@ class PresetService {
   /// notifications of the cards that inherit it follow the new preset.
   Future<void> setGlobalPreset(int presetId) async {
     await _presets.setGlobalPresetId(presetId);
-    await _scheduleChangeListener.onSchedulesChanged();
-  }
-
-  /// The reminder time chosen at onboarding: every preset notified at a
-  /// fixed time takes it. Presets on a time range keep their range.
-  Future<void> setFixedTimeOfAll(ClockTime time) async {
-    for (final preset in await _presets.watchAll().first) {
-      if (preset.scheduleKind == ScheduleKind.fixedTime &&
-          preset.fixedTime != time) {
-        await _presets.update(preset.copyWith(fixedTime: time));
-      }
-    }
     await _scheduleChangeListener.onSchedulesChanged();
   }
 

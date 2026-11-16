@@ -146,27 +146,8 @@
   "guardsAutoGroupThreshold": "Seuil par créneau",
   "presetsTitle": "Presets",
   "presetGlobalBadge": "Global",
-  "presetEngineSequence": "Séquence",
-  "presetEngineAdaptive": "Adaptatif",
-  "presetModePerCard": "une notif par carte",
-  "presetModeGrouped": "rappel groupé",
-  "presetModeGroupedChained": "rappel groupé, cartes enchaînées",
-  "presetSummaryFormat": "{engine} · {schedule} · {mode}",
-  "@presetSummaryFormat": {
-    "placeholders": {
-      "engine": {
-        "type": "String"
-      },
-      "schedule": {
-        "type": "String"
-      },
-      "mode": {
-        "type": "String"
-      }
-    }
-  },
-  "presetRange": "{start} à {end}",
-  "@presetRange": {
+  "scheduleRangeValue": "{start} à {end}",
+  "@scheduleRangeValue": {
     "placeholders": {
       "start": {
         "type": "String"
@@ -219,6 +200,7 @@
       }
     }
   },
+  "presetComputedIntervals": "Intervalles calculés",
   "presetEditorSteps": "Crans",
   "presetEditorAddStep": "Cran",
   "presetEditorRemoveStep": "Retirer ce cran",
@@ -234,21 +216,22 @@
   "presetEndLoop": "Boucle",
   "presetEditorTypedAnswer": "Réponse tapée",
   "presetEditorTypedAnswerHint": "Répondre au clavier depuis la notification",
-  "presetEditorSchedule": "Horaire",
-  "presetScheduleFixed": "Heure fixe",
-  "presetScheduleRange": "Plage",
-  "presetEditorFixedTime": "Heure",
-  "presetEditorRangeStart": "Début",
-  "presetEditorRangeEnd": "Fin",
-  "presetEditorRangeHint": "Les notifs du jour sont réparties dans la plage.",
-  "presetEditorNotifications": "Notifications",
-  "presetNotifyPerCard": "Une par carte",
-  "presetNotifyGrouped": "Rappel groupé",
-  "presetPerCardHint": "Chaque carte due arrive seule, avec Correct / À revoir.",
-  "presetGroupedHint": "Une seule notif par groupe, par exemple « Capitales : 5 à réviser ».",
-  "presetEditorGroupedTap": "Au tap sur le rappel",
-  "presetGroupedOpenApp": "Ouvrir l'app",
-  "presetGroupedChain": "Enchaîner",
+  "scheduleTitle": "Horaire",
+  "scheduleHint": "Un seul horaire pour tous les groupes. Les rappels déjà prévus à l'ancienne heure passent à la nouvelle.",
+  "scheduleFixed": "Heure fixe",
+  "scheduleRange": "Plage",
+  "scheduleFixedTime": "Heure",
+  "scheduleRangeStart": "Début",
+  "scheduleRangeEnd": "Fin",
+  "scheduleRangeHint": "Les notifs du jour sont réparties dans la plage.",
+  "notificationModePerCard": "Une par carte",
+  "notificationModeGrouped": "Rappel groupé",
+  "notificationModePerCardHint": "Chaque carte due arrive seule, avec Correct / À revoir.",
+  "notificationModeGroupedHint": "Une seule notif par groupe, par exemple « Capitales : 5 à réviser ».",
+  "notificationModeGroupedTap": "Au tap sur le rappel",
+  "notificationModeOpenApp": "Ouvrir l'app",
+  "notificationModeChain": "Enchaîner",
+  "notificationModeTitle": "Mode de notification",
   "presetEditorStepDialogTitle": "Nouveau cran",
   "presetEditorStepAmount": "Durée",
   "presetEditorStepUnit": "Unité",
@@ -736,7 +719,7 @@
   "settingsExactAlarmsAllowed": "Activés",
   "distillTitle": "Distiller",
   "distillAdjustTitle": "Régler la distillation",
-  "distillIntro": "Les cartes en attente du groupe arrivent au compte-gouttes, à l'horaire du preset ({time}). Chacune suit ensuite le preset {preset}.",
+  "distillIntro": "Les cartes en attente du groupe arrivent au compte-gouttes, à l'heure des rappels ({time}). Chacune suit ensuite le preset {preset}.",
   "@distillIntro": {
     "placeholders": {
       "time": {

@@ -13,10 +13,10 @@ On the first launch, explain the app in a sentence, get the permissions without 
 The three screens follow each other with a "Continue" button; a row of dots shows where the user is:
 
 1. **The principle**: "One piece of knowledge a day", and how the app works in a sentence.
-2. **Reminders**: one row to allow notifications (the Android 13 permission), one row to allow exact alarms (a system settings page, read again when the app comes back to the front), and the reminder time, 12:00 by default. A row shows "Allowed" once its permission is given. Both can be refused: the app still works, with Settings offering exact alarms again ([Feature 7](7-notifications.md#exact-alarms-restarts-and-permissions)). A time other than 12:00 is given to every preset notified at a fixed time, which on a first launch means the shipped presets; presets on a time range keep their range.
+2. **Reminders**: one row to allow notifications (the Android 13 permission), one row to allow exact alarms (a system settings page, read again when the app comes back to the front), and the reminder time, 12:00 by default. A row shows "Allowed" once its permission is given. Both can be refused: the app still works, with Settings offering exact alarms again ([Feature 7](7-notifications.md#exact-alarms-restarts-and-permissions)). A time other than 12:00 becomes the fixed time of the app's [schedule](../lexicon.md#schedule).
 3. **First card**: the name of a first group, a front and a back. "Create the card" creates the group and the card, which waits [pending](../lexicon.md#pending) in the group's queue. "Skip" opens the app without a group nor a card.
 
-Either button of the last screen marks the onboarding as done and opens the tabs. After "Create the card", the page of the new group opens above them, with "Distill" pointed out by a line: "Your first card is waiting. Distill the group to receive it." Activating the distillation introduces the card the same day, at the preset slot or right away when the slot has passed ([Feature 8](8-distillation.md)). The group to open is handed to the tabs by a notifier (`firstGroupProvider`), which forgets it once opened.
+Either button of the last screen marks the onboarding as done and opens the tabs. After "Create the card", the page of the new group opens above them, with "Distill" pointed out by a line: "Your first card is waiting. Distill the group to receive it." Activating the distillation introduces the card the same day, at the [daily slot](../lexicon.md#daily-slot) or right away when the slot has passed ([Feature 8](8-distillation.md)). The group to open is handed to the tabs by a notifier (`firstGroupProvider`), which forgets it once opened.
 
 ### Interface preferences
 
@@ -25,7 +25,7 @@ The preferences of the interface on this phone (whether the onboarding was done,
 ## Acceptance criteria
 
 - [x] The first launch opens on the three welcome screens; later launches open on the tabs.
-- [x] The second screen asks for notifications and exact alarms, and sets the reminder time of the presets notified at a fixed time.
+- [x] The second screen asks for notifications and exact alarms, and sets the fixed time of the app's schedule.
 - [x] The third screen creates a first group and its first card, pending, then opens the group page with "Distill" pointed out; or it is skipped.
 - [x] The notification permission is not asked at launch anymore.
 

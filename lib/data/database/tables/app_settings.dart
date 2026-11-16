@@ -1,5 +1,8 @@
 import 'package:drift/drift.dart';
 
+import '../../../domain/notifications/grouped_reminder_action.dart';
+import '../../../domain/notifications/notification_mode.dart';
+import '../../../domain/notifications/schedule_kind.dart';
 import '../converters/clock_time_converter.dart';
 import 'presets.dart';
 
@@ -10,6 +13,26 @@ class AppSettings extends Table {
   /// Always 1: the table holds a single row.
   IntColumn get id => integer().withDefault(const Constant(1))();
   IntColumn get globalPresetId => integer().references(Presets, #id)();
+
+  /// Schedule and notification mode of the whole app, see `ReminderSettings`.
+  TextColumn get scheduleKind => textEnum<ScheduleKind>().withDefault(
+    Constant(ScheduleKind.fixedTime.name),
+  )();
+  IntColumn get fixedTime => integer()
+      .map(const ClockTimeConverter())
+      .withDefault(const Constant(12 * 60))();
+  IntColumn get rangeStart => integer()
+      .map(const ClockTimeConverter())
+      .withDefault(const Constant(9 * 60))();
+  IntColumn get rangeEnd => integer()
+      .map(const ClockTimeConverter())
+      .withDefault(const Constant(18 * 60))();
+  TextColumn get notificationMode => textEnum<NotificationMode>().withDefault(
+    Constant(NotificationMode.perCard.name),
+  )();
+  TextColumn get groupedAction => textEnum<GroupedReminderAction>().withDefault(
+    Constant(GroupedReminderAction.openApp.name),
+  )();
 
   /// Notification safeguards, see `NotificationGuards`.
   IntColumn get dailyNotificationCap =>

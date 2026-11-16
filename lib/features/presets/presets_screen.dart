@@ -119,10 +119,6 @@ class _PresetTile extends StatelessWidget {
                   style: TextStyle(fontSize: 14, color: colors.textPrimary),
                 ),
               },
-              Text(
-                strings.presetSummary(preset),
-                style: TextStyle(fontSize: 13, color: colors.textSecondary),
-              ),
             ],
           ),
         ),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/notifications/notification_providers.dart';
 import '../../application/notifications/notification_target.dart';
+import '../../application/onboarding/onboarding_providers.dart';
 import '../../features/cards/card_navigation.dart';
 import '../../features/groups/group_detail_screen.dart';
 import '../../features/groups/groups_screen.dart';
@@ -14,7 +15,8 @@ import '../../l10n/generated/app_localizations.dart';
 
 /// Root screen: four tabs and the "+" button that creates a card. A grouped
 /// reminder touched in the notifications opens its group above it, the
-/// digest of a moment opens Home.
+/// digest of a moment opens Home. Right after the onboarding, the group it
+/// created opens with "Distill" highlighted.
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
@@ -30,6 +32,19 @@ class _MainShellState extends ConsumerState<MainShell> {
   void initState() {
     super.initState();
     _openedTargets = ref.read(notificationTargetsProvider).listen(_open);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openFirstGroup());
+  }
+
+  void _openFirstGroup() {
+    final groupId = ref.read(firstGroupProvider.notifier).take();
+    if (groupId != null && mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) =>
+              GroupDetailScreen(groupId: groupId, highlightDistill: true),
+        ),
+      );
+    }
   }
 
   @override

@@ -28,9 +28,16 @@ import 'reverse_button.dart';
 /// A group page: its counts, "Distill" or the tracking of its distillation,
 /// the back option, then its cards with "Review all".
 class GroupDetailScreen extends ConsumerWidget {
-  const GroupDetailScreen({required this.groupId, super.key});
+  const GroupDetailScreen({
+    required this.groupId,
+    this.highlightDistill = false,
+    super.key,
+  });
 
   final int groupId;
+
+  /// Points out "Distill", for the group created by the onboarding.
+  final bool highlightDistill;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,15 +74,16 @@ class GroupDetailScreen extends ConsumerWidget {
       ),
       body: summary == null
           ? const SizedBox.shrink()
-          : _GroupBody(summary: summary),
+          : _GroupBody(summary: summary, highlightDistill: highlightDistill),
     );
   }
 }
 
 class _GroupBody extends ConsumerWidget {
-  const _GroupBody({required this.summary});
+  const _GroupBody({required this.summary, required this.highlightDistill});
 
   final GroupSummary summary;
+  final bool highlightDistill;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -124,7 +132,10 @@ class _GroupBody extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: 16),
-        GroupDistillationSection(groupId: summary.groupId),
+        GroupDistillationSection(
+          groupId: summary.groupId,
+          highlighted: highlightDistill,
+        ),
         const SizedBox(height: 16),
         ReverseButton(group: summary.group),
         const SizedBox(height: 24),

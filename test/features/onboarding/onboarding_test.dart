@@ -9,6 +9,7 @@ import 'package:alambic/application/preferences/interface_settings_providers.dar
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/preferences/interface_settings.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/onboarding/onboarding_screen.dart';
 
 import '../../support/fake_interface_settings_store.dart';
@@ -78,9 +79,8 @@ void main() {
     expect(find.byType(MainShell), findsOneWidget);
   });
 
-  testWidgets('going through the three screens creates a started first card', (
-    tester,
-  ) async {
+  testWidgets('going through the three screens creates a first group and card, '
+      'then opens the group', (tester) async {
     await pumpApp(tester);
     await tapAndSettle(tester, find.text('Commencer'));
 
@@ -94,14 +94,20 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), 'Capitale du Pérou');
     await tester.enterText(find.byType(TextField).at(2), 'Lima');
     await tester.pump();
-    await tapAndSettle(tester, find.text('Créer et commencer'));
+    await tapAndSettle(tester, find.text('Créer la carte'));
 
     final cards = await CardRepository(database).getAll();
     expect(cards, hasLength(1));
     expect(cards.single.frontText, 'Capitale du Pérou');
     expect(cards.single.isPending, isTrue);
     expect(store.saved.onboardingDone, isTrue);
-    expect(find.byType(MainShell), findsOneWidget);
+    expect(find.byType(GroupDetailScreen), findsOneWidget);
+    expect(
+      find.text(
+        'Ta première carte attend. Distille le groupe pour la recevoir.',
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('the first card can be skipped', (tester) async {
@@ -113,6 +119,7 @@ void main() {
     expect(await CardRepository(database).getAll(), isEmpty);
     expect(store.saved.onboardingDone, isTrue);
     expect(find.byType(MainShell), findsOneWidget);
+    expect(find.byType(GroupDetailScreen), findsNothing);
   });
 
   testWidgets('the welcome screens', (tester) async {

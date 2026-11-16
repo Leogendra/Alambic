@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
+import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
@@ -75,7 +76,10 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+        padding: scrollPadding(
+          context,
+          const EdgeInsets.fromLTRB(20, 0, 20, 32),
+        ),
         children: [
           _FacesPanel(card: card, onTap: () => _review(card)),
           _hint(strings.cardSheetTapToReview),

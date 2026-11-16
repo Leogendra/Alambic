@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/preset_labels.dart';
+import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
@@ -90,7 +91,7 @@ class _GroupBody extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
+      padding: scrollPadding(context, const EdgeInsets.fromLTRB(20, 0, 20, 96)),
       children: [
         Text(
           '${strings.cardCount(summary.cardCount)} · ${strings.presetName(summary.preset)} · '

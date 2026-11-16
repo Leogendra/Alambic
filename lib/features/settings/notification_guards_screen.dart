@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/clock_time_conversions.dart';
+import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/count_stepper.dart';
 import '../../app/widgets/panel_row.dart';
@@ -25,7 +26,10 @@ class NotificationGuardsScreen extends ConsumerWidget {
       body: guards == null
           ? const SizedBox.shrink()
           : ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+              padding: scrollPadding(
+                context,
+                const EdgeInsets.fromLTRB(20, 8, 20, 32),
+              ),
               children: [
                 _DailyCapPanel(guards: guards),
                 const SizedBox(height: 14),

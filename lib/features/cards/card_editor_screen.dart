@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/preset_labels.dart';
+import '../../app/layout/scroll_padding.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
@@ -114,7 +115,10 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+        padding: scrollPadding(
+          context,
+          const EdgeInsets.fromLTRB(20, 8, 20, 32),
+        ),
         children: [
           _faceField(
             strings,

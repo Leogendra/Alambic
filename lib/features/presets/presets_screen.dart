@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/interval_labels.dart';
 import '../../app/formatting/preset_labels.dart';
+import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/interval_chip.dart';
 import '../../application/presets/preset_providers.dart';
@@ -35,7 +36,10 @@ class PresetsScreen extends ConsumerWidget {
         ],
       ),
       body: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        padding: scrollPadding(
+          context,
+          const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        ),
         itemCount: presets.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
         itemBuilder: (context, index) => _PresetTile(

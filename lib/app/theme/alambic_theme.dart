@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'alambic_colors.dart';
 
@@ -11,6 +12,23 @@ abstract final class AlambicTheme {
 
   static ThemeData dark() => _build(Brightness.dark, AlambicColors.dark);
 
+  /// The app draws edge to edge: both system bars are transparent, their
+  /// icons dark on the light theme and light on the dark one.
+  static SystemUiOverlayStyle systemOverlayStyle(Brightness brightness) {
+    final iconBrightness = brightness == Brightness.light
+        ? Brightness.dark
+        : Brightness.light;
+    return SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: iconBrightness,
+      statusBarBrightness: brightness,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarIconBrightness: iconBrightness,
+      systemNavigationBarContrastEnforced: false,
+    );
+  }
+
   static ThemeData _build(Brightness brightness, AlambicColors colors) {
     final base = ThemeData(
       useMaterial3: true,
@@ -22,7 +40,7 @@ abstract final class AlambicTheme {
     );
     return base.copyWith(
       textTheme: _textTheme(base.textTheme, colors),
-      appBarTheme: _appBarTheme(colors),
+      appBarTheme: _appBarTheme(brightness, colors),
       navigationBarTheme: _navigationBarTheme(colors),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: colors.accent,
@@ -122,7 +140,11 @@ abstract final class AlambicTheme {
     side: BorderSide(color: colors.border),
   );
 
-  static AppBarTheme _appBarTheme(AlambicColors colors) => AppBarTheme(
+  static AppBarTheme _appBarTheme(
+    Brightness brightness,
+    AlambicColors colors,
+  ) => AppBarTheme(
+    systemOverlayStyle: systemOverlayStyle(brightness),
     backgroundColor: colors.background,
     foregroundColor: colors.textPrimary,
     surfaceTintColor: Colors.transparent,

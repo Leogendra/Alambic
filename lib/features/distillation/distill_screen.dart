@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/preset_labels.dart';
+import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/count_stepper.dart';
 import '../../app/widgets/panel_row.dart';
@@ -70,7 +71,10 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+        padding: scrollPadding(
+          context,
+          const EdgeInsets.fromLTRB(20, 4, 20, 24),
+        ),
         children: [
           if (summary != null)
             Padding(

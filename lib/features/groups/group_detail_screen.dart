@@ -9,20 +9,24 @@ import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/groups/group_summary.dart';
 import '../../application/pauses/pause_providers.dart';
+import '../../application/clock.dart';
 import '../../application/reviews/review_providers.dart';
+import '../../application/reviews/whole_group_review.dart';
+import '../../application/scheduling/scheduling_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../cards/bulk_add_screen.dart';
 import '../cards/card_list_tile.dart';
 import '../cards/card_navigation.dart';
 import '../cards/card_status_formatter_provider.dart';
-import '../distillation/group_distillations_section.dart';
+import '../distillation/group_distillation_section.dart';
 import '../pauses/paused_banner.dart';
 import '../session/session_launcher.dart';
 import 'group_settings_screen.dart';
 import 'group_stat_tile.dart';
 import 'reverse_button.dart';
 
-/// A group page.
+/// A group page: its counts, "Distill" or the tracking of its distillation,
+/// the back option, then its cards with "Review all".
 class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({required this.groupId, super.key});
 
@@ -105,7 +109,7 @@ class _GroupBody extends ConsumerWidget {
             ),
             GroupStatTile(
               value: summary.pendingCount,
-              label: strings.groupStatNew,
+              label: strings.groupStatWaiting,
             ),
           ],
         ),
@@ -120,13 +124,36 @@ class _GroupBody extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: 16),
+        GroupDistillationSection(groupId: summary.groupId),
+        const SizedBox(height: 16),
         ReverseButton(group: summary.group),
         const SizedBox(height: 24),
-        GroupDistillationsSection(groupId: summary.groupId),
-        const SizedBox(height: 24),
-        SectionLabel(strings.groupCardsSection),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(child: SectionLabel(strings.groupCardsSection)),
+            if (summary.cardCount > 0)
+              TextButton.icon(
+                icon: const Icon(Icons.play_arrow, size: 20),
+                label: Text(strings.groupReviewAll),
+                onPressed: () => _reviewAll(context, ref),
+              ),
+          ],
+        ),
         _CardList(groupId: summary.groupId),
       ],
+    );
+  }
+
+  /// "Review all": a session on every card of the group, where only the
+  /// cards due today count; the others are bonus reviews.
+  Future<void> _reviewAll(BuildContext context, WidgetRef ref) {
+    final cards = ref.read(groupCardsProvider(summary.groupId)).value ?? [];
+    final review = WholeGroupReview(ref.read(duePolicyProvider));
+    return openSession(
+      context,
+      ref,
+      review.cardIds(cards, ref.read(clockProvider)()),
     );
   }
 }

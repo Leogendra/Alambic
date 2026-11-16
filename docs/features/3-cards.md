@@ -92,7 +92,7 @@ Every operation that touches due dates or reminders notifies the notification pl
 - The bulk-add screen is tested end to end on an in-memory database: report before adding, separator change, cards created pending in the queue of the group.
 - The group row is tested on the editor: a card without group is refused, "+" creates a group and puts the card in it, and with no group the row asks for a name.
 - The days offered by "Review soon" are tested as pure logic, Saturday and Sunday included; the reminder service is tested on an in-memory database (added, refused in the past, removed).
-- The editor, the bulk add and the card sheet (with history, bonus reviews and a reminder) are covered by golden tests.
+- The editor, the bulk add and the card sheet (with history, bonus reviews and a reminder) are covered by golden tests, the card sheet in light and dark theme.
 - Images are tested on a store in a temporary folder with a PNG fixture (`test/support/fixtures/flag.png`): copied on creation, kept, replaced and removed on update, deleted with the card and the group. The editor picks an image through a fake picker, shows it and stores it with the card; a golden test shows it, another one shows it in a session.
 
 ## File mapping

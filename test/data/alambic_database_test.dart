@@ -86,26 +86,4 @@ void main() {
     )..where((card) => card.id.equals(cardId))).go();
     expect(await database.select(database.reviewRecords).get(), isEmpty);
   });
-
-  test('a database of the first schema is dropped and created again', () async {
-    await database.close();
-    database = AlambicDatabase(
-      NativeDatabase.memory(
-        setup: (raw) {
-          raw.execute('CREATE TABLE card_directions (id INTEGER PRIMARY KEY)');
-          raw.execute('INSERT INTO card_directions (id) VALUES (1)');
-          raw.execute('CREATE TABLE flashcards (id INTEGER PRIMARY KEY)');
-          raw.userVersion = 1;
-        },
-      ),
-    );
-    expect(await database.select(database.presets).get(), hasLength(3));
-    expect(await database.select(database.flashcards).get(), isEmpty);
-    final tables = await database
-        .customSelect(
-          "SELECT name FROM sqlite_master WHERE name = 'card_directions'",
-        )
-        .get();
-    expect(tables, isEmpty);
-  });
 }

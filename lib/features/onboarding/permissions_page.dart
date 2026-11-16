@@ -102,14 +102,7 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
           PanelRow(
             title: strings.onboardingTime,
             subtitle: strings.onboardingTimeHint,
-            trailing: Text(
-              '$_time',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AlambicColors.of(context).accentText,
-              ),
-            ),
+            value: '$_time',
             onTap: _pickTime,
           ),
         ],

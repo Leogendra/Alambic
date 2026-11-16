@@ -293,14 +293,7 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
     Preset Function(ClockTime time) withTime,
   ) => PanelRow(
     title: title,
-    trailing: Text(
-      time.toString(),
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: AlambicColors.of(context).accentText,
-      ),
-    ),
+    value: time.toString(),
     onTap: () async {
       final picked = await showTimePicker(
         context: context,

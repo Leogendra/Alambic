@@ -55,14 +55,7 @@ class _ExactAlarmsPanelState extends ConsumerState<ExactAlarmsPanel> {
           PanelRow(
             title: strings.settingsExactAlarms,
             subtitle: strings.settingsExactAlarmsOn,
-            trailing: Text(
-              strings.settingsExactAlarmsAllowed,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: colors.textSecondary,
-              ),
-            ),
+            value: strings.settingsExactAlarmsAllowed,
           ),
         ],
       );

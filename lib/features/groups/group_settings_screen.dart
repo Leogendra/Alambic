@@ -58,7 +58,7 @@ class GroupSettingsScreen extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     return PanelRow(
       title: strings.groupNameLabel,
-      trailing: Text(group.name, style: _valueStyle(context)),
+      value: group.name,
       onTap: () async {
         final name = await showTextInputDialog(
           context,
@@ -85,12 +85,9 @@ class GroupSettingsScreen extends ConsumerWidget {
     return PanelRow(
       title: strings.cardPreset,
       subtitle: '$sequence\n${strings.presetSummary(preset)}',
-      trailing: Text(
-        group.presetId == null
-            ? strings.cardPresetInheritedGlobal(strings.presetName(preset))
-            : strings.presetName(preset),
-        style: _valueStyle(context),
-      ),
+      value: group.presetId == null
+          ? strings.cardPresetInheritedGlobal(strings.presetName(preset))
+          : strings.presetName(preset),
       onTap: () async {
         final choice = await showPresetPicker(
           context,
@@ -147,6 +144,10 @@ class GroupSettingsScreen extends ConsumerWidget {
     return PanelRow(
       title: strings.groupDelete,
       titleColor: Theme.of(context).colorScheme.error,
+      trailing: Icon(
+        Icons.delete_outline,
+        color: Theme.of(context).colorScheme.error,
+      ),
       onTap: () async {
         final confirmed = await showDialog<bool>(
           context: context,
@@ -186,11 +187,5 @@ class GroupSettingsScreen extends ConsumerWidget {
         color: AlambicColors.of(context).textSecondary,
       ),
     ),
-  );
-
-  TextStyle _valueStyle(BuildContext context) => TextStyle(
-    fontSize: 15,
-    fontWeight: FontWeight.w600,
-    color: AlambicColors.of(context).accentText,
   );
 }

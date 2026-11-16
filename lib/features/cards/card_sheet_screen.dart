@@ -9,9 +9,7 @@ import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../application/reminders/reminder_providers.dart';
-import '../../application/reviews/session_item.dart';
 import '../../domain/cards/card_face.dart';
-import '../../domain/cards/card_side.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/presets/preset.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -136,9 +134,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
     if (card.isPending) {
       return;
     }
-    await openSession(context, [
-      SessionItem(cardId: card.id, askedSide: CardSide.front),
-    ]);
+    await openSession(context, ref, [card.id]);
   }
 
   Future<void> _reviewSoon(Flashcard card, Preset preset) async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/alambic_colors.dart';
 import '../../application/reviews/review_session.dart';
@@ -6,7 +7,7 @@ import '../../l10n/generated/app_localizations.dart';
 import 'session_launcher.dart';
 
 /// Summary of a finished session, with the bonus review of missed cards.
-class SessionEndView extends StatelessWidget {
+class SessionEndView extends ConsumerWidget {
   const SessionEndView({
     required this.session,
     required this.finishedAt,
@@ -17,7 +18,7 @@ class SessionEndView extends StatelessWidget {
   final DateTime finishedAt;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
     final missed = session.missedItems;
@@ -55,8 +56,9 @@ class SessionEndView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              onPressed: () =>
-                  replaceWithSession(context, missed, isBonus: true),
+              onPressed: () => replaceWithBonusSession(context, ref, [
+                for (final item in missed) item.cardId,
+              ]),
               child: Text(strings.sessionReviewMissed(missed.length)),
             ),
             Padding(

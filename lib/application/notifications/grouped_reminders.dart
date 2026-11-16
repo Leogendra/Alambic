@@ -1,9 +1,11 @@
+import 'dart:math';
+
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
-import '../../domain/cards/card_side.dart';
+import '../../domain/cards/asked_side_draw.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/presets/grouped_reminder_action.dart';
@@ -31,6 +33,7 @@ class GroupedReminders {
     required this._presenter,
     required this._deliveryPlanner,
     required this._clock,
+    required this._random,
   });
 
   final CardRepository _cards;
@@ -41,6 +44,7 @@ class GroupedReminders {
   final NotificationPresenter _presenter;
   final DeliveryPlanner _deliveryPlanner;
   final Clock _clock;
+  final Random _random;
 
   /// Shows the reminder of [key] with its current count, or closes it when
   /// no card is left. [alert] is `false` when only the count is refreshed.
@@ -72,11 +76,12 @@ class GroupedReminders {
     }
   }
 
-  /// Asks the next card of [key] in the notification, or closes it when no
-  /// card is left.
+  /// Asks the next card of [key] in the notification, drawing its asked
+  /// face, or closes it when no card is left.
   Future<void> showNext(GroupReminderKey key) async {
     final waiting = await _waiting(key);
-    if (waiting.isEmpty) {
+    final group = await _groups.find(key.groupId);
+    if (waiting.isEmpty || group == null) {
       await _presenter.dismissGroupReminder(key);
     } else {
       final next = waiting.first;
@@ -84,9 +89,9 @@ class GroupedReminders {
         ReviewPrompt.of(
           key: ReviewNotificationKey(cardId: next.card.id, chain: key),
           card: next.card,
-          askedSide: CardSide.front,
+          askedSide: AskedSideDraw.draw(group, _random),
           preset: next.preset,
-          groupName: await _groupName(key),
+          groupName: group.name,
           chainRemaining: waiting.length,
         ),
       );

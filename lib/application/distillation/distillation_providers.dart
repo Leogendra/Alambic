@@ -5,6 +5,7 @@ import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../cards/card_providers.dart';
 import '../clock.dart';
+import '../randomness.dart';
 import '../scheduling/scheduling_providers.dart';
 import '../time/minute_ticker.dart';
 import 'distillation_progress.dart';
@@ -20,6 +21,7 @@ final distillationServiceProvider = Provider(
     calendar: ref.watch(schedulingCalendarProvider),
     clock: ref.watch(clockProvider),
     scheduleChangeListener: ref.watch(scheduleChangeListenerProvider),
+    random: ref.watch(randomProvider),
   ),
 );
 

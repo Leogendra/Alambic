@@ -17,7 +17,7 @@ import '../../domain/presets/preset_catalog.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../presets/preset_picker.dart';
 
-/// Name, preset and deletion of a group.
+/// Name, preset, back, pause and deletion of a group.
 class GroupSettingsScreen extends ConsumerWidget {
   const GroupSettingsScreen({required this.groupId, super.key});
 
@@ -39,7 +39,10 @@ class GroupSettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 SectionLabel(strings.groupSettingsRepetition),
                 SurfacePanel(
-                  children: [_presetRow(context, ref, group, catalog)],
+                  children: [
+                    _presetRow(context, ref, group, catalog),
+                    _reverseRow(context, ref, group),
+                  ],
                 ),
                 _hint(context, strings.groupSettingsPresetHint),
                 const SizedBox(height: 24),
@@ -101,6 +104,22 @@ class GroupSettingsScreen extends ConsumerWidget {
               .setPreset(group.id, choice.presetId);
         }
       },
+    );
+  }
+
+  Widget _reverseRow(BuildContext context, WidgetRef ref, CardGroup group) {
+    final strings = AppLocalizations.of(context);
+    return PanelRow(
+      title: strings.groupReverse,
+      subtitle: group.reverseEnabled
+          ? strings.groupReverseOnHint
+          : strings.groupReverseOffHint,
+      trailing: Switch(
+        value: group.reverseEnabled,
+        onChanged: (enabled) => ref
+            .read(groupServiceProvider)
+            .setReverseEnabled(group.id, enabled: enabled),
+      ),
     );
   }
 

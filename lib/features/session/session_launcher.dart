@@ -1,37 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../application/reviews/due_item.dart';
-import '../../application/reviews/session_item.dart';
-import '../../domain/cards/card_side.dart';
+import '../../application/reviews/review_providers.dart';
 import 'session_screen.dart';
 
-/// Opens a session on the due [items]; does nothing when there are none.
-Future<void> startSession(BuildContext context, List<DueItem> items) async {
-  if (items.isEmpty) {
-    return;
-  }
-  await openSession(context, items.map(_toSessionItem).toList());
-}
-
-/// Opens a session on [items], due or not: answering a card that is not due
-/// is a bonus review.
-Future<void> openSession(BuildContext context, List<SessionItem> items) =>
-    Navigator.of(context).push(
+/// Opens a session on [cardIds], due or not: answering a card that is not
+/// due is a bonus review. The asked face of each card is drawn now. Does
+/// nothing when there is no card.
+Future<void> openSession(
+  BuildContext context,
+  WidgetRef ref,
+  Iterable<int> cardIds,
+) async {
+  final navigator = Navigator.of(context);
+  final items = await ref.read(sessionItemFactoryProvider).itemsFor(cardIds);
+  if (items.isNotEmpty) {
+    await navigator.push(
       MaterialPageRoute<void>(
         builder: (context) => SessionScreen(items: items),
       ),
     );
+  }
+}
 
-/// Replaces the current session by a new one, for "Review the missed cards".
-Future<void> replaceWithSession(
+/// Replaces the current session by a bonus one on [cardIds], for "Review the
+/// missed cards": their asked face is drawn again.
+Future<void> replaceWithBonusSession(
   BuildContext context,
-  List<SessionItem> items, {
-  required bool isBonus,
-}) => Navigator.of(context).pushReplacement(
-  MaterialPageRoute<void>(
-    builder: (context) => SessionScreen(items: items, isBonus: isBonus),
-  ),
-);
-
-SessionItem _toSessionItem(DueItem item) =>
-    SessionItem(cardId: item.card.id, askedSide: CardSide.front);
+  WidgetRef ref,
+  Iterable<int> cardIds,
+) async {
+  final navigator = Navigator.of(context);
+  final items = await ref.read(sessionItemFactoryProvider).itemsFor(cardIds);
+  await navigator.pushReplacement(
+    MaterialPageRoute<void>(
+      builder: (context) => SessionScreen(items: items, isBonus: true),
+    ),
+  );
+}

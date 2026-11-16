@@ -90,7 +90,7 @@ class _TomorrowLoad extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: colors.background,
+        color: colors.well,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -209,7 +209,7 @@ class _TimeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AlambicColors.of(context);
     return Material(
-      color: colors.background,
+      color: colors.well,
       shape: RoundedRectangleBorder(
         side: BorderSide(color: colors.border),
         borderRadius: BorderRadius.circular(12),

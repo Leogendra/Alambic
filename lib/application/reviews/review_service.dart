@@ -1,4 +1,5 @@
 import '../../data/repositories/card_repository.dart';
+import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/review_repository.dart';
 import '../../domain/cards/flashcard.dart';
@@ -6,6 +7,7 @@ import '../../domain/presets/preset.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
 import '../../domain/scheduling/card_schedule.dart';
+import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/review_scheduler.dart';
 import '../clock.dart';
@@ -18,6 +20,7 @@ class ReviewService {
   const ReviewService({
     required this._cards,
     required this._presets,
+    required this._settings,
     required this._reviews,
     required this._scheduler,
     required this._duePolicy,
@@ -27,6 +30,7 @@ class ReviewService {
 
   final CardRepository _cards;
   final PresetRepository _presets;
+  final NotificationSettingsRepository _settings;
   final ReviewRepository _reviews;
   final ReviewScheduler _scheduler;
   final DuePolicy _duePolicy;
@@ -51,7 +55,13 @@ class ReviewService {
         await _recordBonus(card, outcome, source, now);
         return ReviewResult(isBonus: true, schedule: null, preset: preset);
       } else {
-        final schedule = previewAnswer(card, outcome, preset, now);
+        final schedule = previewAnswer(
+          card,
+          outcome,
+          preset,
+          now,
+          await _dailySlot(),
+        );
         await _cards.applySchedule(card.id, schedule, reviewedAt: now);
         await _reviews.insert(
           cardId: card.id,
@@ -81,9 +91,16 @@ class ReviewService {
       return const AnswerPreview.noEffect();
     } else {
       final preset = await _presetOf(card);
+      final dailySlot = await _dailySlot();
       return AnswerPreview(
-        correct: previewAnswer(card, ReviewOutcome.correct, preset, now),
-        again: previewAnswer(card, ReviewOutcome.again, preset, now),
+        correct: previewAnswer(
+          card,
+          ReviewOutcome.correct,
+          preset,
+          now,
+          dailySlot,
+        ),
+        again: previewAnswer(card, ReviewOutcome.again, preset, now, dailySlot),
       );
     }
   }
@@ -94,11 +111,13 @@ class ReviewService {
     ReviewOutcome outcome,
     Preset preset,
     DateTime now,
+    ClockTime dailySlot,
   ) => _scheduler.afterAnswer(
     card: card,
     outcome: outcome,
     preset: preset,
     answeredAt: now,
+    dailySlot: dailySlot,
   );
 
   Future<void> _recordBonus(
@@ -116,6 +135,9 @@ class ReviewService {
     dueAtAfter: null,
     source: source,
   );
+
+  Future<ClockTime> _dailySlot() async =>
+      (await _settings.loadReminderSettings()).dailySlot;
 
   Future<Preset> _presetOf(Flashcard card) async =>
       (await _presets.loadCatalog()).presetForCard(card);

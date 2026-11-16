@@ -2,13 +2,9 @@ import 'package:drift/drift.dart';
 
 import '../../../domain/presets/built_in_preset_key.dart';
 import '../../../domain/presets/failure_behavior.dart';
-import '../../../domain/presets/grouped_reminder_action.dart';
-import '../../../domain/presets/notification_mode.dart';
 import '../../../domain/presets/preset.dart';
-import '../../../domain/presets/schedule_kind.dart';
 import '../../../domain/presets/scheduling_engine_kind.dart';
 import '../../../domain/presets/sequence_end_behavior.dart';
-import '../converters/clock_time_converter.dart';
 import '../converters/preset_interval_list_converter.dart';
 
 @UseRowClass(Preset)
@@ -21,11 +17,5 @@ class Presets extends Table {
   TextColumn get failureBehavior => textEnum<FailureBehavior>()();
   TextColumn get endBehavior => textEnum<SequenceEndBehavior>()();
   BoolColumn get typedAnswer => boolean()();
-  TextColumn get scheduleKind => textEnum<ScheduleKind>()();
-  IntColumn get fixedTime => integer().map(const ClockTimeConverter())();
-  IntColumn get rangeStart => integer().map(const ClockTimeConverter())();
-  IntColumn get rangeEnd => integer().map(const ClockTimeConverter())();
-  TextColumn get notificationMode => textEnum<NotificationMode>()();
-  TextColumn get groupedAction => textEnum<GroupedReminderAction>()();
   RealColumn get targetRetention => real()();
 }

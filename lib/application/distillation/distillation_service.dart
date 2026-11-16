@@ -2,6 +2,7 @@ import 'dart:math';
 
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/distillation_repository.dart';
+import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/flashcard.dart';
@@ -13,6 +14,7 @@ import '../../domain/distillation/distillation_settings.dart';
 import '../../domain/distillation/distillation_status.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../domain/scheduling/card_progress.dart';
+import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/review_scheduler.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
@@ -30,6 +32,7 @@ class DistillationService {
     required this._distillations,
     required this._cards,
     required this._presets,
+    required this._settings,
     required this._pauses,
     required this._scheduler,
     required this._calendar,
@@ -41,6 +44,7 @@ class DistillationService {
   final DistillationRepository _distillations;
   final CardRepository _cards;
   final PresetRepository _presets;
+  final NotificationSettingsRepository _settings;
   final PauseRepository _pauses;
   final ReviewScheduler _scheduler;
   final SchedulingCalendar _calendar;
@@ -141,6 +145,7 @@ class DistillationService {
     }
     final cards = await _cards.getCardsOfGroup(groupId);
     final catalog = await _presets.loadCatalog();
+    final dailySlot = (await _settings.loadReminderSettings()).dailySlot;
     var count = _rhythm.cardsDue(distillation, today);
     var postponed = 0;
     if (_spendsBudget(distillation, cards)) {
@@ -148,10 +153,10 @@ class DistillationService {
         _dueReminders(cards, catalog, now),
         budget: distillation.cardsPerBatch,
       );
-      postponed = await _postpone(split.postponed, cards, catalog, now);
+      postponed = await _postpone(split.postponed, cards, dailySlot, now);
       count = min(count, split.newCardRoom);
     }
-    final introduced = await _introduce(cards, catalog, count, now);
+    final introduced = await _introduce(cards, dailySlot, count, now);
     final progress = _rhythm.afterIntroducing(distillation, introduced, today);
     await _distillations.saveProgress(
       groupId,
@@ -195,28 +200,24 @@ class DistillationService {
   Future<int> _postpone(
     List<int> cardIds,
     List<Flashcard> cards,
-    PresetCatalog catalog,
+    ClockTime dailySlot,
     DateTime now,
   ) async {
     for (final cardId in cardIds) {
       final card = cards.firstWhere((card) => card.id == cardId);
       await _cards.applySchedule(
         cardId,
-        _scheduler.postponed(
-          card: card,
-          preset: catalog.presetForCard(card),
-          now: now,
-        ),
+        _scheduler.postponed(card: card, dailySlot: dailySlot, now: now),
       );
     }
     return cardIds.length;
   }
 
   /// Introduces the [count] next cards of the queue: each one becomes due
-  /// today at its preset slot. Returns how many were introduced.
+  /// today at the daily slot. Returns how many were introduced.
   Future<int> _introduce(
     List<Flashcard> cards,
-    PresetCatalog catalog,
+    ClockTime dailySlot,
     int count,
     DateTime now,
   ) async {
@@ -227,7 +228,7 @@ class DistillationService {
     for (final card in picked) {
       await _cards.applySchedule(
         card.id,
-        _scheduler.introduction(preset: catalog.presetForCard(card), now: now),
+        _scheduler.introduction(dailySlot: dailySlot, now: now),
       );
     }
     return picked.length;

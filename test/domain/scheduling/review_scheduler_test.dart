@@ -4,6 +4,7 @@ import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/presets/built_in_presets.dart';
 import 'package:alambic/domain/presets/sequence_end_behavior.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
+import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/domain/scheduling/review_scheduler.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
@@ -25,14 +26,16 @@ Flashcard answered({
 
 void main() {
   const scheduler = ReviewScheduler(SchedulingCalendar());
+  const noon = ClockTime(12, 0);
 
   group('day-based intervals', () {
-    test('count from the answer day and land on the preset slot', () {
+    test('count from the answer day and land on the daily slot', () {
       final schedule = scheduler.afterAnswer(
         card: answered(step: 0),
         outcome: ReviewOutcome.correct,
         preset: standardPreset,
         answeredAt: DateTime(2026, 11, 10, 21, 30),
+        dailySlot: noon,
       );
       expect(schedule.dueAt, DateTime(2026, 11, 12, 12));
       expect(schedule.step, 1);
@@ -45,6 +48,7 @@ void main() {
         outcome: ReviewOutcome.correct,
         preset: standardPreset,
         answeredAt: DateTime(2026, 11, 11, 1),
+        dailySlot: noon,
       );
       expect(schedule.dueAt, DateTime(2026, 11, 11, 12));
     });
@@ -55,6 +59,7 @@ void main() {
         outcome: ReviewOutcome.again,
         preset: standardPreset,
         answeredAt: DateTime(2026, 11, 10, 12, 5),
+        dailySlot: noon,
       );
       expect(schedule.step, 2);
       expect(schedule.dueAt, DateTime(2026, 11, 17, 12));
@@ -67,6 +72,7 @@ void main() {
       outcome: ReviewOutcome.correct,
       preset: intensivePreset,
       answeredAt: DateTime(2026, 11, 10, 15, 7),
+      dailySlot: noon,
     );
     expect(schedule.dueAt, DateTime(2026, 11, 10, 15, 17));
   });
@@ -77,6 +83,7 @@ void main() {
       outcome: ReviewOutcome.correct,
       preset: shortSequence(endBehavior: SequenceEndBehavior.markAcquired),
       answeredAt: DateTime(2026, 11, 10, 12),
+      dailySlot: noon,
     );
     expect(schedule.state, CardState.acquired);
     expect(schedule.dueAt, isNull);
@@ -85,7 +92,7 @@ void main() {
   group('introduction', () {
     test('is today at the slot when it is still ahead', () {
       final schedule = scheduler.introduction(
-        preset: standardPreset,
+        dailySlot: noon,
         now: DateTime(2026, 11, 10, 9),
       );
       expect(schedule.dueAt, DateTime(2026, 11, 10, 12));
@@ -95,7 +102,7 @@ void main() {
 
     test('stays today when the slot has passed, so it is due at once', () {
       final schedule = scheduler.introduction(
-        preset: standardPreset,
+        dailySlot: noon,
         now: DateTime(2026, 11, 10, 15),
       );
       expect(schedule.dueAt, DateTime(2026, 11, 10, 12));
@@ -111,6 +118,7 @@ void main() {
         outcome: ReviewOutcome.correct,
         preset: adaptive,
         answeredAt: DateTime(2026, 11, 10, 12, 5),
+        dailySlot: noon,
       );
       expect(schedule.state, CardState.active);
       expect(schedule.step, isNull);
@@ -124,6 +132,7 @@ void main() {
         outcome: ReviewOutcome.again,
         preset: adaptive,
         answeredAt: DateTime(2026, 11, 10, 12, 5),
+        dailySlot: noon,
       );
       expect(schedule.dueAt, DateTime(2026, 11, 11, 12));
     });
@@ -138,6 +147,7 @@ void main() {
         outcome: ReviewOutcome.correct,
         preset: adaptive,
         answeredAt: DateTime(2026, 11, 13, 12, 2),
+        dailySlot: noon,
       );
       expect(schedule.memory!.stability, closeTo(10.739, 0.01));
       expect(schedule.dueAt, DateTime(2026, 11, 24, 12));
@@ -153,6 +163,7 @@ void main() {
         outcome: ReviewOutcome.correct,
         preset: adaptive.copyWith(targetRetention: 0.8),
         answeredAt: DateTime(2026, 11, 13, 12, 2),
+        dailySlot: noon,
       );
       expect(schedule.dueAt, DateTime(2026, 12, 9, 12));
     });
@@ -165,6 +176,7 @@ void main() {
         outcome: ReviewOutcome.correct,
         preset: BuiltInPresets.adaptive.copyWith(id: 4),
         answeredAt: DateTime(2026, 11, 10, 12, 5),
+        dailySlot: noon,
       );
       expect(schedule.step, isNull);
       expect(schedule.memory?.stability, 3.173);
@@ -181,6 +193,7 @@ void main() {
         outcome: ReviewOutcome.correct,
         preset: standardPreset,
         answeredAt: DateTime(2026, 11, 10, 12, 5),
+        dailySlot: noon,
       );
       expect(schedule.step, 0);
       expect(schedule.memory, isNull);

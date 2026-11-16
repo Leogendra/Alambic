@@ -16,6 +16,7 @@ import 'package:alambic/data/images/image_store.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/reminder_repository.dart';
@@ -47,6 +48,7 @@ class SampleServices {
       distillations: DistillationRepository(database),
       cards: CardRepository(database),
       presets: PresetRepository(database),
+      settings: NotificationSettingsRepository(database),
       pauses: PauseRepository(database),
       scheduler: const ReviewScheduler(SchedulingCalendar()),
       calendar: const SchedulingCalendar(),
@@ -73,6 +75,7 @@ class SampleServices {
       reviews = ReviewService(
         cards: CardRepository(database),
         presets: PresetRepository(database),
+        settings: NotificationSettingsRepository(database),
         reviews: ReviewRepository(database),
         scheduler: const ReviewScheduler(SchedulingCalendar()),
         duePolicy: const DuePolicy(SchedulingCalendar()),
@@ -107,17 +110,18 @@ class SampleServices {
       );
 
   /// Introduces every pending card of [groupId] now, as a distillation would
-  /// have done earlier: each becomes due today at its preset slot. Lets a
+  /// have done earlier: each becomes due today at the daily slot. Lets a
   /// test start from introduced cards without running distillations.
   Future<void> introduceAll(int groupId) async {
     final repository = CardRepository(database);
-    final catalog = await PresetRepository(database).loadCatalog();
+    final reminders = await NotificationSettingsRepository(database)
+        .loadReminderSettings();
     for (final card in await repository.getCardsOfGroup(groupId)) {
       if (card.isPending) {
         await repository.applySchedule(
           card.id,
           const ReviewScheduler(SchedulingCalendar())
-              .introduction(preset: catalog.presetForCard(card), now: clock()),
+              .introduction(dailySlot: reminders.dailySlot, now: clock()),
         );
       }
     }

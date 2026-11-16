@@ -31,13 +31,13 @@ If the sequence was shortened, or the card moved to a shorter preset, the engine
 
 The adaptive engine is a port of FSRS-5 with its default parameters. It keeps two numbers per card: the stability (days until the probability of recalling the card falls to 90 %) and the difficulty (1 to 10). "Correct" counts as *Good* and "Again" as *Again*. Each answer updates both numbers from the days elapsed since the previous answer: the longer the card held, the more its stability grows; a failure drops it.
 
-The next interval is the number of days until the probability of recalling falls to the preset's target retention (90 % by default, 70 % to 97 %): a higher retention brings the reviews closer. It always lasts a day or more, even after a failure, and lands on the preset slot like any day-based interval. A new card answered "Correct" comes back in 3 days, then about 11 days, 35 days, 3 months; answered "Again", the next day.
+The next interval is the number of days until the probability of recalling falls to the preset's target retention (90 % by default, 70 % to 97 %): a higher retention brings the reviews closer. It always lasts a day or more, even after a failure, and lands on the [daily slot](../lexicon.md#daily-slot) like any day-based interval. A new card answered "Correct" comes back in 3 days, then about 11 days, 35 days, 3 months; answered "Again", the next day.
 
 A card followed by FSRS has no step and no reminder label: lists and the card sheet only show its date, and a notification shows its current interval ("Intervalle 11 j"). `CardProgress` gives, for any card and its preset, the step and its interval, the FSRS memory and interval, or "new": screens, notifications and the priority of the daily cap all read it.
 
 ### Introducing a card
 
-A new card is never scheduled by itself: it is [pending](../lexicon.md#pending) in the [queue](../lexicon.md#queue) of its group until the group's [distillation](8-distillation.md) introduces it. Introduced, it is due today at the preset slot, even when that slot has already passed: the card is due at once. Resetting its progress sends it back to the end of the queue.
+A new card is never scheduled by itself: it is [pending](../lexicon.md#pending) in the [queue](../lexicon.md#queue) of its group until the group's [distillation](8-distillation.md) introduces it. Introduced, it is due today at the [daily slot](../lexicon.md#daily-slot), even when that slot has already passed: the card is due at once. Resetting its progress sends it back to the end of the queue.
 
 ### Due
 
@@ -59,21 +59,21 @@ Standard preset, 12:00 slot:
 | At M1, Tuesday 12:05 | Again | S1, next Tuesday 12:00 |
 | Never reviewed, Wednesday 1am | Correct | J1, Wednesday 12:00 (the answer counts for Tuesday) |
 
-Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due date at 15:17, whatever the preset slot.
+Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due date at 15:17, whatever the [daily slot](../lexicon.md#daily-slot).
 
 ## Acceptance criteria
 
-- [x] An introduced card is due today at the preset slot.
+- [x] An introduced card is due today at the [daily slot](../lexicon.md#daily-slot).
 - [x] Correct moves one step forward; the first correct answer waits the first interval.
 - [x] Again applies the preset behaviour: one step back without going below the first, back to the start, or same step. A never-reviewed card answered Again waits the first interval.
 - [x] After the last step, Correct applies the preset end-of-sequence behaviour: repeat the last interval, mark acquired (no more due date), or loop to the start.
-- [x] An interval of a day or more counts from the answer day and lands on the preset slot.
+- [x] An interval of a day or more counts from the answer day and lands on the [daily slot](../lexicon.md#daily-slot).
 - [x] An interval shorter than a day counts from the answer moment.
 - [x] After a failure, the due date is the interval of the step reached: never the same day for a day-based sequence.
 - [x] The day starts at 4am.
 - [x] A step beyond a shortened sequence is clamped to the last step.
 - [x] The reminder label comes from the interval of the current step; a card followed by FSRS has none.
-- [x] With the adaptive engine, each answer updates the stability and the difficulty from the days elapsed since the previous answer; the interval is the time until the recall probability falls to the target retention, at least a day, at the preset slot.
+- [x] With the adaptive engine, each answer updates the stability and the difficulty from the days elapsed since the previous answer; the interval is the time until the recall probability falls to the target retention, at least a day, at the [daily slot](../lexicon.md#daily-slot).
 
 ## Test strategy
 
@@ -94,7 +94,7 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 
 Months count 30 days (`IntervalUnit.month`). A "1 month" always has the same length, and the "in 30 d" preview shown on the buttons stays true whatever the current month.
 
-A preset slot earlier than 4am (for example 2am) belongs to the end of the scheduling day: `momentAt` places it on the next calendar date. Without this, a due date "day D at 2am" would fall on the previous evening in the user's calendar.
+A daily slot earlier than 4am (for example 2am) belongs to the end of the scheduling day: `momentAt` places it on the next calendar date. Without this, a due date "day D at 2am" would fall on the previous evening in the user's calendar.
 
 FSRS keeps its stability and difficulty in `flashcards` (`stability`, `difficulty`), empty for a card followed by a sequence. The elapsed days count scheduling days between the previous answer and this one; a bonus review does not count as an answer. Intervals are not fuzzed: two cards answered the same way the same day come back together, which the notification safeguards then spread. The parameters are the published defaults: they are not fitted to the user's history.
 

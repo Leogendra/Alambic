@@ -94,9 +94,7 @@ class _GroupBody extends ConsumerWidget {
       padding: scrollPadding(context, const EdgeInsets.fromLTRB(20, 0, 20, 96)),
       children: [
         Text(
-          '${strings.cardCount(summary.cardCount)} · ${strings.presetName(summary.preset)} · '
-          '${strings.presetModeLabel(summary.preset)} · '
-          '${strings.presetScheduleLabel(summary.preset)}',
+          '${strings.cardCount(summary.cardCount)} · ${strings.presetName(summary.preset)}',
           style: TextStyle(fontSize: 14, color: colors.textSecondary),
         ),
         if (summary.group.pausedAt case final pausedAt?) ...[

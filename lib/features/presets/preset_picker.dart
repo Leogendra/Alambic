@@ -37,7 +37,7 @@ Future<PresetChoice?> showPresetPicker(
               title: strings.presetPickerInherit(
                 strings.presetName(inheritedPreset),
               ),
-              subtitle: strings.presetSummary(inheritedPreset),
+              subtitle: strings.presetStepsSummary(inheritedPreset),
               isSelected: selectedPresetId == null,
               choice: const PresetChoice.inherit(),
             ),
@@ -45,7 +45,7 @@ Future<PresetChoice?> showPresetPicker(
             _entry(
               context,
               title: strings.presetName(preset),
-              subtitle: strings.presetSummary(preset),
+              subtitle: strings.presetStepsSummary(preset),
               isSelected: selectedPresetId == preset.id,
               choice: PresetChoice.preset(preset.id),
             ),

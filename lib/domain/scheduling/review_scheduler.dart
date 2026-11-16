@@ -6,6 +6,7 @@ import '../presets/preset_interval.dart';
 import '../presets/scheduling_engine_kind.dart';
 import '../reviews/review_outcome.dart';
 import 'card_schedule.dart';
+import 'clock_time.dart';
 import 'fsrs/fsrs_engine.dart';
 import 'fsrs/fsrs_rating.dart';
 import 'scheduling_calendar.dart';
@@ -17,7 +18,7 @@ import 'sequence_engine.dart';
 /// - the engine of the preset gives the interval: the next step of the
 ///   sequence, or the FSRS interval for the target retention;
 /// - an interval of a day or more counts from the answer day and lands on the
-///   preset slot; a shorter one counts from the answer moment.
+///   daily slot of the app; a shorter one counts from the answer moment.
 class ReviewScheduler {
   const ReviewScheduler(this.calendar);
 
@@ -28,36 +29,41 @@ class ReviewScheduler {
     required ReviewOutcome outcome,
     required Preset preset,
     required DateTime answeredAt,
+    required ClockTime dailySlot,
   }) => switch (preset.engine) {
     SchedulingEngineKind.sequence => _afterSequenceAnswer(
       card,
       outcome,
       preset,
       answeredAt,
+      dailySlot,
     ),
     SchedulingEngineKind.adaptive => _afterAdaptiveAnswer(
       card,
       outcome,
       preset,
       answeredAt,
+      dailySlot,
     ),
   };
 
   /// Schedule of a card introduced by its distillation: due today at the
-  /// preset slot, so it is due right away even when the slot has already
+  /// daily slot, so it is due right away even when the slot has already
   /// passed.
-  CardSchedule introduction({required Preset preset, required DateTime now}) =>
-      CardSchedule(
-        state: CardState.active,
-        step: null,
-        dueAt: calendar.momentAt(calendar.dayOf(now), preset.dailySlot),
-      );
+  CardSchedule introduction({
+    required ClockTime dailySlot,
+    required DateTime now,
+  }) => CardSchedule(
+    state: CardState.active,
+    step: null,
+    dueAt: calendar.momentAt(calendar.dayOf(now), dailySlot),
+  );
 
   /// Schedule of a reminder held back by a distillation budget: the same
-  /// progression, due the next day at the preset slot.
+  /// progression, due the next day at the daily slot.
   CardSchedule postponed({
     required Flashcard card,
-    required Preset preset,
+    required ClockTime dailySlot,
     required DateTime now,
   }) => CardSchedule(
     state: CardState.active,
@@ -65,7 +71,7 @@ class ReviewScheduler {
     memory: card.memory,
     dueAt: calendar.momentAt(
       calendar.addDays(calendar.dayOf(now), 1),
-      preset.dailySlot,
+      dailySlot,
     ),
   );
 
@@ -74,6 +80,7 @@ class ReviewScheduler {
     ReviewOutcome outcome,
     Preset preset,
     DateTime answeredAt,
+    ClockTime dailySlot,
   ) {
     final sequenceStep = SequenceEngine.answer(
       currentStep: card.step,
@@ -90,7 +97,7 @@ class ReviewScheduler {
       return CardSchedule(
         state: CardState.active,
         step: sequenceStep.step,
-        dueAt: _dueAfter(sequenceStep.interval!, preset, answeredAt),
+        dueAt: _dueAfter(sequenceStep.interval!, answeredAt, dailySlot),
       );
     }
   }
@@ -102,6 +109,7 @@ class ReviewScheduler {
     ReviewOutcome outcome,
     Preset preset,
     DateTime answeredAt,
+    ClockTime dailySlot,
   ) {
     final lastReviewedAt = card.lastReviewedAt;
     final memory = FsrsEngine.answer(
@@ -124,23 +132,23 @@ class ReviewScheduler {
       memory: memory,
       dueAt: _dueAfter(
         PresetInterval(days, IntervalUnit.day),
-        preset,
         answeredAt,
+        dailySlot,
       ),
     );
   }
 
   DateTime _dueAfter(
     PresetInterval interval,
-    Preset preset,
     DateTime answeredAt,
+    ClockTime dailySlot,
   ) {
     if (interval.isDayBased) {
       final dueDay = calendar.addDays(
         calendar.dayOf(answeredAt),
         interval.days,
       );
-      return calendar.momentAt(dueDay, preset.dailySlot);
+      return calendar.momentAt(dueDay, dailySlot);
     } else {
       return answeredAt.add(interval.subDayDuration);
     }

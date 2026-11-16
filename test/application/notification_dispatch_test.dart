@@ -11,7 +11,7 @@ import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/card_side.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
-import 'package:alambic/domain/presets/schedule_kind.dart';
+import 'package:alambic/domain/notifications/schedule_kind.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
@@ -264,19 +264,16 @@ void main() {
 
   test('spreads the cards of a time range over the range', () async {
     final services = SampleServices(database, harness.clock);
-    final presets = PresetRepository(database);
-    final standard = (await presets.loadCatalog()).globalPreset;
-    final rangeId = await presets.insert(
-      standard.copyWith(
-        name: 'Journée',
-        builtInKey: () => null,
+    // The cards of the sample, due at 12:00, stay outside the range start.
+    final settings = NotificationSettingsRepository(database);
+    await settings.saveReminderSettings(
+      (await settings.loadReminderSettings()).copyWith(
         scheduleKind: ScheduleKind.timeRange,
         rangeStart: const ClockTime(9, 0),
         rangeEnd: const ClockTime(17, 0),
       ),
     );
     final verbs = await services.groups.create('Verbes');
-    await GroupRepository(database).setPreset(verbs, rangeId);
     for (final verb in ['être', 'avoir', 'aller', 'faire']) {
       await services.card(verb, verb, groupId: verbs);
     }

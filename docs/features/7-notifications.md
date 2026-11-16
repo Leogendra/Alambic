@@ -4,7 +4,7 @@ Status: in progress (2026-11-16)
 
 ## Goal
 
-Make the notification the main way to review: a card arrives at the slot of its preset, is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. A preset can also gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the whole within a daily cap, outside quiet hours, and gather the notifications of a busy moment into one. A group, or everything, can be paused.
+Make the notification the main way to review: a card arrives at the [daily slot](../lexicon.md#daily-slot), is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. The app can instead gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the whole within a daily cap, outside quiet hours, and gather the notifications of a busy moment into one. A group, or everything, can be paused.
 
 ## Implementation overview
 
@@ -17,6 +17,12 @@ The application decides what to notify and when; a platform layer decides how. T
 - `PlannedAlarmStore` remembers the wake-ups scheduled last time.
 
 `lib/notifications/android/` implements them with `android_alarm_manager_plus`, `flutter_local_notifications` and `shared_preferences`. The texts of a notification come from `ReviewTexts`, which is not tied to a platform.
+
+### Schedule and mode
+
+The [schedule](../lexicon.md#schedule) and the notification mode are set once for the whole app, in the Notifications section of Settings: "Horaire" (a fixed time, 12:00 by default, or a time range, 9:00 to 18:00 when first chosen) and "Mode de notification" (one notification per card by default, or a grouped reminder per group that opens the app or chains the cards). No group nor preset has its own. They are stored in `app_settings`, where the background tasks read them, and each change is saved at once and plans the wake-ups again.
+
+A due date is a moment, written when a card is answered, so changing the daily slot would leave the dates already set at the old time. The settings service therefore moves every due date still to come that falls on the old slot to the new slot of the same day (`DailySlotMove`). A due date at another time of day comes from an interval of less than a day and keeps its moment; a due date already passed is left alone, the card being due anyway.
 
 ### Planning the wake-ups
 
@@ -34,7 +40,7 @@ The planner also withdraws the notifications of cards that are no longer [due](.
 
 `DeliveryPlanner`, in the domain, decides when each scheduled card is notified. The moment is its due date, with two exceptions.
 
-A card still due from an earlier day is notified again today, at the slot of its preset: its notification was ignored or swiped, or was not shown because it was found too late. It never counts as an answer, neither a success nor a failure. "Notified" is therefore kept per day: a card notified yesterday and still due is notified again today, once.
+A card still due from an earlier day is notified again today, at the daily slot: its notification was ignored or swiped, or was not shown because it was found too late. It never counts as an answer, neither a success nor a failure. "Notified" is therefore kept per day: a card notified yesterday and still due is notified again today, once.
 
 Then, with a time range in one-notification-per-card mode: the cards due at the start of the range on a day are spread evenly over the range, in the order of their ids. With 4 cards and a 9:00 – 17:00 range, they arrive at 9:00, 11:00, 13:00 and 15:00; the moments are rounded down to the minute. A grouped reminder stays at the start of the range, and so does a due date after an interval of less than a day, which keeps its own moment.
 
@@ -97,16 +103,14 @@ An accepted answer is recorded as "Correct", a refused one as "Again". In both c
 
 ### Grouped reminder
 
-A preset in grouped reminder mode announces the due cards of a group with a single notification, "Capitales : 5 cartes à réviser", with the estimated time ("Environ 3 min"). `GroupedReminders` builds it: the dispatcher marks each due card of such a preset as notified, as usual, then shows the reminder of its group instead of a notification of its own.
+In grouped reminder mode, every group announces its due cards with a single notification, "Capitales : 5 cartes à réviser", with the estimated time ("Environ 3 min"). `GroupedReminders` builds it: the dispatcher marks each due card as notified, as usual, then shows the reminder of its group instead of a notification of its own.
 
-The count is the number of cards of the group, following a grouped preset, whose due moment has passed. When it changes because a card was answered in the app, the planner refreshes it without ringing again, and closes the reminder once no card is left.
+The count is the number of cards of the group whose due moment has passed. When it changes because a card was answered in the app, the planner refreshes it without ringing again, and closes the reminder once no card is left.
 
-What the reminder offers depends on the preset:
+What the reminder offers is set with the mode:
 
 - open the app (default): touching the notification or "Ouvrir l'app" opens the app on the group page;
 - chain the cards: "Commencer ici" replaces the reminder with the first card, the earliest due. Each answer replaces it with the next card, with "Capitales · 3 à réviser" as sub-text and an "Ouvrir" button to switch to the app; "Again" first shows the expected answer, and its "OK" moves on. The notification closes after the last card. A chained card answered in the app gives way to the next one.
-
-When several presets of a group ask for a grouped reminder, the action of the earliest due card wins.
 
 ### Exact alarms, restarts and permissions
 
@@ -118,13 +122,13 @@ The notification permission of Android 13 and exact alarms are both asked on the
 
 ## Acceptance criteria
 
-- [x] An introduced card is notified at its preset slot, without the app being open.
+- [x] An introduced card is notified at the [daily slot](../lexicon.md#daily-slot), without the app being open.
 - [x] The notification shows the asked face, the reminder label and the group, with "Correct" and "Again".
 - [x] A face with an image shows it in the expanded notification, text only when collapsed; so does an answer face with an image after "Again".
 - [x] "Correct" records the answer from the notification and closes it; "Again" records the failure and shows the answer, the new step and the next review, with "OK".
 - [x] A card reviewed in the app before its slot is not notified, and a notification already shown is withdrawn.
 - [x] A suspended card is never notified; a reminder more than an hour late is not shown.
-- [x] A notification ignored or swiped, or not shown for being late, is sent again the next day at the preset slot, without any effect on the step.
+- [x] A notification ignored or swiped, or not shown for being late, is sent again the next day at the [daily slot](../lexicon.md#daily-slot), without any effect on the step.
 - [x] A "Review soon" reminder is notified at its moment, and its answer is a bonus review.
 - [x] Without the exact alarm permission, reminders are still planned as inexact alarms, and Settings offers to allow exact alarms.
 - [x] Wake-ups are planned again after a phone restart and at each launch.
@@ -137,6 +141,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] A notification falling in the quiet hours arrives at their end.
 - [x] Beyond the auto grouping threshold, the notifications of a moment are replaced by a single one that opens Home.
 - [x] The safeguards are set in Settings, with tomorrow's load shown against the cap.
+- [x] The schedule and the notification mode are set once in Settings and apply to every group; a new daily slot moves the due dates set at the old one.
 - [x] A paused group, or every card during the global pause, is not notified and its distillations wait; on resume, its due dates move by the length of the pause, except those of cards answered meanwhile.
 
 ## Test strategy
@@ -144,7 +149,8 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - The timing rules (shown once, within an hour, wake-ups rounded and capped), the notification moments and the typed answer comparison are tested as pure domain logic.
 - The planner, the dispatcher and the action handler are tested together on an in-memory database, through the same providers as the app, with in-memory fakes of the three platform interfaces that behave like an alarm manager and a notification shade.
 - The notification texts and the payload carried by a notification are tested without a device.
-- The exact alarm panel is tested on screen, with a golden test of the refused state; the safeguards screen has a golden test too.
+- The exact alarm panel is tested on screen, with a golden test of the refused state; the safeguards, schedule and notification mode screens have golden tests too, and their changes are checked in the database.
+- Moving the due dates to a new slot is tested as pure domain logic, then through the settings service on an in-memory database.
 - The Android implementation itself (alarm plugin, notification plugin, background isolates) is not covered by automated tests: it is checked on a phone.
 
 ## File mapping
@@ -154,9 +160,8 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - `lib/application/notifications/` — the platform interfaces, the planner, the dispatcher, the grouped reminders, the action handler and their providers.
 - `lib/notifications/` — notification texts and the store of planned wake-ups.
 - `lib/notifications/android/` — Android implementations, wiring and background entry points.
-- `lib/features/settings/exact_alarms_panel.dart` — the exact alarm panel of Settings.
-- `lib/features/settings/notification_guards_screen.dart` — the safeguards screen.
-- `lib/data/repositories/notification_settings_repository.dart` — the safeguards and the count of cards notified today.
+- `lib/features/settings/` — the exact alarm panel, the schedule, notification mode and safeguards screens.
+- `lib/data/repositories/notification_settings_repository.dart` — the schedule, the mode, the safeguards and the count of cards notified today.
 - `lib/domain/pauses/`, `lib/application/pauses/`, `lib/data/repositories/pause_repository.dart` — the pauses, their shift on resume, their service and storage.
 - `lib/features/pauses/paused_banner.dart` — "En pause depuis le …" with "Reprendre", on Home and on a group page.
 - `lib/app/shell/main_shell.dart` — opens the group of a grouped reminder touched in the notifications.

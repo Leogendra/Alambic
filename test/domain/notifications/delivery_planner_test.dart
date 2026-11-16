@@ -3,10 +3,11 @@ import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/notifications/delivery_candidate.dart';
 import 'package:alambic/domain/notifications/delivery_planner.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
+import 'package:alambic/domain/notifications/notification_mode.dart';
+import 'package:alambic/domain/notifications/reminder_settings.dart';
+import 'package:alambic/domain/notifications/schedule_kind.dart';
 import 'package:alambic/domain/presets/built_in_presets.dart';
-import 'package:alambic/domain/presets/notification_mode.dart';
 import 'package:alambic/domain/presets/preset.dart';
-import 'package:alambic/domain/presets/schedule_kind.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
@@ -14,8 +15,8 @@ import '../test_cards.dart';
 
 void main() {
   const planner = DeliveryPlanner(SchedulingCalendar());
-  final range = BuiltInPresets.standard.copyWith(
-    id: 3,
+  const fixed = ReminderSettings.defaults;
+  final range = fixed.copyWith(
     scheduleKind: ScheduleKind.timeRange,
     rangeStart: const ClockTime(9, 0),
     rangeEnd: const ClockTime(17, 0),
@@ -37,13 +38,18 @@ void main() {
       dueAt: dueAt,
       notifiedAt: notifiedAt,
     ),
-    preset: preset ?? range,
+    preset: preset ?? BuiltInPresets.standard,
   );
 
   Map<int, DateTime> plan(
     List<DeliveryCandidate> candidates, {
     DateTime? now,
-  }) => planner.plan(candidates, now: now ?? DateTime(2026, 11, 10, 8));
+    ReminderSettings? reminders,
+  }) => planner.plan(
+    candidates,
+    now: now ?? DateTime(2026, 11, 10, 8),
+    reminders: reminders ?? range,
+  );
 
   group('a time range', () {
     test('spreads the cards of a day evenly, in the order of their ids', () {
@@ -69,34 +75,39 @@ void main() {
       expect(moments[7], DateTime(2026, 11, 10, 15, 51));
     });
 
-    test('spreads each day and each preset on its own', () {
-      final other = range.copyWith(id: 4);
+    test('spreads each day on its own, whatever the preset', () {
       final moments = plan([
         candidate(1, DateTime(2026, 11, 10, 9)),
-        candidate(2, DateTime(2026, 11, 10, 9)),
+        candidate(
+          2,
+          DateTime(2026, 11, 10, 9),
+          preset: BuiltInPresets.intensive,
+        ),
         candidate(3, DateTime(2026, 11, 11, 9)),
-        candidate(4, DateTime(2026, 11, 10, 9), preset: other),
       ]);
       expect(moments[2], DateTime(2026, 11, 10, 13));
       expect(moments[3], DateTime(2026, 11, 11, 9));
-      expect(moments[4], DateTime(2026, 11, 10, 9));
     });
 
-    test('leaves a sub-day due moment and a grouped reminder alone', () {
-      final grouped = range.copyWith(
-        notificationMode: NotificationMode.grouped,
-      );
+    test('leaves a sub-day due moment alone', () {
       final moments = plan([
         candidate(1, DateTime(2026, 11, 10, 15, 17)),
         candidate(2, DateTime(2026, 11, 10, 9)),
-        candidate(3, DateTime(2026, 11, 10, 9), preset: grouped),
-        candidate(4, DateTime(2026, 11, 10, 9), preset: grouped),
       ]);
       expect(moments, {
         1: DateTime(2026, 11, 10, 15, 17),
         2: DateTime(2026, 11, 10, 9),
-        3: DateTime(2026, 11, 10, 9),
-        4: DateTime(2026, 11, 10, 9),
+      });
+    });
+
+    test('keeps the grouped reminders at its start', () {
+      final moments = plan([
+        candidate(1, DateTime(2026, 11, 10, 9)),
+        candidate(2, DateTime(2026, 11, 10, 9)),
+      ], reminders: range.copyWith(notificationMode: NotificationMode.grouped));
+      expect(moments, {
+        1: DateTime(2026, 11, 10, 9),
+        2: DateTime(2026, 11, 10, 9),
       });
     });
   });
@@ -104,36 +115,40 @@ void main() {
   test('a fixed time notifies at the due date', () {
     final noon = DateTime(2026, 11, 10, 12);
     final moments = plan([
-      candidate(1, noon, preset: BuiltInPresets.standard),
-      candidate(2, noon, preset: BuiltInPresets.standard),
-    ]);
+      candidate(1, noon),
+      candidate(2, noon),
+    ], reminders: fixed);
     expect(moments, {1: noon, 2: noon});
   });
 
   group('a direction still due from an earlier day', () {
-    test('is notified again today, at the slot of its preset', () {
-      final moments = plan([
-        candidate(
-          1,
-          DateTime(2026, 11, 9, 12),
-          preset: BuiltInPresets.standard,
-        ),
-        candidate(
-          2,
-          DateTime(2026, 11, 2, 12),
-          preset: BuiltInPresets.standard,
-        ),
-        candidate(
-          3,
-          DateTime(2026, 11, 9, 15, 17),
-          preset: BuiltInPresets.intensive,
-        ),
-        candidate(
-          4,
-          DateTime(2026, 11, 10, 18),
-          preset: BuiltInPresets.standard,
-        ),
-      ], now: DateTime(2026, 11, 10, 8));
+    test('is notified again today, at the daily slot', () {
+      final moments = plan(
+        [
+          candidate(
+            1,
+            DateTime(2026, 11, 9, 12),
+            preset: BuiltInPresets.standard,
+          ),
+          candidate(
+            2,
+            DateTime(2026, 11, 2, 12),
+            preset: BuiltInPresets.standard,
+          ),
+          candidate(
+            3,
+            DateTime(2026, 11, 9, 15, 17),
+            preset: BuiltInPresets.intensive,
+          ),
+          candidate(
+            4,
+            DateTime(2026, 11, 10, 18),
+            preset: BuiltInPresets.standard,
+          ),
+        ],
+        now: DateTime(2026, 11, 10, 8),
+        reminders: fixed,
+      );
       expect(moments, {
         1: DateTime(2026, 11, 10, 12),
         2: DateTime(2026, 11, 10, 12),
@@ -161,7 +176,7 @@ void main() {
     Map<int, DateTime> guarded(
       List<DeliveryCandidate> candidates,
       DateTime now,
-    ) => planner.plan(candidates, now: now, guards: guards);
+    ) => planner.plan(candidates, now: now, reminders: fixed, guards: guards);
 
     test('move a notification falling inside to their end', () {
       final moments = guarded([
@@ -189,6 +204,7 @@ void main() {
       final moments = planner.plan(
         [candidate(1, DateTime(2026, 11, 10, 23, 10), preset: intensive)],
         now: DateTime(2026, 11, 10, 21),
+        reminders: fixed,
         guards: guards.copyWith(quietHoursEnabled: false),
       );
       expect(moments[1], DateTime(2026, 11, 10, 23, 10));
@@ -219,6 +235,7 @@ void main() {
           candidate(4, noon, preset: standard, step: 3),
         ],
         now: DateTime(2026, 11, 10, 8),
+        reminders: fixed,
         guards: guards,
       );
       expect(moments, {
@@ -242,6 +259,7 @@ void main() {
           ),
         ],
         now: DateTime(2026, 11, 10, 10),
+        reminders: fixed,
         guards: guards,
         notifiedToday: 1,
       );
@@ -252,10 +270,9 @@ void main() {
   });
 
   test('a card still due after its moment comes back the next day', () {
-    final standard = BuiltInPresets.standard.copyWith(id: 1);
     final retry = planner.nextDayRetry(
-      candidate(1, DateTime(2026, 11, 10, 12), preset: standard),
       now: DateTime(2026, 11, 10, 18),
+      reminders: fixed,
       guards: NotificationGuards.defaults.copyWith(
         quietStart: const ClockTime(22, 0),
         quietEnd: const ClockTime(13, 0),

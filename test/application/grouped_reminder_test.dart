@@ -7,10 +7,9 @@ import 'package:alambic/application/notifications/review_prompt.dart';
 import 'package:alambic/application/reviews/review_providers.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/database/alambic_database.dart';
-import 'package:alambic/data/repositories/group_repository.dart';
-import 'package:alambic/data/repositories/preset_repository.dart';
-import 'package:alambic/domain/presets/grouped_reminder_action.dart';
-import 'package:alambic/domain/presets/notification_mode.dart';
+import 'package:alambic/data/repositories/notification_settings_repository.dart';
+import 'package:alambic/domain/notifications/grouped_reminder_action.dart';
+import 'package:alambic/domain/notifications/notification_mode.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 
@@ -37,19 +36,15 @@ void main() {
     await database.close();
   });
 
-  /// Gives "Capitales" a copy of Standard with a grouped reminder.
-  Future<void> groupCapitals(GroupedReminderAction action) async {
-    final presets = PresetRepository(database);
-    final standard = (await presets.loadCatalog()).globalPreset;
-    final presetId = await presets.insert(
-      standard.copyWith(
-        name: 'Groupé',
-        builtInKey: () => null,
+  /// Switches the app to grouped reminders.
+  Future<void> groupReminders(GroupedReminderAction action) async {
+    final settings = NotificationSettingsRepository(database);
+    await settings.saveReminderSettings(
+      (await settings.loadReminderSettings()).copyWith(
         notificationMode: NotificationMode.grouped,
         groupedAction: action,
       ),
     );
-    await GroupRepository(database).setPreset(capitals.groupId, presetId);
   }
 
   Future<void> dispatchAt(DateTime now) async {
@@ -61,19 +56,20 @@ void main() {
       NotificationActionHandlerTester(harness);
 
   test('announces the due cards of a group in a single reminder', () async {
-    await groupCapitals(GroupedReminderAction.openApp);
+    await groupReminders(GroupedReminderAction.openApp);
     await dispatchAt(DateTime(2026, 11, 10, 12));
     final reminder = harness.presenter.groupReminders[capitals]!;
     expect(reminder.groupName, 'Capitales');
     expect(reminder.count, 4);
     expect(reminder.chain, isFalse);
     expect(reminder.alert, isTrue);
-    // The two Spanish cards and the biology card stay per card.
-    expect(harness.presenter.prompts, hasLength(3));
+    // Every group has its reminder, no card is notified on its own.
+    expect(harness.presenter.groupReminders, hasLength(3));
+    expect(harness.presenter.prompts, isEmpty);
   });
 
   test('refreshes the count after an answer in the app, then closes', () async {
-    await groupCapitals(GroupedReminderAction.openApp);
+    await groupReminders(GroupedReminderAction.openApp);
     await dispatchAt(DateTime(2026, 11, 10, 12));
     final due = [
       for (final card in await CardRepository(
@@ -91,19 +87,19 @@ void main() {
         expect(harness.presenter.groupReminders[capitals]!.alert, isFalse);
       }
     }
-    expect(harness.presenter.groupReminders, isEmpty);
+    expect(harness.presenter.groupReminders, isNot(contains(capitals)));
   });
 
   group('chained in the notification', () {
     setUp(() async {
-      await groupCapitals(GroupedReminderAction.chainInNotification);
+      await groupReminders(GroupedReminderAction.chainInNotification);
       await dispatchAt(DateTime(2026, 11, 10, 12));
     });
 
     test('offers to start, then asks each card in turn', () async {
       expect(harness.presenter.groupReminders[capitals]!.chain, isTrue);
       await handler().start(capitals);
-      expect(harness.presenter.groupReminders, isEmpty);
+      expect(harness.presenter.groupReminders, isNot(contains(capitals)));
       final first = handler().chained(capitals);
       expect(first.prompt, 'Mongolie');
       expect(first.chainRemaining, 4);
@@ -124,10 +120,10 @@ void main() {
         NotificationAction.correct,
       );
       expect(
-        harness.presenter.prompts.keys.where((key) => key.chain != null),
+        harness.presenter.prompts.keys.where((key) => key.chain == capitals),
         isEmpty,
       );
-      expect(harness.presenter.groupReminders, isEmpty);
+      expect(harness.presenter.groupReminders, isNot(contains(capitals)));
     });
 
     test('a chained card answered in the app gives way to the next', () async {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
-import '../../app/formatting/interval_labels.dart';
 import '../../app/formatting/preset_labels.dart';
 import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
@@ -85,10 +84,9 @@ class GroupSettingsScreen extends ConsumerWidget {
   ) {
     final strings = AppLocalizations.of(context);
     final preset = catalog.presetForGroup(group.id);
-    final sequence = preset.intervals.map(strings.intervalLabel).join(' · ');
     return PanelRow(
       title: strings.cardPreset,
-      subtitle: '$sequence\n${strings.presetSummary(preset)}',
+      subtitle: strings.presetStepsSummary(preset),
       value: group.presetId == null
           ? strings.cardPresetInheritedGlobal(strings.presetName(preset))
           : strings.presetName(preset),

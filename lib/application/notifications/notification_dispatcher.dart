@@ -12,7 +12,7 @@ import '../../domain/groups/card_group.dart';
 import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/notification_timing.dart';
 import '../../domain/pauses/pauses.dart';
-import '../../domain/presets/notification_mode.dart';
+import '../../domain/notifications/notification_mode.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../clock.dart';
 import '../distillation/distillation_service.dart';
@@ -27,9 +27,9 @@ import 'review_prompt.dart';
 
 /// Runs when the app wakes up: runs the daily pass of the distillations,
 /// shows a notification for every card and every "Review soon" reminder
-/// whose moment has come, then plans the next wake-ups. A card whose
-/// preset asks for a grouped reminder is announced by the reminder of its
-/// group instead. Beyond the auto grouping threshold, a single notification
+/// whose moment has come, then plans the next wake-ups. In the grouped
+/// reminder mode, a card is announced by the reminder of its group
+/// instead. Beyond the auto grouping threshold, a single notification
 /// replaces all of them. The cards notified count against the daily cap. The
 /// content is read from the database at that moment, never fixed when the
 /// wake-up was planned, and the asked face is drawn for each notification.
@@ -76,11 +76,13 @@ class NotificationDispatcher {
     };
     final cards = await _cards.getAll();
     final guards = await _settings.loadGuards();
+    final reminderSettings = await _settings.loadReminderSettings();
     final pauses = await _pauses.loadPauses();
     final today = _deliveryPlanner.calendar.dayOf(now);
     final deliveries = _deliveryPlanner.plan(
       deliveryCandidates(cards, catalog, pauses),
       now: now,
+      reminders: reminderSettings,
       guards: guards,
       notifiedToday: await _settings.notifiedOn(today),
     );
@@ -96,8 +98,7 @@ class NotificationDispatcher {
             now: now,
             calendar: _deliveryPlanner.calendar,
           )) {
-        if (catalog.presetForCard(card).notificationMode ==
-            NotificationMode.grouped) {
+        if (reminderSettings.notificationMode == NotificationMode.grouped) {
           groupedReminders.add(GroupReminderKey(card.groupId));
         } else {
           prompts.add(_prompt(card, catalog, groups, null));

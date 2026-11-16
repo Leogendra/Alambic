@@ -18,7 +18,7 @@ As soon as some text is typed, the group list gives way to the cards whose front
 
 ### Group page
 
-The page of a group recalls the number of cards, the preset, its notification mode and its schedule. Three counters follow: due cards, active cards (introduced) and waiting cards ([pending](../lexicon.md#pending) in the queue). Then, from top to bottom:
+The page of a group recalls the number of cards and the preset. Three counters follow: due cards, active cards (introduced) and waiting cards ([pending](../lexicon.md#pending) in the queue). Then, from top to bottom:
 
 - "Review the N due" when cards are due, which opens a session on them;
 - the large "Distill" button while the group does not distill, with a line explaining it, then, once activated, the tracking of its distillation in its place ([Feature 8](8-distillation.md#screens));
@@ -64,7 +64,7 @@ Counters are computed by `GroupOverview` from all cards, the preset catalog and 
 
 ## Test strategy
 
-- Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the preset slot, with a suspended card.
+- Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the [daily slot](../lexicon.md#daily-slot), with a suspended card.
 - The order of "Review all" is tested as pure logic (due, introduced, pending, suspended, acquired without date), then on the group page, down to the session it opens.
 - The group service is tested for creation, renaming, refusal of an empty name, the back option and deletion with its cards.
 - The tab (list and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock; the group page in light and dark theme.

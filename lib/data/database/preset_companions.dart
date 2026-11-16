@@ -20,12 +20,6 @@ abstract final class PresetCompanions {
     failureBehavior: Value(preset.failureBehavior),
     endBehavior: Value(preset.endBehavior),
     typedAnswer: Value(preset.typedAnswer),
-    scheduleKind: Value(preset.scheduleKind),
-    fixedTime: Value(preset.fixedTime),
-    rangeStart: Value(preset.rangeStart),
-    rangeEnd: Value(preset.rangeEnd),
-    notificationMode: Value(preset.notificationMode),
-    groupedAction: Value(preset.groupedAction),
     targetRetention: Value(preset.targetRetention),
   );
 }

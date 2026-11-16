@@ -1,18 +1,17 @@
-import '../presets/notification_mode.dart';
-import '../presets/schedule_kind.dart';
 import '../scheduling/clock_time.dart';
 import '../scheduling/card_progress.dart';
 import '../scheduling/scheduling_calendar.dart';
 import 'delivery_candidate.dart';
 import 'notification_guards.dart';
 import 'notification_timing.dart';
+import 'reminder_settings.dart';
 
 /// Decides when each due card is notified, which is not always its due
 /// date.
 ///
 /// Rules owned here:
 /// - a card still due from an earlier day (its notification was ignored,
-///   swiped or not shown) is notified again today, at the slot of its preset;
+///   swiped or not shown) is notified again today, at the daily slot;
 /// - with a time range and one notification per card, the cards due at
 ///   the start of the range on a day are spread evenly over the range, in
 ///   the order of their ids; a grouped reminder stays at the start;
@@ -30,28 +29,36 @@ class DeliveryPlanner {
   Map<int, DateTime> plan(
     Iterable<DeliveryCandidate> candidates, {
     required DateTime now,
+    required ReminderSettings reminders,
     NotificationGuards? guards,
     int notifiedToday = 0,
   }) {
-    final moments = _moments(candidates, now, guards)
+    final moments = _moments(candidates, now, reminders, guards)
       ..updateAll((_, moment) => _outOfQuietHours(moment, guards));
     if (guards != null) {
-      _applyDailyCap(moments, candidates, now, guards, notifiedToday);
+      _applyDailyCap(
+        moments,
+        candidates,
+        now,
+        reminders,
+        guards,
+        notifiedToday,
+      );
     }
     return moments;
   }
 
   /// When a card whose notification moment has passed, still due, is notified
-  /// again: at the slot of its preset the next day. Nothing else may wake the
-  /// app up by then, so this moment is planned too.
-  DateTime nextDayRetry(
-    DeliveryCandidate candidate, {
+  /// again: at the daily slot of the next day. Nothing else may wake the app
+  /// up by then, so this moment is planned too.
+  DateTime nextDayRetry({
     required DateTime now,
+    required ReminderSettings reminders,
     NotificationGuards? guards,
   }) => _outOfQuietHours(
     calendar.momentAt(
       calendar.addDays(calendar.dayOf(now), 1),
-      candidate.preset.dailySlot,
+      reminders.dailySlot,
     ),
     guards,
   );
@@ -60,43 +67,43 @@ class DeliveryPlanner {
   Map<int, DateTime> _moments(
     Iterable<DeliveryCandidate> candidates,
     DateTime now,
+    ReminderSettings reminders,
     NotificationGuards? guards,
   ) {
     final today = calendar.dayOf(now);
     final moments = <int, DateTime>{};
-    final ranges = <(int, DateTime), List<DeliveryCandidate>>{};
+    final ranges = <DateTime, List<DeliveryCandidate>>{};
     for (final candidate in candidates) {
       final dueAt = candidate.card.dueAt!;
       final missed = calendar
           .dayOf(_outOfQuietHours(dueAt, guards))
           .isBefore(today);
       final moment = missed
-          ? calendar.momentAt(today, candidate.preset.dailySlot)
+          ? calendar.momentAt(today, reminders.dailySlot)
           : dueAt;
       final day = calendar.dayOf(moment);
-      if (_spreadsOverRange(candidate) &&
-          moment == calendar.momentAt(day, candidate.preset.rangeStart)) {
-        ranges.putIfAbsent((candidate.preset.id, day), () => []).add(candidate);
+      if (reminders.spreadsOverRange &&
+          moment == calendar.momentAt(day, reminders.rangeStart)) {
+        ranges.putIfAbsent(day, () => []).add(candidate);
       } else {
         moments[candidate.card.id] = moment;
       }
     }
-    for (final MapEntry(key: (_, day), value: sharing) in ranges.entries) {
-      moments.addAll(_spread(sharing, day));
+    for (final MapEntry(key: day, value: sharing) in ranges.entries) {
+      moments.addAll(_spread(sharing, day, reminders));
     }
     return moments;
   }
 
-  static bool _spreadsOverRange(DeliveryCandidate candidate) =>
-      candidate.preset.scheduleKind == ScheduleKind.timeRange &&
-      candidate.preset.notificationMode == NotificationMode.perCard;
-
-  /// [sharing] spread over the range of their preset on [day]: the first at
-  /// its start, then one every range length divided by their number.
-  Map<int, DateTime> _spread(List<DeliveryCandidate> sharing, DateTime day) {
-    final preset = sharing.first.preset;
-    final start = calendar.momentAt(day, preset.rangeStart);
-    final end = calendar.momentAt(day, preset.rangeEnd);
+  /// [sharing] spread over the range on [day]: the first at its start, then
+  /// one every range length divided by their number.
+  Map<int, DateTime> _spread(
+    List<DeliveryCandidate> sharing,
+    DateTime day,
+    ReminderSettings reminders,
+  ) {
+    final start = calendar.momentAt(day, reminders.rangeStart);
+    final end = calendar.momentAt(day, reminders.rangeEnd);
     final range = end.isAfter(start) ? end.difference(start) : Duration.zero;
     final ordered = sharing.toList()
       ..sort((first, second) => first.card.id.compareTo(second.card.id));
@@ -128,6 +135,7 @@ class DeliveryPlanner {
     Map<int, DateTime> moments,
     Iterable<DeliveryCandidate> candidates,
     DateTime now,
+    ReminderSettings reminders,
     NotificationGuards guards,
     int notifiedToday,
   ) {
@@ -150,10 +158,7 @@ class DeliveryPlanner {
       waiting.sort((first, second) => _byPriority(first, second, moments));
       for (final heldBack in waiting.skip(room < 0 ? 0 : room)) {
         moments[heldBack.card.id] = _outOfQuietHours(
-          calendar.momentAt(
-            calendar.addDays(day, 1),
-            heldBack.preset.dailySlot,
-          ),
+          calendar.momentAt(calendar.addDays(day, 1), reminders.dailySlot),
           guards,
         );
       }

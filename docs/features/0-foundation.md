@@ -60,7 +60,7 @@ The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_set
 - deleting a card deletes its history and its reminders;
 - deleting a group deletes its cards, with their history, and its distillation.
 
-The schema is at version 1 and has no upgrade step: until the app has users, a schema change is installed over cleared app data (`adb shell pm clear fr.gatienh.alambic`) rather than migrated. Once real data must survive an update, each version bump comes with an upgrade step in `AlambicDatabase.migration`.
+The schema is at version 2 and has no migration: while the app has no users, its version is raised at every schema change, and a database file of another version is erased and created again at launch, with the shipped presets. Every table found in the file is dropped, including tables an older schema had and this one no longer declares. A backup of another version is refused at import ([Feature 9](9-backup.md)).
 
 The global preset lives in the database rather than in the preferences, because it is part of the review data: it must be readable from background tasks and travel with the export.
 

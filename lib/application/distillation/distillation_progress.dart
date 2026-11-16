@@ -8,13 +8,12 @@ import '../../domain/distillation/distillation_rhythm.dart';
 class DistillationProgress {
   const DistillationProgress({
     required this.distillation,
-    required this.introduced,
     required this.remaining,
     required this.lastArrival,
   });
 
-  /// Counts the cards of the group of [distillation] among [groupCards] and
-  /// estimates the last arrival of its queue seen from [today].
+  /// Counts the waiting cards of the group of [distillation] among
+  /// [groupCards] and estimates the last arrival of its queue seen from [today].
   factory DistillationProgress.of(
     Distillation distillation,
     List<Flashcard> groupCards,
@@ -24,7 +23,6 @@ class DistillationProgress {
     final remaining = DistillationQueue.remaining(groupCards);
     return DistillationProgress(
       distillation: distillation,
-      introduced: groupCards.length - remaining,
       remaining: remaining,
       lastArrival: distillation.isRunning
           ? rhythm.lastArrival(
@@ -39,9 +37,6 @@ class DistillationProgress {
   }
 
   final Distillation distillation;
-
-  /// Cards of the group already introduced.
-  final int introduced;
 
   /// Cards still in the queue.
   final int remaining;

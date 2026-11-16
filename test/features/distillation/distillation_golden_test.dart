@@ -73,15 +73,14 @@ void main() {
     );
   });
 
-  testWidgets('new knowledge on the home timeline', (tester) async {
+  testWidgets('new cards on the home timeline', (tester) async {
     await seed(tester);
     await pumpGolden(
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(find.text('Nouvelle connaissance'), findsOneWidget);
-    expect(find.text('Japonais · distillation, carte 1 sur 6'), findsOneWidget);
+    expect(find.text('Japonais : 1 nouvelle carte'), findsNWidgets(6));
     await expectLater(
       find.byType(HomeScreen),
       matchesGoldenFile('goldens/home_distillation.png'),

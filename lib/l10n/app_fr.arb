@@ -287,7 +287,6 @@
       }
     }
   },
-  "commonChange": "Changer",
   "cardIncomplete": "Le recto et le verso ont chacun besoin d'un texte ou d'une image.",
   "cardGroupMissing": "Choisis un groupe pour cette carte.",
   "groupPickerTitle": "Ranger dans un groupe",

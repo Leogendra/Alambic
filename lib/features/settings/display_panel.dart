@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/preferences/interface_settings_providers.dart';
@@ -22,16 +21,11 @@ class DisplayPanel extends ConsumerWidget {
     final controller = ref.read(interfaceSettingsProvider.notifier);
     final languages = _languageLabels(strings);
     final themes = _themeLabels(strings);
-    final valueStyle = TextStyle(
-      fontSize: 15,
-      fontWeight: FontWeight.w600,
-      color: AlambicColors.of(context).accentText,
-    );
     return SurfacePanel(
       children: [
         PanelRow(
           title: strings.settingsLanguage,
-          trailing: Text(languages[settings.language]!, style: valueStyle),
+          value: languages[settings.language],
           onTap: () async {
             final choice = await showChoiceDialog(
               context,
@@ -46,7 +40,7 @@ class DisplayPanel extends ConsumerWidget {
         ),
         PanelRow(
           title: strings.settingsTheme,
-          trailing: Text(themes[settings.theme]!, style: valueStyle),
+          value: themes[settings.theme],
           onTap: () async {
             final choice = await showChoiceDialog(
               context,

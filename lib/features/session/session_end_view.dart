@@ -50,12 +50,6 @@ class SessionEndView extends ConsumerWidget {
           const Spacer(),
           if (missed.isNotEmpty) ...[
             OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
               onPressed: () => replaceWithBonusSession(context, ref, [
                 for (final item in missed) item.cardId,
               ]),

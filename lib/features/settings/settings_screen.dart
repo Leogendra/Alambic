@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/preset_labels.dart';
-import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
@@ -59,16 +58,11 @@ class _RepetitionPanel extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final presets = ref.watch(presetsProvider).value ?? const [];
     final catalog = ref.watch(presetCatalogProvider).value;
-    final valueStyle = TextStyle(
-      fontSize: 15,
-      fontWeight: FontWeight.w600,
-      color: AlambicColors.of(context).accentText,
-    );
     return SurfacePanel(
       children: [
         PanelRow(
           title: strings.settingsPresets,
-          trailing: Text('${presets.length}', style: valueStyle),
+          value: '${presets.length}',
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (context) => const PresetsScreen(),
@@ -78,10 +72,7 @@ class _RepetitionPanel extends ConsumerWidget {
         PanelRow(
           title: strings.settingsGlobalPreset,
           subtitle: strings.settingsGlobalPresetHint,
-          trailing: Text(
-            catalog == null ? '' : strings.presetName(catalog.globalPreset),
-            style: valueStyle,
-          ),
+          value: catalog == null ? '' : strings.presetName(catalog.globalPreset),
           onTap: catalog == null
               ? null
               : () async {
@@ -127,7 +118,6 @@ class _NotificationsPanel extends ConsumerWidget {
               guards.dailyCap,
             ),
           },
-          trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (context) => const NotificationGuardsScreen(),

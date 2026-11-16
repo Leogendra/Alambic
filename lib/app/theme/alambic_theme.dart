@@ -34,6 +34,21 @@ abstract final class AlambicTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
       filledButtonTheme: _filledButtonTheme(colors),
+      // Text and outlined buttons write in the accent: the text shade keeps
+      // 4.5:1 where the filled shade would not on a dark background.
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: colors.accentText),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: colors.accentText,
+          side: BorderSide(color: colors.border),
+          minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
       inputDecorationTheme: _inputDecorationTheme(colors),
       dividerTheme: DividerThemeData(color: colors.divider, space: 1),
       switchTheme: _switchTheme(colors),

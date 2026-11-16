@@ -54,12 +54,16 @@ final List<ContrastRule> rules = [
     background: (colors) => colors.surface,
     minimum: 4.5,
   ),
-  (
-    name: 'accentText on surface',
-    foreground: (colors) => colors.accentText,
-    background: (colors) => colors.surface,
-    minimum: 4.5,
-  ),
+  for (final (name, background) in <(String, Color Function(AlambicColors))>[
+    ('background', (colors) => colors.background),
+    ('surface', (colors) => colors.surface),
+  ])
+    (
+      name: 'accentText on $name',
+      foreground: (colors) => colors.accentText,
+      background: background,
+      minimum: 4.5,
+    ),
   (
     name: 'accentText on accentTint',
     foreground: (colors) => colors.accentText,

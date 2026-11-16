@@ -111,6 +111,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
               child: LinearProgressIndicator(
                 value: total == 0 ? 0 : _session.position / total,
                 minHeight: 6,
+                // Laid on the page background, where the well token used by
+                // the other tracks would vanish.
+                backgroundColor: colors.border,
               ),
             ),
           ),

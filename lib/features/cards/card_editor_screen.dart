@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/preset_labels.dart';
-import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
@@ -214,14 +213,6 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
           PanelRow(
             title: strings.cardPreset,
             subtitle: _presetLabel(strings, catalog),
-            trailing: Text(
-              strings.commonChange,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AlambicColors.of(context).accentText,
-              ),
-            ),
             onTap: () => _choosePreset(catalog),
           ),
       ],

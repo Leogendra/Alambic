@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/text_input_dialog.dart';
 import '../../application/groups/group_providers.dart';
@@ -28,23 +27,12 @@ class GroupField extends ConsumerWidget {
         .firstOrNull;
     return PanelRow(
       title: strings.cardGroup,
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            groupName ?? strings.cardGroupNone,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: AlambicColors.of(context).accentText,
-            ),
-          ),
-          IconButton(
-            tooltip: strings.newGroupTitle,
-            icon: const Icon(Icons.add),
-            onPressed: () => _createGroup(context, ref),
-          ),
-        ],
+      value: groupName ?? strings.cardGroupNone,
+      showsChevron: true,
+      trailing: IconButton.outlined(
+        tooltip: strings.newGroupTitle,
+        icon: const Icon(Icons.add),
+        onPressed: () => _createGroup(context, ref),
       ),
       onTap: () async {
         if (groups.isEmpty) {

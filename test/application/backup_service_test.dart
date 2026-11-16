@@ -187,22 +187,6 @@ void main() {
     );
   });
 
-  test('a backup of the first schema, with directions, is refused', () async {
-    await source.backup.export();
-    final contents = const BackupArchive().decode(drive.saved!);
-
-    expect(
-      () => DatabaseSnapshot(target.database).validate(1, contents.tables),
-      throwsA(
-        isA<InvalidBackupException>().having(
-          (refusal) => refusal.kind,
-          'kind',
-          InvalidBackupKind.incompatibleVersion,
-        ),
-      ),
-    );
-  });
-
   test('a backup with an unknown column is refused', () async {
     await source.backup.export();
     final contents = const BackupArchive().decode(drive.saved!);

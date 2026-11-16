@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/formatting/preset_labels.dart';
+import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
@@ -33,7 +34,10 @@ class GroupSettingsScreen extends ConsumerWidget {
       body: group == null || catalog == null
           ? const SizedBox.shrink()
           : ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+              padding: scrollPadding(
+                context,
+                const EdgeInsets.fromLTRB(20, 8, 20, 32),
+              ),
               children: [
                 SurfacePanel(children: [_nameRow(context, ref, group)]),
                 const SizedBox(height: 24),

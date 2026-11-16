@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,6 +41,12 @@ class AlambicApp extends ConsumerWidget {
       // depend on the choice.
       locale: AppLocale.chosen(settings.language),
       localeResolutionCallback: (phone, supported) => AppLocale.ofPhone(phone),
+      // Screens without an app bar (tabs, session, onboarding) set the style
+      // of the system bars through this region.
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: AlambicTheme.systemOverlayStyle(Theme.of(context).brightness),
+        child: child!,
+      ),
       home: settings.onboardingDone
           ? const MainShell()
           : const OnboardingScreen(),

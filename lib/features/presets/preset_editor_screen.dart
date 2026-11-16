@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/formatting/clock_time_conversions.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/theme/alambic_colors.dart';
+import '../../app/layout/scroll_padding.dart';
 import '../../app/widgets/count_stepper.dart';
 import '../../app/widgets/interval_chip.dart';
 import '../../app/widgets/panel_row.dart';
@@ -79,7 +80,10 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+        padding: scrollPadding(
+          context,
+          const EdgeInsets.fromLTRB(20, 8, 20, 32),
+        ),
         children: [
           _nameField(strings),
           const SizedBox(height: 24),

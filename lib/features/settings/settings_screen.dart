@@ -72,7 +72,9 @@ class _RepetitionPanel extends ConsumerWidget {
         PanelRow(
           title: strings.settingsGlobalPreset,
           subtitle: strings.settingsGlobalPresetHint,
-          value: catalog == null ? '' : strings.presetName(catalog.globalPreset),
+          value: catalog == null
+              ? ''
+              : strings.presetName(catalog.globalPreset),
           onTap: catalog == null
               ? null
               : () async {

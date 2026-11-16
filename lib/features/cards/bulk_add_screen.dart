@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/layout/bottom_action_area.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
@@ -48,24 +49,32 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
     final result = _result;
     return Scaffold(
       appBar: AppBar(title: Text(strings.bulkTitle)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _settingsPanel(strings),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _textController,
-            minLines: 8,
-            maxLines: 16,
-            decoration: InputDecoration(hintText: strings.bulkTextHint),
-            onChanged: (_) => setState(() {}),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+              children: [
+                _settingsPanel(strings),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _textController,
+                  minLines: 8,
+                  maxLines: 16,
+                  decoration: InputDecoration(hintText: strings.bulkTextHint),
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: 12),
+                _report(strings, result),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          _report(strings, result),
-          const SizedBox(height: 24),
-          FilledButton(
-            onPressed: result.drafts.isEmpty ? null : () => _add(result),
-            child: Text(strings.bulkAddButton(result.drafts.length)),
+          BottomActionArea(
+            child: FilledButton(
+              onPressed: result.drafts.isEmpty ? null : () => _add(result),
+              child: Text(strings.bulkAddButton(result.drafts.length)),
+            ),
           ),
         ],
       ),

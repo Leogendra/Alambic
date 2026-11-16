@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/alambic_app.dart';
@@ -13,6 +14,9 @@ import 'notifications/android/android_notifications.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Drawn under the system bars, as Android 15 imposes; every screen keeps
+  // its content clear of them (see `scrollPadding` and the SafeAreas).
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   await AndroidNotifications.initialize();
   final database = AlambicDatabase.open();
   final container = ProviderContainer(

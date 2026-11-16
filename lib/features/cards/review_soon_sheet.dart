@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/formatting/clock_time_conversions.dart';
 import '../../app/formatting/date_labels.dart';
 import '../../app/theme/alambic_colors.dart';
+import '../../app/widgets/choice_tile.dart';
 import '../../application/clock.dart';
 import '../../application/reminders/reminder_providers.dart';
 import '../../domain/reviews/review_soon_days.dart';
@@ -101,7 +102,7 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: 8,
                   crossAxisSpacing: 8,
-                  childAspectRatio: 3,
+                  childAspectRatio: 2.5,
                   children: [
                     _dayChoice(strings.reviewSoonTomorrow, _days.tomorrow),
                     _dayChoice(
@@ -127,7 +128,7 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
     );
   }
 
-  Widget _dayChoice(String label, DateTime day) => _choiceTile(
+  Widget _dayChoice(String label, DateTime day) => ChoiceTile(
     label: label,
     detail: AppLocalizations.of(context).dayDate(day),
     isSelected: _otherDay == null && _day == day,
@@ -137,7 +138,7 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
     }),
   );
 
-  Widget _otherDayChoice(AppLocalizations strings) => _choiceTile(
+  Widget _otherDayChoice(AppLocalizations strings) => ChoiceTile(
     label: strings.reviewSoonOtherDate,
     detail: _otherDay == null ? null : strings.dayDate(_otherDay!),
     isSelected: _otherDay != null,
@@ -157,56 +158,6 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
     },
   );
 
-  Widget _choiceTile({
-    required String label,
-    required String? detail,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    final colors = AlambicColors.of(context);
-    return Semantics(
-      selected: isSelected,
-      button: true,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          decoration: BoxDecoration(
-            color: isSelected ? colors.accentTint : colors.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isSelected ? colors.accent : colors.border,
-              width: isSelected ? 2 : 1,
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  color: isSelected ? colors.accentText : colors.textPrimary,
-                ),
-              ),
-              if (detail != null)
-                Text(
-                  detail,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isSelected
-                        ? colors.accentText
-                        : colors.textSecondary,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _timeRow(AppLocalizations strings, AlambicColors colors) => InkWell(
     borderRadius: BorderRadius.circular(14),
     onTap: () async {
@@ -222,7 +173,7 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: colors.background,
+        color: colors.well,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: colors.border),
       ),

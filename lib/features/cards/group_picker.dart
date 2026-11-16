@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/widgets/choice_tile.dart';
 import '../../domain/groups/card_group.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'group_choice.dart';
@@ -18,21 +19,23 @@ Future<GroupChoice?> showGroupPicker(
     return SafeArea(
       child: ListView(
         shrinkWrap: true,
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
             child: Text(
               strings.groupPickerTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
           for (final group in groups)
-            ListTile(
-              title: Text(group.name),
-              trailing: selectedGroupId == group.id
-                  ? const Icon(Icons.check)
-                  : null,
-              onTap: () => Navigator.of(context).pop(GroupChoice(group.id)),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ChoiceTile(
+                label: group.name,
+                isSelected: selectedGroupId == group.id,
+                onTap: () => Navigator.of(context).pop(GroupChoice(group.id)),
+              ),
             ),
         ],
       ),

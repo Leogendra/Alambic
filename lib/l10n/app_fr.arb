@@ -367,14 +367,6 @@
     }
   },
   "bulkTitle": "Ajout en masse",
-  "bulkInGroup": "dans {name}",
-  "@bulkInGroup": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "bulkSeparator": "Séparateur",
   "bulkSeparatorHint": "Entre recto et verso, sur chaque ligne",
   "bulkTextHint": "Une carte par ligne :\nrecto ; verso",

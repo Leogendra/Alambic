@@ -10,17 +10,57 @@ Future<String?> showTextInputDialog(
   required String label,
   String initialText = '',
 }) async {
-  final controller = TextEditingController(text: initialText);
-  final strings = AppLocalizations.of(context);
   final text = await showDialog<String>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text(title),
+    builder: (context) =>
+        _TextInputDialog(title: title, label: label, initialText: initialText),
+  );
+  final trimmed = text?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return null;
+  } else {
+    return trimmed;
+  }
+}
+
+/// Owns its text controller, so that the controller lives as long as the
+/// field, closing animation included.
+class _TextInputDialog extends StatefulWidget {
+  const _TextInputDialog({
+    required this.title,
+    required this.label,
+    required this.initialText,
+  });
+
+  final String title;
+  final String label;
+  final String initialText;
+
+  @override
+  State<_TextInputDialog> createState() => _TextInputDialogState();
+}
+
+class _TextInputDialogState extends State<_TextInputDialog> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initialText,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(widget.title),
       content: TextField(
-        controller: controller,
+        controller: _controller,
         autofocus: true,
         textCapitalization: TextCapitalization.sentences,
-        decoration: InputDecoration(labelText: label),
+        decoration: InputDecoration(labelText: widget.label),
         onSubmitted: (value) => Navigator.of(context).pop(value),
       ),
       actions: [
@@ -29,17 +69,10 @@ Future<String?> showTextInputDialog(
           child: Text(strings.commonCancel),
         ),
         TextButton(
-          onPressed: () => Navigator.of(context).pop(controller.text),
+          onPressed: () => Navigator.of(context).pop(_controller.text),
           child: Text(strings.commonOk),
         ),
       ],
-    ),
-  );
-  controller.dispose();
-  final trimmed = text?.trim();
-  if (trimmed == null || trimmed.isEmpty) {
-    return null;
-  } else {
-    return trimmed;
+    );
   }
 }

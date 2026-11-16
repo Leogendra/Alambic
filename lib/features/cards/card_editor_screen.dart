@@ -9,14 +9,13 @@ import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_draft.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/cards/draft_image.dart';
-import '../../application/groups/group_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../data/data_providers.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../presets/preset_picker.dart';
 import 'card_image.dart';
-import 'group_picker.dart';
+import 'group_field.dart';
 import 'image_picking.dart';
 
 /// Creates a card, or edits an existing one when [cardId] is given. Each face
@@ -204,38 +203,25 @@ class _CardEditorScreenState extends ConsumerState<CardEditorScreen> {
   );
 
   Widget _classificationPanel(AppLocalizations strings) {
-    final groups = ref.watch(groupsProvider).value ?? const [];
     final catalog = ref.watch(presetCatalogProvider).value;
-    final groupName = groups
-        .where((group) => group.id == _groupId)
-        .map((group) => group.name)
-        .firstOrNull;
-    final valueStyle = TextStyle(
-      fontSize: 15,
-      fontWeight: FontWeight.w600,
-      color: AlambicColors.of(context).accentText,
-    );
     return SurfacePanel(
       children: [
-        PanelRow(
-          title: strings.cardGroup,
-          trailing: Text(groupName ?? strings.cardGroupNone, style: valueStyle),
-          onTap: () async {
-            final choice = await showGroupPicker(
-              context,
-              groups: groups,
-              selectedGroupId: _groupId,
-            );
-            if (choice != null) {
-              setState(() => _groupId = choice.groupId);
-            }
-          },
+        GroupField(
+          groupId: _groupId,
+          onChanged: (groupId) => setState(() => _groupId = groupId),
         ),
         if (catalog != null)
           PanelRow(
             title: strings.cardPreset,
             subtitle: _presetLabel(strings, catalog),
-            trailing: Text(strings.commonChange, style: valueStyle),
+            trailing: Text(
+              strings.commonChange,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AlambicColors.of(context).accentText,
+              ),
+            ),
             onTap: () => _choosePreset(catalog),
           ),
       ],

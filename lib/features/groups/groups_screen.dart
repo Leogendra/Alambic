@@ -14,7 +14,7 @@ import '../cards/card_status_formatter_provider.dart';
 import 'group_detail_screen.dart';
 import 'group_summary_tile.dart';
 
-/// Groups tab: card search on top, "No group", then the groups.
+/// Groups tab: card search on top, then the groups.
 class GroupsScreen extends ConsumerStatefulWidget {
   const GroupsScreen({super.key});
 

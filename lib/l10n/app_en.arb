@@ -161,7 +161,6 @@
   "dueTomorrow": "tomorrow",
   "dueInDays": "in {days} d",
   "bulkTitle": "Bulk add",
-  "bulkInGroup": "in {name}",
   "bulkSeparator": "Separator",
   "bulkSeparatorHint": "Between front and back, on each line",
   "bulkTextHint": "One card per line:\nfront ; back",

@@ -41,7 +41,7 @@ class GroupDetailScreen extends ConsumerWidget {
             icon: const Icon(Icons.playlist_add),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (context) => BulkAddScreen(groupId: groupId),
+                builder: (context) => BulkAddScreen(initialGroupId: groupId),
               ),
             ),
           ),

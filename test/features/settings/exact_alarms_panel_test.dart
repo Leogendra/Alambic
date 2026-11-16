@@ -43,24 +43,29 @@ void main() {
     expect(alarms.permissionRequests, 1);
   });
 
-  testWidgets('settings in English, with the shipped preset translated', (
-    tester,
-  ) async {
-    await pumpGolden(
-      tester,
-      const Scaffold(body: SafeArea(child: SettingsScreen())),
-      locale: const Locale('en'),
-      overrides: [
-        ...screenOverrides(database, sampleNow),
-        alarmSchedulerProvider.overrideWithValue(alarms),
-      ],
-    );
-    expect(find.text('Standard'), findsOneWidget);
-    await expectLater(
-      find.byType(SettingsScreen),
-      matchesGoldenFile('goldens/settings_english.png'),
-    );
-  });
+  for (final (brightness, suffix) in [
+    (Brightness.light, ''),
+    (Brightness.dark, '_dark'),
+  ]) {
+    testWidgets('settings in English, with the shipped preset translated, '
+        '${brightness.name} theme', (tester) async {
+      await pumpGolden(
+        tester,
+        const Scaffold(body: SafeArea(child: SettingsScreen())),
+        locale: const Locale('en'),
+        brightness: brightness,
+        overrides: [
+          ...screenOverrides(database, sampleNow),
+          alarmSchedulerProvider.overrideWithValue(alarms),
+        ],
+      );
+      expect(find.text('Standard'), findsOneWidget);
+      await expectLater(
+        find.byType(SettingsScreen),
+        matchesGoldenFile('goldens/settings_english$suffix.png'),
+      );
+    });
+  }
 
   testWidgets('says reminders are on time when exact alarms are allowed', (
     tester,

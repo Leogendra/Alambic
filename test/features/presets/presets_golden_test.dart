@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/data_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
@@ -27,20 +28,29 @@ void main() {
     );
   });
 
-  testWidgets('preset editor on Standard', (tester) async {
-    final standard = await tester.runAsync(
-      () async => (await PresetRepository(database).loadCatalog()).globalPreset,
-    );
-    await pumpGolden(
+  for (final (brightness, suffix) in [
+    (Brightness.light, ''),
+    (Brightness.dark, '_dark'),
+  ]) {
+    testWidgets('preset editor on Standard, ${brightness.name} theme', (
       tester,
-      PresetEditorScreen(initialPreset: standard!),
-      overrides: [databaseProvider.overrideWithValue(database)],
-    );
-    await expectLater(
-      find.byType(PresetEditorScreen),
-      matchesGoldenFile('goldens/preset_editor.png'),
-    );
-  });
+    ) async {
+      final standard = await tester.runAsync(
+        () async =>
+            (await PresetRepository(database).loadCatalog()).globalPreset,
+      );
+      await pumpGolden(
+        tester,
+        PresetEditorScreen(initialPreset: standard!),
+        brightness: brightness,
+        overrides: [databaseProvider.overrideWithValue(database)],
+      );
+      await expectLater(
+        find.byType(PresetEditorScreen),
+        matchesGoldenFile('goldens/preset_editor$suffix.png'),
+      );
+    });
+  }
 
   testWidgets('preset editor on Adaptatif', (tester) async {
     final adaptive = await tester.runAsync(

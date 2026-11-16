@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/cards/card_draft.dart';
 import 'package:alambic/application/cards/draft_image.dart';
@@ -21,7 +22,10 @@ void main() {
   setUp(() => database = openTestDatabase());
   tearDown(() => database.close());
 
-  Future<void> pumpSession(WidgetTester tester) async {
+  Future<void> pumpSession(
+    WidgetTester tester, {
+    Brightness brightness = Brightness.light,
+  }) async {
     await tester.runAsync(() async {
       final capitals = await seedSampleData(
         SampleServices(database, FixedClock(sampleNow)),
@@ -37,6 +41,7 @@ void main() {
     await pumpGolden(
       tester,
       SessionScreen(items: items),
+      brightness: brightness,
       overrides: screenOverrides(database, sampleNow),
     );
   }
@@ -89,23 +94,27 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('shows the prompt, then the answer and the next intervals', (
-    tester,
-  ) async {
-    await pumpSession(tester);
-    await expectLater(
-      find.byType(SessionScreen),
-      matchesGoldenFile('goldens/session_front.png'),
-    );
-    await tester.tap(find.text('Afficher la réponse'));
-    await tester.pumpAndSettle();
-    expect(find.text('Oulan-Bator'), findsOneWidget);
-    expect(find.text('demain'), findsNWidgets(2));
-    await expectLater(
-      find.byType(SessionScreen),
-      matchesGoldenFile('goldens/session_back.png'),
-    );
-  });
+  for (final (brightness, suffix) in [
+    (Brightness.light, ''),
+    (Brightness.dark, '_dark'),
+  ]) {
+    testWidgets('shows the prompt, then the answer and the next intervals, '
+        '${brightness.name} theme', (tester) async {
+      await pumpSession(tester, brightness: brightness);
+      await expectLater(
+        find.byType(SessionScreen),
+        matchesGoldenFile('goldens/session_front$suffix.png'),
+      );
+      await tester.tap(find.text('Afficher la réponse'));
+      await tester.pumpAndSettle();
+      expect(find.text('Oulan-Bator'), findsOneWidget);
+      expect(find.text('demain'), findsNWidgets(2));
+      await expectLater(
+        find.byType(SessionScreen),
+        matchesGoldenFile('goldens/session_back$suffix.png'),
+      );
+    });
+  }
 
   testWidgets('ends on a summary and reviews the missed card as a bonus', (
     tester,

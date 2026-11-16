@@ -15,9 +15,9 @@ final reminderServiceProvider = Provider(
   ),
 );
 
-/// Reminders of a direction not shown yet, earliest first.
+/// Reminders of a card not shown yet, earliest first.
 final upcomingRemindersProvider =
     StreamProvider.family<List<ExtraReminder>, int>(
-      (ref, directionId) =>
-          ref.watch(reminderRepositoryProvider).watchUpcoming(directionId),
+      (ref, cardId) =>
+          ref.watch(reminderRepositoryProvider).watchUpcoming(cardId),
     );

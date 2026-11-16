@@ -21,11 +21,11 @@ import '../session/session_launcher.dart';
 import 'group_settings_screen.dart';
 import 'group_stat_tile.dart';
 
-/// A group page, or "No group" when [groupId] is `null`.
+/// A group page.
 class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({required this.groupId, super.key});
 
-  final int? groupId;
+  final int groupId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,7 +33,7 @@ class GroupDetailScreen extends ConsumerWidget {
     final summary = ref.watch(groupSummaryProvider(groupId));
     return Scaffold(
       appBar: AppBar(
-        title: Text(summary?.group?.name ?? strings.noGroup),
+        title: Text(summary?.group.name ?? ''),
         actions: [
           IconButton(
             tooltip: strings.bulkTooltip,
@@ -44,16 +44,15 @@ class GroupDetailScreen extends ConsumerWidget {
               ),
             ),
           ),
-          if (groupId != null)
-            IconButton(
-              tooltip: strings.groupSettingsTooltip,
-              icon: const Icon(Icons.tune),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (context) => GroupSettingsScreen(groupId: groupId!),
-                ),
+          IconButton(
+            tooltip: strings.groupSettingsTooltip,
+            icon: const Icon(Icons.tune),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => GroupSettingsScreen(groupId: groupId),
               ),
             ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -86,12 +85,12 @@ class _GroupBody extends ConsumerWidget {
           '${strings.presetScheduleLabel(summary.preset)}',
           style: TextStyle(fontSize: 14, color: colors.textSecondary),
         ),
-        if (summary.group?.pausedAt case final pausedAt?) ...[
+        if (summary.group.pausedAt case final pausedAt?) ...[
           const SizedBox(height: 16),
           PausedBanner(
             since: pausedAt,
             onResume: () =>
-                ref.read(pauseServiceProvider).resumeGroup(summary.groupId!),
+                ref.read(pauseServiceProvider).resumeGroup(summary.groupId),
           ),
         ],
         const SizedBox(height: 16),
@@ -100,16 +99,15 @@ class _GroupBody extends ConsumerWidget {
           children: [
             GroupStatTile(value: summary.dueCount, label: strings.groupStatDue),
             GroupStatTile(
-              value: summary.activeCount,
+              value: summary.introducedCount,
               label: strings.groupStatActive,
             ),
-            GroupStatTile(value: summary.newCount, label: strings.groupStatNew),
+            GroupStatTile(
+              value: summary.pendingCount,
+              label: strings.groupStatNew,
+            ),
           ],
         ),
-        if (summary.unstartedCount > 0) ...[
-          const SizedBox(height: 16),
-          _StartPanel(summary: summary),
-        ],
         if (summary.dueCount > 0) ...[
           const SizedBox(height: 16),
           FilledButton(
@@ -123,10 +121,8 @@ class _GroupBody extends ConsumerWidget {
             child: Text(strings.groupReviewDue(summary.dueCount)),
           ),
         ],
-        if (summary.groupId case final groupId?) ...[
-          const SizedBox(height: 24),
-          GroupDistillationsSection(groupId: groupId),
-        ],
+        const SizedBox(height: 24),
+        GroupDistillationsSection(groupId: summary.groupId),
         const SizedBox(height: 24),
         SectionLabel(strings.groupCardsSection),
         _CardList(groupId: summary.groupId),
@@ -135,57 +131,10 @@ class _GroupBody extends ConsumerWidget {
   }
 }
 
-/// Offers to start the new cards of the group, which are not scheduled yet.
-class _StartPanel extends ConsumerWidget {
-  const _StartPanel({required this.summary});
-
-  final GroupSummary summary;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final strings = AppLocalizations.of(context);
-    return SurfacePanel(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              strings.groupStartTitle(summary.unstartedCount),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              strings.groupStartHint,
-              style: TextStyle(
-                fontSize: 14,
-                color: AlambicColors.of(context).textSecondary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            FilledButton.tonal(
-              onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                final started = await ref
-                    .read(cardServiceProvider)
-                    .startGroup(summary.groupId);
-                messenger.showSnackBar(
-                  SnackBar(content: Text(strings.groupStarted(started))),
-                );
-              },
-              child: Text(strings.groupStartAll),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
 class _CardList extends ConsumerWidget {
   const _CardList({required this.groupId});
 
-  final int? groupId;
+  final int groupId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -206,7 +155,7 @@ class _CardList extends ConsumerWidget {
             CardListTile(
               card: card,
               formatter: formatter,
-              onTap: () => openCard(context, card.card.id),
+              onTap: () => openCard(context, card.id),
             ),
         ],
       );

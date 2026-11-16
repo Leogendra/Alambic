@@ -62,8 +62,8 @@ final todayOverviewProvider = Provider<TodayOverview?>((ref) {
       reminders: reminders,
       reviewsToday: reviews,
       catalog: catalog,
-      distillationIds: {
-        for (final distillation in distillations) distillation.id,
+      distillingGroupIds: {
+        for (final distillation in distillations) distillation.groupId,
       },
       dueCount: ref.watch(dueItemsProvider).length,
       now: now,

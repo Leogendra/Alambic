@@ -28,7 +28,7 @@ final reviewServiceProvider = Provider(
   ),
 );
 
-/// Every direction to review now, earliest due first; empty while loading.
+/// Every card to review now, earliest due first; empty while loading.
 final dueItemsProvider = Provider<List<DueItem>>((ref) {
   final cards = ref.watch(allCardsProvider).value;
   final now = ref.watch(currentMomentProvider).value;
@@ -39,16 +39,15 @@ final dueItemsProvider = Provider<List<DueItem>>((ref) {
   }
 });
 
-/// Effect of each answer on a direction, for the answer buttons.
+/// Effect of each answer on a card, for the answer buttons.
 final answerPreviewProvider = FutureProvider.autoDispose
-    .family<AnswerPreview, ({int directionId, bool asBonus})>(
+    .family<AnswerPreview, ({int cardId, bool asBonus})>(
       (ref, request) => ref
           .watch(reviewServiceProvider)
-          .preview(request.directionId, asBonus: request.asBonus),
+          .preview(request.cardId, asBonus: request.asBonus),
     );
 
-/// History of a direction, most recent first.
-final directionHistoryProvider = StreamProvider.family<List<ReviewRecord>, int>(
-  (ref, directionId) =>
-      ref.watch(reviewRepositoryProvider).watchHistory(directionId),
+/// History of a card, most recent first.
+final cardHistoryProvider = StreamProvider.family<List<ReviewRecord>, int>(
+  (ref, cardId) => ref.watch(reviewRepositoryProvider).watchHistory(cardId),
 );

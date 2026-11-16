@@ -10,25 +10,21 @@ import '../../application/groups/group_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../application/reminders/reminder_providers.dart';
 import '../../application/reviews/session_item.dart';
-import '../../data/repositories/card_with_directions.dart';
-import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/card_face.dart';
-import '../../domain/cards/direction_sense.dart';
-import '../../domain/cards/direction_state.dart';
+import '../../domain/cards/card_side.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../domain/presets/preset.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../session/session_launcher.dart';
 import 'card_editor_screen.dart';
 import 'card_image.dart';
-import 'card_status_formatter.dart';
+import 'card_progress_panel.dart';
 import 'card_status_formatter_provider.dart';
-import 'direction_progress_panel.dart';
-import 'direction_selector.dart';
 import 'review_history_list.dart';
 import 'review_soon_sheet.dart';
 
-/// Card sheet: both faces, then for each direction its step, next review,
-/// reminders and history, with the actions on the card.
+/// Card sheet: both faces, then its step, next review, reminders and
+/// history, with the actions on the card.
 class CardSheetScreen extends ConsumerStatefulWidget {
   const CardSheetScreen({required this.cardId, super.key});
 
@@ -39,8 +35,6 @@ class CardSheetScreen extends ConsumerStatefulWidget {
 }
 
 class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
-  DirectionSense _sense = DirectionSense.frontToBack;
-
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
@@ -50,12 +44,8 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
     if (card == null || catalog == null || formatter == null) {
       return Scaffold(appBar: AppBar());
     }
-    final groupId = card.card.groupId;
-    final groupName = groupId == null
-        ? strings.noGroup
-        : ref.watch(groupProvider(groupId)).value?.name ?? '';
-    final preset = catalog.presetForCard(card.card);
-    final direction = card.direction(_sense);
+    final groupName = ref.watch(groupProvider(card.groupId)).value?.name ?? '';
+    final preset = catalog.presetForCard(card);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -89,50 +79,32 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
         children: [
-          _FacesPanel(card: card, onTap: () => _review(direction)),
+          _FacesPanel(card: card, onTap: () => _review(card)),
           _hint(strings.cardSheetTapToReview),
-          if (card.card.suspended) ...[
+          if (card.suspended) ...[
             const SizedBox(height: 8),
             _hint(strings.cardSheetSuspended),
           ],
           const SizedBox(height: 14),
-          DirectionSelector(
+          CardProgressPanel(
             card: card,
-            formatter: formatter,
-            selected: _sense,
-            onSelected: (sense) => setState(() => _sense = sense),
-          ),
-          const SizedBox(height: 14),
-          DirectionProgressPanel(
-            direction: direction,
             preset: preset,
-            isDue: _isDue(card, direction, formatter),
-            onStart: () =>
-                ref.read(cardServiceProvider).startDirection(direction!.id),
+            isDue: formatter.duePolicy.isDueToday(card, now: formatter.now),
           ),
           const SizedBox(height: 14),
-          _actions(card, direction, preset),
-          if (direction != null) _Reminders(directionId: direction.id),
+          _actions(card, preset),
+          _Reminders(cardId: card.id),
           const SizedBox(height: 24),
-          SectionLabel(strings.cardSheetHistory(_directionName(strings))),
-          if (direction != null)
-            ReviewHistoryList(directionId: direction.id, preset: preset),
+          SectionLabel(strings.cardSheetHistory),
+          ReviewHistoryList(cardId: card.id, preset: preset),
         ],
       ),
     );
   }
 
-  Widget _actions(
-    CardWithDirections card,
-    CardDirection? direction,
-    Preset preset,
-  ) {
+  Widget _actions(Flashcard card, Preset preset) {
     final strings = AppLocalizations.of(context);
-    final isStarted =
-        direction != null &&
-        (direction.state == DirectionState.active ||
-            direction.state == DirectionState.acquired);
-    final suspended = card.card.suspended;
+    final suspended = card.suspended;
     return Row(
       spacing: 8,
       children: [
@@ -140,16 +112,14 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
           icon: Icons.schedule,
           label: strings.cardSheetReviewSoon,
           isAccent: true,
-          onPressed: isStarted
-              ? () => _reviewSoon(card, direction, preset)
-              : null,
+          onPressed: card.isPending ? null : () => _reviewSoon(card, preset),
         ),
         _ActionButton(
           icon: suspended ? Icons.play_arrow : Icons.pause,
           label: suspended ? strings.cardSheetResume : strings.cardSheetSuspend,
           onPressed: () => ref
               .read(cardServiceProvider)
-              .setSuspended(card.card.id, suspended: !suspended),
+              .setSuspended(card.id, suspended: !suspended),
         ),
         _ActionButton(
           icon: Icons.restart_alt,
@@ -160,48 +130,24 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
     );
   }
 
-  bool _isDue(
-    CardWithDirections card,
-    CardDirection? direction,
-    CardStatusFormatter formatter,
-  ) =>
-      direction != null &&
-      formatter.duePolicy.isDueToday(
-        direction,
-        cardSuspended: card.card.suspended,
-        now: formatter.now,
-      );
-
-  String _directionName(AppLocalizations strings) => switch (_sense) {
-    DirectionSense.frontToBack => strings.directionFrontToBack,
-    DirectionSense.backToFront => strings.directionBackToFront,
-  }.toLowerCase();
-
-  /// Reviews the shown direction now; the answer is a bonus review unless the
-  /// direction is due.
-  Future<void> _review(CardDirection? direction) async {
-    if (direction == null ||
-        direction.state == DirectionState.inactive ||
-        direction.state == DirectionState.unstarted ||
-        direction.state == DirectionState.pending) {
+  /// Reviews the card now; the answer is a bonus review unless the card is
+  /// due. A pending card waits for its distillation.
+  Future<void> _review(Flashcard card) async {
+    if (card.isPending) {
       return;
     }
     await openSession(context, [
-      SessionItem(cardId: widget.cardId, directionId: direction.id),
+      SessionItem(cardId: card.id, askedSide: CardSide.front),
     ]);
   }
 
-  Future<void> _reviewSoon(
-    CardWithDirections card,
-    CardDirection direction,
-    Preset preset,
-  ) async {
+  Future<void> _reviewSoon(Flashcard card, Preset preset) async {
     final strings = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final remindAt = await showReviewSoonSheet(
       context,
-      directionId: direction.id,
-      front: card.card.promptFor(direction.sense).text ?? strings.cardImageOnly,
+      cardId: card.id,
+      front: card.frontText ?? strings.cardImageOnly,
       defaultTime: preset.dailySlot,
     );
     if (remindAt != null) {
@@ -275,7 +221,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
 class _FacesPanel extends StatelessWidget {
   const _FacesPanel({required this.card, required this.onTap});
 
-  final CardWithDirections card;
+  final Flashcard card;
   final VoidCallback onTap;
 
   @override
@@ -294,9 +240,9 @@ class _FacesPanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _face(strings.cardFront, card.card.front, colors),
+            _face(strings.cardFront, card.front, colors),
             Divider(height: 1, color: colors.divider),
-            _face(strings.cardBack, card.card.back, colors),
+            _face(strings.cardBack, card.back, colors),
           ],
         ),
       ),
@@ -389,17 +335,17 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-/// Upcoming "Review soon" reminders of a direction, each removable.
+/// Upcoming "Review soon" reminders of a card, each removable.
 class _Reminders extends ConsumerWidget {
-  const _Reminders({required this.directionId});
+  const _Reminders({required this.cardId});
 
-  final int directionId;
+  final int cardId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final reminders =
-        ref.watch(upcomingRemindersProvider(directionId)).value ?? const [];
+        ref.watch(upcomingRemindersProvider(cardId)).value ?? const [];
     if (reminders.isEmpty) {
       return const SizedBox.shrink();
     }

@@ -3,11 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/cards/card_draft.dart';
 import '../../application/cards/card_providers.dart';
+import '../../application/groups/group_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'onboarding_page.dart';
 
-/// Third screen: a first card, outside any group, started at once so that
-/// the first notification comes today. It can be skipped.
+/// Third screen: a first group and its first card, which waits in the queue
+/// of the group. It can be skipped.
 class FirstCardPage extends ConsumerStatefulWidget {
   const FirstCardPage({required this.onDone, super.key});
 
@@ -18,32 +19,37 @@ class FirstCardPage extends ConsumerStatefulWidget {
 }
 
 class _FirstCardPageState extends ConsumerState<FirstCardPage> {
+  final TextEditingController _groupController = TextEditingController();
   final TextEditingController _frontController = TextEditingController();
   final TextEditingController _backController = TextEditingController();
 
   bool get _canCreate =>
+      _groupController.text.trim().isNotEmpty &&
       _frontController.text.trim().isNotEmpty &&
       _backController.text.trim().isNotEmpty;
 
   @override
   void dispose() {
+    _groupController.dispose();
     _frontController.dispose();
     _backController.dispose();
     super.dispose();
   }
 
   Future<void> _create() async {
-    final service = ref.read(cardServiceProvider);
-    final cardId = await service.create(
-      CardDraft(
-        frontText: _frontController.text,
-        backText: _backController.text,
-        groupId: null,
-        presetId: null,
-        alsoReverse: false,
-      ),
-    );
-    await service.startCard(cardId);
+    final groupId = await ref
+        .read(groupServiceProvider)
+        .create(_groupController.text);
+    await ref
+        .read(cardServiceProvider)
+        .create(
+          CardDraft(
+            frontText: _frontController.text,
+            backText: _backController.text,
+            groupId: groupId,
+            presetId: null,
+          ),
+        );
     await widget.onDone();
   }
 
@@ -67,6 +73,12 @@ class _FirstCardPageState extends ConsumerState<FirstCardPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 12,
         children: [
+          _FaceField(
+            controller: _groupController,
+            label: strings.cardGroup,
+            hint: strings.onboardingGroupHint,
+            onChanged: () => setState(() {}),
+          ),
           _FaceField(
             controller: _frontController,
             label: strings.cardFront,

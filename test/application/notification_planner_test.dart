@@ -7,8 +7,7 @@ import 'package:alambic/application/notifications/review_notification_key.dart';
 import 'package:alambic/application/reviews/review_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
@@ -32,39 +31,27 @@ void main() {
     await database.close();
   });
 
-  /// A started card, due today at 12:00 (and its reverse tomorrow).
-  Future<int> startedCard({bool alsoReverse = false}) async {
-    final cards = harness.read(cardServiceProvider);
-    final cardId = await cards.create(
-      CardDraft(
-        frontText: 'Mongolie',
-        backText: 'Oulan-Bator',
-        groupId: null,
-        presetId: null,
-        alsoReverse: alsoReverse,
-      ),
+  /// An introduced card, due today at 12:00.
+  Future<int> startedCard() async {
+    final services = SampleServices(database, harness.clock);
+    final groupId = await services.groups.create('Capitales');
+    final cardId = await services.card(
+      'Mongolie',
+      'Oulan-Bator',
+      groupId: groupId,
     );
-    await cards.startGroup(null);
+    await services.introduceAll(groupId);
+    await harness.read(notificationPlannerProvider).replan();
     return cardId;
   }
-
-  Future<int> frontOf(int cardId) async =>
-      (await CardRepository(database).getDirections(cardId))
-          .firstWhere(
-            (direction) => direction.sense == DirectionSense.frontToBack,
-          )
-          .id;
 
   List<DateTime> scheduledMoments() =>
       harness.alarms.scheduled.values.toList()..sort();
 
   test('wakes the app up once per due moment', () async {
-    await startedCard(alsoReverse: true);
     await startedCard();
-    expect(scheduledMoments(), [
-      DateTime(2026, 11, 10, 12),
-      DateTime(2026, 11, 11, 12),
-    ]);
+    await startedCard();
+    expect(scheduledMoments(), [DateTime(2026, 11, 10, 12)]);
     expect(harness.alarms.exactById.values, everyElement(isTrue));
   });
 
@@ -75,25 +62,21 @@ void main() {
       harness.clock.now = DateTime(2026, 11, 10, 9, 30);
       await harness
           .read(reviewServiceProvider)
-          .answer(
-            await frontOf(cardId),
-            ReviewOutcome.correct,
-            source: ReviewSource.session,
-          );
+          .answer(cardId, ReviewOutcome.correct, source: ReviewSource.session);
       expect(scheduledMoments(), [DateTime(2026, 11, 11, 12)]);
     },
   );
 
   test('withdraws the notification of a card reviewed in the app', () async {
     final cardId = await startedCard();
-    final key = ReviewNotificationKey(directionId: await frontOf(cardId));
+    final key = ReviewNotificationKey(cardId: cardId);
     harness.clock.now = DateTime(2026, 11, 10, 12);
     await harness.read(notificationDispatcherProvider).dispatchDue();
     expect(harness.presenter.prompts.keys, [key]);
     await harness
         .read(reviewServiceProvider)
         .answer(
-          key.directionId,
+          key.cardId,
           ReviewOutcome.correct,
           source: ReviewSource.session,
         );
@@ -140,17 +123,12 @@ void main() {
             backText: 'capitale',
             groupId: groupId,
             presetId: null,
-            alsoReverse: false,
           ),
         ),
     ];
     await harness
         .read(distillationServiceProvider)
-        .launchForGroup(
-          groupId,
-          DirectionSense.frontToBack,
-          const DistillationSettings(avoidCollisions: false),
-        );
+        .activate(groupId, const DistillationSettings(avoidCollisions: false));
     expect(scheduledMoments(), [
       DateTime(2026, 11, 10, 12),
       DateTime(2026, 11, 11, 4),
@@ -158,10 +136,8 @@ void main() {
 
     harness.clock.now = DateTime(2026, 11, 11, 4);
     await harness.read(notificationDispatcherProvider).dispatchDue();
-    final second = (await CardRepository(database).getDirections(
-      cardIds[1],
-    )).firstWhere((direction) => direction.sense == DirectionSense.frontToBack);
-    expect(second.state, DirectionState.active);
+    final second = await CardRepository(database).getCard(cardIds[1]);
+    expect(second.state, CardState.active);
     expect(second.dueAt, DateTime(2026, 11, 11, 12));
     expect(harness.presenter.prompts, isEmpty);
     expect(scheduledMoments(), contains(DateTime(2026, 11, 11, 12)));

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
 import 'package:alambic/features/cards/bulk_add_screen.dart';
 
 import '../../support/fixed_clock.dart';
@@ -57,24 +55,19 @@ void main() {
     expect(find.text('Aucune carte prête'.toUpperCase()), findsOneWidget);
   });
 
-  testWidgets('adds the valid lines to the group, both ways', (tester) async {
+  testWidgets('adds the valid lines to the queue of the group', (tester) async {
     await pumpBulkAdd(tester);
-    await tester.tap(find.byType(Switch));
-    await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Ajouter 3 cartes'));
     await tester.tap(find.text('Ajouter 3 cartes'));
     await tester.pumpAndSettle();
     final cards = await tester.runAsync(
       () => CardRepository(database).watchCardsOfGroup(groupId).first,
     );
-    expect(cards!.map((card) => card.card.backText), [
+    expect(cards!.map((card) => card.backText), [
       'Santiago',
       'Nairobi',
       'Hanoï',
     ]);
-    expect(
-      cards.first.direction(DirectionSense.backToFront)!.state,
-      DirectionState.unstarted,
-    );
+    expect(cards.map((card) => card.isPending), everyElement(isTrue));
   });
 }

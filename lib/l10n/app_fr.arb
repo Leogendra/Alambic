@@ -244,18 +244,8 @@
   "cardBack": "Verso",
   "cardFrontHint": "Question, mot, expression…",
   "cardBackHint": "Réponse",
-  "cardAlsoReverse": "Aussi dans l'autre sens",
-  "cardAlsoReverseHint": "Active aussi « {back} » → recto, suivi à part",
-  "@cardAlsoReverseHint": {
-    "placeholders": {
-      "back": {
-        "type": "String"
-      }
-    }
-  },
-  "cardAlsoReverseHintEmpty": "Active aussi verso → recto, suivi à part",
   "cardGroup": "Groupe",
-  "noGroup": "Sans groupe",
+  "cardGroupNone": "Choisir",
   "cardPreset": "Preset",
   "cardPresetInheritedFromGroup": "Hérité du groupe : {name}",
   "@cardPresetInheritedFromGroup": {
@@ -275,6 +265,7 @@
   },
   "commonChange": "Changer",
   "cardIncomplete": "Le recto et le verso ont chacun besoin d'un texte ou d'une image.",
+  "cardGroupMissing": "Choisis un groupe pour cette carte.",
   "groupPickerTitle": "Ranger dans un groupe",
   "groupsTitle": "Groupes",
   "groupsSearchHint": "Rechercher dans les cartes",
@@ -298,37 +289,11 @@
       }
     }
   },
-  "noGroupLine": "{cards} · preset global",
-  "@noGroupLine": {
-    "placeholders": {
-      "cards": {
-        "type": "String"
-      }
-    }
-  },
   "newGroupTitle": "Nouveau groupe",
   "groupNameLabel": "Nom",
   "groupStatDue": "Dues",
   "groupStatActive": "Actives",
   "groupStatNew": "Nouvelles",
-  "groupStartTitle": "{count, plural, =1{1 nouvelle carte} other{{count} nouvelles cartes}}",
-  "@groupStartTitle": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "groupStartHint": "Une nouvelle carte n'est pas planifiée tant qu'elle n'est pas commencée. Tout commencer les rend toutes à réviser dès aujourd'hui.",
-  "groupStartAll": "Tout commencer",
-  "groupStarted": "{count, plural, =1{1 carte à réviser dès maintenant} other{{count} cartes à réviser dès maintenant}}",
-  "@groupStarted": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "groupCardsSection": "Cartes",
   "groupEmpty": "Aucune carte. Ajoute-en avec le bouton + ou l'ajout en masse.",
   "groupSettingsTitle": "Réglages du groupe",
@@ -375,12 +340,9 @@
   "cardImageOnly": "Image",
   "cardAddImage": "Image",
   "cardRemoveImage": "Retirer l'image",
-  "cardStatusUnstarted": "pas commencée",
   "cardStatusPending": "en attente de distillation",
-  "cardStatusPendingStopped": "en attente",
   "cardStatusSuspended": "suspendue",
   "cardStatusAcquired": "acquise",
-  "cardStatusInactive": "non révisée",
   "dueNow": "Due",
   "dueAtTime": "à {time}",
   "@dueAtTime": {
@@ -527,9 +489,6 @@
       }
     }
   },
-  "directionFrontToBack": "Recto → verso",
-  "directionBackToFront": "Verso → recto",
-  "cardSheetShownDirection": "Sens affiché",
   "cardSheetTapToReview": "Touche la carte pour la réviser maintenant.",
   "cardSheetStepOf": "Cran {step} sur {count}",
   "@cardSheetStepOf": {
@@ -564,26 +523,15 @@
   "cardSheetNextReview": "Prochaine révision",
   "cardSheetDueNow": "À réviser maintenant",
   "cardSheetAcquired": "Acquis : ce sens ne revient plus.",
-  "cardSheetUnstarted": "Pas encore commencé : ce sens n'est pas planifié.",
-  "cardSheetStart": "Commencer ce sens",
-  "cardSheetInactive": "Ce sens n'est pas révisé. Coche « Aussi dans l'autre sens » en modifiant la carte.",
   "cardSheetPending": "En attente de distillation.",
-  "cardSheetPendingStopped": "En attente : sa distillation a été arrêtée. Relance une distillation ou commence-le ici.",
   "cardSheetSuspended": "Carte suspendue : elle ne revient plus tant qu'elle n'est pas réactivée.",
   "cardSheetReviewSoon": "Réviser bientôt",
   "cardSheetSuspend": "Suspendre",
   "cardSheetResume": "Réactiver",
   "cardSheetReset": "Réinitialiser",
   "cardSheetResetConfirmTitle": "Réinitialiser la progression ?",
-  "cardSheetResetConfirmBody": "Les sens commencés repartent du début et sont à réviser aujourd'hui. L'historique est conservé.",
-  "cardSheetHistory": "Historique {direction}",
-  "@cardSheetHistory": {
-    "placeholders": {
-      "direction": {
-        "type": "String"
-      }
-    }
-  },
+  "cardSheetResetConfirmBody": "La carte retourne en attente dans la file de son groupe, jusqu'à ce que la distillation la sorte. L'historique est conservé.",
+  "cardSheetHistory": "Historique",
   "cardSheetHistoryEmpty": "Aucune révision pour l'instant.",
   "cardSheetEdit": "Modifier",
   "cardSheetDelete": "Supprimer la carte",
@@ -731,7 +679,6 @@
   },
   "homeTimelineNext": "Prochain",
   "homeDueGroups": "Groupes à réviser",
-  "homeNewCards": "Cartes à commencer",
   "notificationChannelName": "Révisions",
   "notificationChannelDescription": "Les cartes à réviser, avec leurs boutons de réponse.",
   "notificationNewCard": "Nouvelle carte",
@@ -851,16 +798,6 @@
       }
     }
   },
-  "distillSense": "Sens",
-  "distillSenseCount": "{count, plural, =0{rien à introduire} =1{1 carte à introduire} other{{count} cartes à introduire}}",
-  "@distillSenseCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "distillSenseTaken": "déjà en cours",
   "distillRhythm": "Rythme",
   "distillCards": "Cartes",
   "distillEvery": "Tous les",
@@ -901,16 +838,12 @@
   },
   "distillNothing": "Aucune carte à introduire dans ce sens.",
   "distillLaunch": "Lancer la distillation",
-  "distillRefusedGlobal": "La distillation globale est en cours : arrête-la pour distiller un groupe.",
-  "distillRefusedTaken": "Ce sens est déjà distillé.",
-  "distillRefusedNothing": "Aucune carte à introduire.",
   "groupDistillationSection": "Distillation",
   "groupDistillationNone": "Aucune distillation. Distiller fait arriver les nouvelles cartes au compte-gouttes.",
   "distillationRunning": "En cours",
   "distillationPaused": "En pause",
   "distillationPause": "Mettre la distillation en pause",
   "distillationResume": "Reprendre la distillation",
-  "distillationStop": "Arrêter la distillation",
   "distillationCardsPer": "{count, plural, =1{1 carte} other{{count} cartes}}",
   "@distillationCardsPer": {
     "placeholders": {
@@ -948,16 +881,6 @@
       }
     }
   },
-  "distillationStopTitle": "Arrêter la distillation ?",
-  "distillationStopBody": "{count, plural, =0{Toutes ses cartes sont déjà introduites.} =1{La carte restante reste en attente : relance une distillation ou commence-la à la main.} other{Les {count} cartes restantes restent en attente : relance une distillation ou commence-les à la main.}}",
-  "@distillationStopBody": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "distillationStopConfirm": "Arrêter",
   "homeTimelineNewKnowledge": "{count, plural, =1{Nouvelle connaissance} other{Nouvelles connaissances}}",
   "@homeTimelineNewKnowledge": {
     "placeholders": {
@@ -991,83 +914,6 @@
       }
     }
   },
-  "distillationGlobalScope": "Globale",
-  "settingsGlobalDistillation": "Distillation globale",
-  "settingsGlobalDistillationIdle": "Toutes les nouvelles cartes, au compte-gouttes",
-  "settingsGlobalDistillationRunning": "En cours · {introduced} sur {total} introduites",
-  "@settingsGlobalDistillationRunning": {
-    "placeholders": {
-      "introduced": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsGlobalDistillationPaused": "En pause · {introduced} sur {total} introduites",
-  "@settingsGlobalDistillationPaused": {
-    "placeholders": {
-      "introduced": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "globalDistillationIntro": "Toutes les cartes jamais révisées, de tous les groupes et sans groupe, dans les deux sens, en ordre aléatoire. Le verso d'une carte arrive toujours après son recto, jamais le même jour.",
-  "globalDistillationStops": "{count, plural, =1{Lancer arrête la distillation en cours ({names}). Ses cartes restantes rejoignent cette file.} other{Lancer arrête les {count} distillations en cours ({names}). Leurs cartes restantes rejoignent cette file.}}",
-  "@globalDistillationStops": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "names": {
-        "type": "String"
-      }
-    }
-  },
-  "globalDistillationBlocksGroups": "Aucune distillation de groupe ne pourra démarrer tant que celle-ci tourne.",
-  "globalDistillationEstimate": "{count} à introduire · environ {span} à ce rythme",
-  "@globalDistillationEstimate": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "span": {
-        "type": "String"
-      }
-    }
-  },
-  "spanDays": "{count, plural, =1{1 jour} other{{count} jours}}",
-  "@spanDays": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "spanWeeks": "{count, plural, =1{1 semaine} other{{count} semaines}}",
-  "@spanWeeks": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "spanMonths": "{count} mois",
-  "@spanMonths": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "globalDistillationLaunch": "Lancer la distillation globale",
-  "globalDistillationInProgress": "La distillation globale introduit les nouvelles cartes de tous les groupes. Arrête-la pour en lancer une autre.",
-  "distillBlockedByGlobal": "La distillation globale est en cours : elle introduit déjà les nouvelles cartes de tous les groupes. Arrête-la pour distiller ce groupe.",
-  "groupDistillationGlobal": "La distillation globale en cours introduit aussi les nouvelles cartes de ce groupe.",
   "settingsDataSection": "Données",
   "backupExport": "Exporter les données",
   "backupExportHint": "Un fichier .zip avec les cartes, l'historique, les réglages et les images",
@@ -1108,6 +954,7 @@
   "onboardingNext": "Continuer",
   "onboardingFirstCardTitle": "Ta première carte",
   "onboardingFirstCardBody": "Une question au recto, sa réponse au verso. Elle arrive en notification dès aujourd'hui.",
+  "onboardingGroupHint": "Capitales",
   "onboardingFrontHint": "Capitale du Pérou",
   "onboardingBackHint": "Lima",
   "onboardingCreateCard": "Créer et commencer",

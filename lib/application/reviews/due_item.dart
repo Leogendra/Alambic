@@ -1,12 +1,10 @@
-import '../../data/repositories/card_with_directions.dart';
-import '../../domain/cards/card_direction.dart';
+import '../../domain/cards/flashcard.dart';
 
-/// A direction to review, with its card.
+/// A card to review now.
 class DueItem {
-  const DueItem({required this.card, required this.direction});
+  const DueItem(this.card);
 
-  final CardWithDirections card;
-  final CardDirection direction;
+  final Flashcard card;
 
-  int? get groupId => card.card.groupId;
+  int get groupId => card.groupId;
 }

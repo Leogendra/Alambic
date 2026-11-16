@@ -1,4 +1,4 @@
-import '../../data/repositories/card_with_directions.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/notification_guards.dart';
 import '../../domain/pauses/pauses.dart';
@@ -18,11 +18,11 @@ class TodayPlanner {
   final SchedulingCalendar _calendar;
 
   TodayOverview build({
-    required List<CardWithDirections> cards,
+    required List<Flashcard> cards,
     required List<ExtraReminder> reminders,
     required List<ReviewRecord> reviewsToday,
     required PresetCatalog catalog,
-    required Set<int> distillationIds,
+    required Set<int> distillingGroupIds,
     required int dueCount,
     required DateTime now,
     NotificationGuards? guards,
@@ -32,13 +32,13 @@ class TodayPlanner {
     dueCount: dueCount,
     doneCount: {
       for (final review in reviewsToday)
-        if (!review.isBonus) review.directionId,
+        if (!review.isBonus) review.cardId,
     }.length,
     timeline: [
       ..._groupEntries(
         cards,
         catalog,
-        distillationIds,
+        distillingGroupIds,
         now,
         guards,
         notifiedToday,
@@ -48,13 +48,13 @@ class TodayPlanner {
     ]..sort((first, second) => first.at.compareTo(second.at)),
   );
 
-  /// Directions of active cards notified today, grouped by group and moment
-  /// of notification. The new cards of a distillation in progress get lines
+  /// Active cards notified today, grouped by group and moment of
+  /// notification. The new cards of a distillation in progress get lines
   /// of their own.
   Iterable<TimelineEntry> _groupEntries(
-    List<CardWithDirections> cards,
+    List<Flashcard> cards,
     PresetCatalog catalog,
-    Set<int> distillationIds,
+    Set<int> distillingGroupIds,
     DateTime now,
     NotificationGuards? guards,
     int notifiedToday,
@@ -66,22 +66,15 @@ class TodayPlanner {
       guards: guards,
       notifiedToday: notifiedToday,
     );
-    final counts = <(int?, DateTime, int?), int>{};
+    final counts = <(int, DateTime, bool), int>{};
     for (final card in cards) {
-      for (final direction in card.directions) {
-        final deliverAt = deliveries[direction.id];
-        if (deliverAt != null && _isToday(deliverAt, now)) {
-          final distillationId = direction.distillationId;
-          final isNewKnowledge =
-              direction.lastReviewedAt == null &&
-              distillationIds.contains(distillationId);
-          final key = (
-            card.card.groupId,
-            deliverAt,
-            isNewKnowledge ? distillationId : null,
-          );
-          counts[key] = (counts[key] ?? 0) + 1;
-        }
+      final deliverAt = deliveries[card.id];
+      if (deliverAt != null && _isToday(deliverAt, now)) {
+        final isNewKnowledge =
+            card.lastReviewedAt == null &&
+            distillingGroupIds.contains(card.groupId);
+        final key = (card.groupId, deliverAt, isNewKnowledge);
+        counts[key] = (counts[key] ?? 0) + 1;
       }
     }
     return counts.entries.map(
@@ -91,7 +84,7 @@ class TodayPlanner {
         preset: catalog.presetForGroup(count.key.$1),
         count: count.value,
         isExtraReminder: false,
-        distillationId: count.key.$3,
+        distillingGroupId: count.key.$3 ? count.key.$1 : null,
       ),
     );
   }
@@ -100,19 +93,17 @@ class TodayPlanner {
   /// are not notified.
   Iterable<TimelineEntry> _reminderEntries(
     List<ExtraReminder> reminders,
-    List<CardWithDirections> cards,
+    List<Flashcard> cards,
     Pauses pauses,
     DateTime now,
   ) {
-    final groupOfDirection = {
-      for (final card in cards)
-        for (final direction in card.directions)
-          direction.id: card.card.groupId,
-    };
+    final groupOfCard = {for (final card in cards) card.id: card.groupId};
     final counts = <DateTime, int>{};
     for (final reminder in reminders) {
+      final groupId = groupOfCard[reminder.cardId];
       if (_isToday(reminder.remindAt, now) &&
-          !pauses.covers(groupOfDirection[reminder.directionId])) {
+          groupId != null &&
+          !pauses.covers(groupId)) {
         counts[reminder.remindAt] = (counts[reminder.remindAt] ?? 0) + 1;
       }
     }

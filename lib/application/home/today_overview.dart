@@ -8,10 +8,10 @@ class TodayOverview {
     required this.timeline,
   });
 
-  /// Directions to review now.
+  /// Cards to review now.
   final int dueCount;
 
-  /// Directions answered today, bonus reviews excluded.
+  /// Cards answered today, bonus reviews excluded.
   final int doneCount;
 
   /// Today's reminders, in time order, past ones included.

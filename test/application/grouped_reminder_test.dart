@@ -49,7 +49,7 @@ void main() {
         groupedAction: action,
       ),
     );
-    await GroupRepository(database).setPreset(capitals.groupId!, presetId);
+    await GroupRepository(database).setPreset(capitals.groupId, presetId);
   }
 
   Future<void> dispatchAt(DateTime now) async {
@@ -68,7 +68,7 @@ void main() {
     expect(reminder.count, 4);
     expect(reminder.chain, isFalse);
     expect(reminder.alert, isTrue);
-    // The two Spanish cards and the card outside any group stay per card.
+    // The two Spanish cards and the biology card stay per card.
     expect(harness.presenter.prompts, hasLength(3));
   });
 
@@ -79,8 +79,7 @@ void main() {
       for (final card in await CardRepository(
         database,
       ).getCardsOfGroup(capitals.groupId))
-        for (final direction in card.directions)
-          if (direction.dueAt == DateTime(2026, 11, 10, 12)) direction,
+        if (card.dueAt == DateTime(2026, 11, 10, 12)) card,
     ];
     expect(due, hasLength(4));
     for (final (index, item) in due.indexed) {
@@ -137,7 +136,7 @@ void main() {
       await harness
           .read(reviewServiceProvider)
           .answer(
-            first.key.directionId,
+            first.key.cardId,
             ReviewOutcome.correct,
             source: ReviewSource.session,
           );

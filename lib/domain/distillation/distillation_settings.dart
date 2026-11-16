@@ -1,6 +1,6 @@
 import 'distillation_order.dart';
 
-/// What the user picks when launching a distillation.
+/// What the user picks when activating or adjusting a distillation.
 class DistillationSettings {
   const DistillationSettings({
     this.cardsPerBatch = 1,

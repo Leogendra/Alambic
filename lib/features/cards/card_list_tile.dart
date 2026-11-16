@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/alambic_colors.dart';
-import '../../data/repositories/card_with_directions.dart';
+import '../../domain/cards/flashcard.dart';
 import 'card_image.dart';
 import 'card_status_formatter.dart';
 
@@ -15,7 +15,7 @@ class CardListTile extends StatelessWidget {
     super.key,
   });
 
-  final CardWithDirections card;
+  final Flashcard card;
   final CardStatusFormatter formatter;
   final VoidCallback onTap;
 
@@ -25,8 +25,8 @@ class CardListTile extends StatelessWidget {
     final dueLabel = formatter.dueLabel(card);
     final isDue = dueLabel == formatter.strings.dueNow;
     final imageOnly = formatter.strings.cardImageOnly;
-    final back = card.card.backText ?? imageOnly;
-    final frontImage = card.card.frontImagePath;
+    final back = card.backText ?? imageOnly;
+    final frontImage = card.frontImagePath;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -49,7 +49,7 @@ class CardListTile extends StatelessWidget {
                 spacing: 2,
                 children: [
                   Text(
-                    card.card.frontText ?? imageOnly,
+                    card.frontText ?? imageOnly,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

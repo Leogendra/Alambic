@@ -1,30 +1,30 @@
 import '../presets/notification_mode.dart';
 import '../presets/schedule_kind.dart';
 import '../scheduling/clock_time.dart';
-import '../scheduling/direction_progress.dart';
+import '../scheduling/card_progress.dart';
 import '../scheduling/scheduling_calendar.dart';
 import 'delivery_candidate.dart';
 import 'notification_guards.dart';
 import 'notification_timing.dart';
 
-/// Decides when each due direction is notified, which is not always its due
+/// Decides when each due card is notified, which is not always its due
 /// date.
 ///
 /// Rules owned here:
-/// - a direction still due from an earlier day (its notification was ignored,
+/// - a card still due from an earlier day (its notification was ignored,
 ///   swiped or not shown) is notified again today, at the slot of its preset;
-/// - with a time range and one notification per card, the directions due at
+/// - with a time range and one notification per card, the cards due at
 ///   the start of the range on a day are spread evenly over the range, in
 ///   the order of their ids; a grouped reminder stays at the start;
 /// - a notification falling in the quiet hours is moved to their end;
-/// - beyond the daily cap, the directions waiting the longest intervals are
+/// - beyond the daily cap, the cards waiting the longest intervals are
 ///   not notified that day: they are moved to the slot of the next day.
 class DeliveryPlanner {
   const DeliveryPlanner(this.calendar);
 
   final SchedulingCalendar calendar;
 
-  /// Moment at which each candidate is notified, by direction id.
+  /// Moment at which each candidate is notified, by card id.
   /// [notifiedToday] counts the cards already notified today, which take
   /// their share of the daily cap.
   Map<int, DateTime> plan(
@@ -41,6 +41,21 @@ class DeliveryPlanner {
     return moments;
   }
 
+  /// When a card whose notification moment has passed, still due, is notified
+  /// again: at the slot of its preset the next day. Nothing else may wake the
+  /// app up by then, so this moment is planned too.
+  DateTime nextDayRetry(
+    DeliveryCandidate candidate, {
+    required DateTime now,
+    NotificationGuards? guards,
+  }) => _outOfQuietHours(
+    calendar.momentAt(
+      calendar.addDays(calendar.dayOf(now), 1),
+      candidate.preset.dailySlot,
+    ),
+    guards,
+  );
+
   /// Notification moments before the quiet hours and the cap.
   Map<int, DateTime> _moments(
     Iterable<DeliveryCandidate> candidates,
@@ -51,7 +66,7 @@ class DeliveryPlanner {
     final moments = <int, DateTime>{};
     final ranges = <(int, DateTime), List<DeliveryCandidate>>{};
     for (final candidate in candidates) {
-      final dueAt = candidate.direction.dueAt!;
+      final dueAt = candidate.card.dueAt!;
       final missed = calendar
           .dayOf(_outOfQuietHours(dueAt, guards))
           .isBefore(today);
@@ -63,7 +78,7 @@ class DeliveryPlanner {
           moment == calendar.momentAt(day, candidate.preset.rangeStart)) {
         ranges.putIfAbsent((candidate.preset.id, day), () => []).add(candidate);
       } else {
-        moments[candidate.direction.id] = moment;
+        moments[candidate.card.id] = moment;
       }
     }
     for (final MapEntry(key: (_, day), value: sharing) in ranges.entries) {
@@ -84,12 +99,10 @@ class DeliveryPlanner {
     final end = calendar.momentAt(day, preset.rangeEnd);
     final range = end.isAfter(start) ? end.difference(start) : Duration.zero;
     final ordered = sharing.toList()
-      ..sort(
-        (first, second) => first.direction.id.compareTo(second.direction.id),
-      );
+      ..sort((first, second) => first.card.id.compareTo(second.card.id));
     return {
       for (final (index, candidate) in ordered.indexed)
-        candidate.direction.id: _toMinute(
+        candidate.card.id: _toMinute(
           start.add(range * index ~/ ordered.length),
         ),
     };
@@ -121,9 +134,9 @@ class DeliveryPlanner {
     final today = calendar.dayOf(now);
     final waitingByDay = <DateTime, List<DeliveryCandidate>>{};
     for (final candidate in candidates) {
-      final moment = moments[candidate.direction.id]!;
+      final moment = moments[candidate.card.id]!;
       if (!NotificationTiming.wasNotified(
-        candidate.direction,
+        candidate.card,
         deliverAt: moment,
         calendar: calendar,
       )) {
@@ -136,7 +149,7 @@ class DeliveryPlanner {
       final room = guards.dailyCap - (day == today ? notifiedToday : 0);
       waiting.sort((first, second) => _byPriority(first, second, moments));
       for (final heldBack in waiting.skip(room < 0 ? 0 : room)) {
-        moments[heldBack.direction.id] = _outOfQuietHours(
+        moments[heldBack.card.id] = _outOfQuietHours(
           calendar.momentAt(
             calendar.addDays(day, 1),
             heldBack.preset.dailySlot,
@@ -153,20 +166,15 @@ class DeliveryPlanner {
     DeliveryCandidate second,
     Map<int, DateTime> moments,
   ) {
-    final byInterval = DirectionProgress.of(first.direction, first.preset)
-        .waitedInterval
-        .compareTo(
-          DirectionProgress.of(second.direction, second.preset).waitedInterval,
-        );
+    final byInterval = CardProgress.of(first.card, first.preset).waitedInterval
+        .compareTo(CardProgress.of(second.card, second.preset).waitedInterval);
     if (byInterval != 0) {
       return byInterval;
     }
-    final byMoment = moments[first.direction.id]!.compareTo(
-      moments[second.direction.id]!,
+    final byMoment = moments[first.card.id]!.compareTo(
+      moments[second.card.id]!,
     );
-    return byMoment != 0
-        ? byMoment
-        : first.direction.id.compareTo(second.direction.id);
+    return byMoment != 0 ? byMoment : first.card.id.compareTo(second.card.id);
   }
 
   static DateTime _toMinute(DateTime moment) => DateTime(

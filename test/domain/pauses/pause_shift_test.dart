@@ -1,30 +1,26 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:alambic/domain/cards/card_direction.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/cards/card_state.dart';
+import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/pauses/pause_shift.dart';
 import 'package:alambic/domain/pauses/pauses.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
+
+import '../test_cards.dart';
 
 void main() {
   const shift = PauseShift(SchedulingCalendar());
   final pausedAt = DateTime(2026, 11, 10, 20);
 
-  CardDirection direction({DateTime? dueAt, DateTime? lastReviewedAt}) =>
-      CardDirection(
-        id: 1,
-        cardId: 1,
-        sense: DirectionSense.frontToBack,
-        state: DirectionState.active,
-        step: 2,
-        stability: null,
-        difficulty: null,
-        dueAt: dueAt,
-        lastReviewedAt: lastReviewedAt,
-        notifiedAt: null,
-        distillationId: null,
-        queuePosition: null,
-      );
+  Flashcard direction({DateTime? dueAt, DateTime? lastReviewedAt}) => testCard(
+    state: CardState.active,
+    step: 2,
+    stability: null,
+    difficulty: null,
+    dueAt: dueAt,
+    lastReviewedAt: lastReviewedAt,
+    notifiedAt: null,
+    queuePosition: null,
+  );
 
   test('counts the pause in scheduling days', () {
     expect(shift.days(pausedAt, DateTime(2026, 11, 13, 9)), 3);
@@ -73,7 +69,6 @@ void main() {
     final groupPause = Pauses(groupsSince: {3: pausedAt});
     expect(groupPause.covers(3), isTrue);
     expect(groupPause.covers(4), isFalse);
-    expect(groupPause.covers(null), isFalse);
-    expect(Pauses(globalSince: pausedAt).covers(null), isTrue);
+    expect(Pauses(globalSince: pausedAt).covers(4), isTrue);
   });
 }

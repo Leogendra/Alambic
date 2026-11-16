@@ -1,4 +1,4 @@
-/// What FSRS knows of the memory of a direction.
+/// What FSRS knows of the memory of a card.
 class FsrsMemory {
   const FsrsMemory({required this.stability, required this.difficulty});
 

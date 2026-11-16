@@ -1,3 +1,4 @@
+import '../../domain/cards/card_side.dart';
 import '../../domain/reviews/typed_answer_match.dart';
 import '../reviews/review_result.dart';
 import 'review_notification_key.dart';
@@ -8,6 +9,7 @@ import 'review_notification_key.dart';
 class AnswerReveal {
   const AnswerReveal({
     required this.key,
+    required this.askedSide,
     required this.prompt,
     required this.answer,
     required this.answerImage,
@@ -18,6 +20,10 @@ class AnswerReveal {
   });
 
   final ReviewNotificationKey key;
+
+  /// Face asked by the notification, kept so that a second answer reads the
+  /// same faces.
+  final CardSide askedSide;
   final String prompt;
   final String answer;
 

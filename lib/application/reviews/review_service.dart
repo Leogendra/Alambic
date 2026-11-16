@@ -1,12 +1,11 @@
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/review_repository.dart';
-import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/presets/preset.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
-import '../../domain/scheduling/direction_schedule.dart';
+import '../../domain/scheduling/card_schedule.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/review_scheduler.dart';
 import '../clock.dart';
@@ -34,37 +33,32 @@ class ReviewService {
   final Clock _clock;
   final ScheduleChangeListener _scheduleChangeListener;
 
-  /// Records [outcome] for a direction. The answer is a bonus review, kept in
-  /// the history without any effect, when the direction is not due or when
-  /// [forceBonus] is set (reviewing the missed cards again, extra reminder).
+  /// Records [outcome] for a card. The answer is a bonus review, kept in the
+  /// history without any effect, when the card is not due (a pending card
+  /// stays pending) or when [forceBonus] is set (reviewing the missed cards
+  /// again, extra reminder).
   Future<ReviewResult> answer(
-    int directionId,
+    int cardId,
     ReviewOutcome outcome, {
     required ReviewSource source,
     bool forceBonus = false,
   }) async {
     final result = await _cards.transaction(() async {
       final now = _clock();
-      final direction = await _cards.getDirection(directionId);
-      final card = await _cards.getCard(direction.cardId);
+      final card = await _cards.getCard(cardId);
       final preset = await _presetOf(card);
-      final isDue = _duePolicy.isDueToday(
-        direction,
-        cardSuspended: card.suspended,
-        now: now,
-      );
-      if (forceBonus || !isDue) {
-        await _recordBonus(direction, outcome, source, now);
+      if (forceBonus || !_duePolicy.isDueToday(card, now: now)) {
+        await _recordBonus(card, outcome, source, now);
         return ReviewResult(isBonus: true, schedule: null, preset: preset);
       } else {
-        final schedule = await previewAnswer(direction, outcome, preset, now);
-        await _cards.applySchedule(direction.id, schedule, reviewedAt: now);
+        final schedule = previewAnswer(card, outcome, preset, now);
+        await _cards.applySchedule(card.id, schedule, reviewedAt: now);
         await _reviews.insert(
-          directionId: direction.id,
+          cardId: card.id,
           reviewedAt: now,
           outcome: outcome,
           isBonus: false,
-          stepBefore: direction.step,
+          stepBefore: card.step,
           stepAfter: schedule.step,
           dueAtAfter: schedule.dueAt,
           source: source,
@@ -78,64 +72,47 @@ class ReviewService {
     return result;
   }
 
-  /// What each answer would do to a direction right now, without recording
+  /// What each answer would do to a card right now, without recording
   /// anything; [asBonus] previews a bonus review.
-  Future<AnswerPreview> preview(int directionId, {bool asBonus = false}) async {
+  Future<AnswerPreview> preview(int cardId, {bool asBonus = false}) async {
     final now = _clock();
-    final direction = await _cards.getDirection(directionId);
-    final card = await _cards.getCard(direction.cardId);
-    final isDue = _duePolicy.isDueToday(
-      direction,
-      cardSuspended: card.suspended,
-      now: now,
-    );
-    if (asBonus || !isDue) {
+    final card = await _cards.getCard(cardId);
+    if (asBonus || !_duePolicy.isDueToday(card, now: now)) {
       return const AnswerPreview.noEffect();
     } else {
       final preset = await _presetOf(card);
       return AnswerPreview(
-        correct: await previewAnswer(
-          direction,
-          ReviewOutcome.correct,
-          preset,
-          now,
-        ),
-        again: await previewAnswer(direction, ReviewOutcome.again, preset, now),
+        correct: previewAnswer(card, ReviewOutcome.correct, preset, now),
+        again: previewAnswer(card, ReviewOutcome.again, preset, now),
       );
     }
   }
 
   /// Schedule [outcome] would give, without recording anything.
-  Future<DirectionSchedule> previewAnswer(
-    CardDirection direction,
+  CardSchedule previewAnswer(
+    Flashcard card,
     ReviewOutcome outcome,
     Preset preset,
     DateTime now,
-  ) async {
-    final opposite = (await _cards.getDirections(direction.cardId))
-        .where((other) => other.id != direction.id && other.isScheduled)
-        .firstOrNull;
-    return _scheduler.afterAnswer(
-      direction: direction,
-      outcome: outcome,
-      preset: preset,
-      answeredAt: now,
-      oppositeDueAt: opposite?.dueAt,
-    );
-  }
+  ) => _scheduler.afterAnswer(
+    card: card,
+    outcome: outcome,
+    preset: preset,
+    answeredAt: now,
+  );
 
   Future<void> _recordBonus(
-    CardDirection direction,
+    Flashcard card,
     ReviewOutcome outcome,
     ReviewSource source,
     DateTime now,
   ) => _reviews.insert(
-    directionId: direction.id,
+    cardId: card.id,
     reviewedAt: now,
     outcome: outcome,
     isBonus: true,
-    stepBefore: direction.step,
-    stepAfter: direction.step,
+    stepBefore: card.step,
+    stepAfter: card.step,
     dueAtAfter: null,
     source: source,
   );

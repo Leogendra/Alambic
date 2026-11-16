@@ -5,31 +5,27 @@ import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/formatting/preset_labels.dart';
 import '../../app/theme/alambic_colors.dart';
-import '../../domain/cards/card_direction.dart';
-import '../../domain/cards/direction_state.dart';
+import '../../domain/cards/card_state.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../domain/presets/preset.dart';
 import '../../domain/presets/scheduling_engine_kind.dart';
-import '../../domain/scheduling/direction_progress.dart';
+import '../../domain/scheduling/card_progress.dart';
 import '../../domain/scheduling/fsrs/fsrs_memory.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Where one direction stands: its step in the preset sequence or its FSRS
+/// Where a card stands: its step in the preset sequence or its FSRS
 /// interval, and its next review; or why it is not scheduled.
-class DirectionProgressPanel extends StatelessWidget {
-  const DirectionProgressPanel({
-    required this.direction,
+class CardProgressPanel extends StatelessWidget {
+  const CardProgressPanel({
+    required this.card,
     required this.preset,
     required this.isDue,
-    required this.onStart,
     super.key,
   });
 
-  final CardDirection? direction;
+  final Flashcard card;
   final Preset preset;
   final bool isDue;
-
-  /// Starts an unstarted direction.
-  final VoidCallback onStart;
 
   @override
   Widget build(BuildContext context) {
@@ -51,33 +47,16 @@ class DirectionProgressPanel extends StatelessWidget {
 
   List<Widget> _content(BuildContext context, AlambicColors colors) {
     final strings = AppLocalizations.of(context);
-    final direction = this.direction;
-    final state = direction?.state ?? DirectionState.inactive;
-    return switch (state) {
-      DirectionState.inactive => [_message(strings.cardSheetInactive, colors)],
-      DirectionState.pending when direction!.isStartable => [
-        _message(strings.cardSheetPendingStopped, colors),
-        FilledButton.tonal(
-          onPressed: onStart,
-          child: Text(strings.cardSheetStart),
-        ),
-      ],
-      DirectionState.pending => [_message(strings.cardSheetPending, colors)],
-      DirectionState.unstarted => [
-        _message(strings.cardSheetUnstarted, colors),
-        FilledButton.tonal(
-          onPressed: onStart,
-          child: Text(strings.cardSheetStart),
-        ),
-      ],
-      DirectionState.acquired => [
+    return switch (card.state) {
+      CardState.pending => [_message(strings.cardSheetPending, colors)],
+      CardState.acquired => [
         if (preset.engine == SchedulingEngineKind.sequence)
           ..._sequence(context, colors, preset.sequenceLength - 1),
         _message(strings.cardSheetAcquired, colors),
       ],
-      DirectionState.active => [
-        ..._progress(context, colors, DirectionProgress.of(direction!, preset)),
-        _nextReview(context, colors, direction.dueAt!),
+      CardState.active => [
+        ..._progress(context, colors, CardProgress.of(card, preset)),
+        _nextReview(context, colors, card.dueAt!),
       ],
     };
   }
@@ -85,7 +64,7 @@ class DirectionProgressPanel extends StatelessWidget {
   List<Widget> _progress(
     BuildContext context,
     AlambicColors colors,
-    DirectionProgress progress,
+    CardProgress progress,
   ) {
     final strings = AppLocalizations.of(context);
     return switch (progress) {

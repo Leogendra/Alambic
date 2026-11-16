@@ -27,12 +27,12 @@ final distillationRhythmProvider = Provider(
   (ref) => DistillationRhythm(ref.watch(schedulingCalendarProvider)),
 );
 
-/// Distillations in progress, running or paused, in launch order.
+/// The distillations of the groups that activated one.
 final distillationsProvider = StreamProvider<List<Distillation>>(
   (ref) => ref.watch(distillationRepositoryProvider).watchAll(),
 );
 
-/// Progress of every distillation in progress; empty while loading.
+/// Progress of every distillation; empty while loading.
 final distillationProgressesProvider = Provider<List<DistillationProgress>>((
   ref,
 ) {
@@ -46,29 +46,19 @@ final distillationProgressesProvider = Provider<List<DistillationProgress>>((
   final today = rhythm.calendar.dayOf(now);
   return [
     for (final distillation in distillations)
-      DistillationProgress.of(distillation, cards, rhythm, today),
+      DistillationProgress.of(
+        distillation,
+        cards.where((card) => card.groupId == distillation.groupId).toList(),
+        rhythm,
+        today,
+      ),
   ];
 });
 
-/// Distillations of a group, front → back first.
-final groupDistillationsProvider =
-    Provider.family<List<DistillationProgress>, int>(
-      (ref, groupId) =>
-          ref
-              .watch(distillationProgressesProvider)
-              .where((progress) => progress.distillation.groupId == groupId)
-              .toList()
-            ..sort(
-              (first, second) => first.distillation.sense!.index.compareTo(
-                second.distillation.sense!.index,
-              ),
-            ),
-    );
-
-/// The global distillation, when one is in progress.
-final globalDistillationProvider = Provider<DistillationProgress?>(
-  (ref) => ref
+/// The distillation of a group, `null` until it is activated.
+final groupDistillationProvider = Provider.family<DistillationProgress?, int>(
+  (ref, groupId) => ref
       .watch(distillationProgressesProvider)
-      .where((progress) => progress.distillation.isGlobal)
+      .where((progress) => progress.groupId == groupId)
       .firstOrNull,
 );

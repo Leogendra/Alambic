@@ -14,7 +14,6 @@ class Pauses {
 
   bool get isGlobal => globalSince != null;
 
-  /// Whether the cards of [groupId] (`null` for "No group") are paused.
-  bool covers(int? groupId) =>
-      isGlobal || (groupId != null && groupsSince.containsKey(groupId));
+  /// Whether the cards of [groupId] are paused.
+  bool covers(int groupId) => isGlobal || groupsSince.containsKey(groupId);
 }

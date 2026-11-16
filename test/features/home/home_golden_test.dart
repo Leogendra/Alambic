@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
@@ -22,7 +21,7 @@ void main() {
   tearDown(() => database.close());
 
   /// Sample data answered in part at 12:05, a "Review soon" reminder at 18:00
-  /// and a "Japonais" group whose cards are not started yet.
+  /// and a "Japonais" group whose cards wait for their distillation.
   Future<void> seed(WidgetTester tester) async {
     await tester.runAsync(() async {
       final samples = SampleServices(database, FixedClock(sampleNow));
@@ -34,13 +33,13 @@ void main() {
       samples.clock.now = DateTime(2026, 11, 10, 12, 5);
       for (final card in cards.take(2)) {
         await samples.reviews.answer(
-          card.direction(DirectionSense.frontToBack)!.id,
+          card.id,
           ReviewOutcome.correct,
           source: ReviewSource.notification,
         );
       }
       await samples.reminders.add(
-        cards.last.direction(DirectionSense.frontToBack)!.id,
+        cards.last.id,
         DateTime(2026, 11, 10),
         const ClockTime(18, 0),
       );

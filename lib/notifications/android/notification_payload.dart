@@ -5,15 +5,22 @@ import '../../application/notifications/group_reminder_key.dart';
 import '../../application/notifications/notification_digest.dart';
 import '../../application/notifications/notification_target.dart';
 import '../../application/notifications/review_notification_key.dart';
+import '../../domain/cards/card_side.dart';
 
 /// The key of a notification, carried in its payload so that a pressed
-/// button knows what it answers: a card, possibly chained in a grouped
-/// reminder, the count of a grouped reminder, or the digest of a moment.
+/// button knows what it answers: a card and the face it asks, possibly
+/// chained in a grouped reminder, the count of a grouped reminder, or the
+/// digest of a moment.
 abstract final class NotificationPayload {
-  static String encode(ReviewNotificationKey key, {required bool isPrompt}) {
+  static String encode(
+    ReviewNotificationKey key, {
+    required bool isPrompt,
+    required CardSide askedSide,
+  }) {
     final chain = key.chain;
     return jsonEncode({
-      'direction': key.directionId,
+      'card': key.cardId,
+      'side': askedSide.name,
       'reminder': key.extraReminderId,
       'prompt': isPrompt,
       if (chain != null) ...{'chained': true, 'group': chain.groupId},
@@ -40,15 +47,21 @@ abstract final class NotificationPayload {
   /// `null` for a payload that is not a card notification.
   static ReviewNotificationKey? decode(String? payload) {
     final fields = _fields(payload);
-    return fields == null || fields['direction'] is! int ? null : _key(fields);
+    return fields == null || fields['card'] is! int ? null : _key(fields);
   }
+
+  /// The face asked by a card notification; the front when the payload does
+  /// not say.
+  static CardSide askedSide(String? payload) =>
+      CardSide.values
+          .where((side) => side.name == _fields(payload)?['side'])
+          .firstOrNull ??
+      CardSide.front;
 
   /// Like [decode], but only for cards not answered yet.
   static ReviewNotificationKey? decodePrompt(String? payload) {
     final fields = _fields(payload);
-    return fields != null &&
-            fields['direction'] is int &&
-            fields['prompt'] == true
+    return fields != null && fields['card'] is int && fields['prompt'] == true
         ? _key(fields)
         : null;
   }
@@ -57,7 +70,7 @@ abstract final class NotificationPayload {
   static GroupReminderKey? decodeGroup(String? payload) {
     final fields = _fields(payload);
     return fields != null && fields['summary'] == true
-        ? GroupReminderKey(fields['group'] as int?)
+        ? GroupReminderKey(fields['group'] as int)
         : null;
   }
 
@@ -74,7 +87,7 @@ abstract final class NotificationPayload {
     } else if (fields['digest'] == true) {
       return const NotificationTarget.home();
     } else if (fields['summary'] == true || fields['chained'] == true) {
-      return NotificationTarget.group(fields['group'] as int?);
+      return NotificationTarget.group(fields['group'] as int);
     } else {
       return null;
     }
@@ -94,10 +107,10 @@ abstract final class NotificationPayload {
 
   static ReviewNotificationKey _key(Map<String, dynamic> fields) =>
       ReviewNotificationKey(
-        directionId: fields['direction'] as int,
+        cardId: fields['card'] as int,
         extraReminderId: fields['reminder'] as int?,
         chain: fields['chained'] == true
-            ? GroupReminderKey(fields['group'] as int?)
+            ? GroupReminderKey(fields['group'] as int)
             : null,
       );
 }

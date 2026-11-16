@@ -1,5 +1,4 @@
-import '../../data/repositories/card_with_directions.dart';
-import '../../domain/cards/direction_state.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../domain/groups/card_group.dart';
 import '../../domain/presets/preset_catalog.dart';
 import '../../domain/scheduling/due_policy.dart';
@@ -11,62 +10,36 @@ class GroupOverview {
 
   final DuePolicy _duePolicy;
 
-  /// "No group" first, then the groups in the given order.
+  /// The groups in the given order.
   List<GroupSummary> summarize({
     required List<CardGroup> groups,
-    required List<CardWithDirections> cards,
+    required List<Flashcard> cards,
     required PresetCatalog catalog,
     required DateTime now,
   }) {
-    final cardsByGroup = <int?, List<CardWithDirections>>{};
+    final cardsByGroup = <int, List<Flashcard>>{};
     for (final card in cards) {
-      cardsByGroup.putIfAbsent(card.card.groupId, () => []).add(card);
+      cardsByGroup.putIfAbsent(card.groupId, () => []).add(card);
     }
     return [
-      summarizeOne(null, cardsByGroup[null] ?? const [], catalog, now),
       for (final group in groups)
         summarizeOne(group, cardsByGroup[group.id] ?? const [], catalog, now),
     ];
   }
 
   GroupSummary summarizeOne(
-    CardGroup? group,
-    List<CardWithDirections> cards,
+    CardGroup group,
+    List<Flashcard> cards,
     PresetCatalog catalog,
     DateTime now,
   ) => GroupSummary(
     group: group,
-    preset: catalog.presetForGroup(group?.id),
+    preset: catalog.presetForGroup(group.id),
     cardCount: cards.length,
-    dueCount: cards.where((card) => isCardDue(card, now)).length,
-    activeCount: cards.where(_isStudied).length,
-    newCount: cards
-        .where(
-          (card) =>
-              _hasState(card, DirectionState.unstarted) ||
-              _hasState(card, DirectionState.pending),
-        )
+    dueCount: cards
+        .where((card) => _duePolicy.isDueToday(card, now: now))
         .length,
-    unstartedCount: cards
-        .where((card) => card.directions.any((d) => d.isStartable))
-        .length,
+    introducedCount: cards.where((card) => !card.isPending).length,
+    pendingCount: cards.where((card) => card.isPending).length,
   );
-
-  /// A card is due when one of its directions is.
-  bool isCardDue(CardWithDirections card, DateTime now) => card.directions.any(
-    (direction) => _duePolicy.isDueToday(
-      direction,
-      cardSuspended: card.card.suspended,
-      now: now,
-    ),
-  );
-
-  bool _isStudied(CardWithDirections card) => card.directions.any(
-    (direction) =>
-        direction.state == DirectionState.active ||
-        direction.state == DirectionState.acquired,
-  );
-
-  bool _hasState(CardWithDirections card, DirectionState state) =>
-      card.directions.any((direction) => direction.state == state);
 }

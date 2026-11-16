@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/data_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/features/cards/card_editor_screen.dart';
 import 'package:alambic/features/cards/image_picking.dart';
 
@@ -14,21 +15,23 @@ import '../../support/test_images.dart';
 
 void main() {
   late AlambicDatabase database;
+  late int groupId;
 
-  setUp(() => database = openTestDatabase());
+  setUp(() async {
+    database = openTestDatabase();
+    groupId = await GroupRepository(database)
+        .create('Capitales', DateTime(2026, 11, 10));
+  });
   tearDown(() => database.close());
 
-  testWidgets('new card with both faces and the reverse direction', (
-    tester,
-  ) async {
+  testWidgets('new card with both faces, in a group', (tester) async {
     await pumpGolden(
       tester,
-      const CardEditorScreen(),
+      CardEditorScreen(initialGroupId: groupId),
       overrides: [databaseProvider.overrideWithValue(database)],
     );
     await tester.enterText(find.byType(TextField).first, 'Mongolie');
     await tester.enterText(find.byType(TextField).last, 'Oulan-Bator');
-    await tester.tap(find.byType(Switch));
     await tester.pumpAndSettle();
     await expectLater(
       find.byType(CardEditorScreen),
@@ -42,7 +45,7 @@ void main() {
     final images = openTestImageStore();
     await pumpGolden(
       tester,
-      const CardEditorScreen(),
+      CardEditorScreen(initialGroupId: groupId),
       overrides: [
         databaseProvider.overrideWithValue(database),
         imageStoreProvider.overrideWithValue(images),
@@ -70,7 +73,7 @@ void main() {
     });
     final card = (await tester.runAsync(
       () => CardRepository(database).getAll(),
-    ))!.single.card;
+    ))!.single;
     expect(card.frontText, 'Quel pays a ce drapeau ?');
     expect(File(images.pathOf(card.frontImagePath!)).existsSync(), isTrue);
   });

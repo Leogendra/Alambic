@@ -4,7 +4,7 @@ import '../../domain/groups/card_group.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'group_choice.dart';
 
-/// Bottom sheet to put a card in a group, or in "No group".
+/// Bottom sheet to put a card in a group.
 Future<GroupChoice?> showGroupPicker(
   BuildContext context, {
   required List<CardGroup> groups,
@@ -25,11 +25,6 @@ Future<GroupChoice?> showGroupPicker(
               strings.groupPickerTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-          ),
-          ListTile(
-            title: Text(strings.noGroup),
-            trailing: selectedGroupId == null ? const Icon(Icons.check) : null,
-            onTap: () => Navigator.of(context).pop(const GroupChoice(null)),
           ),
           for (final group in groups)
             ListTile(

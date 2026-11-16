@@ -7,12 +7,10 @@ import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
-import '../../application/distillation/distillation_providers.dart';
 import '../../application/notifications/guard_providers.dart';
 import '../../application/pauses/pause_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../distillation/global_distillation_screen.dart';
 import '../presets/preset_picker.dart';
 import '../presets/presets_screen.dart';
 import 'backup_panel.dart';
@@ -61,7 +59,6 @@ class _RepetitionPanel extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final presets = ref.watch(presetsProvider).value ?? const [];
     final catalog = ref.watch(presetCatalogProvider).value;
-    final global = ref.watch(globalDistillationProvider);
     final valueStyle = TextStyle(
       fontSize: 15,
       fontWeight: FontWeight.w600,
@@ -100,27 +97,6 @@ class _RepetitionPanel extends ConsumerWidget {
                         .setGlobalPreset(presetId);
                   }
                 },
-        ),
-        PanelRow(
-          title: strings.settingsGlobalDistillation,
-          subtitle: switch (global) {
-            null => strings.settingsGlobalDistillationIdle,
-            final global when global.distillation.isRunning =>
-              strings.settingsGlobalDistillationRunning(
-                global.introduced,
-                global.total,
-              ),
-            final global => strings.settingsGlobalDistillationPaused(
-              global.introduced,
-              global.total,
-            ),
-          },
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (context) => const GlobalDistillationScreen(),
-            ),
-          ),
         ),
       ],
     );

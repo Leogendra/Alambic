@@ -9,14 +9,13 @@ import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/domain/presets/schedule_kind.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
-import 'package:alambic/domain/scheduling/direction_progress.dart';
+import 'package:alambic/domain/scheduling/card_progress.dart';
 
 import '../support/fake_notifications.dart';
 import '../support/fixed_clock.dart';
@@ -43,10 +42,8 @@ void main() {
     await database.close();
   });
 
-  Future<int> mongoliaFront() async {
-    final cards = await CardRepository(database).getCardsOfGroup(capitals);
-    return cards.first.direction(DirectionSense.frontToBack)!.id;
-  }
+  Future<int> mongoliaId() async =>
+      (await CardRepository(database).getCardsOfGroup(capitals)).first.id;
 
   Future<void> dispatchAt(DateTime now) async {
     harness.clock.now = now;
@@ -60,7 +57,7 @@ void main() {
       expect(prompts, hasLength(7));
       final mongolia = harness
           .presenter
-          .prompts[ReviewNotificationKey(directionId: await mongoliaFront())]!;
+          .prompts[ReviewNotificationKey(cardId: await mongoliaId())]!;
       expect(mongolia.prompt, 'Mongolie');
       expect(mongolia.groupName, 'Capitales');
       expect(mongolia.progress, isA<NewProgress>());
@@ -77,9 +74,7 @@ void main() {
 
     test('notifies an ignored card again the next day, at the slot', () async {
       await dispatchAt(DateTime(2026, 11, 10, 12));
-      final mongolia = ReviewNotificationKey(
-        directionId: await mongoliaFront(),
-      );
+      final mongolia = ReviewNotificationKey(cardId: await mongoliaId());
       expect(harness.presenter.prompts.keys, contains(mongolia));
       harness.presenter.prompts.clear();
       await dispatchAt(DateTime(2026, 11, 10, 18));
@@ -100,17 +95,19 @@ void main() {
       await dispatchAt(DateTime(2026, 11, 11, 12));
       expect(
         harness.presenter.prompts.keys,
-        contains(ReviewNotificationKey(directionId: await mongoliaFront())),
+        contains(ReviewNotificationKey(cardId: await mongoliaId())),
       );
     });
 
     test('shows a Review soon reminder as a bonus', () async {
-      final direction = await mongoliaFront();
-      final reminderId = await SampleServices(database, harness.clock).reminders
-          .add(direction, DateTime(2026, 11, 10), const ClockTime(18, 0));
+      final cardId = await mongoliaId();
+      final reminderId = await SampleServices(
+        database,
+        harness.clock,
+      ).reminders.add(cardId, DateTime(2026, 11, 10), const ClockTime(18, 0));
       await dispatchAt(DateTime(2026, 11, 10, 18));
       final key = ReviewNotificationKey(
-        directionId: direction,
+        cardId: cardId,
         extraReminderId: reminderId,
       );
       expect(harness.presenter.prompts.keys, [key]);
@@ -118,7 +115,7 @@ void main() {
           .read(notificationActionHandlerProvider)
           .handle(key, NotificationAction.correct);
       final history = await ReviewRepository(database)
-          .watchHistory(direction)
+          .watchHistory(cardId)
           .first;
       expect(history.single.isBonus, isTrue);
     });
@@ -128,7 +125,7 @@ void main() {
     late ReviewNotificationKey key;
 
     setUp(() async {
-      key = ReviewNotificationKey(directionId: await mongoliaFront());
+      key = ReviewNotificationKey(cardId: await mongoliaId());
       await dispatchAt(DateTime(2026, 11, 10, 12));
     });
 
@@ -137,7 +134,7 @@ void main() {
           .read(notificationActionHandlerProvider)
           .handle(key, NotificationAction.correct);
       final history = await ReviewRepository(database)
-          .watchHistory(key.directionId)
+          .watchHistory(key.cardId)
           .first;
       expect(history.single.source, ReviewSource.notification);
       expect(history.single.isBonus, isFalse);
@@ -160,10 +157,7 @@ void main() {
     });
 
     test('a card deleted meanwhile only closes the notification', () async {
-      final cardId = (await CardRepository(
-        database,
-      ).findDirection(key.directionId))!.cardId;
-      await CardRepository(database).deleteCard(cardId);
+      await CardRepository(database).deleteCard(key.cardId);
       await harness
           .read(notificationActionHandlerProvider)
           .handle(key, NotificationAction.correct);
@@ -178,7 +172,7 @@ void main() {
       final presets = PresetRepository(database);
       final catalog = await presets.loadCatalog();
       await presets.update(catalog.globalPreset.copyWith(typedAnswer: true));
-      key = ReviewNotificationKey(directionId: await mongoliaFront());
+      key = ReviewNotificationKey(cardId: await mongoliaId());
       await dispatchAt(DateTime(2026, 11, 10, 12));
     });
 
@@ -194,7 +188,7 @@ void main() {
       expect(reveal.match, TypedAnswerMatch.oneTypo);
       expect(reveal.answer, 'Oulan-Bator');
       final history = await ReviewRepository(database)
-          .watchHistory(key.directionId)
+          .watchHistory(key.cardId)
           .first;
       expect(history.single.outcome, ReviewOutcome.correct);
       expect(reveal.result.schedule!.dueAt, DateTime(2026, 11, 11, 12));
@@ -206,7 +200,7 @@ void main() {
           .handle(key, NotificationAction.answer, input: 'Pékin');
       expect(harness.presenter.reveals[key]!.match, TypedAnswerMatch.wrong);
       final history = await ReviewRepository(database)
-          .watchHistory(key.directionId)
+          .watchHistory(key.cardId)
           .first;
       expect(history.single.outcome, ReviewOutcome.again);
     });
@@ -231,7 +225,7 @@ void main() {
       await services.card(verb, verb, groupId: verbs);
     }
     harness.clock.now = DateTime(2026, 11, 10, 8);
-    await services.cards.startGroup(verbs);
+    await services.introduceAll(verbs);
     await harness.read(notificationPlannerProvider).replan();
     expect(
       harness.alarms.scheduled.values.where(
@@ -266,13 +260,12 @@ void main() {
         expect(harness.presenter.prompts, isEmpty);
         final digest = harness.presenter.digest!;
         expect(digest.count, 7);
-        expect(digest.groupNames, ['Capitales', 'Espagnol', null]);
+        expect(digest.groupNames, ['Capitales', 'Espagnol', 'Biologie']);
         // Answered in the app, the cards leave the digest.
-        final direction = await mongoliaFront();
         await harness
             .read(reviewServiceProvider)
             .answer(
-              direction,
+              await mongoliaId(),
               ReviewOutcome.correct,
               source: ReviewSource.session,
             );
@@ -297,8 +290,7 @@ void main() {
       );
       harness.presenter.prompts.clear();
       await dispatchAt(DateTime(2026, 11, 11, 12));
-      // The three held back, then the reverse of Pérou due that day; the
-      // four ignored the day before compete with them.
+      // The three held back compete with the four ignored the day before.
       expect(harness.presenter.prompts, hasLength(4));
     });
 

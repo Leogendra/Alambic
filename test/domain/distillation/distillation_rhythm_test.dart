@@ -15,9 +15,7 @@ void main() {
     int introducedInBatch = 0,
     DateTime? lastAdvancedDay,
   }) => Distillation(
-    id: 1,
     groupId: 1,
-    sense: null,
     cardsPerBatch: cardsPerBatch,
     everyDays: everyDays,
     introductionOrder: DistillationOrder.groupOrder,

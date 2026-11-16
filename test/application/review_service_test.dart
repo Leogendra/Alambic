@@ -4,8 +4,7 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
-import 'package:alambic/domain/cards/card_direction.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
+import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
@@ -45,13 +44,17 @@ void main() {
 
   tearDown(() => database.close());
 
-  Future<CardDirection> front(int cardId) async => (await cards.getDirections(
-    cardId,
-  )).firstWhere((direction) => direction.sense == DirectionSense.frontToBack);
+  Future<Flashcard> front(int cardId) => cards.getCard(cardId);
+
+  Future<int> pendingCard() async => samples.card(
+    'Mongolie',
+    'Oulan-Bator',
+    groupId: await samples.groups.create('Capitales'),
+  );
 
   Future<int> dueCard() async {
-    final cardId = await samples.card('Mongolie', 'Oulan-Bator');
-    await samples.cards.startGroup(null);
+    final cardId = await pendingCard();
+    await samples.introduceAll((await front(cardId)).groupId);
     return cardId;
   }
 
@@ -59,7 +62,7 @@ void main() {
     final cardId = await dueCard();
     clock.now = DateTime(2026, 11, 10, 12, 5);
     final result = await reviews.answer(
-      (await front(cardId)).id,
+      cardId,
       ReviewOutcome.correct,
       source: ReviewSource.session,
     );
@@ -86,7 +89,7 @@ void main() {
     final cardId = await dueCard();
     clock.now = DateTime(2026, 11, 10, 12, 5);
     await reviews.answer(
-      (await front(cardId)).id,
+      cardId,
       ReviewOutcome.correct,
       source: ReviewSource.notification,
     );
@@ -123,7 +126,7 @@ void main() {
     Future<void> answerAt(DateTime at) async {
       clock.now = at;
       await reviews.answer(
-        (await front(cardId)).id,
+        cardId,
         ReviewOutcome.correct,
         source: ReviewSource.session,
       );
@@ -157,7 +160,7 @@ void main() {
   test('a card due later today can be answered before its slot', () async {
     final cardId = await dueCard();
     final result = await reviews.answer(
-      (await front(cardId)).id,
+      cardId,
       ReviewOutcome.again,
       source: ReviewSource.session,
     );
@@ -167,7 +170,7 @@ void main() {
 
   test('answering a card that is not due is a bonus review', () async {
     final cardId = await dueCard();
-    final directionId = (await front(cardId)).id;
+    final directionId = cardId;
     await reviews.answer(
       directionId,
       ReviewOutcome.correct,
@@ -205,7 +208,7 @@ void main() {
 
   test('the preview matches what the answer then records', () async {
     final cardId = await dueCard();
-    final directionId = (await front(cardId)).id;
+    final directionId = cardId;
     final preview = await reviews.preview(directionId);
     expect(preview.correct!.dueAt, DateTime(2026, 11, 11, 12));
     expect(preview.again!.dueAt, DateTime(2026, 11, 11, 12));
@@ -215,5 +218,18 @@ void main() {
       source: ReviewSource.session,
     );
     expect((await reviews.preview(directionId)).isBonus, isTrue);
+  });
+
+  test('answering a pending card is a bonus that leaves it pending', () async {
+    final cardId = await pendingCard();
+    final result = await reviews.answer(
+      cardId,
+      ReviewOutcome.correct,
+      source: ReviewSource.session,
+    );
+    expect(result.isBonus, isTrue);
+    expect((await front(cardId)).isPending, isTrue);
+    final history = await ReviewRepository(database).watchHistory(cardId).first;
+    expect(history.single.isBonus, isTrue);
   });
 }

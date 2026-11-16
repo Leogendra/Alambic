@@ -9,7 +9,7 @@ import 'sequence_step.dart';
 /// Walks the fixed interval sequence of a preset.
 ///
 /// The step is the index of the interval currently waited. A never answered
-/// direction has no step: a first "Correct" waits the first interval.
+/// card has no step: a first "Correct" waits the first interval.
 abstract final class SequenceEngine {
   static SequenceStep answer({
     required int? currentStep,

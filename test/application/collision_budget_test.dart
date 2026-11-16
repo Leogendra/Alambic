@@ -1,9 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
-import 'package:alambic/domain/cards/card_direction.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/cards/card_state.dart';
+import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
@@ -31,20 +30,16 @@ void main() {
       for (var index = 0; index < 12; index++)
         await services.card('Pays $index', 'Capitale $index', groupId: groupId),
     ];
-    await services.distillations.launchForGroup(
+    await services.distillations.activate(
       groupId,
-      DirectionSense.frontToBack,
       const DistillationSettings(cardsPerBatch: 3),
     );
   });
 
   tearDown(() => database.close());
 
-  Future<List<CardDirection>> fronts() async => [
-    for (final cardId in cardIds)
-      (await cards.getDirections(cardId)).firstWhere(
-        (direction) => direction.sense == DirectionSense.frontToBack,
-      ),
+  Future<List<Flashcard>> fronts() async => [
+    for (final cardId in cardIds) await cards.getCard(cardId),
   ];
 
   /// Moves to [day] at 1pm, runs the daily pass and answers everything due
@@ -57,7 +52,7 @@ void main() {
     final reminders = <int>[];
     for (final (index, direction) in (await fronts()).indexed) {
       final dueAt = direction.dueAt;
-      if (direction.state == DirectionState.active &&
+      if (direction.state == CardState.active &&
           dueAt != null &&
           dueAt.day == day) {
         (direction.step == null ? news : reminders).add(index);
@@ -106,7 +101,7 @@ void main() {
       expect(directions[index].dueAt, DateTime(2026, 11, 14, 12));
       expect(directions[index].step, 1);
     }
-    expect(directions[6].state, DirectionState.pending);
+    expect(directions[6].state, CardState.pending);
   });
 
   test(
@@ -117,7 +112,7 @@ void main() {
       clock.now = DateTime(2026, 11, 11, 13);
       await services.distillations.advance();
       final directions = await fronts();
-      expect(directions[3].state, DirectionState.pending);
+      expect(directions[3].state, CardState.pending);
     },
   );
 }

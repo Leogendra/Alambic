@@ -1,4 +1,4 @@
-import '../cards/card_direction.dart';
+import '../cards/flashcard.dart';
 import '../scheduling/scheduling_calendar.dart';
 
 /// How the due dates move when a pause ends.
@@ -6,7 +6,7 @@ import '../scheduling/scheduling_calendar.dart';
 /// Rules owned here:
 /// - a due date is shifted by as many days as the pause lasted, counted in
 ///   scheduling days, and keeps its time of day;
-/// - a direction answered during the pause already has a due date chosen
+/// - a card answered during the pause already has a due date chosen
 ///   after the pause started: it is not shifted.
 class PauseShift {
   const PauseShift(this.calendar);
@@ -17,17 +17,17 @@ class PauseShift {
   int days(DateTime pausedAt, DateTime resumedAt) =>
       calendar.daysBetween(pausedAt, resumedAt);
 
-  /// The due date of [direction] once the pause ends, `null` when it does not
+  /// The due date of [card] once the pause ends, `null` when it does not
   /// move.
   DateTime? shiftedDueAt(
-    CardDirection direction, {
+    Flashcard card, {
     required DateTime pausedAt,
     required DateTime resumedAt,
   }) {
-    final dueAt = direction.dueAt;
-    final lastReviewedAt = direction.lastReviewedAt;
+    final dueAt = card.dueAt;
+    final lastReviewedAt = card.lastReviewedAt;
     final shift = days(pausedAt, resumedAt);
-    if (!direction.isScheduled ||
+    if (!card.isScheduled ||
         dueAt == null ||
         shift <= 0 ||
         (lastReviewedAt != null && !lastReviewedAt.isBefore(pausedAt))) {

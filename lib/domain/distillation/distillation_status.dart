@@ -1,3 +1,3 @@
-/// Whether a distillation introduces cards. A stopped or finished
-/// distillation is deleted, so it has no status of its own.
+/// Whether a distillation introduces cards. It never stops nor ends: it is
+/// paused and resumed.
 enum DistillationStatus { running, paused }

@@ -8,8 +8,8 @@ import '../../application/distillation/distillation_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'distillation_labels.dart';
 
-/// A distillation in progress: direction, state, rhythm and progress, with
-/// pause / resume and stop.
+/// The distillation of a group: state, rhythm and progress, with pause /
+/// resume.
 class DistillationTile extends ConsumerWidget {
   const DistillationTile({required this.progress, super.key});
 
@@ -46,7 +46,7 @@ class DistillationTile extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  strings.distillationScope(distillation),
+                  strings.groupDistillationSection,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -76,13 +76,8 @@ class DistillationTile extends ConsumerWidget {
                   size: 18,
                 ),
                 onPressed: () => distillation.isRunning
-                    ? service.pause(distillation.id)
-                    : service.resume(distillation.id),
-              ),
-              IconButton.filledTonal(
-                tooltip: strings.distillationStop,
-                icon: const Icon(Icons.stop, size: 18),
-                onPressed: () => _confirmStop(context, ref),
+                    ? service.pause(distillation.groupId)
+                    : service.resume(distillation.groupId),
               ),
             ],
           ),
@@ -96,14 +91,12 @@ class DistillationTile extends ConsumerWidget {
               borderRadius: BorderRadius.circular(3),
               child: LinearProgressIndicator(
                 minHeight: 6,
-                value: progress.total == 0
-                    ? 0
-                    : progress.introduced / progress.total,
+                value: _total == 0 ? 0 : progress.introduced / _total,
                 backgroundColor: colors.segmentBackground,
                 color: colors.accent,
                 semanticsLabel: strings.distillationIntroduced(
                   progress.introduced,
-                  progress.total,
+                  _total,
                 ),
               ),
             ),
@@ -114,10 +107,7 @@ class DistillationTile extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    strings.distillationIntroduced(
-                      progress.introduced,
-                      progress.total,
-                    ),
+                    strings.distillationIntroduced(progress.introduced, _total),
                     style: TextStyle(fontSize: 13, color: colors.textSecondary),
                   ),
                 ),
@@ -136,29 +126,5 @@ class DistillationTile extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmStop(BuildContext context, WidgetRef ref) async {
-    final strings = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(strings.distillationStopTitle),
-        content: Text(strings.distillationStopBody(progress.remaining)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(strings.commonCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(strings.distillationStopConfirm),
-          ),
-        ],
-      ),
-    );
-    if (confirmed ?? false) {
-      await ref
-          .read(distillationServiceProvider)
-          .stop(progress.distillation.id);
-    }
-  }
+  int get _total => progress.introduced + progress.remaining;
 }

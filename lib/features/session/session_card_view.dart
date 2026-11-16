@@ -4,10 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/presets/preset_providers.dart';
-import '../../data/repositories/card_with_directions.dart';
-import '../../domain/cards/card_direction.dart';
 import '../../domain/cards/card_face.dart';
-import '../../domain/cards/direction_sense.dart';
+import '../../domain/cards/card_side.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../cards/card_image.dart';
 
@@ -15,14 +14,16 @@ import '../cards/card_image.dart';
 class SessionCardView extends ConsumerWidget {
   const SessionCardView({
     required this.card,
-    required this.direction,
+    required this.askedSide,
     required this.isRevealed,
     required this.isBonus,
     super.key,
   });
 
-  final CardWithDirections card;
-  final CardDirection direction;
+  final Flashcard card;
+
+  /// Face drawn for this display; the answer is the other one.
+  final CardSide askedSide;
   final bool isRevealed;
   final bool isBonus;
 
@@ -30,8 +31,8 @@ class SessionCardView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
-    final prompt = card.card.promptFor(direction.sense);
-    final answer = card.card.answerFor(direction.sense);
+    final prompt = card.promptFor(askedSide);
+    final answer = card.answerFor(askedSide);
     return Container(
       decoration: BoxDecoration(
         color: colors.surface,
@@ -95,17 +96,12 @@ class SessionCardView extends ConsumerWidget {
     AppLocalizations strings,
   ) {
     final colors = AlambicColors.of(context);
-    final groupId = card.card.groupId;
-    final groupName = groupId == null
-        ? strings.noGroup
-        : ref.watch(groupProvider(groupId)).value?.name ?? '';
+    final groupName = ref.watch(groupProvider(card.groupId)).value?.name ?? '';
     final presetName =
-        ref.watch(presetCatalogProvider).value?.presetForCard(card.card).name ??
-        '';
+        ref.watch(presetCatalogProvider).value?.presetForCard(card).name ?? '';
     final labels = [
       '$groupName · $presetName',
-      if (direction.sense == DirectionSense.backToFront)
-        strings.sessionReverseBadge,
+      if (askedSide == CardSide.back) strings.sessionReverseBadge,
       if (isBonus) strings.sessionBonusBadge,
     ];
     return Text(

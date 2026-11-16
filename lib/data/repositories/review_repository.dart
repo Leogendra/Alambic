@@ -12,7 +12,7 @@ class ReviewRepository {
   final AlambicDatabase _database;
 
   Future<void> insert({
-    required int directionId,
+    required int cardId,
     required DateTime reviewedAt,
     required ReviewOutcome outcome,
     required bool isBonus,
@@ -24,7 +24,7 @@ class ReviewRepository {
       .into(_database.reviewRecords)
       .insert(
         ReviewRecordsCompanion.insert(
-          directionId: directionId,
+          cardId: cardId,
           reviewedAt: reviewedAt,
           outcome: outcome,
           isBonus: isBonus,
@@ -35,10 +35,10 @@ class ReviewRepository {
         ),
       );
 
-  /// History of one direction, most recent first.
-  Stream<List<ReviewRecord>> watchHistory(int directionId) =>
+  /// History of one card, most recent first.
+  Stream<List<ReviewRecord>> watchHistory(int cardId) =>
       (_database.select(_database.reviewRecords)
-            ..where((review) => review.directionId.equals(directionId))
+            ..where((review) => review.cardId.equals(cardId))
             ..orderBy([
               (review) => OrderingTerm.desc(review.reviewedAt),
               (review) => OrderingTerm.desc(review.id),

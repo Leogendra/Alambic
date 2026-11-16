@@ -1,16 +1,14 @@
-import '../cards/direction_sense.dart';
 import 'distillation_order.dart';
 import 'distillation_settings.dart';
 import 'distillation_status.dart';
 
-/// Introduces the never reviewed directions of a group, or of every card for
-/// the global distillation, a few at a time. Its queue is made of the
-/// directions in the pending state that point to it.
+/// The distillation of a group: a permanent setting of the group that
+/// introduces its pending cards a few at a time. Its queue is made of the
+/// pending cards of the group. It exists once activated, and is only ever
+/// paused or resumed afterwards.
 class Distillation {
   const Distillation({
-    required this.id,
     required this.groupId,
-    required this.sense,
     required this.cardsPerBatch,
     required this.everyDays,
     required this.introductionOrder,
@@ -22,14 +20,7 @@ class Distillation {
     required this.lastAdvancedDay,
   });
 
-  final int id;
-
-  /// `null` for the global distillation.
-  final int? groupId;
-
-  /// Direction distilled; `null` for the global distillation, which covers
-  /// both.
-  final DirectionSense? sense;
+  final int groupId;
   final int cardsPerBatch;
   final int everyDays;
   final DistillationOrder introductionOrder;
@@ -41,14 +32,13 @@ class Distillation {
   final DateTime nextBatchDay;
 
   /// Cards of the current batch already introduced; the rest of the batch
-  /// comes the next days when the budget held it back.
+  /// comes the next days when the budget held it back or the queue was
+  /// empty.
   final int introducedInBatch;
 
   /// Last scheduling day on which the distillation introduced its cards and
   /// spent its budget; each day is processed once.
   final DateTime? lastAdvancedDay;
-
-  bool get isGlobal => groupId == null;
 
   bool get isRunning => status == DistillationStatus.running;
 

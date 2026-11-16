@@ -1,11 +1,11 @@
 import 'review_outcome.dart';
 import 'review_source.dart';
 
-/// One answer in the history of a direction.
+/// One answer in the history of a card.
 class ReviewRecord {
   const ReviewRecord({
     required this.id,
-    required this.directionId,
+    required this.cardId,
     required this.reviewedAt,
     required this.outcome,
     required this.isBonus,
@@ -16,7 +16,7 @@ class ReviewRecord {
   });
 
   final int id;
-  final int directionId;
+  final int cardId;
   final DateTime reviewedAt;
   final ReviewOutcome outcome;
 
@@ -24,7 +24,7 @@ class ReviewRecord {
   final bool isBonus;
   final int? stepBefore;
 
-  /// Step reached after the answer; `null` when the direction became acquired
+  /// Step reached after the answer; `null` when the card became acquired
   /// or for a bonus review.
   final int? stepAfter;
 

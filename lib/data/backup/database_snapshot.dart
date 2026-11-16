@@ -18,7 +18,6 @@ class DatabaseSnapshot {
     'card_groups',
     'distillations',
     'flashcards',
-    'card_directions',
     'review_records',
     'extra_reminders',
   ];

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../application/reviews/due_item.dart';
 import '../../application/reviews/session_item.dart';
+import '../../domain/cards/card_side.dart';
 import 'session_screen.dart';
 
 /// Opens a session on the due [items]; does nothing when there are none.
@@ -12,8 +13,8 @@ Future<void> startSession(BuildContext context, List<DueItem> items) async {
   await openSession(context, items.map(_toSessionItem).toList());
 }
 
-/// Opens a session on [items], due or not: answering a direction that is not
-/// due is a bonus review.
+/// Opens a session on [items], due or not: answering a card that is not due
+/// is a bonus review.
 Future<void> openSession(BuildContext context, List<SessionItem> items) =>
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -33,4 +34,4 @@ Future<void> replaceWithSession(
 );
 
 SessionItem _toSessionItem(DueItem item) =>
-    SessionItem(cardId: item.card.card.id, directionId: item.direction.id);
+    SessionItem(cardId: item.card.id, askedSide: CardSide.front);

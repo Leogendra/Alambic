@@ -33,7 +33,6 @@ class HomeScreen extends ConsumerWidget {
     }
     final summaries = ref.watch(groupSummariesProvider);
     final dueGroups = summaries.where((summary) => summary.dueCount > 0);
-    final newGroups = summaries.where((summary) => summary.unstartedCount > 0);
     final pausedAt = ref.watch(pausesProvider).value?.globalSince;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 96),
@@ -57,14 +56,6 @@ class HomeScreen extends ConsumerWidget {
           _GroupGrid(
             summaries: dueGroups.toList(),
             count: (summary) => summary.dueCount,
-          ),
-        ],
-        if (newGroups.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          SectionLabel(strings.homeNewCards),
-          _GroupGrid(
-            summaries: newGroups.toList(),
-            count: (summary) => summary.unstartedCount,
           ),
         ],
       ],
@@ -246,7 +237,6 @@ class _GroupGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
     return GridView.count(
       crossAxisCount: 2,
@@ -277,7 +267,7 @@ class _GroupGrid extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        summary.group?.name ?? strings.noGroup,
+                        summary.group.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

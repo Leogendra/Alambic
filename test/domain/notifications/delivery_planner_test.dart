@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:alambic/domain/cards/card_direction.dart';
-import 'package:alambic/domain/cards/direction_sense.dart';
-import 'package:alambic/domain/cards/direction_state.dart';
+import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/notifications/delivery_candidate.dart';
 import 'package:alambic/domain/notifications/delivery_planner.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
@@ -11,6 +9,8 @@ import 'package:alambic/domain/presets/preset.dart';
 import 'package:alambic/domain/presets/schedule_kind.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
+
+import '../test_cards.dart';
 
 void main() {
   const planner = DeliveryPlanner(SchedulingCalendar());
@@ -25,26 +25,19 @@ void main() {
     int id,
     DateTime dueAt, {
     Preset? preset,
-    int? groupId,
+    int groupId = 1,
     int? step = 1,
     DateTime? notifiedAt,
   }) => DeliveryCandidate(
-    direction: CardDirection(
+    card: testCard(
       id: id,
-      cardId: id,
-      sense: DirectionSense.frontToBack,
-      state: DirectionState.active,
+      groupId: groupId,
+      state: CardState.active,
       step: step,
-      stability: null,
-      difficulty: null,
       dueAt: dueAt,
-      lastReviewedAt: null,
       notifiedAt: notifiedAt,
-      distillationId: null,
-      queuePosition: null,
     ),
     preset: preset ?? range,
-    groupId: groupId,
   );
 
   Map<int, DateTime> plan(
@@ -256,5 +249,18 @@ void main() {
       expect(moments[2], DateTime(2026, 11, 11, 12));
       expect(moments[3], DateTime(2026, 11, 10, 9));
     });
+  });
+
+  test('a card still due after its moment comes back the next day', () {
+    final standard = BuiltInPresets.standard.copyWith(id: 1);
+    final retry = planner.nextDayRetry(
+      candidate(1, DateTime(2026, 11, 10, 12), preset: standard),
+      now: DateTime(2026, 11, 10, 18),
+      guards: NotificationGuards.defaults.copyWith(
+        quietStart: const ClockTime(22, 0),
+        quietEnd: const ClockTime(13, 0),
+      ),
+    );
+    expect(retry, DateTime(2026, 11, 11, 13));
   });
 }

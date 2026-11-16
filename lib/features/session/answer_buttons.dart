@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/alambic_colors.dart';
 import '../../application/reviews/review_providers.dart';
-import '../../domain/cards/direction_state.dart';
+import '../../domain/cards/card_state.dart';
 import '../../domain/reviews/review_outcome.dart';
-import '../../domain/scheduling/direction_schedule.dart';
+import '../../domain/scheduling/card_schedule.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../cards/card_status_formatter.dart';
 import '../cards/card_status_formatter_provider.dart';
@@ -13,14 +13,14 @@ import '../cards/card_status_formatter_provider.dart';
 /// "Again" and "Correct", each with when the card would come back.
 class AnswerButtons extends ConsumerWidget {
   const AnswerButtons({
-    required this.directionId,
+    required this.cardId,
     required this.isBonus,
     required this.enabled,
     required this.onAnswer,
     super.key,
   });
 
-  final int directionId;
+  final int cardId;
   final bool isBonus;
   final bool enabled;
   final ValueChanged<ReviewOutcome> onAnswer;
@@ -30,12 +30,10 @@ class AnswerButtons extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
     final preview = ref
-        .watch(
-          answerPreviewProvider((directionId: directionId, asBonus: isBonus)),
-        )
+        .watch(answerPreviewProvider((cardId: cardId, asBonus: isBonus)))
         .value;
     final formatter = watchCardStatusFormatter(context, ref);
-    String? hint(DirectionSchedule? schedule) => preview == null
+    String? hint(CardSchedule? schedule) => preview == null
         ? null
         : _hint(strings, formatter, preview.isBonus, schedule);
     return Row(
@@ -63,11 +61,11 @@ class AnswerButtons extends ConsumerWidget {
     AppLocalizations strings,
     CardStatusFormatter? formatter,
     bool previewIsBonus,
-    DirectionSchedule? schedule,
+    CardSchedule? schedule,
   ) {
     if (previewIsBonus) {
       return strings.answerNoEffect;
-    } else if (schedule?.state == DirectionState.acquired) {
+    } else if (schedule?.state == CardState.acquired) {
       return strings.answerAcquired;
     } else if (schedule?.dueAt == null || formatter == null) {
       return null;

@@ -59,10 +59,7 @@ class SampleServices {
   SampleServices._(this.database, this.clock, this.images, this.distillations)
     : cards = CardService(
         cards: CardRepository(database),
-        presets: PresetRepository(database),
         images: images,
-        scheduler: const ReviewScheduler(SchedulingCalendar()),
-        distillations: distillations,
         clock: clock.call,
         scheduleChangeListener: const IgnoredScheduleChanges(),
       ),
@@ -98,36 +95,54 @@ class SampleServices {
   final ReviewService reviews;
   final ReminderService reminders;
 
-  Future<int> card(
-    String front,
-    String back, {
-    int? groupId,
-    bool alsoReverse = false,
-  }) => cards.create(
-    CardDraft(
-      frontText: front,
-      backText: back,
-      groupId: groupId,
-      presetId: null,
-      alsoReverse: alsoReverse,
-    ),
-  );
+  /// A new card of [groupId], pending in its queue.
+  Future<int> card(String front, String back, {required int groupId}) =>
+      cards.create(
+        CardDraft(
+          frontText: front,
+          backText: back,
+          groupId: groupId,
+          presetId: null,
+        ),
+      );
+
+  /// Introduces every pending card of [groupId] now, as a distillation would
+  /// have done earlier: each becomes due today at its preset slot. Lets a
+  /// test start from introduced cards without running distillations.
+  Future<void> introduceAll(int groupId) async {
+    final repository = CardRepository(database);
+    final catalog = await PresetRepository(database).loadCatalog();
+    for (final card in await repository.getCardsOfGroup(groupId)) {
+      if (card.isPending) {
+        await repository.applySchedule(
+          card.id,
+          const ReviewScheduler(SchedulingCalendar())
+              .introduction(preset: catalog.presetForCard(card), now: clock()),
+        );
+      }
+    }
+  }
 }
 
-/// A "Capitales" group of four cards, a "Espagnol" group of two, and one
-/// card outside any group, all started. Returns the id of "Capitales".
+/// A "Capitales" group of four cards, a "Espagnol" group of two and a
+/// "Biologie" group of one, all introduced. Returns the id of "Capitales".
 Future<int> seedSampleData(SampleServices services) async {
   final capitals = await services.groups.create('Capitales');
   final spanish = await services.groups.create('Espagnol');
+  final biology = await services.groups.create('Biologie');
   await services.card('Mongolie', 'Oulan-Bator', groupId: capitals);
-  await services.card('Pérou', 'Lima', groupId: capitals, alsoReverse: true);
+  await services.card('Pérou', 'Lima', groupId: capitals);
   await services.card('Laos', 'Vientiane', groupId: capitals);
   await services.card('Myanmar', 'Naypyidaw', groupId: capitals);
   await services.card('manger', 'comer', groupId: spanish);
   await services.card('boire', 'beber', groupId: spanish);
-  await services.card('Mitochondrie', 'Centrale énergétique de la cellule');
-  for (final groupId in [capitals, spanish, null]) {
-    await services.cards.startGroup(groupId);
+  await services.card(
+    'Mitochondrie',
+    'Centrale énergétique de la cellule',
+    groupId: biology,
+  );
+  for (final groupId in [capitals, spanish, biology]) {
+    await services.introduceAll(groupId);
   }
   return capitals;
 }

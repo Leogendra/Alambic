@@ -1,55 +1,61 @@
 # Feature 6 — Home
 
-Status: in progress (2026-11-11)
+Status: in progress (2026-11-16)
 
 ## Goal
 
-Answer, on opening the app, the question "what do I have to do today?": how many cards are [due](../lexicon.md#due) and how long they will take, which reminders the day still holds, and which groups need attention, either to review or to start.
+Answer, on opening the app, the question "what is coming?": the cards of today, late ones first, then those of the next days, and the new cards each group receives.
 
 ## Implementation overview
 
-The Home tab is built from a single view of the day, `TodayOverview`, computed by `TodayPlanner` from every card, the upcoming [extra reminders](../lexicon.md#extra-reminder), the answers of the day and the preset catalog. It is recomputed whenever one of these changes and every minute, through the current moment.
+The Home tab is a single timeline, `HomeTimeline`, computed by `TimelinePlanner` from every card, the upcoming [extra reminders](../lexicon.md#extra-reminder), the distillations and the pauses. It is recomputed whenever one of these changes and every minute, through the current moment.
 
-### Due panel
+### The timeline
 
-The panel shows the number of due directions and an estimate of about thirty seconds per card ("About 3 min"). A progress bar compares the directions answered today with the total of the day, that is answered plus still due ("2 of 7 done today"). Bonus reviews are not counted: they move nothing in the schedule. "Review all now" opens a session on every due card, oldest due date first ([Feature 5](5-session.md)); when nothing is due, the panel says so instead.
+The timeline covers seven [days](../lexicon.md#day): today and the six next ones. Today always shows, outlined in the accent colour, with "Nothing planned today." when it is empty; a later day shows only when something falls on it. Days are titled "Today", "Tomorrow", then "Thu 12 Nov".
 
-### Today's reminders
+Each day lists its reminders card by card:
 
-The timeline lists the moments of the day at which something is planned:
+- an introduced card goes on the day of its [due date](../lexicon.md#due-date), or on today when it is [due](../lexicon.md#due), with "late" in red when its due day is past; today's cards also give their time ("at 12:00");
+- a "Review soon" reminder goes on its day, labelled "Review soon";
+- each card shows its front, its group and its [reminder label](../lexicon.md#reminder-label) on the right; touching it opens its sheet.
 
-- for each group (and "No group"), the directions due today at a given moment, described by the group's preset: "4 reminders, one notification per card", or a grouped reminder;
-- the new cards a [distillation](8-distillation.md) introduces today, apart from the reminders of their group: "New knowledge", "Capitales · distillation, card 23 of 35";
-- the "Review soon" reminders falling today.
+Late cards come first, then the others by moment. A card already answered today has left today, since its due date moved: today only shows what is left to do. Suspended and pending cards are not reminders.
 
-Past moments are greyed and give what is still left ("2 left"); the first moment ahead is highlighted as "Next". A direction answered ahead of its slot leaves the timeline, since its due date moved. Directions overdue from previous days are not in the timeline: they are counted in the due panel.
+### New cards
 
-### Groups
+New cards are never named. Each group gets one line per day, "Capitales: 2 new cards", which opens the group. It counts:
 
-Two grids follow, each opening the group page:
+- the introduced cards never answered, on the day they are due (today when late);
+- the cards the group's [distillation](8-distillation.md) should introduce that day, following its rhythm from its current batch, as if every batch went through: the budget of "Avoid collisions" may push an arrival back by a day.
 
-- "Groups to review": the groups with due cards, with their count;
-- "Cards to start": the groups holding [unstarted](../lexicon.md#unstarted) cards, so that new cards never go unnoticed ([Feature 3](3-cards.md#starting-new-cards)).
+A paused distillation, or a paused group, announces no future arrival. Cards of a paused group stay on the timeline: they remain reviewable in the app.
 
-A pause button next to the date starts the global pause, after a confirmation ([Feature 7](7-notifications.md#pauses)). During the pause, Home starts with "En pause depuis le …" and a "Reprendre" button, and the timeline is empty: nothing will be notified.
+### Header
+
+The title "Coming up" sits over today's date. A pause button next to it starts the global pause, after a confirmation ([Feature 7](7-notifications.md#pauses)). During the pause, Home starts with "En pause depuis le …" and a "Reprendre" button.
+
+There is no count of due cards and no "Review all" on Home: reviewing happens from the notifications, a group page or a card sheet.
 
 ## Acceptance criteria
 
-- [x] Home shows the number of due cards, an estimated duration and the progress of the day; "Review all now" starts a session on every due card.
-- [x] The timeline lists today's reminders per group and moment, the new cards of the distillations, and the "Review soon" reminders, past ones greyed with what is left, the next one highlighted.
-- [x] Home lists the groups with due cards and the groups with cards to start, each opening its group page.
+- [x] Today shows first, outlined, with its late cards first, even when empty; the next six days follow when something falls on them.
+- [x] Each reminder shows its card's front, its group and its reminder label; a "Review soon" reminder shows on its day.
+- [x] New cards show as one line per group and day, made of the introduced cards never answered and of the arrivals expected from the distillation.
+- [x] A paused distillation or group announces no arrival.
 - [x] The pause button starts the global pause; Home then offers to resume it.
 
 ## Test strategy
 
-- `TodayPlanner` is tested on an in-memory database filled through the services: grouping per group and moment, new cards of a distillation apart, extra reminders, next entry, and the count of answers of the day without bonus reviews.
-- The screen is covered by golden tests in light and dark theme on the sample data, partly answered, with a reminder and a group of new cards, and by a golden test with a distillation in progress.
+- `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, suspended and pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, paused distillation and group, and "Review soon" reminders.
+- The arrivals of a distillation are tested on `DistillationRhythm`: batches until the queue is empty, today skipped once its pass ran, a batch in progress finished first.
+- The screen is covered by golden tests in light and dark theme, in English and during the global pause, on the sample data partly answered, with a reminder and a distilling group, and by a golden test of a distillation in progress.
 
 ## File mapping
 
-- `lib/application/home/` — `TodayPlanner`, the day view and its providers.
+- `lib/application/home/` — `TimelinePlanner`, the timeline and its days, cards and arrivals, and its providers.
 - `lib/features/home/` — the Home tab and its timeline.
 
 ## Technical details
 
-The answers of the day are read from the start of the scheduling day (4am). `todayStartProvider` derives that moment from the current moment but only changes once a day, so the history stream built on it is not rebuilt every minute.
+`todayStartProvider` derives the start of the scheduling day (4am) from the current moment but only changes once a day, so the streams built on it (the notifications of the day for the safeguards) are not rebuilt every minute.

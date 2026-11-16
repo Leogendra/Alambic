@@ -2,7 +2,7 @@ import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// When a direction comes back, relative to [now]: "Due", "at 15:17",
+/// When a card comes back, relative to [now]: "Due", "at 15:17",
 /// "tomorrow" or "in 3 d". Shared by the screens and the notifications.
 extension DueLabels on AppLocalizations {
   String dueDateLabel(

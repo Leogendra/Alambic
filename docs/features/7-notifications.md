@@ -1,6 +1,6 @@
 # Feature 7 — Notifications
 
-Status: in progress (2026-11-11)
+Status: in progress (2026-11-16)
 
 ## Goal
 
@@ -20,7 +20,7 @@ The application decides what to notify and when; a platform layer decides how. T
 
 ### Planning the wake-ups
 
-`NotificationPlanner` listens to every schedule change: an answer, a start, a reset, a suspension, a deletion, a reminder added or removed. Each time, it computes the next wake-ups from the [notification moments](../lexicon.md#notification-moment) of the scheduled directions of non-suspended cards and from the upcoming [extra reminders](../lexicon.md#extra-reminder), plus the start of the next day each running [distillation](8-distillation.md) has to process:
+`NotificationPlanner` listens to every schedule change: an answer, an introduction, a reset, a suspension, a deletion, a reminder added or removed. Each time, it computes the next wake-ups from the [notification moments](../lexicon.md#notification-moment) of the scheduled, non-suspended cards and from the upcoming [extra reminders](../lexicon.md#extra-reminder), plus the start of the next day each running [distillation](8-distillation.md) has to process, and the slot of the next day for every card still due whose moment has passed, so that an ignored card is sent again even when nothing else wakes the app:
 
 - one wake-up per distinct minute, a due moment with seconds (after a sub-day interval) being rounded up to the next minute;
 - at most 48 wake-ups ahead, since each wake-up plans the next ones;
@@ -32,11 +32,11 @@ The planner also withdraws the notifications of cards that are no longer [due](.
 
 ### Notification moment
 
-`DeliveryPlanner`, in the domain, decides when each scheduled direction is notified. The moment is its due date, with two exceptions.
+`DeliveryPlanner`, in the domain, decides when each scheduled card is notified. The moment is its due date, with two exceptions.
 
-A direction still due from an earlier day is notified again today, at the slot of its preset: its notification was ignored or swiped, or was not shown because it was found too late. It never counts as an answer, neither a success nor a failure. "Notified" is therefore kept per day: a direction notified yesterday and still due is notified again today, once.
+A card still due from an earlier day is notified again today, at the slot of its preset: its notification was ignored or swiped, or was not shown because it was found too late. It never counts as an answer, neither a success nor a failure. "Notified" is therefore kept per day: a card notified yesterday and still due is notified again today, once.
 
-Then, with a time range in one-notification-per-card mode: the directions due at the start of the range on a day are spread evenly over the range, in the order of their ids. With 4 cards and a 9:00 – 17:00 range, they arrive at 9:00, 11:00, 13:00 and 15:00; the moments are rounded down to the minute. A grouped reminder stays at the start of the range, and so does a due date after an interval of less than a day, which keeps its own moment.
+Then, with a time range in one-notification-per-card mode: the cards due at the start of the range on a day are spread evenly over the range, in the order of their ids. With 4 cards and a 9:00 – 17:00 range, they arrive at 9:00, 11:00, 13:00 and 15:00; the moments are rounded down to the minute. A grouped reminder stays at the start of the range, and so does a due date after an interval of less than a day, which keeps its own moment.
 
 The spreading depends on the cards due that day: when a card is answered in the app before its notification, the others of the range move. A notification that moves to a moment already passed is shown at once, through a wake-up planned for the next minute.
 
@@ -56,15 +56,17 @@ The Garde-fous screen saves each change at once and plans the wake-ups again. Un
 
 A group is paused from its settings or its page, everything from Settings › Notifications or the pause button of Home. `PauseService` stores the start of the pause (`card_groups.paused_at`, `app_settings.paused_at`) and plans the wake-ups again.
 
-During a pause, the paused cards are no longer candidates for a notification, so no wake-up is planned for them, no grouped reminder counts them, Home's timeline leaves them out and their "Review soon" reminders are dropped. The distillations of a paused group, and every distillation during the global pause, introduce nothing; on resume, the next daily pass introduces the batch due, without catching up the days missed. The cards stay reviewable in the app.
+During a pause, the paused cards are no longer candidates for a notification, so no wake-up is planned for them, no grouped reminder counts them, Home's timeline announces no new card for their group and their "Review soon" reminders are dropped. The distillation of a paused group, and every distillation during the global pause, introduce nothing; on resume, the next daily pass introduces the batch due, without catching up the days missed. The cards stay reviewable in the app.
 
-On resume, `PauseShift`, in the domain, moves the due date of every scheduled direction by the number of scheduling days the pause lasted, keeping its time: a card due on the 12th, in a pause from the 10th to the 14th, comes back on the 16th. A direction answered during the pause keeps the due date chosen then, and a pause shorter than a day moves nothing. Resuming the global pause leaves alone the groups still paused on their own: their resume shifts them by their whole pause.
+On resume, `PauseShift`, in the domain, moves the due date of every scheduled card by the number of scheduling days the pause lasted, keeping its time: a card due on the 12th, in a pause from the 10th to the 14th, comes back on the 16th. A card answered during the pause keeps the due date chosen then, and a pause shorter than a day moves nothing. Resuming the global pause leaves alone the groups still paused on their own: their resume shifts them by their whole pause.
 
 ### Showing a card
 
-When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per direction whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app, and is notified again the next day at its slot.
+When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per card whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app, and is notified again the next day at its slot.
 
-The notification shows the asked face as its title ("Que montre cette image ?" for a face that is an image alone), the [step](../lexicon.md#step) ("Cran 2 sur 6", "Nouvelle carte", or "Intervalle 11 j" for an adaptive preset, with "verso → recto" for the reverse direction) as its text, the group as its sub-text, and two buttons, "Correct" and "Again". An extra reminder shows the same card with a "no effect on the schedule" mention. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
+The notification shows the asked face as its title ("Que montre cette image ?" for a face that is an image alone), the [reminder label](../lexicon.md#reminder-label) ("J2", "Nouvelle carte", or "Intervalle 11 j" for an adaptive preset, with "verso → recto" when the back is asked) as its text, the group as its sub-text, and two buttons, "Correct" and "Again". An extra reminder shows the same card with a "no effect on the schedule" mention. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
+
+With the [back option](../lexicon.md#back-option) of the group, the asked face is drawn when the notification is shown, one chance in two, and each chained card of a grouped reminder draws its own. The face drawn travels in the payload, so that the answer revealed after "Again" and the typed answer are read against the other face.
 
 ### Showing a card's image
 
@@ -75,7 +77,7 @@ When the asked face has an image, the expanded notification shows it in the Andr
 The buttons are handled in a background isolate, app open or not, by `NotificationActionHandler`. The answer goes through `ReviewService`, exactly like an in-app session ([Feature 5](5-session.md#answer)), with the notification as its source:
 
 - "Correct" records the answer and closes the notification;
-- "Again" records the failure and replaces the notification in place with the expected answer, what the failure did ("Compté raté · retour au cran 1, revue demain") and an "OK" button that closes it;
+- "Again" records the failure and replaces the notification in place with the expected answer, what the failure did ("Compté raté · retour à J1, revue demain") and an "OK" button that closes it;
 - answering an extra reminder is always a [bonus review](../lexicon.md#bonus-review);
 - a card deleted meanwhile only closes the notification.
 
@@ -95,7 +97,7 @@ An accepted answer is recorded as "Correct", a refused one as "Again". In both c
 
 ### Grouped reminder
 
-A preset in grouped reminder mode announces the due cards of a group with a single notification, "Capitales : 5 cartes à réviser", with the estimated time ("Environ 3 min"). `GroupedReminders` builds it: the dispatcher marks each due direction of such a preset as notified, as usual, then shows the reminder of its group instead of a notification of its own. Cards without a group have their own reminder, under "No group".
+A preset in grouped reminder mode announces the due cards of a group with a single notification, "Capitales : 5 cartes à réviser", with the estimated time ("Environ 3 min"). `GroupedReminders` builds it: the dispatcher marks each due card of such a preset as notified, as usual, then shows the reminder of its group instead of a notification of its own.
 
 The count is the number of cards of the group, following a grouped preset, whose due moment has passed. When it changes because a card was answered in the app, the planner refreshes it without ringing again, and closes the reminder once no card is left.
 
@@ -116,8 +118,8 @@ The notification permission of Android 13 and exact alarms are both asked on the
 
 ## Acceptance criteria
 
-- [x] A started card is notified at its preset slot, without the app being open.
-- [x] The notification shows the asked face, the step and the group, with "Correct" and "Again".
+- [x] An introduced card is notified at its preset slot, without the app being open.
+- [x] The notification shows the asked face, the reminder label and the group, with "Correct" and "Again".
 - [x] A face with an image shows it in the expanded notification, text only when collapsed; so does an answer face with an image after "Again".
 - [x] "Correct" records the answer from the notification and closes it; "Again" records the failure and shows the answer, the new step and the next review, with "OK".
 - [x] A card reviewed in the app before its slot is not notified, and a notification already shown is withdrawn.
@@ -147,7 +149,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 
 ## File mapping
 
-- `lib/domain/notifications/` — when each direction is notified, when to show a reminder and when to wake up.
+- `lib/domain/notifications/` — when each card is notified, when to show a reminder and when to wake up.
 - `lib/domain/reviews/typed_answer_match.dart` — comparison of a typed answer.
 - `lib/application/notifications/` — the platform interfaces, the planner, the dispatcher, the grouped reminders, the action handler and their providers.
 - `lib/notifications/` — notification texts and the store of planned wake-ups.
@@ -162,7 +164,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 
 ## Technical details
 
-The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its direction id; extra reminders use ids from 1,000,000,000 upwards so that they never replace the notification of a due card; the digest of a moment uses 2,000,000,000; the grouped reminder of a group uses the negative id `-1 - groupId` (-1 for "No group"), and the cards chained in it take the same id, so that each one replaces the previous. A notification carries its key (direction, extra reminder, chained group, prompt or answer, or the group and count of a grouped reminder) in its payload, which is how the planner finds the notifications shown and how a pressed button finds what it answers.
+The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its card id; extra reminders use ids from 1,000,000,000 upwards so that they never replace the notification of a due card; the digest of a moment uses 2,000,000,000; the grouped reminder of a group uses the negative id `-1 - groupId`, and the cards chained in it take the same id, so that each one replaces the previous. A notification carries its key (card, extra reminder, chained group, prompt or answer, the [asked side](../lexicon.md#asked-side), or the group and count of a grouped reminder) in its payload, which is how the planner finds the notifications shown and how a pressed button finds what it answers.
 
 "Open" and touching a grouped reminder launch the app instead of a background isolate: the plugin hands the response to the running app, or to the launch details when the notification started it. `notificationTargetsProvider` turns both into a stream of groups to open, which the main shell follows.
 

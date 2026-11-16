@@ -2,14 +2,14 @@
 
 ## Role
 
-Alambic is an Android spaced-repetition app where the notification is the main interface. Each card has two [directions](lexicon.md#direction) tracked separately; a [preset](lexicon.md#preset) decides when each direction comes back. The reference product rules live in `SPECS.md` (not versioned); `docs/features/` describes what is implemented.
+Alambic is an Android spaced-repetition app where the notification is the main interface. Each card lives in a [group](lexicon.md#group) and has a single progression; a [preset](lexicon.md#preset) decides when it comes back. A new card waits in the [queue](lexicon.md#queue) of its group until the group's [distillation](lexicon.md#distillation) introduces it, a few cards at a time. The reference product rules live in `SPECS.md` (not versioned); `docs/features/` describes what is implemented.
 
 ## Major pieces
 
 The code is split into layers, from the most stable to the most platform-dependent. A layer only imports the layers listed above it.
 
-- `lib/domain/` holds the business rules in pure Dart: the 4am calendar, the sequence and FSRS engines, due-date computation, preset resolution, the distillation rhythm, bulk-add parsing. It imports no Flutter, drift or plugin code, so these rules are tested without a database or an emulator. See [Feature 1](features/1-scheduling.md) and [Feature 2](features/2-presets.md).
-- `lib/data/` is persistence. The drift database (`lib/data/database/`) stores domain objects as they are; the repositories (`lib/data/repositories/`) expose reads, writes and streams per concept (cards, groups, presets, reviews). They store decisions, they never take any. The card images are files in a folder of the app (`lib/data/images/`), which cards name without their path. See [Feature 0](features/0-foundation.md#database) The backup (`lib/data/backup/`) copies the tables and the images to a zip file and back, see [Feature 9](features/9-backup.md).
+- `lib/domain/` holds the business rules in pure Dart: the 4am calendar, the sequence and FSRS engines, due-date computation, preset resolution, the distillation queue and rhythm, the draw of the [asked side](lexicon.md#asked-side), bulk-add parsing. It imports no Flutter, drift or plugin code, so these rules are tested without a database or an emulator. See [Feature 1](features/1-scheduling.md) and [Feature 2](features/2-presets.md).
+- `lib/data/` is persistence. The drift database (`lib/data/database/`) stores domain objects as they are; the repositories (`lib/data/repositories/`) expose reads, writes and streams per concept (cards, groups, presets, reviews). They store decisions, they never take any. The card images are files in a folder of the app (`lib/data/images/`), which cards name without their path. See [Feature 0](features/0-foundation.md#database). The backup (`lib/data/backup/`) copies the tables and the images to a zip file and back, see [Feature 9](features/9-backup.md).
 - `lib/application/` holds the services that apply domain rules to the data (create a card, answer, duplicate a preset) and the Riverpod providers that expose them. The clock (`clockProvider`) is injected here.
 - `lib/notifications/` is the platform side of the notifications: the Android implementation of the alarm and notification interfaces owned by `lib/application/notifications/`, the texts of a notification, and the entry points of the background isolates. It is the only place that imports the alarm and notification plugins, so iOS can be added as a second implementation. See [Feature 7](features/7-notifications.md).
 - `lib/features/` holds the screens, one folder per screen or family of screens (onboarding, home, groups, cards, session, presets, settings). They read state through providers and act only through services.
@@ -28,12 +28,16 @@ Notifications run without the app: an alarm or a pressed notification button sta
 
 ### The domain does not know the time
 
-Domain functions receive the current moment as a parameter instead of reading the clock. This is what makes the 4am day boundary, sub-day intervals and the two-directions rule testable without waiting or faking time.
+Domain functions receive the current moment as a parameter instead of reading the clock. This is what makes the 4am day boundary, sub-day intervals and the distillation rhythm testable without waiting or faking time. Randomness is injected the same way (`randomProvider`): the random queue order and the draw of the asked side are tested with a fixed generator.
 
 ### A sequence step is clamped to the current sequence
 
-A direction keeps its [step](lexicon.md#step) when its preset changes or when the sequence gets shorter. Rather than rewriting the affected cards at change time, the engine clamps the step to the last existing step at each computation. A preset change with the same engine therefore needs no data migration.
+A card keeps its [step](lexicon.md#step) when its preset changes or when the sequence gets shorter. Rather than rewriting the affected cards at change time, the engine clamps the step to the last existing step at each computation. A preset change with the same engine therefore needs no data migration.
 
 ### Each engine reads only its own progression
 
-A direction stores a step for the sequence engine and an FSRS memory for the adaptive engine; an answer writes the one of its engine and clears the other. `DirectionProgress` reads, for the engine of the current preset, only its own progression. A change of engine therefore starts the progression over without rewriting any card, whatever the path of the change (card, group, global preset or the preset itself).
+A card stores a step for the sequence engine and an FSRS memory for the adaptive engine; an answer writes the one of its engine and clears the other. `CardProgress` reads, for the engine of the current preset, only its own progression. A change of engine therefore starts the progression over without rewriting any card, whatever the path of the change (card, group, global preset or the preset itself).
+
+### The asked side is drawn at display time, never stored
+
+The [back option](lexicon.md#back-option) changes what a display asks, not what is tracked: a card has one progression whichever face was asked. The face is drawn when a session opens or a notification is shown (`AskedSideDraw`), and travels with the notification so that the revealed and the typed answer read the right face. Nothing about it is stored, so turning the option on or off rewrites nothing.

@@ -9,15 +9,16 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Main navigation with four tabs and a card creation button, in light and dark theme.
 - Standard (1 day to 6 months) and Intensive (10 min to 1 week) presets, created on first launch.
 - Preset list and editor in Settings: create, edit and duplicate a preset, and choose the global preset.
-- Creation and editing of text cards, in a group or not, with the "Also in the other direction" option and a card-specific preset. A new card is not scheduled until it is started: "Start all" on a group page makes its new cards due today.
-- Groups tab: "No group", list of groups with their due cards, card search, group page and group settings (name, preset, deletion of the group with its cards).
-- Bulk add: paste one card per line into a group, with an editable separator (`;` by default) and a report of the skipped lines.
-- Home tab: number of due cards with an estimated duration and the progress of the day, today's reminders, groups to review and groups with new cards to start.
-- Card sheet: both faces, step, next review and history of each direction, with Review soon (one-off reminder), Suspend / Resume, Reset and starting a direction.
-- Notifications: a started card arrives at its preset slot with Correct / Again buttons, answered without opening the app; Again shows the expected answer and the next review. A card reviewed in the app before its slot is not notified twice. "Review soon" reminders are notified too.
+- Creation and editing of text cards, each in a group, with a card-specific preset. The group row creates a new group from its name with "+". A new card waits in its group's queue until the group's distillation brings it in.
+- Groups tab: list of groups with their due cards, card search, group page and group settings (name, preset, back, deletion of the group with its cards).
+- "Review all" on a group page: a session on every card of the group, where only the cards due today count; the others are bonus reviews.
+- Back of a group: once enabled, each display of a card (session, notification, typed answer) asks its front or its back at random, with a single progression per card.
+- Bulk add: paste one card per line into a group, chosen or created on the spot, with an editable separator (`;` by default) and a report of the skipped lines.
+- Home tab: a timeline of the coming cards, today first with the late ones, then the next six days, card by card with their reminder label ("J2", "S1"), and one line per group for its new cards ("Capitales: 2 new cards").
+- Card sheet: both faces, reminder label on the step bar, next review and history, with Review soon (one-off reminder), Suspend / Resume and Reset, which sends the card back to its group's queue. Lists show the reminder label and next date of each card ("J2 · in 3 d"), or "waiting".
+- Notifications: an introduced card arrives at its preset slot with Correct / Again buttons, answered without opening the app; Again shows the expected answer and the next review. A card reviewed in the app before its slot is not notified twice. "Review soon" reminders are notified too.
 - Reminders survive a phone restart. Without the exact alarm permission they may arrive a few minutes late, and Settings offers to allow exact alarms.
-- Distillation: "Distill" on a group page introduces its new cards a few at a time ("N cards every X days", in group or random order), even with the app closed. "Avoid collisions" gives it a daily budget: reminders first, new cards in what is left. The group page follows each distillation with pause and stop; Home shows the day's "New knowledge". Cards added to the group join the end of the queue, and the cards left by a stopped distillation can be started by hand.
-- Global distillation, from Settings: every new card of every group, in both directions and in random order, the reverse of a card always after its front. It replaces the group distillations in progress and blocks new ones until it is stopped.
+- Distillation: "Distill" on a group page introduces its waiting cards a few at a time ("N cards every X days", in group or random order), even with the app closed. It is a permanent setting of the group, adjusted, paused and resumed from the group page; cards added later join the end of its queue. "Avoid collisions" gives it a daily budget while cards wait: reminders first, new cards in what is left.
 - Typed answer in the notification, for presets with this option: the answer is accepted despite case, accents, spaces and one typo, then the expected answer is shown.
 - Grouped reminder, for presets in this mode: one notification per group with its number of due cards, which opens the app on the group or chains the cards inside the notification.
 - Time range schedule: the notifications of the day are spread evenly over the range, and Home's timeline shows them at their moment.
@@ -28,7 +29,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Images on cards: each face takes a picture from the gallery, alone or with a text. It shows on the card sheet, in the lists, in a session and in the expanded notification.
 - In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.
 - Export and import from Settings: all the cards, their history, the presets, the settings and the images in a single zip file saved where you choose. Importing a file replaces all the current data after a confirmation; a file that is not a valid backup is refused without changing anything.
-- Welcome screens on the first launch: the principle of the app, the notification and exact alarm permissions with the reminder time, and a first card started at once. The notification permission is no longer asked at every launch.
+- Welcome screens on the first launch: the principle of the app, the notification and exact alarm permissions with the reminder time, and a first group with its first card, then the page of that group with "Distill" pointed out. The notification permission is no longer asked at every launch.
 - English translation of the whole app, notifications included.
 - Language and theme in Settings: the app follows the phone by default, or stays in French or English, light or dark. A phone in another language gets English. The shipped presets are named in the language of the interface until they are renamed.
 - App icon on the home screen, following the phone's icon shape and its themed icons, and in the notifications' status bar.

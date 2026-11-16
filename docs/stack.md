@@ -10,7 +10,7 @@
 Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so that a build on another machine produces the same app. A version bump is an explicit change of both files.
 
 - `flutter_riverpod`: state and dependency injection.
-- `drift` and `drift_flutter`: local SQLite database (cards, directions, reviews, presets). `drift_dev` and `build_runner` generate code during development.
+- `drift` and `drift_flutter`: local SQLite database (groups, cards, distillations, reviews, presets). `drift_dev` and `build_runner` generate code during development.
 - `shared_preferences`: interface preferences.
 - `flutter_local_notifications`: notifications with action buttons handled in the background.
 - `android_alarm_manager_plus`: wakes the app up at a due moment, including after a phone restart.

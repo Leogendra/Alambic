@@ -114,10 +114,7 @@ void main() {
       contrastRatio(const Color(0xFF000000), const Color(0xFFFFFFFF)),
       closeTo(21, 0.01),
     );
-    expect(
-      contrastRatio(const Color(0xFF777777), const Color(0xFF777777)),
-      1,
-    );
+    expect(contrastRatio(const Color(0xFF777777), const Color(0xFF777777)), 1);
   });
 
   for (final (themeName, colors) in [

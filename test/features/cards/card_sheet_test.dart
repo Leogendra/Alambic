@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
@@ -52,21 +53,27 @@ void main() {
     return cardId;
   }
 
-  testWidgets('card sheet', (tester) async {
-    final renderAt = DateTime(2026, 11, 12, 9);
-    final cardId = await seedReviewedCard(tester, renderAt);
-    await pumpGolden(
-      tester,
-      CardSheetScreen(cardId: cardId),
-      overrides: screenOverrides(database, renderAt),
-    );
-    expect(find.text('J2'), findsOneWidget);
-    expect(find.text('bonus'), findsNWidgets(2));
-    await expectLater(
-      find.byType(CardSheetScreen),
-      matchesGoldenFile('goldens/card_sheet.png'),
-    );
-  });
+  for (final (brightness, suffix) in [
+    (Brightness.light, ''),
+    (Brightness.dark, '_dark'),
+  ]) {
+    testWidgets('card sheet, ${brightness.name} theme', (tester) async {
+      final renderAt = DateTime(2026, 11, 12, 9);
+      final cardId = await seedReviewedCard(tester, renderAt);
+      await pumpGolden(
+        tester,
+        CardSheetScreen(cardId: cardId),
+        brightness: brightness,
+        overrides: screenOverrides(database, renderAt),
+      );
+      expect(find.text('J2'), findsOneWidget);
+      expect(find.text('bonus'), findsNWidgets(2));
+      await expectLater(
+        find.byType(CardSheetScreen),
+        matchesGoldenFile('goldens/card_sheet$suffix.png'),
+      );
+    });
+  }
 
   testWidgets('card sheet of a card moved to the adaptive engine', (
     tester,

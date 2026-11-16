@@ -79,18 +79,24 @@ void main() {
     );
   });
 
-  testWidgets('group detail', (tester) async {
-    await seed(tester);
-    await pumpGolden(
-      tester,
-      GroupDetailScreen(groupId: capitalsId),
-      overrides: screenOverrides(database, sampleNow),
-    );
-    await expectLater(
-      find.byType(GroupDetailScreen),
-      matchesGoldenFile('goldens/group_detail.png'),
-    );
-  });
+  for (final (brightness, suffix) in [
+    (Brightness.light, ''),
+    (Brightness.dark, '_dark'),
+  ]) {
+    testWidgets('group detail, ${brightness.name} theme', (tester) async {
+      await seed(tester);
+      await pumpGolden(
+        tester,
+        GroupDetailScreen(groupId: capitalsId),
+        brightness: brightness,
+        overrides: screenOverrides(database, sampleNow),
+      );
+      await expectLater(
+        find.byType(GroupDetailScreen),
+        matchesGoldenFile('goldens/group_detail$suffix.png'),
+      );
+    });
+  }
 
   testWidgets('group settings', (tester) async {
     await seed(tester);

@@ -20,21 +20,26 @@ import '../../domain/distillation/distillation_settings.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// "Distill": settings of the distillation of a group, with an estimate of
-/// the last arrival of its queue.
-class DistillationLaunchScreen extends ConsumerStatefulWidget {
-  const DistillationLaunchScreen({required this.groupId, super.key});
+/// the last arrival of its queue. Activates the distillation, or adjusts it
+/// when [currentSettings] are given.
+class DistillScreen extends ConsumerStatefulWidget {
+  const DistillScreen({required this.groupId, this.currentSettings, super.key});
 
   final int groupId;
 
+  /// Settings of the distillation already active; `null` to activate one.
+  final DistillationSettings? currentSettings;
+
+  bool get isAdjusting => currentSettings != null;
+
   @override
-  ConsumerState<DistillationLaunchScreen> createState() =>
-      _DistillationLaunchScreenState();
+  ConsumerState<DistillScreen> createState() => _DistillScreenState();
 }
 
-class _DistillationLaunchScreenState
-    extends ConsumerState<DistillationLaunchScreen> {
-  DistillationSettings _settings = const DistillationSettings();
-  bool _launching = false;
+class _DistillScreenState extends ConsumerState<DistillScreen> {
+  late DistillationSettings _settings =
+      widget.currentSettings ?? const DistillationSettings();
+  bool _saving = false;
 
   void _update(DistillationSettings Function(DistillationSettings) change) =>
       setState(() => _settings = change(_settings));
@@ -51,7 +56,11 @@ class _DistillationLaunchScreenState
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(strings.distillTitle),
+            Text(
+              widget.isAdjusting
+                  ? strings.distillAdjustTitle
+                  : strings.distillTitle,
+            ),
             if (summary?.group case final group?)
               Text(
                 group.name,
@@ -165,19 +174,24 @@ class _DistillationLaunchScreenState
           ],
         ),
         FilledButton(
-          onPressed: _launching ? null : _launch,
-          child: Text(strings.distillLaunch),
+          onPressed: _saving ? null : _save,
+          child: Text(
+            widget.isAdjusting ? strings.commonSave : strings.distillActivate,
+          ),
         ),
       ],
     );
   }
 
-  Future<void> _launch() async {
+  Future<void> _save() async {
     final navigator = Navigator.of(context);
-    setState(() => _launching = true);
-    await ref
-        .read(distillationServiceProvider)
-        .activate(widget.groupId, _settings);
+    final service = ref.read(distillationServiceProvider);
+    setState(() => _saving = true);
+    if (widget.isAdjusting) {
+      await service.adjust(widget.groupId, _settings);
+    } else {
+      await service.activate(widget.groupId, _settings);
+    }
     navigator.pop();
   }
 }

@@ -5,7 +5,7 @@ import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/section_label.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
-import 'distillation_launch_screen.dart';
+import 'distill_screen.dart';
 import 'distillation_tile.dart';
 
 /// "Distillation" section of a group page: its distillation and the
@@ -38,8 +38,7 @@ class GroupDistillationsSection extends ConsumerWidget {
                 label: Text(strings.distillTitle),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (context) =>
-                        DistillationLaunchScreen(groupId: groupId),
+                    builder: (context) => DistillScreen(groupId: groupId),
                   ),
                 ),
               ),

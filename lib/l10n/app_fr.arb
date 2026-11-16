@@ -784,7 +784,8 @@
   "settingsExactAlarmsAllow": "Autoriser",
   "settingsExactAlarmsAllowed": "Activés",
   "distillTitle": "Distiller",
-  "distillIntro": "Les cartes jamais révisées arrivent au compte-gouttes, à l'horaire du preset ({time}). Chacune suit ensuite le preset {preset}.",
+  "distillAdjustTitle": "Régler la distillation",
+  "distillIntro": "Les cartes en attente du groupe arrivent au compte-gouttes, à l'horaire du preset ({time}). Chacune suit ensuite le preset {preset}.",
   "@distillIntro": {
     "placeholders": {
       "time": {
@@ -833,14 +834,23 @@
       }
     }
   },
-  "distillNothing": "Aucune carte à introduire dans ce sens.",
-  "distillLaunch": "Lancer la distillation",
+  "distillNothing": "Aucune carte en attente. Les cartes ajoutées au groupe arriveront à ce rythme.",
+  "distillActivate": "Activer la distillation",
   "groupDistillationSection": "Distillation",
   "groupDistillationNone": "Aucune distillation. Distiller fait arriver les nouvelles cartes au compte-gouttes.",
   "distillationRunning": "En cours",
   "distillationPaused": "En pause",
   "distillationPause": "Mettre la distillation en pause",
   "distillationResume": "Reprendre la distillation",
+  "distillationAdjust": "Régler",
+  "distillationWaiting": "{count, plural, =0{Aucune carte en attente} =1{1 carte en attente} other{{count} cartes en attente}}",
+  "@distillationWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "distillationCardsPer": "{count, plural, =1{1 carte} other{{count} cartes}}",
   "@distillationCardsPer": {
     "placeholders": {
@@ -859,17 +869,6 @@
   },
   "distillationOrderGroup": "ordre du groupe",
   "distillationOrderRandom": "ordre aléatoire",
-  "distillationIntroduced": "{introduced} sur {total} introduites",
-  "@distillationIntroduced": {
-    "placeholders": {
-      "introduced": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "distillationLastArrival": "dernière le {date}",
   "@distillationLastArrival": {
     "placeholders": {

@@ -6,10 +6,11 @@ import '../../app/theme/alambic_colors.dart';
 import '../../application/distillation/distillation_progress.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'distill_screen.dart';
 import 'distillation_labels.dart';
 
-/// The distillation of a group: state, rhythm and progress, with pause /
-/// resume.
+/// The distillation of a group: state, rhythm and waiting cards, with
+/// "Adjust" and pause / resume.
 class DistillationTile extends ConsumerWidget {
   const DistillationTile({required this.progress, super.key});
 
@@ -67,6 +68,17 @@ class DistillationTile extends ConsumerWidget {
                   ),
                 ),
               ),
+              TextButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => DistillScreen(
+                      groupId: distillation.groupId,
+                      currentSettings: distillation.settings,
+                    ),
+                  ),
+                ),
+                child: Text(strings.distillationAdjust),
+              ),
               IconButton.filledTonal(
                 tooltip: distillation.isRunning
                     ? strings.distillationPause
@@ -87,27 +99,11 @@ class DistillationTile extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(right: 6),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: LinearProgressIndicator(
-                minHeight: 6,
-                value: _total == 0 ? 0 : progress.introduced / _total,
-                backgroundColor: colors.segmentBackground,
-                color: colors.accent,
-                semanticsLabel: strings.distillationIntroduced(
-                  progress.introduced,
-                  _total,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 6),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
-                    strings.distillationIntroduced(progress.introduced, _total),
+                    strings.distillationWaiting(progress.remaining),
                     style: TextStyle(fontSize: 13, color: colors.textSecondary),
                   ),
                 ),
@@ -125,6 +121,4 @@ class DistillationTile extends ConsumerWidget {
       ),
     );
   }
-
-  int get _total => progress.introduced + progress.remaining;
 }

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
-import 'package:alambic/features/distillation/distillation_launch_screen.dart';
+import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/home/home_screen.dart';
 
@@ -49,13 +49,13 @@ void main() {
     await seed(tester, activate: false);
     await pumpGolden(
       tester,
-      DistillationLaunchScreen(groupId: japaneseId),
+      DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
     expect(find.text('6 cartes · dernière arrivée le 15 novembre'), findsOne);
     await expectLater(
-      find.byType(DistillationLaunchScreen),
-      matchesGoldenFile('goldens/distillation_launch.png'),
+      find.byType(DistillScreen),
+      matchesGoldenFile('goldens/distill_activate.png'),
     );
   });
 
@@ -66,7 +66,7 @@ void main() {
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(find.text('1 sur 6 introduites'), findsOneWidget);
+    expect(find.text('5 cartes en attente'), findsOneWidget);
     await expectLater(
       find.byType(GroupDetailScreen),
       matchesGoldenFile('goldens/group_distillation.png'),
@@ -92,19 +92,48 @@ void main() {
     await seed(tester, activate: false);
     await pumpGolden(
       tester,
-      DistillationLaunchScreen(groupId: japaneseId),
+      DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
     await tester.tap(find.byTooltip('Plus de cartes'));
     await tester.pumpAndSettle();
     expect(find.text('6 cartes · dernière arrivée le 12 novembre'), findsOne);
-    await tester.tap(find.text('Lancer la distillation'));
+    await tester.tap(find.text('Activer la distillation'));
     await tester.pumpAndSettle();
     final distillations = await tester.runAsync(
       () => DistillationRepository(database).getAll(),
     );
     expect(distillations!.single.groupId, japaneseId);
     expect(distillations.single.cardsPerBatch, 2);
-    expect(find.byType(DistillationLaunchScreen), findsNothing);
+    expect(find.byType(DistillScreen), findsNothing);
+  });
+
+  testWidgets('"Adjust" opens the current settings and saves new ones', (
+    tester,
+  ) async {
+    await seed(tester);
+    await pumpGolden(
+      tester,
+      GroupDetailScreen(groupId: japaneseId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.ensureVisible(find.text('Régler'));
+    await tester.tap(find.text('Régler'));
+    await tester.pumpAndSettle();
+    expect(find.text('Régler la distillation'), findsOneWidget);
+    expect(find.text('1'), findsOneWidget, reason: 'one card per batch');
+    await tester.tap(find.byTooltip('Plus de jours'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Enregistrer'));
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Enregistrer'));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    });
+    await tester.pumpAndSettle();
+    final distillation = await tester.runAsync(
+      () => DistillationRepository(database).find(japaneseId),
+    );
+    expect(distillation!.everyDays, 2);
+    expect(find.text('1 carte tous les 2 jours · ordre du groupe'), findsOne);
   });
 }

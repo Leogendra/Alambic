@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/formatting/preset_labels.dart';
+import '../../app/formatting/reminder_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
@@ -13,8 +14,9 @@ import '../../domain/scheduling/card_progress.dart';
 import '../../domain/scheduling/fsrs/fsrs_memory.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Where a card stands: its step in the preset sequence or its FSRS
-/// interval, and its next review; or why it is not scheduled.
+/// Where a card stands: the reminder label of its step in the preset
+/// sequence, or its FSRS memory, and its next review; or why it is not
+/// scheduled.
 class CardProgressPanel extends StatelessWidget {
   const CardProgressPanel({
     required this.card,
@@ -73,34 +75,35 @@ class CardProgressPanel extends StatelessWidget {
       ],
       NewProgress() => _sequence(context, colors, null),
       SequenceProgress(:final step) => _sequence(context, colors, step),
-      AdaptiveProgress(:final memory, :final intervalDays) => [
-        _title(
-          strings,
-          colors,
-          strings.cardSheetInterval(strings.intervalDays(intervalDays)),
-        ),
+      AdaptiveProgress(:final memory) => [
+        _title(strings, colors, null),
         _memory(strings, colors, memory),
       ],
     };
   }
 
-  Widget _title(AppLocalizations strings, AlambicColors colors, String title) =>
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ),
-          Text(
-            strings.presetName(preset),
-            style: TextStyle(fontSize: 13, color: colors.textSecondary),
-          ),
-        ],
-      );
+  /// [title] on the left, the preset on the right; the preset alone for a
+  /// card followed by FSRS, which has no reminder label.
+  Widget _title(
+    AppLocalizations strings,
+    AlambicColors colors,
+    String? title,
+  ) => Row(
+    crossAxisAlignment: CrossAxisAlignment.baseline,
+    textBaseline: TextBaseline.alphabetic,
+    children: [
+      Expanded(
+        child: Text(
+          title ?? '',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      Text(
+        strings.presetName(preset),
+        style: TextStyle(fontSize: 13, color: colors.textSecondary),
+      ),
+    ],
+  );
 
   /// "Stabilité 10,8 j · difficulté 5,3 sur 10".
   Widget _memory(
@@ -131,7 +134,7 @@ class CardProgressPanel extends StatelessWidget {
         colors,
         step == null
             ? _capitalized(strings.cardStatusNew)
-            : strings.cardSheetStepOf(step + 1, length),
+            : strings.reminderLabel(preset.intervals[step]),
       ),
       Row(
         spacing: 4,

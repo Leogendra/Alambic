@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/formatting/preset_labels.dart';
+import '../../app/widgets/choice_tile.dart';
 import '../../domain/presets/preset.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'preset_choice.dart';
@@ -21,9 +22,10 @@ Future<PresetChoice?> showPresetPicker(
     return SafeArea(
       child: ListView(
         shrinkWrap: true,
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
             child: Text(
               strings.presetPickerTitle,
               style: Theme.of(context).textTheme.titleMedium,
@@ -59,9 +61,12 @@ Widget _entry(
   required String subtitle,
   required bool isSelected,
   required PresetChoice choice,
-}) => ListTile(
-  title: Text(title),
-  subtitle: Text(subtitle),
-  trailing: isSelected ? const Icon(Icons.check) : null,
-  onTap: () => Navigator.of(context).pop(choice),
+}) => Padding(
+  padding: const EdgeInsets.only(bottom: 8),
+  child: ChoiceTile(
+    label: title,
+    detail: subtitle,
+    isSelected: isSelected,
+    onTap: () => Navigator.of(context).pop(choice),
+  ),
 );

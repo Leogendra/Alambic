@@ -77,11 +77,11 @@ void main() {
   );
 
   test('describes where the asked card stands', () {
-    expect(texts.promptDetail(prompt()), 'Cran 2 sur 6');
+    expect(texts.promptDetail(prompt()), 'J2');
     expect(texts.promptDetail(prompt(step: null)), 'Nouvelle carte');
     expect(
       texts.promptDetail(prompt(askedSide: CardSide.back)),
-      'verso → recto · Cran 2 sur 6',
+      'verso → recto · J2',
     );
     expect(
       texts.promptDetail(
@@ -96,7 +96,7 @@ void main() {
     expect(texts.answerLine(reveal(isBonus: false)), 'Réponse : Lima');
     expect(
       texts.verdict(reveal(isBonus: false)),
-      'Compté raté · retour au cran 1, revue demain',
+      'Compté raté · retour à J1, revue demain',
     );
     expect(texts.verdict(reveal(isBonus: true)), 'Révision bonus · sans effet');
   });
@@ -194,7 +194,7 @@ void main() {
       texts.verdict(
         reveal(isBonus: false, typed: 'Quito', match: TypedAnswerMatch.wrong),
       ),
-      '« Quito » refusé · Compté raté · retour au cran 1, revue demain',
+      '« Quito » refusé · Compté raté · retour à J1, revue demain',
     );
     expect(
       texts.verdict(

@@ -1,4 +1,5 @@
 import '../app/formatting/due_labels.dart';
+import '../app/formatting/reminder_labels.dart';
 import '../app/formatting/review_duration_labels.dart';
 import '../application/notifications/answer_reveal.dart';
 import '../application/notifications/group_reminder.dart';
@@ -23,16 +24,16 @@ class ReviewTexts {
   String promptTitle(String prompt) =>
       prompt.isEmpty ? strings.notificationImagePrompt : prompt;
 
-  /// Line under the asked face: "Cran 2 sur 6", "Intervalle 12 j", "verso →
-  /// recto · Nouvelle carte", or the bonus mention of an extra reminder.
+  /// Line under the asked face: the reminder label ("S1"), "Intervalle 12 j"
+  /// for a card followed by FSRS, "verso → recto · Nouvelle carte", or the
+  /// bonus mention of an extra reminder.
   String promptDetail(ReviewPrompt prompt) {
     if (prompt.key.isExtraReminder) {
       return strings.notificationExtra;
     }
     final position = switch (prompt.progress) {
       NewProgress() => strings.notificationNewCard,
-      SequenceProgress(:final step, :final sequenceLength) =>
-        strings.cardSheetStepOf(step + 1, sequenceLength),
+      SequenceProgress(:final interval) => strings.reminderLabel(interval),
       AdaptiveProgress(:final intervalDays) => strings.cardSheetInterval(
         strings.intervalDays(intervalDays),
       ),
@@ -75,8 +76,8 @@ class ReviewTexts {
       : strings.notificationAnswer(reveal.answer);
 
   /// How the typed answer compared, then what the answer did: "« canbera »
-  /// accepté, 1 faute · prochain rappel demain", "Compté raté · retour au
-  /// cran 1, revue demain", or the bonus mention.
+  /// accepté, 1 faute · prochain rappel demain", "Compté raté · retour à
+  /// J1, revue demain", or the bonus mention.
   String verdict(AnswerReveal reveal) {
     final typed = reveal.typed;
     final match = reveal.match;
@@ -115,7 +116,10 @@ class ReviewTexts {
     }
     // Only the sequence engine has steps.
     return switch (schedule.step) {
-      final step? => strings.notificationFailed(step + 1, when),
+      final step? => strings.notificationFailed(
+        strings.reminderLabel(reveal.result.preset.intervals[step]),
+        when,
+      ),
       null => strings.notificationFailedAdaptive(when),
     };
   }

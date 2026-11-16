@@ -5,8 +5,9 @@ import '../../domain/cards/flashcard.dart';
 import 'card_image.dart';
 import 'card_status_formatter.dart';
 
-/// A card in a list: its front, its back with its status, and when it is due.
-/// A front image shows as a thumbnail; a face without text reads "Image".
+/// A card in a list: its front, its back, and where it stands ("S1 · in
+/// 4 d", "waiting"). A front image shows as a thumbnail; a face without text
+/// reads "Image".
 class CardListTile extends StatelessWidget {
   const CardListTile({
     required this.card,
@@ -22,8 +23,7 @@ class CardListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AlambicColors.of(context);
-    final dueLabel = formatter.dueLabel(card);
-    final isDue = dueLabel == formatter.strings.dueNow;
+    final isDue = formatter.isDue(card);
     final imageOnly = formatter.strings.cardImageOnly;
     final back = card.backText ?? imageOnly;
     final frontImage = card.frontImagePath;
@@ -58,7 +58,7 @@ class CardListTile extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '$back · ${formatter.status(card)}',
+                    back,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 13, color: colors.textSecondary),
@@ -66,17 +66,15 @@ class CardListTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (dueLabel != null) ...[
-              const SizedBox(width: 12),
-              Text(
-                dueLabel,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: isDue ? colors.accentText : colors.textSecondary,
-                ),
+            const SizedBox(width: 12),
+            Text(
+              formatter.standing(card),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isDue ? colors.accentText : colors.textSecondary,
               ),
-            ],
+            ),
           ],
         ),
       ),

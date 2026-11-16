@@ -60,7 +60,7 @@ void main() {
       CardSheetScreen(cardId: cardId),
       overrides: screenOverrides(database, renderAt),
     );
-    expect(find.text('Cran 2 sur 6'), findsOneWidget);
+    expect(find.text('J2'), findsOneWidget);
     expect(find.text('bonus'), findsNWidgets(2));
     await expectLater(
       find.byType(CardSheetScreen),
@@ -106,7 +106,6 @@ void main() {
       CardSheetScreen(cardId: cardId),
       overrides: screenOverrides(database, renderAt),
     );
-    expect(find.text('Intervalle 3 j'), findsOneWidget);
     expect(find.text('→ 3 j'), findsOneWidget);
     expect(find.text('→ 1 j'), findsOneWidget);
     await expectLater(
@@ -130,7 +129,10 @@ void main() {
       CardSheetScreen(cardId: cardId),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(find.text('En attente de distillation.'), findsOneWidget);
+    expect(
+      find.text('En attente : la distillation du groupe la fera sortir.'),
+      findsOneWidget,
+    );
     final card = await tester.runAsync(
       () => CardRepository(database).getCard(cardId),
     );

@@ -54,6 +54,30 @@
       }
     }
   },
+  "reminderDays": "J{amount}",
+  "@reminderDays": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderWeeks": "S{amount}",
+  "@reminderWeeks": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderMonths": "M{amount}",
+  "@reminderMonths": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "unitMinutes": "minutes",
   "unitHours": "heures",
   "unitDays": "jours",
@@ -323,30 +347,11 @@
     }
   },
   "groupSettingsTooltip": "Réglages du groupe",
-  "cardStatusStep": "cran {step} sur {count}",
-  "@cardStatusStep": {
-    "placeholders": {
-      "step": {
-        "type": "int"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "cardStatusInterval": "intervalle {interval}",
-  "@cardStatusInterval": {
-    "placeholders": {
-      "interval": {
-        "type": "String"
-      }
-    }
-  },
   "cardStatusNew": "nouvelle",
   "cardImageOnly": "Image",
   "cardAddImage": "Image",
   "cardRemoveImage": "Retirer l'image",
-  "cardStatusPending": "en attente de distillation",
+  "cardStatusPending": "en attente",
   "cardStatusSuspended": "suspendue",
   "cardStatusAcquired": "acquise",
   "dueNow": "Due",
@@ -488,17 +493,6 @@
     }
   },
   "cardSheetTapToReview": "Touche la carte pour la réviser maintenant.",
-  "cardSheetStepOf": "Cran {step} sur {count}",
-  "@cardSheetStepOf": {
-    "placeholders": {
-      "step": {
-        "type": "int"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "cardSheetInterval": "Intervalle {interval}",
   "@cardSheetInterval": {
     "placeholders": {
@@ -520,8 +514,8 @@
   },
   "cardSheetNextReview": "Prochaine révision",
   "cardSheetDueNow": "À réviser maintenant",
-  "cardSheetAcquired": "Acquis : ce sens ne revient plus.",
-  "cardSheetPending": "En attente de distillation.",
+  "cardSheetAcquired": "Acquise : cette carte ne revient plus.",
+  "cardSheetPending": "En attente : la distillation du groupe la fera sortir.",
   "cardSheetSuspended": "Carte suspendue : elle ne revient plus tant qu'elle n'est pas réactivée.",
   "cardSheetReviewSoon": "Réviser bientôt",
   "cardSheetSuspend": "Suspendre",
@@ -691,17 +685,6 @@
       }
     }
   },
-  "notificationFailed": "Compté raté · retour au cran {step}, revue {when}",
-  "@notificationFailed": {
-    "placeholders": {
-      "step": {
-        "type": "int"
-      },
-      "when": {
-        "type": "String"
-      }
-    }
-  },
   "notificationFailedAdaptive": "Compté raté · revue {when}",
   "@notificationFailedAdaptive": {
     "placeholders": {
@@ -740,6 +723,17 @@
   "notificationNextReview": "prochain rappel {when}",
   "@notificationNextReview": {
     "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationFailed": "Compté raté · retour à {label}, revue {when}",
+  "@notificationFailed": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
       "when": {
         "type": "String"
       }

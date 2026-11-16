@@ -34,7 +34,7 @@ class IntervalChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: highlighted ? Colors.white : colors.accentText,
+              color: highlighted ? colors.onAccent : colors.accentText,
             ),
           ),
           if (onDeleted != null)

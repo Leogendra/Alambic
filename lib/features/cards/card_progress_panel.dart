@@ -146,7 +146,7 @@ class CardProgressPanel extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: step != null && index <= step
                       ? colors.accent
-                      : colors.segmentBackground,
+                      : colors.well,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),

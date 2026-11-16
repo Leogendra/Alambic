@@ -111,8 +111,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
               child: LinearProgressIndicator(
                 value: total == 0 ? 0 : _session.position / total,
                 minHeight: 6,
-                backgroundColor: colors.segmentBackground,
-                color: colors.accent,
               ),
             ),
           ),

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../theme/alambic_colors.dart';
 import 'segment_option.dart';
 
-/// Grey track with equal segments; the selected one is a white pill.
+/// Hollow track with equal segments; the selected one is a raised, outlined
+/// pill with bold text, so the selection never rests on the fill alone. The
+/// only control for a choice of 2 or 3 states.
 class SegmentedChoice<T> extends StatelessWidget {
   const SegmentedChoice({
     required this.options,
@@ -22,7 +24,7 @@ class SegmentedChoice<T> extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: colors.segmentBackground,
+        color: colors.well,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -43,6 +45,7 @@ class SegmentedChoice<T> extends StatelessWidget {
     button: true,
     enabled: option.enabled,
     child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: option.enabled ? () => onSelected(option.value) : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
@@ -50,11 +53,11 @@ class SegmentedChoice<T> extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
-          color: isSelected ? colors.surface : Colors.transparent,
+          color: isSelected ? colors.surfaceRaised : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: isSelected
-              ? const [BoxShadow(color: Color(0x1F0A0A0A), blurRadius: 3)]
-              : null,
+          border: Border.all(
+            color: isSelected ? colors.border : Colors.transparent,
+          ),
         ),
         child: Text(
           option.label,
@@ -62,7 +65,7 @@ class SegmentedChoice<T> extends StatelessWidget {
           maxLines: 2,
           style: TextStyle(
             fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             color: isSelected
                 ? colors.textPrimary
                 : colors.textSecondary.withValues(

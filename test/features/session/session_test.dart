@@ -118,12 +118,37 @@ void main() {
       find.byType(SessionScreen),
       matchesGoldenFile('goldens/session_end.png'),
     );
-    await tester.tap(find.text('Revoir la ratée maintenant'));
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Revoir la ratée maintenant'));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
     await tester.pumpAndSettle();
     await answer(tester, 'Correct');
     final history = await tester.runAsync(
       () => ReviewRepository(database).watchHistory(items[1].cardId).first,
     );
     expect(history!.map((review) => review.isBonus), [true, false]);
+  });
+
+  testWidgets('a card drawn on its back asks the back', (tester) async {
+    late List<SessionItem> backItems;
+    await tester.runAsync(() async {
+      final capitals = await seedSampleData(
+        SampleServices(database, FixedClock(sampleNow)),
+      );
+      final card = (await CardRepository(database).getCardsOfGroup(capitals))
+          .first;
+      backItems = [SessionItem(cardId: card.id, askedSide: CardSide.back)];
+    });
+    await pumpGolden(
+      tester,
+      SessionScreen(items: backItems),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    expect(find.text('Oulan-Bator'), findsOneWidget);
+    expect(find.textContaining('verso → recto'), findsOneWidget);
+    await tester.tap(find.text('Afficher la réponse'));
+    await tester.pumpAndSettle();
+    expect(find.text('Mongolie'), findsOneWidget);
   });
 }

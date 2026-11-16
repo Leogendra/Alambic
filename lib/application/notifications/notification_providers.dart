@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data_providers.dart';
 import '../clock.dart';
+import '../randomness.dart';
 import '../distillation/distillation_providers.dart';
 import '../reviews/review_providers.dart';
 import '../scheduling/scheduling_providers.dart';
@@ -62,6 +63,7 @@ final groupedRemindersProvider = Provider(
     presenter: ref.watch(notificationPresenterProvider),
     deliveryPlanner: ref.watch(deliveryPlannerProvider),
     clock: ref.watch(clockProvider),
+    random: ref.watch(randomProvider),
   ),
 );
 
@@ -79,6 +81,7 @@ final notificationDispatcherProvider = Provider(
     planner: ref.watch(notificationPlannerProvider),
     deliveryPlanner: ref.watch(deliveryPlannerProvider),
     clock: ref.watch(clockProvider),
+    random: ref.watch(randomProvider),
   ),
 );
 

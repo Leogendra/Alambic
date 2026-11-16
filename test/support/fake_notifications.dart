@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:alambic/application/clock.dart';
@@ -11,11 +13,13 @@ import 'package:alambic/application/notifications/notification_providers.dart';
 import 'package:alambic/application/notifications/planned_alarm_store.dart';
 import 'package:alambic/application/notifications/review_notification_key.dart';
 import 'package:alambic/application/notifications/review_prompt.dart';
+import 'package:alambic/application/randomness.dart';
 import 'package:alambic/application/scheduling/scheduling_providers.dart';
 import 'package:alambic/data/data_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 
 import 'fixed_clock.dart';
+import 'fixed_random.dart';
 import 'test_images.dart';
 
 /// Alarms kept in memory: what is scheduled, and whether exactly.
@@ -137,7 +141,13 @@ class InMemoryAlarmStore implements PlannedAlarmStore {
 /// The services of the app over [database], with fake notifications and the
 /// planner listening to schedule changes, as in the app.
 class NotificationHarness {
-  factory NotificationHarness(AlambicDatabase database, FixedClock clock) {
+  /// [random] decides the asked faces; the front is always asked without
+  /// it.
+  factory NotificationHarness(
+    AlambicDatabase database,
+    FixedClock clock, {
+    Random? random,
+  }) {
     final alarms = FakeAlarmScheduler();
     final presenter = FakePresenter();
     final store = InMemoryAlarmStore();
@@ -146,6 +156,7 @@ class NotificationHarness {
         databaseProvider.overrideWithValue(database),
         imageStoreProvider.overrideWithValue(openTestImageStore()),
         clockProvider.overrideWithValue(clock.call),
+        randomProvider.overrideWithValue(random ?? FixedRandom(coin: false)),
         alarmSchedulerProvider.overrideWithValue(alarms),
         notificationPresenterProvider.overrideWithValue(presenter),
         plannedAlarmStoreProvider.overrideWithValue(store),

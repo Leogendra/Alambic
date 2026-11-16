@@ -20,6 +20,7 @@ import '../pauses/paused_banner.dart';
 import '../session/session_launcher.dart';
 import 'group_settings_screen.dart';
 import 'group_stat_tile.dart';
+import 'reverse_button.dart';
 
 /// A group page.
 class GroupDetailScreen extends ConsumerWidget {
@@ -111,16 +112,15 @@ class _GroupBody extends ConsumerWidget {
         if (summary.dueCount > 0) ...[
           const SizedBox(height: 16),
           FilledButton(
-            onPressed: () => startSession(
-              context,
-              ref
-                  .read(dueItemsProvider)
-                  .where((item) => item.groupId == summary.groupId)
-                  .toList(),
-            ),
+            onPressed: () => openSession(context, ref, [
+              for (final item in ref.read(dueItemsProvider))
+                if (item.groupId == summary.groupId) item.card.id,
+            ]),
             child: Text(strings.groupReviewDue(summary.dueCount)),
           ),
         ],
+        const SizedBox(height: 16),
+        ReverseButton(group: summary.group),
         const SizedBox(height: 24),
         GroupDistillationsSection(groupId: summary.groupId),
         const SizedBox(height: 24),

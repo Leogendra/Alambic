@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/groups/group_settings_screen.dart';
@@ -97,5 +98,26 @@ void main() {
       find.byType(GroupSettingsScreen),
       matchesGoldenFile('goldens/group_settings.png'),
     );
+  });
+
+  testWidgets('"Enable the back" switches the option of the group', (
+    tester,
+  ) async {
+    await seed(tester);
+    await pumpGolden(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Activer le verso'));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pumpAndSettle();
+    final group = await tester.runAsync(
+      () => GroupRepository(database).find(capitalsId),
+    );
+    expect(group!.reverseEnabled, isTrue);
+    expect(find.text('Désactiver le verso'), findsOneWidget);
   });
 }

@@ -299,6 +299,11 @@
   "groupSettingsTitle": "Réglages du groupe",
   "groupSettingsRepetition": "Répétition",
   "groupSettingsPresetHint": "Le groupe suit le preset en entier. Pour l'ajuster, duplique-le dans Réglages › Presets.",
+  "groupReverseEnable": "Activer le verso",
+  "groupReverseDisable": "Désactiver le verso",
+  "groupReverse": "Verso",
+  "groupReverseOffHint": "Les cartes sont posées recto → verso.",
+  "groupReverseOnHint": "Chaque carte est posée recto ou verso, au hasard.",
   "groupDelete": "Supprimer le groupe",
   "groupDeleteConfirmTitle": "Supprimer « {name} » ?",
   "@groupDeleteConfirmTitle": {

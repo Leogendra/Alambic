@@ -9,6 +9,7 @@ import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
+import 'package:alambic/domain/cards/card_side.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/domain/presets/schedule_kind.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
@@ -19,6 +20,7 @@ import 'package:alambic/domain/scheduling/card_progress.dart';
 
 import '../support/fake_notifications.dart';
 import '../support/fixed_clock.dart';
+import '../support/fixed_random.dart';
 import '../support/sample_data.dart';
 import '../support/test_database.dart';
 
@@ -29,7 +31,12 @@ void main() {
 
   setUp(() async {
     database = openTestDatabase();
-    harness = NotificationHarness(database, FixedClock(sampleNow));
+    // Groups with the back enabled always ask it.
+    harness = NotificationHarness(
+      database,
+      FixedClock(sampleNow),
+      random: FixedRandom(),
+    );
     capitals = await seedSampleData(SampleServices(database, harness.clock));
     // The seven cards due at noon are notified one by one.
     await NotificationSettingsRepository(
@@ -203,6 +210,55 @@ void main() {
           .watchHistory(key.cardId)
           .first;
       expect(history.single.outcome, ReviewOutcome.again);
+    });
+  });
+
+  group('with the back enabled on the group', () {
+    late ReviewNotificationKey key;
+
+    setUp(() async {
+      await GroupRepository(database)
+          .setReverseEnabled(capitals, enabled: true);
+      key = ReviewNotificationKey(cardId: await mongoliaId());
+    });
+
+    test('asks the drawn face and reveals the other one', () async {
+      await dispatchAt(DateTime(2026, 11, 10, 12));
+      final prompt = harness.presenter.prompts[key]!;
+      expect(prompt.askedSide, CardSide.back);
+      expect(prompt.prompt, 'Oulan-Bator');
+      await harness
+          .read(notificationActionHandlerProvider)
+          .handle(key, NotificationAction.again, askedSide: CardSide.back);
+      expect(harness.presenter.reveals[key]!.answer, 'Mongolie');
+      expect(harness.presenter.reveals[key]!.askedSide, CardSide.back);
+    });
+
+    test('a typed answer is compared with the front', () async {
+      final presets = PresetRepository(database);
+      final catalog = await presets.loadCatalog();
+      await presets.update(catalog.globalPreset.copyWith(typedAnswer: true));
+      await dispatchAt(DateTime(2026, 11, 10, 12));
+      expect(harness.presenter.prompts[key]!.typedAnswer, isTrue);
+      await harness
+          .read(notificationActionHandlerProvider)
+          .handle(
+            key,
+            NotificationAction.answer,
+            input: 'mongolie',
+            askedSide: CardSide.back,
+          );
+      expect(harness.presenter.reveals[key]!.match, TypedAnswerMatch.exact);
+    });
+
+    test('the draw changes nothing to the progression', () async {
+      await dispatchAt(DateTime(2026, 11, 10, 12));
+      await harness
+          .read(notificationActionHandlerProvider)
+          .handle(key, NotificationAction.correct, askedSide: CardSide.back);
+      final card = await CardRepository(database).getCard(key.cardId);
+      expect(card.step, 0);
+      expect(card.dueAt, DateTime(2026, 11, 11, 12));
     });
   });
 

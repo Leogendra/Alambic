@@ -5,12 +5,14 @@ import '../../data/repositories/review_repository.dart';
 import '../../domain/reviews/review_record.dart';
 import '../cards/card_providers.dart';
 import '../clock.dart';
+import '../randomness.dart';
 import '../scheduling/scheduling_providers.dart';
 import '../time/minute_ticker.dart';
 import 'answer_preview.dart';
 import 'due_item.dart';
 import 'due_queue.dart';
 import 'review_service.dart';
+import 'session_item_factory.dart';
 
 final reviewRepositoryProvider = Provider(
   (ref) => ReviewRepository(ref.watch(databaseProvider)),
@@ -25,6 +27,14 @@ final reviewServiceProvider = Provider(
     duePolicy: ref.watch(duePolicyProvider),
     clock: ref.watch(clockProvider),
     scheduleChangeListener: ref.watch(scheduleChangeListenerProvider),
+  ),
+);
+
+final sessionItemFactoryProvider = Provider(
+  (ref) => SessionItemFactory(
+    cards: ref.watch(cardRepositoryProvider),
+    groups: ref.watch(groupRepositoryProvider),
+    random: ref.watch(randomProvider),
   ),
 );
 

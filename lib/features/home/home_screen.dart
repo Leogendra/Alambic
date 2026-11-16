@@ -211,8 +211,9 @@ class _DuePanel extends ConsumerWidget {
             ),
           if (due > 0)
             FilledButton.icon(
-              onPressed: () =>
-                  startSession(context, ref.read(dueItemsProvider)),
+              onPressed: () => openSession(context, ref, [
+                for (final item in ref.read(dueItemsProvider)) item.card.id,
+              ]),
               icon: const Icon(Icons.chevron_right),
               iconAlignment: IconAlignment.end,
               label: Text(strings.homeReviewAll),

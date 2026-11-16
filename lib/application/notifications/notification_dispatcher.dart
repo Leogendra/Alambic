@@ -1,11 +1,14 @@
+import 'dart:math';
+
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
-import '../../domain/cards/card_side.dart';
+import '../../domain/cards/asked_side_draw.dart';
 import '../../domain/cards/flashcard.dart';
+import '../../domain/groups/card_group.dart';
 import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/notification_timing.dart';
 import '../../domain/pauses/pauses.dart';
@@ -29,7 +32,7 @@ import 'review_prompt.dart';
 /// group instead. Beyond the auto grouping threshold, a single notification
 /// replaces all of them. The cards notified count against the daily cap. The
 /// content is read from the database at that moment, never fixed when the
-/// wake-up was planned.
+/// wake-up was planned, and the asked face is drawn for each notification.
 class NotificationDispatcher {
   const NotificationDispatcher({
     required this._cards,
@@ -44,6 +47,7 @@ class NotificationDispatcher {
     required this._planner,
     required this._deliveryPlanner,
     required this._clock,
+    required this._random,
   });
 
   final CardRepository _cards;
@@ -58,13 +62,17 @@ class NotificationDispatcher {
   final NotificationPlanner _planner;
   final DeliveryPlanner _deliveryPlanner;
   final Clock _clock;
+  final Random _random;
 
   Future<void> dispatchDue() async {
     await _distillations.advance();
     final now = _clock();
     final catalog = await _presets.loadCatalog();
+    final groups = {
+      for (final group in await _groups.watchAll().first) group.id: group,
+    };
     final groupNames = {
-      for (final group in await _groups.watchAll().first) group.id: group.name,
+      for (final group in groups.values) group.id: group.name,
     };
     final cards = await _cards.getAll();
     final guards = await _settings.loadGuards();
@@ -92,7 +100,7 @@ class NotificationDispatcher {
             NotificationMode.grouped) {
           groupedReminders.add(GroupReminderKey(card.groupId));
         } else {
-          prompts.add(_prompt(card, catalog, groupNames, null));
+          prompts.add(_prompt(card, catalog, groups, null));
         }
         notifiedGroups.add(card.groupId);
         await _cards.markNotified(card.id, now);
@@ -113,7 +121,7 @@ class NotificationDispatcher {
     if (notifiedGroups.isNotEmpty) {
       await _settings.addNotified(today, notifiedGroups.length);
     }
-    await _dispatchExtraReminders(cards, catalog, groupNames, pauses, now);
+    await _dispatchExtraReminders(cards, catalog, groups, pauses, now);
     await _planner.replan();
   }
 
@@ -123,7 +131,7 @@ class NotificationDispatcher {
   Future<void> _dispatchExtraReminders(
     List<Flashcard> cards,
     PresetCatalog catalog,
-    Map<int, String> groupNames,
+    Map<int, CardGroup> groups,
     Pauses pauses,
     DateTime now,
   ) async {
@@ -138,7 +146,7 @@ class NotificationDispatcher {
           !pauses.covers(card.groupId) &&
           NotificationTiming.isOnTime(reminder.remindAt, now)) {
         await _presenter.showPrompt(
-          _prompt(card, catalog, groupNames, reminder.id),
+          _prompt(card, catalog, groups, reminder.id),
         );
       }
       await _reminders.markNotified(reminder.id, now);
@@ -148,16 +156,19 @@ class NotificationDispatcher {
   ReviewPrompt _prompt(
     Flashcard card,
     PresetCatalog catalog,
-    Map<int, String> groupNames,
+    Map<int, CardGroup> groups,
     int? extraReminderId,
-  ) => ReviewPrompt.of(
-    key: ReviewNotificationKey(
-      cardId: card.id,
-      extraReminderId: extraReminderId,
-    ),
-    card: card,
-    askedSide: CardSide.front,
-    preset: catalog.presetForCard(card),
-    groupName: groupNames[card.groupId] ?? '',
-  );
+  ) {
+    final group = groups[card.groupId]!;
+    return ReviewPrompt.of(
+      key: ReviewNotificationKey(
+        cardId: card.id,
+        extraReminderId: extraReminderId,
+      ),
+      card: card,
+      askedSide: AskedSideDraw.draw(group, _random),
+      preset: catalog.presetForCard(card),
+      groupName: group.name,
+    );
+  }
 }

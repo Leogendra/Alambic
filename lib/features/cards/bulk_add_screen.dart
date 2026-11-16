@@ -7,18 +7,19 @@ import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_draft.dart';
 import '../../application/cards/card_providers.dart';
-import '../../application/groups/group_providers.dart';
 import '../../domain/cards/bulk/bulk_card_parser.dart';
 import '../../domain/cards/bulk/bulk_line_error.dart';
 import '../../domain/cards/bulk/bulk_line_error_kind.dart';
 import '../../domain/cards/bulk/bulk_parse_result.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'group_field.dart';
 
-/// Pastes "front ; back" lines to create many cards in a group at once.
+/// Pastes "front ; back" lines to create many cards in a group at once. The
+/// group is the one the user came from, and can be changed or created here.
 class BulkAddScreen extends ConsumerStatefulWidget {
-  const BulkAddScreen({required this.groupId, super.key});
+  const BulkAddScreen({required this.initialGroupId, super.key});
 
-  final int groupId;
+  final int initialGroupId;
 
   @override
   ConsumerState<BulkAddScreen> createState() => _BulkAddScreenState();
@@ -29,6 +30,7 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
   final TextEditingController _separatorController = TextEditingController(
     text: BulkCardParser.defaultSeparator,
   );
+  late int _groupId = widget.initialGroupId;
 
   @override
   void dispose() {
@@ -45,11 +47,11 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
     final strings = AppLocalizations.of(context);
     final result = _result;
     return Scaffold(
-      appBar: AppBar(title: _title(strings)),
+      appBar: AppBar(title: Text(strings.bulkTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
         children: [
-          _separatorPanel(strings),
+          _settingsPanel(strings),
           const SizedBox(height: 16),
           TextField(
             controller: _textController,
@@ -70,27 +72,12 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
     );
   }
 
-  Widget _title(AppLocalizations strings) {
-    final groupName =
-        ref.watch(groupProvider(widget.groupId)).value?.name ?? '';
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(strings.bulkTitle),
-        Text(
-          strings.bulkInGroup(groupName),
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
-            color: AlambicColors.of(context).textSecondary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _separatorPanel(AppLocalizations strings) => SurfacePanel(
+  Widget _settingsPanel(AppLocalizations strings) => SurfacePanel(
     children: [
+      GroupField(
+        groupId: _groupId,
+        onChanged: (groupId) => setState(() => _groupId = groupId),
+      ),
       PanelRow(
         title: strings.bulkSeparator,
         subtitle: strings.bulkSeparatorHint,
@@ -145,7 +132,7 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
         CardDraft(
           frontText: draft.front,
           backText: draft.back,
-          groupId: widget.groupId,
+          groupId: _groupId,
           presetId: null,
         ),
     ]);

@@ -31,7 +31,7 @@ void main() {
     });
     await pumpGolden(
       tester,
-      BulkAddScreen(groupId: groupId),
+      BulkAddScreen(initialGroupId: groupId),
       overrides: screenOverrides(database, sampleNow),
     );
     await tester.enterText(find.byType(TextField).last, pastedLines);

@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/cards/card_draft.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
+import '../../application/onboarding/onboarding_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'onboarding_page.dart';
 
 /// Third screen: a first group and its first card, which waits in the queue
-/// of the group. It can be skipped.
+/// of the group; the app then opens on the page of the group. It can be
+/// skipped.
 class FirstCardPage extends ConsumerStatefulWidget {
   const FirstCardPage({required this.onDone, super.key});
 
@@ -50,6 +52,7 @@ class _FirstCardPageState extends ConsumerState<FirstCardPage> {
             presetId: null,
           ),
         );
+    ref.read(firstGroupProvider.notifier).remember(groupId);
     await widget.onDone();
   }
 

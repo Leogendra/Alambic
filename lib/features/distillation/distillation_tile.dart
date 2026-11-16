@@ -43,7 +43,7 @@ class DistillationTile extends ConsumerWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: colors.background,
+                  color: colors.surfaceRaised,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(

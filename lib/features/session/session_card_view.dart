@@ -38,13 +38,6 @@ class SessionCardView extends ConsumerWidget {
         color: colors.surface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: colors.border),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F0A0A0A),
-            blurRadius: 24,
-            offset: Offset(0, 8),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -70,7 +63,7 @@ class SessionCardView extends ConsumerWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: colors.border)),
+                border: Border(top: BorderSide(color: colors.divider)),
               ),
               alignment: Alignment.center,
               padding: const EdgeInsets.all(20),

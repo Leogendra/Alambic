@@ -101,7 +101,7 @@ class ReviewHistoryList extends ConsumerWidget {
   Widget _bonusTag(AppLocalizations strings, AlambicColors colors) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
     decoration: BoxDecoration(
-      color: colors.background,
+      color: colors.surfaceRaised,
       borderRadius: BorderRadius.circular(6),
     ),
     child: Text(

@@ -39,7 +39,5 @@ class GroupOverview {
     dueCount: cards
         .where((card) => _duePolicy.isDueToday(card, now: now))
         .length,
-    introducedCount: cards.where((card) => !card.isPending).length,
-    pendingCount: cards.where((card) => card.isPending).length,
   );
 }

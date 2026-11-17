@@ -5,10 +5,12 @@ abstract final class DistillationQueue {
   /// The [count] next cards of [groupCards] to introduce. A suspended card is
   /// skipped and keeps its place.
   static List<Flashcard> next(Iterable<Flashcard> groupCards, int count) =>
-      (groupCards.where((card) => card.isPending && !card.suspended).toList()
-            ..sort(_byRank))
-          .take(count)
-          .toList();
+      inOrder(groupCards).where((card) => !card.suspended).take(count).toList();
+
+  /// The pending cards of [groupCards], head first, suspended ones in their
+  /// place.
+  static List<Flashcard> inOrder(Iterable<Flashcard> groupCards) =>
+      groupCards.where((card) => card.isPending).toList()..sort(_byRank);
 
   /// Cards still waiting in the queue, suspended ones included.
   static int remaining(Iterable<Flashcard> groupCards) =>

@@ -9,12 +9,11 @@ import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/groups/group_summary.dart';
+import '../../application/groups/group_sections.dart';
 import '../../application/pauses/pause_providers.dart';
 import '../../application/clock.dart';
-import '../../application/reviews/review_providers.dart';
 import '../../application/reviews/whole_group_review.dart';
 import '../../application/scheduling/scheduling_providers.dart';
-import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../cards/bulk_add_screen.dart';
@@ -26,12 +25,11 @@ import '../distillation/group_distillation_section.dart';
 import '../pauses/paused_banner.dart';
 import '../session/session_launcher.dart';
 import 'group_settings_screen.dart';
-import 'group_stat_tile.dart';
 import 'reverse_button.dart';
 
-/// A group page: its counts, "Distill" or the tracking of its distillation,
-/// the back option, then its cards with "Review all", the acquired ones in a
-/// folded section.
+/// A group page: "Distill" or the tracking of its distillation, "Review
+/// all", the back option, then its cards in three sections: in progress,
+/// waiting in queue order, and learned, folded.
 class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({
     required this.groupId,
@@ -94,6 +92,9 @@ class _GroupBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
+    final cards =
+        ref.watch(groupCardsProvider(summary.groupId)).value ?? const [];
+    final sections = GroupSections.of(cards);
     return ListView(
       padding: scrollPadding(context, const EdgeInsets.fromLTRB(20, 0, 20, 96)),
       children: [
@@ -110,51 +111,23 @@ class _GroupBody extends ConsumerWidget {
           ),
         ],
         const SizedBox(height: 16),
-        Row(
-          spacing: 10,
-          children: [
-            GroupStatTile(value: summary.dueCount, label: strings.groupStatDue),
-            GroupStatTile(
-              value: summary.introducedCount,
-              label: strings.groupStatActive,
-            ),
-            GroupStatTile(
-              value: summary.pendingCount,
-              label: strings.groupStatWaiting,
-            ),
-          ],
-        ),
-        if (summary.dueCount > 0) ...[
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: () => openSession(context, ref, [
-              for (final item in ref.read(dueItemsProvider))
-                if (item.groupId == summary.groupId) item.card.id,
-            ]),
-            child: Text(strings.groupReviewDue(summary.dueCount)),
-          ),
-        ],
-        const SizedBox(height: 16),
         GroupDistillationSection(
           groupId: summary.groupId,
           highlighted: highlightDistill,
         ),
+        if (sections.ongoing.isNotEmpty || sections.waiting.isNotEmpty)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              icon: const Icon(Icons.play_arrow, size: 20),
+              label: Text(strings.groupReviewAll),
+              onPressed: () => _reviewAll(context, ref, cards),
+            ),
+          ),
         const SizedBox(height: 16),
         ReverseButton(group: summary.group),
         const SizedBox(height: 24),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(child: SectionLabel(strings.groupCardsSection)),
-            if (summary.cardCount > 0)
-              TextButton.icon(
-                icon: const Icon(Icons.play_arrow, size: 20),
-                label: Text(strings.groupReviewAll),
-                onPressed: () => _reviewAll(context, ref),
-              ),
-          ],
-        ),
-        _CardList(groupId: summary.groupId),
+        _CardSections(sections: sections),
       ],
     );
   }
@@ -162,8 +135,11 @@ class _GroupBody extends ConsumerWidget {
   /// "Review all": a session on every card of the group, where only the
   /// cards due today count; the others are bonus reviews, and a pending card
   /// missed goes to the head of the queue.
-  Future<void> _reviewAll(BuildContext context, WidgetRef ref) {
-    final cards = ref.read(groupCardsProvider(summary.groupId)).value ?? [];
+  Future<void> _reviewAll(
+    BuildContext context,
+    WidgetRef ref,
+    List<Flashcard> cards,
+  ) {
     final review = WholeGroupReview(ref.read(duePolicyProvider));
     return openSession(
       context,
@@ -174,39 +150,54 @@ class _GroupBody extends ConsumerWidget {
   }
 }
 
-/// The cards of the group, the acquired ones apart in a folded section.
-class _CardList extends ConsumerWidget {
-  const _CardList({required this.groupId});
+/// The cards of the group in their sections, each titled with its count; an
+/// empty section is left out.
+class _CardSections extends ConsumerWidget {
+  const _CardSections({required this.sections});
 
-  final int groupId;
+  final GroupSections sections;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cards = ref.watch(groupCardsProvider(groupId)).value ?? const [];
+    final strings = AppLocalizations.of(context);
     final formatter = watchCardStatusFormatter(context, ref);
-    if (cards.isEmpty || formatter == null) {
+    if (sections.isEmpty || formatter == null) {
       return Padding(
         padding: const EdgeInsets.all(16),
         child: Text(
-          AppLocalizations.of(context).groupEmpty,
+          strings.groupEmpty,
           style: TextStyle(color: AlambicColors.of(context).textSecondary),
         ),
       );
     } else {
-      final ongoing = [
-        for (final card in cards)
-          if (card.state != CardState.acquired) card,
-      ];
-      final acquired = [
-        for (final card in cards)
-          if (card.state == CardState.acquired) card,
-      ];
+      final nextId = sections.nextId;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,
         children: [
-          if (ongoing.isNotEmpty) _panel(context, ongoing, formatter),
-          if (acquired.isNotEmpty)
+          if (sections.ongoing case final ongoing when ongoing.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SectionLabel(strings.groupOngoingSection(ongoing.length)),
+                _panel(context, ongoing, formatter),
+              ],
+            ),
+          if (sections.waiting case final waiting when waiting.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SectionLabel(strings.groupWaitingSection(waiting.length)),
+                _panel(
+                  context,
+                  waiting,
+                  formatter,
+                  nextId: nextId,
+                  nextMark: strings.groupNextCard,
+                ),
+              ],
+            ),
+          if (sections.acquired case final acquired when acquired.isNotEmpty)
             _AcquiredSection(
               count: acquired.length,
               panel: _panel(context, acquired, formatter),
@@ -219,13 +210,16 @@ class _CardList extends ConsumerWidget {
   Widget _panel(
     BuildContext context,
     List<Flashcard> cards,
-    CardStatusFormatter formatter,
-  ) => SurfacePanel(
+    CardStatusFormatter formatter, {
+    int? nextId,
+    String? nextMark,
+  }) => SurfacePanel(
     children: [
       for (final card in cards)
         CardListTile(
           card: card,
           formatter: formatter,
+          mark: card.id == nextId ? nextMark : null,
           onTap: () => openCard(context, card.id),
         ),
     ],

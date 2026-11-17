@@ -286,10 +286,23 @@
   },
   "newGroupTitle": "Nouveau groupe",
   "groupNameLabel": "Nom",
-  "groupStatDue": "Dues",
-  "groupStatActive": "Actives",
-  "groupStatWaiting": "En attente",
-  "groupCardsSection": "Cartes",
+  "groupOngoingSection": "En cours · {count}",
+  "@groupOngoingSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupWaitingSection": "En attente · {count}",
+  "@groupWaitingSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupNextCard": "prochaine",
   "groupAcquiredSection": "Acquises · {count}",
   "@groupAcquiredSection": {
     "placeholders": {
@@ -485,14 +498,6 @@
   "@durationSeconds": {
     "placeholders": {
       "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "groupReviewDue": "{count, plural, =1{Réviser la carte due} other{Réviser les {count} dues}}",
-  "@groupReviewDue": {
-    "placeholders": {
-      "count": {
         "type": "int"
       }
     }

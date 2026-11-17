@@ -47,11 +47,9 @@ void main() {
       'Espagnol',
     ]);
     expect(summaries.map((summary) => summary.cardCount), [1, 4, 2]);
-    expect(summaries.map((summary) => summary.introducedCount), [1, 4, 2]);
-    expect(summaries.map((summary) => summary.pendingCount), [0, 0, 0]);
   });
 
-  test('counts the pending cards until they are introduced', () async {
+  test('counts a pending card, never due', () async {
     final groupId = await services.groups.create('Capitales');
     await services.card('Laos', 'Vientiane', groupId: groupId);
     final summary = overview.summarizeOne(
@@ -60,8 +58,7 @@ void main() {
       await PresetRepository(database).loadCatalog(),
       sampleNow,
     );
-    expect(summary.pendingCount, 1);
-    expect(summary.introducedCount, 0);
+    expect(summary.cardCount, 1);
     expect(summary.dueCount, 0);
   });
 

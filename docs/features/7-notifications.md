@@ -20,7 +20,7 @@ The application decides what to notify and when; a platform layer decides how. T
 
 ### Schedule and mode
 
-The [schedule](../lexicon.md#schedule) and the notification mode are set once for the whole app, in the Notifications section of Settings: "Horaire" (a fixed time, 12:00 by default, or a time range, 9:00 to 18:00 when first chosen) and "Mode de notification" (one notification per card by default, or a grouped reminder per group that opens the app or chains the cards). No group nor preset has its own. They are stored in `app_settings`, where the background tasks read them, and each change is saved at once and plans the wake-ups again.
+The [schedule](../lexicon.md#schedule) and the notification mode are set once for the whole app, in the Notifications section of Settings: "Horaire" (a fixed time, 12:00 by default, or a time range, 9:00 to 18:00 when first chosen) and "Mode de notification" (one notification per card by default, or a grouped reminder per group that opens the app or chains the cards). No group nor preset has its own. The end of a range never precedes its start, so a range does not run past midnight: a time that would break this order is refused with a message and nothing is saved, and the settings service refuses such a range whatever its caller. They are stored in `app_settings`, where the background tasks read them, and each change is saved at once and plans the wake-ups again.
 
 A due date is a moment, written when a card is answered, so changing the daily slot would leave the dates already set at the old time. The settings service therefore moves every due date still to come that falls on the old slot to the new slot of the same day (`DailySlotMove`). A due date at another time of day comes from an interval of less than a day and keeps its moment; a due date already passed is left alone, the card being due anyway.
 
@@ -137,6 +137,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] With chaining, the cards of the reminder are answered one after the other inside the notification, with "Open" to switch to the app.
 - [x] A grouped reminder follows the answers given in the app, and closes when no card is left.
 - [x] With a time range, the cards of the day are notified one by one, spread evenly over the range; a grouped reminder arrives at the start of the range.
+- [x] A time range whose end would precede its start cannot be entered.
 - [x] Beyond the daily cap, the cards waiting the longest intervals are not notified that day and come back the next day.
 - [x] A notification falling in the quiet hours arrives at their end.
 - [x] Beyond the auto grouping threshold, the notifications of a moment are replaced by a single one that opens Home.

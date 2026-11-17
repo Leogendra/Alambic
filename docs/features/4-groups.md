@@ -23,7 +23,8 @@ The page of a group recalls the number of cards and the preset. Three counters f
 - "Review the N due" when cards are due, which opens a session on them;
 - the large "Distill" button while the group does not distill, with a line explaining it, then, once activated, the tracking of its distillation in its place ([Feature 8](8-distillation.md#screens));
 - the "Enable the back" / "Disable the back" button, with a line saying how cards are asked;
-- the card list, in creation order, under a "Cards" title that carries a small "Review all" button. Each card shows where it stands ([Feature 3](3-cards.md#where-a-card-stands)).
+- the card list, in creation order, under a "Cards" title that carries a small "Review all" button. Each card shows where it stands ([Feature 3](3-cards.md#where-a-card-stands));
+- the [acquired](../lexicon.md#acquired) cards, out of that list, in an "Acquired · N" section (*Acquises*) folded by default: touching its title unfolds or folds it. It is absent when the group has no acquired card.
 
 The "+" button creates a card directly in the group, and the toolbar opens the bulk add and the group settings.
 
@@ -63,6 +64,7 @@ Counters are computed by `GroupOverview` from all cards, the preset catalog and 
 - [x] The tab lists the groups, with number of cards, preset and number of due cards.
 - [x] Search finds cards by their front or back, case-insensitively.
 - [x] A group page shows the due / active / waiting counters and the card list with where each card stands.
+- [x] The acquired cards are in their own section, folded by default and absent when there are none.
 - [x] A group that does not distill shows a large "Distill" button; once activated, its tracking replaces it.
 - [x] "Review all" asks the due cards first, then the other introduced cards, then the pending ones, all but the due ones as bonus reviews, and leaves suspended cards out.
 - [x] The back option is switched from the group page or its settings.
@@ -78,7 +80,7 @@ Counters are computed by `GroupOverview` from all cards, the preset catalog and 
 - Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the [daily slot](../lexicon.md#daily-slot), with a suspended card.
 - The order of "Review all" is tested as pure logic (due, introduced, pending, suspended, acquired without date), then on the group page, down to the session it opens.
 - The group service is tested for creation, renaming, refusal of an empty name, the back option, the end of sequence (the acquired cards sent back into remanence) and deletion with its cards.
-- The tab (list and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock; the group page and its settings in light and dark theme. The settings screen is driven to change the remanence interval, the typed answer and the end of sequence, read back from the database.
+- The tab (list and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock; the group page (with a folded acquired section) and its settings in light and dark theme. The acquired section is unfolded and folded again by touch. The settings screen is driven to change the remanence interval, the typed answer and the end of sequence, read back from the database.
 
 ## File mapping
 

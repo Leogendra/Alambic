@@ -14,10 +14,13 @@ import '../../application/clock.dart';
 import '../../application/reviews/review_providers.dart';
 import '../../application/reviews/whole_group_review.dart';
 import '../../application/scheduling/scheduling_providers.dart';
+import '../../domain/cards/card_state.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../cards/bulk_add_screen.dart';
 import '../cards/card_list_tile.dart';
 import '../cards/card_navigation.dart';
+import '../cards/card_status_formatter.dart';
 import '../cards/card_status_formatter_provider.dart';
 import '../distillation/group_distillation_section.dart';
 import '../pauses/paused_banner.dart';
@@ -27,7 +30,8 @@ import 'group_stat_tile.dart';
 import 'reverse_button.dart';
 
 /// A group page: its counts, "Distill" or the tracking of its distillation,
-/// the back option, then its cards with "Review all".
+/// the back option, then its cards with "Review all", the acquired ones in a
+/// folded section.
 class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({
     required this.groupId,
@@ -168,6 +172,7 @@ class _GroupBody extends ConsumerWidget {
   }
 }
 
+/// The cards of the group, the acquired ones apart in a folded section.
 class _CardList extends ConsumerWidget {
   const _CardList({required this.groupId});
 
@@ -186,16 +191,94 @@ class _CardList extends ConsumerWidget {
         ),
       );
     } else {
-      return SurfacePanel(
+      final ongoing = [
+        for (final card in cards)
+          if (card.state != CardState.acquired) card,
+      ];
+      final acquired = [
+        for (final card in cards)
+          if (card.state == CardState.acquired) card,
+      ];
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 16,
         children: [
-          for (final card in cards)
-            CardListTile(
-              card: card,
-              formatter: formatter,
-              onTap: () => openCard(context, card.id),
+          if (ongoing.isNotEmpty) _panel(context, ongoing, formatter),
+          if (acquired.isNotEmpty)
+            _AcquiredSection(
+              count: acquired.length,
+              panel: _panel(context, acquired, formatter),
             ),
         ],
       );
     }
+  }
+
+  Widget _panel(
+    BuildContext context,
+    List<Flashcard> cards,
+    CardStatusFormatter formatter,
+  ) => SurfacePanel(
+    children: [
+      for (final card in cards)
+        CardListTile(
+          card: card,
+          formatter: formatter,
+          onTap: () => openCard(context, card.id),
+        ),
+    ],
+  );
+}
+
+/// "Acquired · 3", folded until its title is touched.
+class _AcquiredSection extends StatefulWidget {
+  const _AcquiredSection({required this.count, required this.panel});
+
+  final int count;
+  final Widget panel;
+
+  @override
+  State<_AcquiredSection> createState() => _AcquiredSectionState();
+}
+
+class _AcquiredSectionState extends State<_AcquiredSection> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AlambicColors.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          expanded: _expanded,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => setState(() => _expanded = !_expanded),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SectionLabel(
+                      AppLocalizations.of(context)
+                          .groupAcquiredSection(widget.count),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 12, 8),
+                    child: Icon(
+                      _expanded ? Icons.expand_less : Icons.expand_more,
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (_expanded) widget.panel,
+      ],
+    );
   }
 }

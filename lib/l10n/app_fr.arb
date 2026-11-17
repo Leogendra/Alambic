@@ -290,6 +290,14 @@
   "groupStatActive": "Actives",
   "groupStatWaiting": "En attente",
   "groupCardsSection": "Cartes",
+  "groupAcquiredSection": "Acquises · {count}",
+  "@groupAcquiredSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "groupReviewAll": "Tout réviser",
   "groupEmpty": "Aucune carte. Ajoute-en avec le bouton + ou l'ajout en masse.",
   "groupSettingsTitle": "Réglages du groupe",

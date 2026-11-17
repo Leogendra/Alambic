@@ -15,7 +15,6 @@ class DistillationRepository {
     required int groupId,
     required DistillationSettings settings,
     required DateTime startedAt,
-    required DateTime firstBatchDay,
   }) => _database
       .into(_database.distillations)
       .insert(
@@ -23,11 +22,9 @@ class DistillationRepository {
           groupId: Value(groupId),
           cardsPerBatch: settings.cardsPerBatch,
           everyDays: settings.everyDays,
-          avoidCollisions: settings.avoidCollisions,
+          prioritizeReviews: settings.prioritizeReviews,
           status: DistillationStatus.running,
           startedAt: startedAt,
-          nextBatchDay: firstBatchDay,
-          introducedInBatch: 0,
         ),
       );
 
@@ -49,39 +46,32 @@ class DistillationRepository {
             ..where((row) => row.groupId.equals(groupId)))
           .write(DistillationsCompanion(status: Value(status)));
 
-  /// Writes new settings and where the current batch stands under them.
-  Future<void> saveSettings(
-    int groupId,
-    DistillationSettings settings, {
-    required DateTime nextBatchDay,
-    required int introducedInBatch,
-  }) =>
+  Future<void> saveSettings(int groupId, DistillationSettings settings) =>
       (_database.update(
         _database.distillations,
       )..where((row) => row.groupId.equals(groupId))).write(
         DistillationsCompanion(
           cardsPerBatch: Value(settings.cardsPerBatch),
           everyDays: Value(settings.everyDays),
-          avoidCollisions: Value(settings.avoidCollisions),
-          nextBatchDay: Value(nextBatchDay),
-          introducedInBatch: Value(introducedInBatch),
+          prioritizeReviews: Value(settings.prioritizeReviews),
         ),
       );
 
-  /// Records the day processed and where the batches stand.
+  /// Records the day processed and, when a batch came out that day, the
+  /// day of the last batch.
   Future<void> saveProgress(
     int groupId, {
     required DateTime advancedDay,
-    required DateTime nextBatchDay,
-    required int introducedInBatch,
+    required bool batchCameOut,
   }) =>
       (_database.update(
         _database.distillations,
       )..where((row) => row.groupId.equals(groupId))).write(
         DistillationsCompanion(
           lastAdvancedDay: Value(advancedDay),
-          nextBatchDay: Value(nextBatchDay),
-          introducedInBatch: Value(introducedInBatch),
+          lastBatchDay: batchCameOut
+              ? Value(advancedDay)
+              : const Value.absent(),
         ),
       );
 }

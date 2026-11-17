@@ -131,7 +131,7 @@ void main() {
       await answer('Laos', ReviewOutcome.again);
       await services.distillations.activate(
         groupId,
-        const DistillationSettings(avoidCollisions: false),
+        const DistillationSettings(prioritizeReviews: false),
       );
       expect(await queue(), ['Mongolie', 'Pérou', 'Chili']);
     });
@@ -143,7 +143,7 @@ void main() {
       await services.cards.setSuspended(ids['Mongolie']!, suspended: true);
       await services.distillations.activate(
         groupId,
-        const DistillationSettings(avoidCollisions: false),
+        const DistillationSettings(prioritizeReviews: false),
       );
       expect(await queue(), ['Mongolie', 'Laos', 'Chili']);
     },

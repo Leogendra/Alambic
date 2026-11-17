@@ -1,19 +1,12 @@
-import 'dart:math';
-
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/distillation_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/pause_repository.dart';
-import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/flashcard.dart';
-import '../../domain/distillation/collision_budget.dart';
-import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../domain/distillation/distillation_status.dart';
-import '../../domain/presets/preset_catalog.dart';
-import '../../domain/scheduling/card_progress.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/review_scheduler.dart';
@@ -31,7 +24,6 @@ class DistillationService {
   DistillationService({
     required this._distillations,
     required this._cards,
-    required this._presets,
     required this._settings,
     required this._pauses,
     required this._scheduler,
@@ -42,7 +34,6 @@ class DistillationService {
 
   final DistillationRepository _distillations;
   final CardRepository _cards;
-  final PresetRepository _presets;
   final NotificationSettingsRepository _settings;
   final PauseRepository _pauses;
   final ReviewScheduler _scheduler;
@@ -53,44 +44,27 @@ class DistillationService {
   DistillationRhythm get _rhythm => DistillationRhythm(_calendar);
 
   /// Activates the distillation of a group: the first batch, from the head
-  /// of its queue, is introduced today.
+  /// of its queue, comes out today.
   /// A group distills once: activating it again is an error.
   Future<void> activate(int groupId, DistillationSettings settings) async {
     await _cards.transaction(() async {
       if (await _distillations.find(groupId) != null) {
         throw StateError('The group $groupId already distills.');
       }
-      final now = _clock();
       await _distillations.insert(
         groupId: groupId,
         settings: settings,
-        startedAt: now,
-        firstBatchDay: _calendar.dayOf(now),
+        startedAt: _clock(),
       );
     });
     await _advanceAndReplan();
   }
 
-  /// Applies new settings to the distillation of a group. A batch already
-  /// complete under a smaller rhythm closes:
-  /// the next one comes X days after the last day processed.
+  /// Applies new settings to the distillation of a group. The next batch
+  /// comes X days (the new X) after the last one, and not before today's
+  /// pass; when that pass already ran, the next one applies them.
   Future<void> adjust(int groupId, DistillationSettings settings) async {
-    await _cards.transaction(() async {
-      final distillation = (await _distillations.find(groupId))!;
-      final batchComplete =
-          distillation.introducedInBatch >= settings.cardsPerBatch;
-      await _distillations.saveSettings(
-        groupId,
-        settings,
-        nextBatchDay: batchComplete
-            ? _calendar.addDays(
-                distillation.lastAdvancedDay ?? _calendar.dayOf(_clock()),
-                settings.everyDays,
-              )
-            : distillation.nextBatchDay,
-        introducedInBatch: batchComplete ? 0 : distillation.introducedInBatch,
-      );
-    });
+    await _distillations.saveSettings(groupId, settings);
     await _advanceAndReplan();
   }
 
@@ -108,9 +82,9 @@ class DistillationService {
   }
 
   /// Runs the pass of the current day for every running distillation that
-  /// has not had it yet: spends its budget when it avoids collisions and
-  /// introduces the cards the rhythm owes. A distillation whose group is
-  /// paused, or any during the global pause, waits for the end of the pause.
+  /// has not had it yet: at most one batch comes out, when the rhythm owes
+  /// one. A distillation whose group is paused, or any during the global
+  /// pause, waits for the end of the pause.
   /// Returns whether a schedule moved.
   Future<bool> advance() async {
     var changed = false;
@@ -138,75 +112,30 @@ class DistillationService {
       return false;
     }
     final cards = await _cards.getCardsOfGroup(groupId);
-    final catalog = await _presets.loadCatalog();
-    final dailySlot = (await _settings.loadReminderSettings()).dailySlot;
-    var count = _rhythm.cardsDue(distillation, today);
-    var postponed = 0;
-    if (_spendsBudget(distillation, cards)) {
-      final split = CollisionBudget.split(
-        _dueReminders(cards, catalog, now),
-        budget: distillation.cardsPerBatch,
+    // A batch comes out only when a card is ready to leave the queue: an
+    // empty queue keeps the batch owed until cards join it.
+    final batchCameOut =
+        _rhythm.batchDue(distillation, today) &&
+        DistillationQueue.next(cards, 1).isNotEmpty;
+    var introduced = 0;
+    if (batchCameOut) {
+      final duePolicy = DuePolicy(_calendar);
+      final count = _rhythm.newCards(
+        distillation,
+        dueCards: cards
+            .where((card) => duePolicy.isDueToday(card, now: now))
+            .length,
       );
-      postponed = await _postpone(split.postponed, cards, dailySlot, now);
-      count = min(count, split.newCardRoom);
+      final dailySlot = (await _settings.loadReminderSettings()).dailySlot;
+      introduced = await _introduce(cards, dailySlot, count, now);
     }
-    final introduced = await _introduce(cards, dailySlot, count, now);
-    final progress = _rhythm.afterIntroducing(distillation, introduced, today);
     await _distillations.saveProgress(
       groupId,
       advancedDay: today,
-      nextBatchDay: progress.nextBatchDay,
-      introducedInBatch: progress.introducedInBatch,
+      batchCameOut: batchCameOut,
     );
-    return introduced > 0 || postponed > 0;
+    return introduced > 0;
   });
-
-  /// The budget protects the reminders from the new cards: it is spent only
-  /// while cards wait in the queue. With an empty queue, every reminder goes
-  /// through.
-  bool _spendsBudget(Distillation distillation, List<Flashcard> cards) =>
-      distillation.avoidCollisions &&
-      DistillationQueue.next(cards, 1).isNotEmpty;
-
-  /// Reminders of the group due today.
-  List<BudgetedReminder> _dueReminders(
-    List<Flashcard> cards,
-    PresetCatalog catalog,
-    DateTime now,
-  ) {
-    final duePolicy = DuePolicy(_calendar);
-    return [
-      for (final card in cards)
-        if (duePolicy.isDueToday(card, now: now))
-          BudgetedReminder(
-            cardId: card.id,
-            interval: CardProgress.of(
-              card,
-              catalog.presetForGroup(card.groupId),
-              catalog.sequenceEndForGroup(card.groupId),
-            ).waitedInterval,
-            dueAt: card.dueAt!,
-          ),
-    ];
-  }
-
-  /// Moves the reminders over the budget to the next day, keeping their
-  /// progression.
-  Future<int> _postpone(
-    List<int> cardIds,
-    List<Flashcard> cards,
-    ClockTime dailySlot,
-    DateTime now,
-  ) async {
-    for (final cardId in cardIds) {
-      final card = cards.firstWhere((card) => card.id == cardId);
-      await _cards.applySchedule(
-        cardId,
-        _scheduler.postponed(card: card, dailySlot: dailySlot, now: now),
-      );
-    }
-    return cardIds.length;
-  }
 
   /// Introduces the [count] next cards of the queue: each one becomes due
   /// today at the daily slot. Returns how many were introduced.

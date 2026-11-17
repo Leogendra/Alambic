@@ -740,15 +740,8 @@
   "distillMoreCards": "Plus de cartes",
   "distillFewerDays": "Moins de jours",
   "distillMoreDays": "Plus de jours",
-  "distillAvoidCollisions": "Éviter les collisions",
-  "distillAvoidCollisionsHint": "{count, plural, =1{1 notif par jour au plus pour cette distillation.} other{{count} notifs par jour au plus pour cette distillation.}} Les rappels passent avant les nouvelles cartes.",
-  "@distillAvoidCollisionsHint": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "distillPrioritizeReviews": "Prioriser les révisions",
+  "distillPrioritizeReviewsHint": "Un jour de lot, chaque carte du groupe à réviser prend la place d'une nouvelle carte.",
   "distillEstimate": "{count, plural, =1{1 carte · arrivée le {date}} other{{count} cartes · dernière arrivée le {date}}}",
   "@distillEstimate": {
     "placeholders": {

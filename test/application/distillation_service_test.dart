@@ -6,8 +6,6 @@ import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/distillation/distillation_status.dart';
-import 'package:alambic/domain/reviews/review_outcome.dart';
-import 'package:alambic/domain/reviews/review_source.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/sample_data.dart';
@@ -41,11 +39,11 @@ void main() {
     for (final cardId in cardIds) (await cards.getCard(cardId)).state,
   ];
 
-  /// Without the budget unless told otherwise, so that the rhythm alone
-  /// decides.
+  /// Without "Prioritize reviews" unless told otherwise, so that the rhythm
+  /// alone decides.
   Future<void> activate({
     DistillationSettings settings = const DistillationSettings(
-      avoidCollisions: false,
+      prioritizeReviews: false,
     ),
   }) => services.distillations.activate(groupId, settings);
 
@@ -97,7 +95,7 @@ void main() {
       settings: const DistillationSettings(
         cardsPerBatch: 2,
         everyDays: 3,
-        avoidCollisions: false,
+        prioritizeReviews: false,
       ),
     );
     expect(await states(), [active, active, pending, pending]);
@@ -118,12 +116,53 @@ void main() {
     expect(await states(), [active, active, pending, pending]);
   });
 
+  test('a week with the phone off: one batch, and the rhythm starts again '
+      'from that day', () async {
+    await activate(
+      settings: const DistillationSettings(
+        everyDays: 3,
+        prioritizeReviews: false,
+      ),
+    );
+    moveTo(DateTime(2026, 11, 20, 9));
+    await services.distillations.advance();
+    expect(await states(), [active, active, pending, pending]);
+    for (final day in [21, 22]) {
+      moveTo(DateTime(2026, 11, day, 9));
+      await services.distillations.advance();
+      expect(await states(), [active, active, pending, pending]);
+    }
+    moveTo(DateTime(2026, 11, 23, 9));
+    await services.distillations.advance();
+    expect(await states(), [active, active, active, pending]);
+  });
+
+  test('a batch short of cards is not completed the next days', () async {
+    await activate(
+      settings: const DistillationSettings(
+        cardsPerBatch: 3,
+        everyDays: 3,
+        prioritizeReviews: false,
+      ),
+    );
+    moveTo(DateTime(2026, 11, 13, 9));
+    await services.distillations.advance();
+    expect(await states(), List.filled(4, active));
+    moveTo(DateTime(2026, 11, 14, 9));
+    final added = await services.card('Kenya', 'Nairobi', groupId: groupId);
+    await services.distillations.advance();
+    expect((await cards.getCard(added)).state, pending);
+    moveTo(DateTime(2026, 11, 16, 9));
+    await services.distillations.advance();
+    expect((await cards.getCard(added)).state, active);
+  });
+
   group('the distillation never ends', () {
     test('it stays once its queue is empty', () async {
       await activate(
         settings: const DistillationSettings(
           cardsPerBatch: 4,
-          avoidCollisions: false,
+          prioritizeReviews: false,
         ),
       );
       expect(await states(), List.filled(4, active));
@@ -134,7 +173,7 @@ void main() {
       await activate(
         settings: const DistillationSettings(
           cardsPerBatch: 4,
-          avoidCollisions: false,
+          prioritizeReviews: false,
         ),
       );
       final added = await services.card('Kenya', 'Nairobi', groupId: groupId);
@@ -143,23 +182,22 @@ void main() {
       await services.distillations.advance();
       expect((await cards.getCard(added)).state, active);
     });
-  });
 
-  test('with an empty queue, the budget holds no reminder back', () async {
-    await activate(settings: const DistillationSettings(cardsPerBatch: 4));
-    for (final cardId in cardIds) {
-      await services.reviews.answer(
-        cardId,
-        ReviewOutcome.correct,
-        source: ReviewSource.session,
+    test('an empty queue keeps the batch owed until a card joins it', () async {
+      await activate(
+        settings: const DistillationSettings(
+          cardsPerBatch: 4,
+          everyDays: 3,
+          prioritizeReviews: false,
+        ),
       );
-    }
-    await services.distillations.adjust(groupId, const DistillationSettings());
-    moveTo(DateTime(2026, 11, 11, 9));
-    expect(await services.distillations.advance(), isFalse);
-    for (final cardId in cardIds) {
-      expect((await cards.getCard(cardId)).dueAt, DateTime(2026, 11, 11, 12));
-    }
+      moveTo(DateTime(2026, 11, 13, 9));
+      await services.distillations.advance();
+      moveTo(DateTime(2026, 11, 14, 9));
+      final added = await services.card('Kenya', 'Nairobi', groupId: groupId);
+      await services.distillations.advance();
+      expect((await cards.getCard(added)).state, active);
+    });
   });
 
   test('a card added later joins the end of the queue', () async {
@@ -184,34 +222,72 @@ void main() {
     expect(await states(), [active, active, pending, pending]);
   });
 
-  group('adjusting', () {
-    test('a larger batch completes the current one', () async {
+  group('changing the rhythm', () {
+    test('a larger batch comes with the next pass', () async {
       await activate();
       await services.distillations.adjust(
         groupId,
-        const DistillationSettings(cardsPerBatch: 3, avoidCollisions: false),
+        const DistillationSettings(cardsPerBatch: 3, prioritizeReviews: false),
       );
+      expect(await states(), [active, pending, pending, pending]);
       moveTo(DateTime(2026, 11, 11, 9));
       await services.distillations.advance();
-      expect(await states(), [active, active, active, active]);
+      expect(await states(), List.filled(4, active));
     });
 
-    test('a smaller batch already reached waits X days', () async {
-      await activate(
-        settings: const DistillationSettings(
-          cardsPerBatch: 2,
-          avoidCollisions: false,
-        ),
-      );
+    test(
+      'a shorter rhythm brings the next batch today, before the pass',
+      () async {
+        await activate(
+          settings: const DistillationSettings(
+            everyDays: 7,
+            prioritizeReviews: false,
+          ),
+        );
+        moveTo(DateTime(2026, 11, 12, 9));
+        await services.distillations.adjust(
+          groupId,
+          const DistillationSettings(everyDays: 2, prioritizeReviews: false),
+        );
+        expect(await states(), [active, active, pending, pending]);
+      },
+    );
+
+    test(
+      'once the pass ran, a shorter rhythm waits for the next one',
+      () async {
+        await activate(
+          settings: const DistillationSettings(
+            everyDays: 3,
+            prioritizeReviews: false,
+          ),
+        );
+        moveTo(DateTime(2026, 11, 11, 9));
+        await services.distillations.advance();
+        await services.distillations.adjust(
+          groupId,
+          const DistillationSettings(prioritizeReviews: false),
+        );
+        expect(await states(), [active, pending, pending, pending]);
+        moveTo(DateTime(2026, 11, 12, 9));
+        await services.distillations.advance();
+        expect(await states(), [active, active, pending, pending]);
+      },
+    );
+
+    test('a longer rhythm counts from the last batch', () async {
+      await activate();
       moveTo(DateTime(2026, 11, 11, 9));
-      await services.distillations.advance();
       await services.distillations.adjust(
         groupId,
-        const DistillationSettings(everyDays: 3, avoidCollisions: false),
+        const DistillationSettings(everyDays: 3, prioritizeReviews: false),
       );
+      moveTo(DateTime(2026, 11, 12, 9));
+      await services.distillations.advance();
+      expect(await states(), [active, pending, pending, pending]);
       moveTo(DateTime(2026, 11, 13, 9));
       await services.distillations.advance();
-      expect(await states(), [active, active, active, active]);
+      expect(await states(), [active, active, pending, pending]);
     });
   });
 

@@ -102,7 +102,7 @@ void main() {
       }
       await harness
           .read(distillationServiceProvider)
-          .activate(verbs, const DistillationSettings(avoidCollisions: false));
+          .activate(verbs, const DistillationSettings(prioritizeReviews: false));
       await harness.read(pauseServiceProvider).pauseGroup(verbs);
       harness.clock.now = DateTime(2026, 11, 11, 9);
       await harness.read(distillationServiceProvider).advance();

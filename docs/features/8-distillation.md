@@ -20,31 +20,33 @@ A card created in the group, moved into it while pending, or reset joins the end
 
 ### Rhythm
 
-A batch of N cards is owed from its batch day on; the next batch comes X days after the day the previous one was completed. Introducing a card makes it due today at the [daily slot](../lexicon.md#daily-slot), due right away when the slot has passed. It then follows its preset.
+The distillation makes one pass per scheduling day, by the first pass that sees it: at app launch, or at any wake-up of the app. A running distillation plans a wake-up at the start (4am) of the day it owes its next batch, so cards are introduced with the app closed. Introducing a card makes it due today at the [daily slot](../lexicon.md#daily-slot), due right away when the slot has passed. It then follows its preset.
 
-Each scheduling day is processed once per distillation, by the first pass that sees it: at app launch, or at any wake-up of the app. A running distillation plans a wake-up at the start of the next day it has to process (4am), so cards are introduced with the app closed. A missed day is not caught up: at most one batch is introduced per day. When the queue is empty, the distillation simply waits for new cards.
+A batch comes out every X days, counted from the last day a batch came out; the first one comes out on activation. A batch comes out only when a card is ready to leave the queue (pending and not suspended): while the queue is empty, the batch stays owed and comes out at the first pass after a card joins. A batch short of cards gives what the queue holds and is never completed the next days.
+
+At most one batch comes out per pass, and missed batches are never caught up: after a week with the phone off, a single batch comes out and the rhythm starts again from that day. The reminders due meanwhile stay due.
 
 ### Adjusting
 
-The settings stay editable: "N cards every X days" and "Avoid collisions". If the current batch already gave as many cards as the new N, it is closed and the next one comes X days after the last day processed; otherwise it is completed up to the new N. When today was already processed, the new settings apply from the next pass.
+The settings stay editable: "N cards every X days" and "Prioritize reviews". Changing the rhythm misses nothing: the next batch comes out at the earliest today, and at the earliest X days (the new X) after the last batch. When today's pass already ran, the new settings apply from the next pass.
 
-### Avoiding collisions
+### Prioritizing reviews
 
-With "Avoid collisions" (on by default), a distillation has a budget of N notifications a day, N being its cards per batch. When the day is processed, the reminders due today of the cards of the group come first, the shortest interval first (a D+1 reminder before a D+2 one; a card introduced and not answered yet counts as the shortest). Those over the budget move to the next day at the daily slot, keeping their step: no penalty. New cards only get what is left of the budget; the part of the batch they cannot take waits for the next days.
+With "Prioritize reviews" (on by default), a batch day brings max(0, N − the cards of the group due at the pass) new cards. Every card due at that moment counts: due today, late, introduced and not answered yet. A reminder of less than a day that falls later the same day does not count. The cards that do not come out stay at the head of the queue, and the next batch comes X days later, with the same computation.
 
-With 3 cards a day on the Standard preset, every card answered correctly: day 1 brings three new cards, day 2 their three D+1 reminders and no new card, day 3 three new cards, day 4 the three D+1 reminders while the three D+2 reminders move to day 5.
+Reminders always arrive on their due date: the distillation never moves them. With 3 cards a day, day 1 brings three new cards; one is missed (due the next day) and two are answered (due in three days), so day 2 brings the missed card and two new ones. With 1 card a day, a card planned a week ago and a card missed yesterday both fall today: both arrive, without a new card.
 
-The budget is spent once, when the day is processed; reminders that come later the same day (intervals shorter than a day) do not count. It only applies while the distillation runs and its queue holds a card ready to come out (pending and not suspended): a distillation never ends, and a budget kept once the queue is empty would hold the group to N reminders a day for good. Without the option, the N cards of a batch arrive whatever is due.
+Without the option, the N new cards of a batch arrive at the rhythm whatever is due. The global daily cap of notifications ([Feature 7](7-notifications.md)) applies on top.
 
 ### Pause
 
-A paused distillation introduces nothing and spends no budget; its introduced cards follow their preset. Resuming it processes the current day if it was not processed yet. There is no stop and no end.
+A paused distillation introduces nothing; its introduced cards follow their preset. Resuming it processes the current day if it was not processed yet. There is no stop and no end.
 
 ### Screens
 
 While the group does not distill, its page shows a large "Distill" button ([Feature 4](4-groups.md#group-page)). Once activated, a "Distillation" section takes its place: "In progress" or "Paused", "Adjust", a pause / resume button, the rhythm ("1 card per day"), the waiting cards ("5 cards waiting") and the estimated day of the last arrival.
 
-The "Distill" screen shows the [schedule](../lexicon.md#schedule) of the app and the preset the cards will follow, then the settings: "N cards every X days" (1 / 1 by default) and "Avoid collisions" (on, explaining the daily budget). An estimate follows ("44 cards · last arrival on 23 December"), computed as if every batch went through, or a line saying no card waits. It ends on "Start distilling"; opened from "Adjust", it is titled "Adjust the distillation", starts from the current settings and ends on "Save".
+The "Distill" screen shows the [schedule](../lexicon.md#schedule) of the app and the preset the cards will follow, then the settings: "N cards every X days" (1 / 1 by default) and "Prioritize reviews" (on, explaining that each card due takes the place of a new card). An estimate follows ("44 cards · last arrival on 23 December"), computed as if every batch went through, or a line saying no card waits. It ends on "Start distilling"; opened from "Adjust", it is titled "Adjust the distillation", starts from the current settings and ends on "Save".
 
 On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#new-cards)).
 
@@ -52,19 +54,19 @@ On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#n
 
 - [x] A group does not distill until activated; activating introduces the first batch the same day.
 - [x] The distillation takes the head of the queue, skipping the suspended cards; it has no order setting.
-- [x] Batches follow "N cards every X days", one batch at most per day, the day starting at 4am, with the app closed.
+- [x] A batch comes out every X days from the last one, one at most per pass, the day starting at 4am, with the app closed; missed batches are not caught up and a batch is never completed the next days.
 - [x] A card added to the group joins the end of the queue, even when the queue was empty; a card moved out of the group leaves it.
 - [x] One distillation per group; it is adjusted, paused and resumed, never stopped.
-- [x] Adjusting changes the rhythm and collision avoidance, keeping the progress of the batches.
-- [x] Avoiding collisions: a daily budget of N notifications while cards wait, reminders first and shortest intervals first, the rest moved to the next day without penalty, new cards in what is left.
+- [x] Adjusting changes the rhythm and "Prioritize reviews"; the next batch comes out at the earliest today and X days (the new X) after the last one.
+- [x] Prioritizing reviews: a batch day brings N new cards minus the cards of the group due at the pass, late and unanswered ones included; reminders are never moved.
 - [x] The "Distill" screen activates or adjusts, with an estimate of the last arrival.
 - [x] The group page follows the distillation (state, rhythm, waiting cards, last arrival) with "Adjust" and pause / resume.
 
 ## Test strategy
 
-- The rhythm (`DistillationRhythm`) and the budget (`CollisionBudget`) are tested as pure functions: batch owed, rest of a batch held back, next batch day, estimate of the last arrival, arrivals day by day; ranking of the reminders and room left for new cards.
-- The example of 3 cards a day on the Standard preset is replayed day by day on an in-memory database, answering every card when it comes.
-- The service is tested on an in-memory database filled through the services, moving a fixed clock across days: activation, first batch, next days, 4am boundary, missed days, additions to an empty queue, adjustment, pause, suspension, budget only while cards wait.
+- The rhythm (`DistillationRhythm`) is tested as pure functions: batch owed, new cards with and without "Prioritize reviews", next introduction day, estimate of the last arrival, arrivals day by day.
+- The two examples of "Prioritize reviews" are replayed on an in-memory database, with late and unanswered cards counted and reminders left in place.
+- The service is tested on an in-memory database filled through the services, moving a fixed clock across days: activation, first batch, next days, 4am boundary, a week without pass (one batch, rhythm restarting from it), a batch short of cards, an empty queue, changes of rhythm before and after the day's pass, pause, suspension.
 - The "Distill" screen, the group page and Home are covered by golden tests; widget tests activate a distillation and adjust it from their screens.
 - The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, and the introduction done by the wake-up.
 
@@ -79,4 +81,6 @@ On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#n
 
 The queue is not a table: a card is in the queue of its group when it is pending, at its `queuePosition`, ties broken by creation. A card joining the end takes the position after the last pending one. Introducing a card clears its position. A distillation row is keyed by its group, and deleted with it.
 
-The daily pass runs in a transaction and reads the distillation again inside it, because the app and a wake-up may run it at the same moment from two isolates; the day already processed (`lastAdvancedDay`) makes the second pass a no-op.
+A distillation row keeps only two days of progress: the last day processed (`lastAdvancedDay`) and the last day a batch came out (`lastBatchDay`, empty until the first batch). The next batch day follows from the latter and the current X, which is why a change of rhythm needs no rewrite.
+
+The daily pass runs in a transaction and reads the distillation again inside it, because the app and a wake-up may run it at the same moment from two isolates; the day already processed makes the second pass a no-op.

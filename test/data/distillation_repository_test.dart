@@ -28,10 +28,9 @@ void main() {
     settings: const DistillationSettings(
       cardsPerBatch: 3,
       everyDays: 2,
-      avoidCollisions: false,
+      prioritizeReviews: false,
     ),
     startedAt: now,
-    firstBatchDay: today,
   );
 
   test('a group has no distillation until it is activated', () async {
@@ -44,10 +43,9 @@ void main() {
     expect(distillation.groupId, groupId);
     expect(distillation.cardsPerBatch, 3);
     expect(distillation.everyDays, 2);
-    expect(distillation.avoidCollisions, isFalse);
+    expect(distillation.prioritizeReviews, isFalse);
     expect(distillation.status, DistillationStatus.running);
-    expect(distillation.nextBatchDay, today);
-    expect(distillation.introducedInBatch, 0);
+    expect(distillation.lastBatchDay, isNull);
     expect(distillation.lastAdvancedDay, isNull);
   });
 
@@ -56,24 +54,39 @@ void main() {
     expect(activate, throwsA(anything));
   });
 
-  test('new settings keep the progress of the batches', () async {
+  test('the day of the last batch moves only when a batch came out', () async {
     await activate();
     await distillations.saveProgress(
       groupId,
       advancedDay: today,
-      nextBatchDay: today,
-      introducedInBatch: 1,
+      batchCameOut: true,
+    );
+    final tomorrow = DateTime(2026, 11, 11);
+    await distillations.saveProgress(
+      groupId,
+      advancedDay: tomorrow,
+      batchCameOut: false,
+    );
+    final distillation = (await distillations.find(groupId))!;
+    expect(distillation.lastBatchDay, today);
+    expect(distillation.lastAdvancedDay, tomorrow);
+  });
+
+  test('new settings keep the day of the last batch', () async {
+    await activate();
+    await distillations.saveProgress(
+      groupId,
+      advancedDay: today,
+      batchCameOut: true,
     );
     await distillations.saveSettings(
       groupId,
       const DistillationSettings(cardsPerBatch: 5),
-      nextBatchDay: today,
-      introducedInBatch: 1,
     );
     final distillation = (await distillations.find(groupId))!;
     expect(distillation.cardsPerBatch, 5);
-    expect(distillation.introducedInBatch, 1);
-    expect(distillation.lastAdvancedDay, today);
+    expect(distillation.prioritizeReviews, isTrue);
+    expect(distillation.lastBatchDay, today);
   });
 
   test('deleting a group deletes its distillation', () async {

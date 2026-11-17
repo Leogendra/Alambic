@@ -94,7 +94,7 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
           const SizedBox(height: 16),
           ..._rhythmSection(strings),
           const SizedBox(height: 16),
-          _collisionsPanel(strings),
+          _prioritizePanel(strings),
           const SizedBox(height: 24),
           _footer(strings, colors, remaining),
         ],
@@ -110,15 +110,16 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     ),
   ];
 
-  Widget _collisionsPanel(AppLocalizations strings) => SurfacePanel(
+  Widget _prioritizePanel(AppLocalizations strings) => SurfacePanel(
     children: [
       PanelRow(
-        title: strings.distillAvoidCollisions,
-        subtitle: strings.distillAvoidCollisionsHint(_settings.cardsPerBatch),
+        title: strings.distillPrioritizeReviews,
+        subtitle: strings.distillPrioritizeReviewsHint,
         trailing: Switch(
-          value: _settings.avoidCollisions,
-          onChanged: (value) =>
-              _update((settings) => settings.copyWith(avoidCollisions: value)),
+          value: _settings.prioritizeReviews,
+          onChanged: (value) => _update(
+            (settings) => settings.copyWith(prioritizeReviews: value),
+          ),
         ),
       ),
     ],

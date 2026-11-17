@@ -27,7 +27,7 @@ Late cards come first, then the others by moment. A card already answered today 
 New cards are never named. Each group gets one line per day, "Capitales: 2 new cards", which opens the group. It counts:
 
 - the introduced cards never answered, on the day they are due (today when late);
-- the cards the group's [distillation](8-distillation.md) should introduce that day, following its rhythm from its current batch, as if every batch went through: the budget of "Avoid collisions" may push an arrival back by a day.
+- the cards the group's [distillation](8-distillation.md) should introduce that day, following its rhythm from its last batch, as if every batch went through: with "Prioritize reviews", the cards due on a batch day take the place of new cards, so an announced arrival may be smaller.
 
 A paused distillation, or a paused group, announces no future arrival. Cards of a paused group stay on the timeline: they remain reviewable in the app.
 
@@ -48,7 +48,7 @@ There is no count of due cards and no "Review all" on Home: reviewing happens fr
 ## Test strategy
 
 - `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, suspended and pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, paused distillation and group, and "Review soon" reminders.
-- The arrivals of a distillation are tested on `DistillationRhythm`: batches until the queue is empty, today skipped once its pass ran, a batch in progress finished first.
+- The arrivals of a distillation are tested on `DistillationRhythm`: batches until the queue is empty, today skipped once its pass ran.
 - The screen is covered by golden tests in light and dark theme, in English and during the global pause, on the sample data partly answered, with a reminder and a distilling group, and by a golden test of a distillation in progress.
 
 ## File mapping

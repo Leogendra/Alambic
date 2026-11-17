@@ -26,8 +26,7 @@ class DistillationProgress {
       remaining: remaining,
       lastArrival: distillation.isRunning
           ? rhythm.lastArrival(
-              // The current batch already gave some of its cards.
-              remaining: remaining + distillation.introducedInBatch,
+              remaining: remaining,
               cardsPerBatch: distillation.cardsPerBatch,
               everyDays: distillation.everyDays,
               firstDay: rhythm.nextIntroductionDay(distillation, today),

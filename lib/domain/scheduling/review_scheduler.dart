@@ -79,21 +79,6 @@ class ReviewScheduler {
     dueAt: calendar.momentAt(calendar.dayOf(now), dailySlot),
   );
 
-  /// Schedule of a reminder held back by a distillation budget: the same
-  /// progression, due the next day at the daily slot.
-  CardSchedule postponed({
-    required Flashcard card,
-    required ClockTime dailySlot,
-    required DateTime now,
-  }) => CardSchedule(
-    state: card.state,
-    step: card.step,
-    dueAt: calendar.momentAt(
-      calendar.addDays(calendar.dayOf(now), 1),
-      dailySlot,
-    ),
-  );
-
   DateTime _dueAfter(
     PresetInterval interval,
     DateTime answeredAt,

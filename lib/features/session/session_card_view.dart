@@ -10,12 +10,16 @@ import '../../domain/cards/flashcard.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../cards/card_image.dart';
 
-/// The card of a session: the prompt on top, the answer below once revealed.
+/// The card of a session, in two halves of fixed height: the context line
+/// and the asked face on top, unchanged by the reveal; the answer below.
+/// [reveal] runs from 0 to 1 as the answer shows: the line between the
+/// halves draws from the center to the edges, and the answer fades in while
+/// rising.
 class SessionCardView extends ConsumerWidget {
   const SessionCardView({
     required this.card,
     required this.askedSide,
-    required this.isRevealed,
+    required this.reveal,
     required this.isBonus,
     super.key,
   });
@@ -24,15 +28,16 @@ class SessionCardView extends ConsumerWidget {
 
   /// Face drawn for this display; the answer is the other one.
   final CardSide askedSide;
-  final bool isRevealed;
+  final Animation<double> reveal;
   final bool isBonus;
+
+  /// How far the answer rises while it fades in.
+  static const _answerRise = 12.0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
-    final prompt = card.promptFor(askedSide);
-    final answer = card.answerFor(askedSide);
     return Container(
       decoration: BoxDecoration(
         color: colors.surface,
@@ -50,32 +55,37 @@ class SessionCardView extends ConsumerWidget {
                 children: [
                   _context(context, ref, strings),
                   Expanded(
-                    child: _face(
-                      prompt,
-                      isRevealed ? colors.textSecondary : colors.textPrimary,
-                      isRevealed ? 30 : 36,
-                    ),
+                    child: _face(card.promptFor(askedSide), colors.textPrimary),
                   ),
                 ],
               ),
             ),
           ),
+          SizedBox(
+            height: 1,
+            child: AnimatedBuilder(
+              animation: reveal,
+              builder: (context, child) =>
+                  FractionallySizedBox(widthFactor: reveal.value, child: child),
+              child: ColoredBox(color: colors.divider),
+            ),
+          ),
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: colors.divider)),
-              ),
-              alignment: Alignment.center,
+            child: Padding(
               padding: const EdgeInsets.all(20),
-              child: isRevealed
-                  ? _face(answer, colors.textPrimary, 36)
-                  : Text(
-                      strings.sessionTapToFlip,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: colors.textSecondary,
+              child: AnimatedBuilder(
+                animation: reveal,
+                builder: (context, child) => reveal.value == 0
+                    ? const SizedBox.shrink()
+                    : Opacity(
+                        opacity: reveal.value,
+                        child: Transform.translate(
+                          offset: Offset(0, _answerRise * (1 - reveal.value)),
+                          child: child,
+                        ),
                       ),
-                    ),
+                child: _face(card.answerFor(askedSide), colors.textPrimary),
+              ),
             ),
           ),
         ],
@@ -114,7 +124,7 @@ class SessionCardView extends ConsumerWidget {
 
   /// The image of a face above its text, the image shrinking to leave room
   /// for the text.
-  Widget _face(CardFace face, Color color, double fontSize) => SizedBox(
+  Widget _face(CardFace face, Color color) => SizedBox(
     width: double.infinity,
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -122,16 +132,16 @@ class SessionCardView extends ConsumerWidget {
       children: [
         if (face.imagePath case final image?)
           Flexible(child: CardImage.stored(image)),
-        if (face.hasText) _faceText(face.text!, color, fontSize),
+        if (face.hasText) _faceText(face.text!, color),
       ],
     ),
   );
 
-  Widget _faceText(String text, Color color, double fontSize) => Text(
+  Widget _faceText(String text, Color color) => Text(
     text,
     textAlign: TextAlign.center,
     style: TextStyle(
-      fontSize: text.length > 60 ? fontSize * 0.6 : fontSize,
+      fontSize: text.length > 60 ? 22 : 36,
       fontWeight: FontWeight.w700,
       height: 1.2,
       color: color,

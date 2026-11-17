@@ -442,7 +442,6 @@
   "reviewAgain": "À revoir",
   "sessionQuit": "Quitter la session",
   "sessionShowAnswer": "Afficher la réponse",
-  "sessionTapToFlip": "Touche pour retourner",
   "sessionProgress": "{position} / {total}",
   "@sessionProgress": {
     "placeholders": {

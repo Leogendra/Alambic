@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/alambic_colors.dart';
@@ -14,8 +15,8 @@ import 'answer_buttons.dart';
 import 'session_card_view.dart';
 import 'session_end_view.dart';
 
-/// Reviews [items] one by one: the prompt, a tap to reveal the answer, then
-/// "Correct" or "Again". Ends on a summary.
+/// Reviews [items] one by one: the prompt, "Show answer" (or a tap on the
+/// card) to reveal the answer, then "Again" or "Correct". Ends on a summary.
 class SessionScreen extends ConsumerStatefulWidget {
   const SessionScreen({
     required this.items,
@@ -37,14 +38,29 @@ class SessionScreen extends ConsumerStatefulWidget {
   ConsumerState<SessionScreen> createState() => _SessionScreenState();
 }
 
-class _SessionScreenState extends ConsumerState<SessionScreen> {
+class _SessionScreenState extends ConsumerState<SessionScreen>
+    with SingleTickerProviderStateMixin {
   late final ReviewSession _session = ReviewSession(
     items: widget.items,
     isBonus: widget.isBonus,
     startedAt: ref.read(clockProvider)(),
   );
+  late final AnimationController _revealController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+  );
+  late final Animation<double> _revealProgress = CurvedAnimation(
+    parent: _revealController,
+    curve: Curves.easeOut,
+  );
   bool _isRevealed = false;
   bool _isAnswering = false;
+
+  @override
+  void dispose() {
+    _revealController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +93,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                     child: SessionCardView(
                       card: card,
                       askedSide: item.askedSide,
-                      isRevealed: _isRevealed,
+                      reveal: _revealProgress,
                       isBonus: widget.isBonus,
                     ),
                   ),
@@ -85,21 +101,57 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-          child: _isRevealed
-              ? AnswerButtons(
-                  cardId: item.cardId,
-                  isBonus: widget.isBonus,
-                  enabled: !_isAnswering,
-                  onAnswer: (outcome) => _answer(item, outcome),
-                )
-              : FilledButton(
-                  onPressed: _reveal,
-                  child: Text(strings.sessionShowAnswer),
-                ),
+          child: _buttons(item, strings),
         ),
       ],
     );
   }
+
+  /// "Show answer", cross-faded into "Again" / "Correct" in the same space,
+  /// so the card above does not move.
+  Widget _buttons(SessionItem item, AppLocalizations strings) => SizedBox(
+    height: AnswerButtons.height,
+    child: AnimatedBuilder(
+      animation: _revealProgress,
+      builder: (context, _) => Stack(
+        fit: StackFit.expand,
+        children: [
+          if (_revealProgress.value < 1)
+            Opacity(
+              opacity: 1 - _revealProgress.value,
+              child: IgnorePointer(
+                ignoring: _isRevealed,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: _reveal,
+                  child: Text(
+                    strings.sessionShowAnswer,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (_isRevealed)
+            Opacity(
+              opacity: _revealProgress.value,
+              child: AnswerButtons(
+                cardId: item.cardId,
+                isBonus: widget.isBonus,
+                enabled: !_isAnswering,
+                onAnswer: (outcome) => _answer(item, outcome),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
 
   Widget _header(AppLocalizations strings) {
     final colors = AlambicColors.of(context);
@@ -143,9 +195,17 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     );
   }
 
+  /// Shows the answer with a light haptic tap; at once when the system asks
+  /// for reduced motion.
   void _reveal() {
     if (!_isRevealed) {
+      HapticFeedback.lightImpact();
       setState(() => _isRevealed = true);
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _revealController.value = 1;
+      } else {
+        _revealController.forward();
+      }
     }
   }
 
@@ -166,6 +226,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         _isRevealed = false;
         _isAnswering = false;
       });
+      // The next card shows unrevealed, without playing the reveal back.
+      _revealController.value = 0;
     }
   }
 }

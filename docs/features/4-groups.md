@@ -18,13 +18,15 @@ As soon as some text is typed, the group list gives way to the cards whose front
 
 ### Group page
 
-The page of a group recalls the number of cards and the preset. Three counters follow: due cards, active cards (introduced) and waiting cards ([pending](../lexicon.md#pending) in the queue). Then, from top to bottom:
+The page of a group recalls the number of cards and the preset. Then, from top to bottom:
 
-- "Review the N due" when cards are due, which opens a session on them;
 - the large "Distill" button while the group does not distill, with a line explaining it, then, once activated, the tracking of its distillation in its place ([Feature 8](8-distillation.md#screens));
+- a small "Review all" text button, while the group has cards in progress or waiting;
 - the "Enable the back" / "Disable the back" button, with a line saying how cards are asked;
-- the card list, in creation order, under a "Cards" title that carries a small "Review all" button. Each card shows where it stands ([Feature 3](3-cards.md#where-a-card-stands));
-- the [acquired](../lexicon.md#acquired) cards, out of that list, in an "Acquired · N" section (*Acquises*) folded by default: touching its title unfolds or folds it. It is absent when the group has no acquired card.
+- the cards, in three sections, each titled with its number of cards and left out when empty. Each card shows where it stands ([Feature 3](3-cards.md#where-a-card-stands)):
+  - "In progress · N" (*En cours*): the introduced cards, active or [remanent](../lexicon.md#remanence), soonest due first; the suspended ones stay there, marked "suspended", at the end;
+  - "Waiting · N" (*En attente*): the [queue](../lexicon.md#queue), in its order, suspended cards in their place. The first card that is not suspended, the next one the distillation introduces, reads "next" (*prochaine*) in accent instead of "waiting";
+  - "Learned · N" (*Acquises*): the [acquired](../lexicon.md#acquired) cards, folded by default; touching its title unfolds or folds it.
 
 The "+" button creates a card directly in the group, and the toolbar opens the bulk add and the group settings.
 
@@ -57,16 +59,19 @@ The pause silences the group: none of its cards is notified and its distillation
 
 Deleting a group asks for confirmation, announcing how many cards go with it, then deletes the group with its cards, their history and its distillation.
 
-### Counts
+### Counts and sections
 
-Counters are computed by `GroupOverview` from all cards, the preset catalog and the current moment. The current moment is republished every minute (`currentMomentProvider`), so a card planned for 12:00 joins the counters on time without any data change.
+The due count of the tab is computed by `GroupOverview` from all cards, the preset catalog and the current moment. The current moment is republished every minute (`currentMomentProvider`), so a card planned for 12:00 joins the count on time without any data change.
+
+The sections of a group page are split by `GroupSections` from the cards of the group; the waiting one takes the queue order of the distillation (`DistillationQueue.inOrder`), so the page and the distillation cannot disagree on which card is next.
 
 ## Acceptance criteria
 
 - [x] The tab lists the groups, with number of cards, preset and number of due cards.
 - [x] Search finds cards by their front or back, case-insensitively.
-- [x] A group page shows the due / active / waiting counters and the card list with where each card stands.
-- [x] The acquired cards are in their own section, folded by default and absent when there are none.
+- [x] A group page shows its cards in three sections with their counts, "In progress", "Waiting" and "Learned", each card with where it stands, and no counter or "Review the N due" button.
+- [x] "In progress" is sorted soonest due first, suspended cards last; "Waiting" follows the queue, and its first card that is not suspended reads "next".
+- [x] The learned section is folded by default; an empty section is absent.
 - [x] A group that does not distill shows a large "Distill" button; once activated, its tracking replaces it.
 - [x] "Review all" asks the due cards first, then the other introduced cards, then the pending ones, all but the due ones as bonus reviews, and leaves suspended and acquired cards out.
 - [x] In "Review all", a pending card answered "Again" goes to the head of the queue at once, the last one missed first.
@@ -80,15 +85,16 @@ Counters are computed by `GroupOverview` from all cards, the preset catalog and 
 
 ## Test strategy
 
+- The split into sections is tested as pure logic: the order of each section, remanent and suspended cards, the next card behind a suspended head.
 - Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the [daily slot](../lexicon.md#daily-slot), with a suspended card.
 - The order of "Review all" is tested as pure logic (due, introduced, pending, suspended, acquired), then on the group page, down to the session it opens.
 - Raising a missed pending card is tested on an in-memory database with the queue as the distillation reads it: one card, several, a correct answer, a forced bonus, a card added afterwards, the next introduction; and through a session left after one answer.
 - The group service is tested for creation, renaming, refusal of an empty name, the back option, the end of sequence (the acquired cards sent back into remanence) and deletion with its cards.
-- The tab (list and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock; the group page (with a folded acquired section) and its settings in light and dark theme. The acquired section is unfolded and folded again by touch. The settings screen is driven to change the remanence interval, the typed answer and the end of sequence, read back from the database.
+- The tab (list and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock; the group page (all three sections, a suspended card in progress and at the head of the queue) and its settings in light and dark theme. The section titles and the "next" mark are checked on the page, and the acquired section is unfolded and folded again by touch. The settings screen is driven to change the remanence interval, the typed answer and the end of sequence, read back from the database.
 
 ## File mapping
 
-- `lib/application/groups/` — group service, counts (`GroupOverview`) and providers.
+- `lib/application/groups/` — group service, counts (`GroupOverview`), sections of a group page (`GroupSections`) and providers.
 - `lib/application/reviews/whole_group_review.dart` — the order of "Review all".
 - `lib/application/time/minute_ticker.dart` — current moment republished every minute.
 - `lib/data/repositories/group_repository.dart` — group storage.

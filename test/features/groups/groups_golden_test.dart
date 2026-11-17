@@ -11,6 +11,7 @@ import 'package:alambic/domain/groups/remanence_interval.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
+import 'package:alambic/features/cards/card_list_tile.dart';
 import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/groups/group_settings_screen.dart';
@@ -47,6 +48,17 @@ void main() {
       cardId,
       const CardSchedule(state: CardState.acquired, step: null, dueAt: null),
     );
+  });
+
+  /// Adds to Capitales a queue of two cards, the first one suspended, and
+  /// suspends Myanmar, in progress.
+  Future<void> seedWaiting(WidgetTester tester) => tester.runAsync(() async {
+    final kenya = await samples.card('Kenya', 'Nairobi', groupId: capitalsId);
+    await samples.card('Maroc', 'Rabat', groupId: capitalsId);
+    await samples.cards.setSuspended(kenya, suspended: true);
+    final myanmar = (await CardRepository(database).getCardsOfGroup(capitalsId))
+        .firstWhere((card) => card.frontText == 'Myanmar');
+    await samples.cards.setSuspended(myanmar.id, suspended: true);
   });
 
   testWidgets('groups tab', (tester) async {
@@ -100,6 +112,7 @@ void main() {
     testWidgets('group detail, ${brightness.name} theme', (tester) async {
       await seed(tester);
       await seedAcquired(tester);
+      await seedWaiting(tester);
       await pumpGolden(
         tester,
         GroupDetailScreen(groupId: capitalsId),
@@ -112,6 +125,33 @@ void main() {
       );
     });
   }
+
+  testWidgets('three sections with their counts; the head of the queue '
+      'that is not suspended is "next"', (tester) async {
+    await seed(tester);
+    await seedAcquired(tester);
+    await seedWaiting(tester);
+    await pumpGolden(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    final acquired = find.text('ACQUISES · 1');
+    await tester.scrollUntilVisible(acquired, 200);
+    expect(find.text('EN COURS · 4'), findsOneWidget);
+    expect(find.text('EN ATTENTE · 2'), findsOneWidget);
+    expect(find.text('prochaine'), findsOneWidget);
+    final maroc = find.ancestor(
+      of: find.text('Maroc'),
+      matching: find.byType(CardListTile),
+    );
+    expect(
+      find.descendant(of: maroc, matching: find.text('prochaine')),
+      findsOneWidget,
+    );
+    expect(find.text('Dues'), findsNothing);
+    expect(find.textContaining('Réviser les'), findsNothing);
+  });
 
   testWidgets('the acquired cards are apart, folded until touched', (
     tester,

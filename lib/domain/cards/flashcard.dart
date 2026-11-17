@@ -1,4 +1,3 @@
-import '../scheduling/fsrs/fsrs_memory.dart';
 import 'card_face.dart';
 import 'card_side.dart';
 import 'card_state.dart';
@@ -18,8 +17,6 @@ class Flashcard {
     required this.createdAt,
     required this.state,
     required this.step,
-    required this.stability,
-    required this.difficulty,
     required this.dueAt,
     required this.lastReviewedAt,
     required this.notifiedAt,
@@ -44,11 +41,6 @@ class Flashcard {
   /// Index, in the preset sequence, of the interval currently waited.
   /// `null` while the card has never been answered.
   final int? step;
-
-  /// FSRS memory of a card followed by the adaptive engine; `null`
-  /// otherwise, and while it has never been answered.
-  final double? stability;
-  final double? difficulty;
 
   /// `null` unless the card is [CardState.active].
   final DateTime? dueAt;
@@ -75,14 +67,6 @@ class Flashcard {
 
   /// Face expected as the answer when [asked] is drawn.
   CardFace answerFor(CardSide asked) => face(asked.opposite);
-
-  FsrsMemory? get memory => switch ((stability, difficulty)) {
-    (final double stability, final double difficulty) => FsrsMemory(
-      stability: stability,
-      difficulty: difficulty,
-    ),
-    _ => null,
-  };
 
   bool get isPending => state == CardState.pending;
 

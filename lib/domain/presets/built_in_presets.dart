@@ -3,7 +3,6 @@ import 'failure_behavior.dart';
 import 'interval_unit.dart';
 import 'preset.dart';
 import 'preset_interval.dart';
-import 'scheduling_engine_kind.dart';
 import 'sequence_end_behavior.dart';
 
 /// Presets created on first launch. Their [Preset.id] is 0 until stored.
@@ -12,7 +11,6 @@ abstract final class BuiltInPresets {
     id: 0,
     name: 'Standard',
     builtInKey: BuiltInPresetKey.standard,
-    engine: SchedulingEngineKind.sequence,
     intervals: [
       PresetInterval(1, IntervalUnit.day),
       PresetInterval(2, IntervalUnit.day),
@@ -24,14 +22,12 @@ abstract final class BuiltInPresets {
     failureBehavior: FailureBehavior.stepBack,
     endBehavior: SequenceEndBehavior.repeatLast,
     typedAnswer: false,
-    targetRetention: 0.9,
   );
 
   static const Preset intensive = Preset(
     id: 0,
     name: 'Intensif',
     builtInKey: BuiltInPresetKey.intensive,
-    engine: SchedulingEngineKind.sequence,
     intervals: [
       PresetInterval(10, IntervalUnit.minute),
       PresetInterval(1, IntervalUnit.hour),
@@ -42,38 +38,12 @@ abstract final class BuiltInPresets {
     failureBehavior: FailureBehavior.stepBack,
     endBehavior: SequenceEndBehavior.repeatLast,
     typedAnswer: false,
-    targetRetention: 0.9,
   );
 
-  /// FSRS. Its sequence, unused by the
-  /// adaptive engine, is the Standard one, ready if the engine is switched.
-  static const Preset adaptive = Preset(
-    id: 0,
-    name: 'Adaptatif',
-    builtInKey: BuiltInPresetKey.adaptive,
-    engine: SchedulingEngineKind.adaptive,
-    intervals: [
-      PresetInterval(1, IntervalUnit.day),
-      PresetInterval(2, IntervalUnit.day),
-      PresetInterval(1, IntervalUnit.week),
-      PresetInterval(1, IntervalUnit.month),
-      PresetInterval(3, IntervalUnit.month),
-      PresetInterval(6, IntervalUnit.month),
-    ],
-    failureBehavior: FailureBehavior.stepBack,
-    endBehavior: SequenceEndBehavior.repeatLast,
-    typedAnswer: false,
-    targetRetention: defaultRetention,
-  );
-
-  /// Target retention of a new adaptive preset.
-  static const double defaultRetention = 0.9;
-
-  static const List<Preset> all = [standard, intensive, adaptive];
+  static const List<Preset> all = [standard, intensive];
 
   static Preset of(BuiltInPresetKey key) => switch (key) {
     BuiltInPresetKey.standard => standard,
     BuiltInPresetKey.intensive => intensive,
-    BuiltInPresetKey.adaptive => adaptive,
   };
 }

@@ -15,7 +15,6 @@ import '../../domain/presets/built_in_presets.dart';
 import '../../domain/presets/failure_behavior.dart';
 import '../../domain/presets/preset.dart';
 import '../../domain/presets/preset_interval.dart';
-import '../../domain/presets/scheduling_engine_kind.dart';
 import '../../domain/presets/sequence_end_behavior.dart';
 import '../../domain/reviews/extra_reminder.dart';
 import '../../domain/reviews/review_outcome.dart';
@@ -63,7 +62,7 @@ class AlambicDatabase extends _$AlambicDatabase {
   /// Raised at every schema change. There is no migration: a database of
   /// another version is erased and created again.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

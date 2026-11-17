@@ -11,7 +11,6 @@ void main() {
   test('a shipped preset reads in the language of the interface', () {
     expect(english.presetName(BuiltInPresets.intensive), 'Intensive');
     expect(french.presetName(BuiltInPresets.intensive), 'Intensif');
-    expect(english.presetName(BuiltInPresets.adaptive), 'Adaptive');
   });
 
   test('a renamed shipped preset keeps the name it was given', () {

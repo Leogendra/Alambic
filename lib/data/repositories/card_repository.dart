@@ -99,8 +99,6 @@ class CardRepository {
         FlashcardsCompanion(
           state: Value(schedule.state),
           step: Value(schedule.step),
-          stability: Value(schedule.memory?.stability),
-          difficulty: Value(schedule.memory?.difficulty),
           dueAt: Value(schedule.dueAt),
           notifiedAt: const Value(null),
           queuePosition: const Value(null),
@@ -119,8 +117,6 @@ class CardRepository {
         FlashcardsCompanion(
           state: const Value(CardState.pending),
           step: const Value(null),
-          stability: const Value(null),
-          difficulty: const Value(null),
           dueAt: const Value(null),
           notifiedAt: const Value(null),
           queuePosition: Value(position),

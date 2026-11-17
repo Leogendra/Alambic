@@ -8,7 +8,7 @@ Alambic is an Android spaced-repetition app where the notification is the main i
 
 The code is split into layers, from the most stable to the most platform-dependent. A layer only imports the layers listed above it.
 
-- `lib/domain/` holds the business rules in pure Dart: the 4am calendar, the sequence and FSRS engines, due-date computation, preset resolution, the distillation queue and rhythm, the draw of the [asked side](lexicon.md#asked-side), bulk-add parsing. It imports no Flutter, drift or plugin code, so these rules are tested without a database or an emulator. See [Feature 1](features/1-scheduling.md) and [Feature 2](features/2-presets.md).
+- `lib/domain/` holds the business rules in pure Dart: the 4am calendar, the sequence engine, due-date computation, preset resolution, the distillation queue and rhythm, the draw of the [asked side](lexicon.md#asked-side), bulk-add parsing. It imports no Flutter, drift or plugin code, so these rules are tested without a database or an emulator. See [Feature 1](features/1-scheduling.md) and [Feature 2](features/2-presets.md).
 - `lib/data/` is persistence. The drift database (`lib/data/database/`) stores domain objects as they are; the repositories (`lib/data/repositories/`) expose reads, writes and streams per concept (cards, groups, presets, reviews). They store decisions, they never take any. The card images are files in a folder of the app (`lib/data/images/`), which cards name without their path. See [Feature 0](features/0-foundation.md#database). The backup (`lib/data/backup/`) copies the tables and the images to a zip file and back, see [Feature 9](features/9-backup.md).
 - `lib/application/` holds the services that apply domain rules to the data (create a card, answer, duplicate a preset) and the Riverpod providers that expose them. The clock (`clockProvider`) is injected here.
 - `lib/notifications/` is the platform side of the notifications: the Android implementation of the alarm and notification interfaces owned by `lib/application/notifications/`, the texts of a notification, and the entry points of the background isolates. It is the only place that imports the alarm and notification plugins, so iOS can be added as a second implementation. See [Feature 7](features/7-notifications.md).
@@ -32,11 +32,7 @@ Domain functions receive the current moment as a parameter instead of reading th
 
 ### A sequence step is clamped to the current sequence
 
-A card keeps its [step](lexicon.md#step) when its preset changes or when the sequence gets shorter. Rather than rewriting the affected cards at change time, the engine clamps the step to the last existing step at each computation. A preset change with the same engine therefore needs no data migration.
-
-### Each engine reads only its own progression
-
-A card stores a step for the sequence engine and an FSRS memory for the adaptive engine; an answer writes the one of its engine and clears the other. `CardProgress` reads, for the engine of the current preset, only its own progression. A change of engine therefore starts the progression over without rewriting any card, whatever the path of the change (card, group, global preset or the preset itself).
+A card keeps its [step](lexicon.md#step) when its preset changes or when the sequence gets shorter. Rather than rewriting the affected cards at change time, the engine clamps the step to the last existing step at each computation. A preset change therefore needs no data migration.
 
 ### The asked side is drawn at display time, never stored
 

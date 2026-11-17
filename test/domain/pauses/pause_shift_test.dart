@@ -14,8 +14,6 @@ void main() {
   Flashcard direction({DateTime? dueAt, DateTime? lastReviewedAt}) => testCard(
     state: CardState.active,
     step: 2,
-    stability: null,
-    difficulty: null,
     dueAt: dueAt,
     lastReviewedAt: lastReviewedAt,
     notifiedAt: null,

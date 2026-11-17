@@ -22,8 +22,6 @@ class Flashcards extends Table {
   DateTimeColumn get createdAt => dateTime()();
   TextColumn get state => textEnum<CardState>()();
   IntColumn get step => integer().nullable()();
-  RealColumn get stability => real().nullable()();
-  RealColumn get difficulty => real().nullable()();
   DateTimeColumn get dueAt => dateTime().nullable()();
   DateTimeColumn get lastReviewedAt => dateTime().nullable()();
   DateTimeColumn get notifiedAt => dateTime().nullable()();

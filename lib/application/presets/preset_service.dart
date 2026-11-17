@@ -52,13 +52,6 @@ class PresetService {
       throw ArgumentError.value(preset.name, 'name', 'must not be empty');
     } else if (preset.intervals.isEmpty) {
       throw ArgumentError.value(preset.intervals, 'intervals', 'needs a step');
-    } else if (preset.targetRetention < Preset.minRetention - 1e-9 ||
-        preset.targetRetention > Preset.maxRetention + 1e-9) {
-      throw ArgumentError.value(
-        preset.targetRetention,
-        'targetRetention',
-        'out of range',
-      );
     }
   }
 }

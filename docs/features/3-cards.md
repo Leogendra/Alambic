@@ -45,17 +45,17 @@ The screen announces the number of ready cards and lists the skipped lines befor
 No status is shown. A list shows each card's front, its back below, and on the right where it stands:
 
 - its [reminder label](../lexicon.md#reminder-label) and next date, "J2 · in 3 d", or "J2 · Due" in the accent colour when it is due;
-- only the date for a card never answered or followed by FSRS;
+- only the date for a card never answered;
 - "waiting", "suspended" or "learned" for a card without a next date.
 
 ### Card sheet
 
 Touching a card in a list opens its sheet. It shows both faces, then:
 
-- its progress: the reminder label over a bar of the preset sequence, with the interval of each step, or for an [adaptive](../lexicon.md#adaptive-engine) preset its stability and difficulty ("Stability 10.7 d · difficulty 5.3 of 10"); then its next review ("Next review Fri 13 Nov, 12:00", or "Due now");
+- its progress: the reminder label over a bar of the preset sequence, with the interval of each step; then its next review ("Next review Fri 13 Nov, 12:00", or "Due now");
 - or, when it is not scheduled, why: waiting in its group's queue, or learned;
 - its upcoming "Review soon" reminders, each removable;
-- its history, most recent first: date, answer, a "bonus" tag for a [bonus review](../lexicon.md#bonus-review), and the effect ("→ 1 mo", "back to 2 d", "acquired", "no effect"); an FSRS answer gives the interval to the due date it chose ("→ 11 d"). The effect is read against the current preset, so it may differ from what the user saw if the preset changed since.
+- its history, most recent first: date, answer, a "bonus" tag for a [bonus review](../lexicon.md#bonus-review), and the effect ("→ 1 mo", "back to 2 d", "acquired", "no effect"). The effect is read against the current preset, so it may differ from what the user saw if the preset changed since.
 
 Touching the faces opens a one-card session; when the card is not due, the answer is a bonus review. The edit button opens the card editor, and the menu deletes the card after confirmation.
 

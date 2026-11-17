@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
-import 'package:alambic/data/repositories/preset_repository.dart';
-import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
@@ -74,52 +72,6 @@ void main() {
       );
     });
   }
-
-  testWidgets('card sheet of a card moved to the adaptive engine', (
-    tester,
-  ) async {
-    final renderAt = DateTime(2026, 11, 12, 9);
-    late int cardId;
-    await tester.runAsync(() async {
-      final clock = FixedClock(sampleNow);
-      final samples = SampleServices(database, clock);
-      final capitals = await samples.groups.create('Capitales');
-      cardId = await samples.card('Pérou', 'Lima', groupId: capitals);
-      await samples.introduceAll(capitals);
-      Future<void> answer(DateTime at) async {
-        clock.now = at;
-        await samples.reviews.answer(
-          cardId,
-          ReviewOutcome.correct,
-          source: ReviewSource.notification,
-        );
-      }
-
-      await answer(DateTime(2026, 11, 10, 12, 2));
-      final catalog = await PresetRepository(database).loadCatalog();
-      await samples.groups.setPreset(
-        capitals,
-        catalog.presetsById.values
-            .firstWhere(
-              (preset) => preset.builtInKey == BuiltInPresetKey.adaptive,
-            )
-            .id,
-      );
-      await answer(DateTime(2026, 11, 11, 12, 1));
-      clock.now = renderAt;
-    });
-    await pumpGolden(
-      tester,
-      CardSheetScreen(cardId: cardId),
-      overrides: screenOverrides(database, renderAt),
-    );
-    expect(find.text('→ 3 j'), findsOneWidget);
-    expect(find.text('→ 1 j'), findsOneWidget);
-    await expectLater(
-      find.byType(CardSheetScreen),
-      matchesGoldenFile('goldens/card_sheet_adaptive.png'),
-    );
-  });
 
   testWidgets('a pending card waits for its distillation', (tester) async {
     late int cardId;

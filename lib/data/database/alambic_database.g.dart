@@ -40,15 +40,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
     requiredDuringInsert: false,
   ).withConverter<BuiltInPresetKey?>($PresetsTable.$converterbuiltInKeyn);
   @override
-  late final GeneratedColumnWithTypeConverter<SchedulingEngineKind, String>
-  engine = GeneratedColumn<String>(
-    'engine',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<SchedulingEngineKind>($PresetsTable.$converterengine);
-  @override
   late final GeneratedColumnWithTypeConverter<List<PresetInterval>, String>
   intervals = GeneratedColumn<String>(
     'intervals',
@@ -89,28 +80,15 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
       'CHECK ("typed_answer" IN (0, 1))',
     ),
   );
-  static const VerificationMeta _targetRetentionMeta = const VerificationMeta(
-    'targetRetention',
-  );
-  @override
-  late final GeneratedColumn<double> targetRetention = GeneratedColumn<double>(
-    'target_retention',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     name,
     builtInKey,
-    engine,
     intervals,
     failureBehavior,
     endBehavior,
     typedAnswer,
-    targetRetention,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -146,17 +124,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
     } else if (isInserting) {
       context.missing(_typedAnswerMeta);
     }
-    if (data.containsKey('target_retention')) {
-      context.handle(
-        _targetRetentionMeta,
-        targetRetention.isAcceptableOrUnknown(
-          data['target_retention']!,
-          _targetRetentionMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_targetRetentionMeta);
-    }
     return context;
   }
 
@@ -180,12 +147,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
           data['${effectivePrefix}built_in_key'],
         ),
       ),
-      engine: $PresetsTable.$converterengine.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}engine'],
-        )!,
-      ),
       intervals: $PresetsTable.$converterintervals.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -208,10 +169,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
         DriftSqlType.bool,
         data['${effectivePrefix}typed_answer'],
       )!,
-      targetRetention: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}target_retention'],
-      )!,
     );
   }
 
@@ -226,10 +183,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
   );
   static JsonTypeConverter2<BuiltInPresetKey?, String?, String?>
   $converterbuiltInKeyn = JsonTypeConverter2.asNullable($converterbuiltInKey);
-  static JsonTypeConverter2<SchedulingEngineKind, String, String>
-  $converterengine = const EnumNameConverter<SchedulingEngineKind>(
-    SchedulingEngineKind.values,
-  );
   static TypeConverter<List<PresetInterval>, String> $converterintervals =
       const PresetIntervalListConverter();
   static JsonTypeConverter2<FailureBehavior, String, String>
@@ -246,61 +199,49 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
   final Value<int> id;
   final Value<String> name;
   final Value<BuiltInPresetKey?> builtInKey;
-  final Value<SchedulingEngineKind> engine;
   final Value<List<PresetInterval>> intervals;
   final Value<FailureBehavior> failureBehavior;
   final Value<SequenceEndBehavior> endBehavior;
   final Value<bool> typedAnswer;
-  final Value<double> targetRetention;
   const PresetsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.builtInKey = const Value.absent(),
-    this.engine = const Value.absent(),
     this.intervals = const Value.absent(),
     this.failureBehavior = const Value.absent(),
     this.endBehavior = const Value.absent(),
     this.typedAnswer = const Value.absent(),
-    this.targetRetention = const Value.absent(),
   });
   PresetsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     this.builtInKey = const Value.absent(),
-    required SchedulingEngineKind engine,
     required List<PresetInterval> intervals,
     required FailureBehavior failureBehavior,
     required SequenceEndBehavior endBehavior,
     required bool typedAnswer,
-    required double targetRetention,
   }) : name = Value(name),
-       engine = Value(engine),
        intervals = Value(intervals),
        failureBehavior = Value(failureBehavior),
        endBehavior = Value(endBehavior),
-       typedAnswer = Value(typedAnswer),
-       targetRetention = Value(targetRetention);
+       typedAnswer = Value(typedAnswer);
   static Insertable<Preset> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? builtInKey,
-    Expression<String>? engine,
     Expression<String>? intervals,
     Expression<String>? failureBehavior,
     Expression<String>? endBehavior,
     Expression<bool>? typedAnswer,
-    Expression<double>? targetRetention,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (builtInKey != null) 'built_in_key': builtInKey,
-      if (engine != null) 'engine': engine,
       if (intervals != null) 'intervals': intervals,
       if (failureBehavior != null) 'failure_behavior': failureBehavior,
       if (endBehavior != null) 'end_behavior': endBehavior,
       if (typedAnswer != null) 'typed_answer': typedAnswer,
-      if (targetRetention != null) 'target_retention': targetRetention,
     });
   }
 
@@ -308,23 +249,19 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
     Value<int>? id,
     Value<String>? name,
     Value<BuiltInPresetKey?>? builtInKey,
-    Value<SchedulingEngineKind>? engine,
     Value<List<PresetInterval>>? intervals,
     Value<FailureBehavior>? failureBehavior,
     Value<SequenceEndBehavior>? endBehavior,
     Value<bool>? typedAnswer,
-    Value<double>? targetRetention,
   }) {
     return PresetsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       builtInKey: builtInKey ?? this.builtInKey,
-      engine: engine ?? this.engine,
       intervals: intervals ?? this.intervals,
       failureBehavior: failureBehavior ?? this.failureBehavior,
       endBehavior: endBehavior ?? this.endBehavior,
       typedAnswer: typedAnswer ?? this.typedAnswer,
-      targetRetention: targetRetention ?? this.targetRetention,
     );
   }
 
@@ -340,11 +277,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
     if (builtInKey.present) {
       map['built_in_key'] = Variable<String>(
         $PresetsTable.$converterbuiltInKeyn.toSql(builtInKey.value),
-      );
-    }
-    if (engine.present) {
-      map['engine'] = Variable<String>(
-        $PresetsTable.$converterengine.toSql(engine.value),
       );
     }
     if (intervals.present) {
@@ -365,9 +297,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
     if (typedAnswer.present) {
       map['typed_answer'] = Variable<bool>(typedAnswer.value);
     }
-    if (targetRetention.present) {
-      map['target_retention'] = Variable<double>(targetRetention.value);
-    }
     return map;
   }
 
@@ -377,12 +306,10 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('builtInKey: $builtInKey, ')
-          ..write('engine: $engine, ')
           ..write('intervals: $intervals, ')
           ..write('failureBehavior: $failureBehavior, ')
           ..write('endBehavior: $endBehavior, ')
-          ..write('typedAnswer: $typedAnswer, ')
-          ..write('targetRetention: $targetRetention')
+          ..write('typedAnswer: $typedAnswer')
           ..write(')'))
         .toString();
   }
@@ -2266,28 +2193,6 @@ class $FlashcardsTable extends Flashcards
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _stabilityMeta = const VerificationMeta(
-    'stability',
-  );
-  @override
-  late final GeneratedColumn<double> stability = GeneratedColumn<double>(
-    'stability',
-    aliasedName,
-    true,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _difficultyMeta = const VerificationMeta(
-    'difficulty',
-  );
-  @override
-  late final GeneratedColumn<double> difficulty = GeneratedColumn<double>(
-    'difficulty',
-    aliasedName,
-    true,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _dueAtMeta = const VerificationMeta('dueAt');
   @override
   late final GeneratedColumn<DateTime> dueAt = GeneratedColumn<DateTime>(
@@ -2344,8 +2249,6 @@ class $FlashcardsTable extends Flashcards
     createdAt,
     state,
     step,
-    stability,
-    difficulty,
     dueAt,
     lastReviewedAt,
     notifiedAt,
@@ -2428,18 +2331,6 @@ class $FlashcardsTable extends Flashcards
       context.handle(
         _stepMeta,
         step.isAcceptableOrUnknown(data['step']!, _stepMeta),
-      );
-    }
-    if (data.containsKey('stability')) {
-      context.handle(
-        _stabilityMeta,
-        stability.isAcceptableOrUnknown(data['stability']!, _stabilityMeta),
-      );
-    }
-    if (data.containsKey('difficulty')) {
-      context.handle(
-        _difficultyMeta,
-        difficulty.isAcceptableOrUnknown(data['difficulty']!, _difficultyMeta),
       );
     }
     if (data.containsKey('due_at')) {
@@ -2527,14 +2418,6 @@ class $FlashcardsTable extends Flashcards
         DriftSqlType.int,
         data['${effectivePrefix}step'],
       ),
-      stability: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}stability'],
-      ),
-      difficulty: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}difficulty'],
-      ),
       dueAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}due_at'],
@@ -2575,8 +2458,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
   final Value<DateTime> createdAt;
   final Value<CardState> state;
   final Value<int?> step;
-  final Value<double?> stability;
-  final Value<double?> difficulty;
   final Value<DateTime?> dueAt;
   final Value<DateTime?> lastReviewedAt;
   final Value<DateTime?> notifiedAt;
@@ -2593,8 +2474,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     this.createdAt = const Value.absent(),
     this.state = const Value.absent(),
     this.step = const Value.absent(),
-    this.stability = const Value.absent(),
-    this.difficulty = const Value.absent(),
     this.dueAt = const Value.absent(),
     this.lastReviewedAt = const Value.absent(),
     this.notifiedAt = const Value.absent(),
@@ -2612,8 +2491,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     required DateTime createdAt,
     required CardState state,
     this.step = const Value.absent(),
-    this.stability = const Value.absent(),
-    this.difficulty = const Value.absent(),
     this.dueAt = const Value.absent(),
     this.lastReviewedAt = const Value.absent(),
     this.notifiedAt = const Value.absent(),
@@ -2633,8 +2510,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     Expression<DateTime>? createdAt,
     Expression<String>? state,
     Expression<int>? step,
-    Expression<double>? stability,
-    Expression<double>? difficulty,
     Expression<DateTime>? dueAt,
     Expression<DateTime>? lastReviewedAt,
     Expression<DateTime>? notifiedAt,
@@ -2652,8 +2527,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
       if (createdAt != null) 'created_at': createdAt,
       if (state != null) 'state': state,
       if (step != null) 'step': step,
-      if (stability != null) 'stability': stability,
-      if (difficulty != null) 'difficulty': difficulty,
       if (dueAt != null) 'due_at': dueAt,
       if (lastReviewedAt != null) 'last_reviewed_at': lastReviewedAt,
       if (notifiedAt != null) 'notified_at': notifiedAt,
@@ -2673,8 +2546,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     Value<DateTime>? createdAt,
     Value<CardState>? state,
     Value<int?>? step,
-    Value<double?>? stability,
-    Value<double?>? difficulty,
     Value<DateTime?>? dueAt,
     Value<DateTime?>? lastReviewedAt,
     Value<DateTime?>? notifiedAt,
@@ -2692,8 +2563,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
       createdAt: createdAt ?? this.createdAt,
       state: state ?? this.state,
       step: step ?? this.step,
-      stability: stability ?? this.stability,
-      difficulty: difficulty ?? this.difficulty,
       dueAt: dueAt ?? this.dueAt,
       lastReviewedAt: lastReviewedAt ?? this.lastReviewedAt,
       notifiedAt: notifiedAt ?? this.notifiedAt,
@@ -2739,12 +2608,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     if (step.present) {
       map['step'] = Variable<int>(step.value);
     }
-    if (stability.present) {
-      map['stability'] = Variable<double>(stability.value);
-    }
-    if (difficulty.present) {
-      map['difficulty'] = Variable<double>(difficulty.value);
-    }
     if (dueAt.present) {
       map['due_at'] = Variable<DateTime>(dueAt.value);
     }
@@ -2774,8 +2637,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
           ..write('createdAt: $createdAt, ')
           ..write('state: $state, ')
           ..write('step: $step, ')
-          ..write('stability: $stability, ')
-          ..write('difficulty: $difficulty, ')
           ..write('dueAt: $dueAt, ')
           ..write('lastReviewedAt: $lastReviewedAt, ')
           ..write('notifiedAt: $notifiedAt, ')
@@ -3437,23 +3298,19 @@ typedef $$PresetsTableCreateCompanionBuilder = PresetsCompanion Function({
   Value<int> id,
   required String name,
   Value<BuiltInPresetKey?> builtInKey,
-  required SchedulingEngineKind engine,
   required List<PresetInterval> intervals,
   required FailureBehavior failureBehavior,
   required SequenceEndBehavior endBehavior,
   required bool typedAnswer,
-  required double targetRetention,
 });
 typedef $$PresetsTableUpdateCompanionBuilder = PresetsCompanion Function({
   Value<int> id,
   Value<String> name,
   Value<BuiltInPresetKey?> builtInKey,
-  Value<SchedulingEngineKind> engine,
   Value<List<PresetInterval>> intervals,
   Value<FailureBehavior> failureBehavior,
   Value<SequenceEndBehavior> endBehavior,
   Value<bool> typedAnswer,
-  Value<double> targetRetention,
 });
 
 final class $$PresetsTableReferences
@@ -3541,16 +3398,6 @@ class $$PresetsTableFilterComposer
   );
 
   ColumnWithTypeConverterFilters<
-    SchedulingEngineKind,
-    SchedulingEngineKind,
-    String
-  >
-  get engine => $composableBuilder(
-    column: $table.engine,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<
     List<PresetInterval>,
     List<PresetInterval>,
     String
@@ -3578,11 +3425,6 @@ class $$PresetsTableFilterComposer
 
   ColumnFilters<bool> get typedAnswer => $composableBuilder(
     column: $table.typedAnswer,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get targetRetention => $composableBuilder(
-    column: $table.targetRetention,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3686,11 +3528,6 @@ class $$PresetsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get engine => $composableBuilder(
-    column: $table.engine,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get intervals => $composableBuilder(
     column: $table.intervals,
     builder: (column) => ColumnOrderings(column),
@@ -3708,11 +3545,6 @@ class $$PresetsTableOrderingComposer
 
   ColumnOrderings<bool> get typedAnswer => $composableBuilder(
     column: $table.typedAnswer,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get targetRetention => $composableBuilder(
-    column: $table.targetRetention,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -3738,9 +3570,6 @@ class $$PresetsTableAnnotationComposer
         builder: (column) => column,
       );
 
-  GeneratedColumnWithTypeConverter<SchedulingEngineKind, String> get engine =>
-      $composableBuilder(column: $table.engine, builder: (column) => column);
-
   GeneratedColumnWithTypeConverter<List<PresetInterval>, String>
   get intervals =>
       $composableBuilder(column: $table.intervals, builder: (column) => column);
@@ -3759,11 +3588,6 @@ class $$PresetsTableAnnotationComposer
 
   GeneratedColumn<bool> get typedAnswer => $composableBuilder(
     column: $table.typedAnswer,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<double> get targetRetention => $composableBuilder(
-    column: $table.targetRetention,
     builder: (column) => column,
   );
 
@@ -3878,44 +3702,36 @@ class $$PresetsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<BuiltInPresetKey?> builtInKey = const Value.absent(),
-                Value<SchedulingEngineKind> engine = const Value.absent(),
                 Value<List<PresetInterval>> intervals = const Value.absent(),
                 Value<FailureBehavior> failureBehavior = const Value.absent(),
                 Value<SequenceEndBehavior> endBehavior = const Value.absent(),
                 Value<bool> typedAnswer = const Value.absent(),
-                Value<double> targetRetention = const Value.absent(),
               }) => PresetsCompanion(
                 id: id,
                 name: name,
                 builtInKey: builtInKey,
-                engine: engine,
                 intervals: intervals,
                 failureBehavior: failureBehavior,
                 endBehavior: endBehavior,
                 typedAnswer: typedAnswer,
-                targetRetention: targetRetention,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required String name,
                 Value<BuiltInPresetKey?> builtInKey = const Value.absent(),
-                required SchedulingEngineKind engine,
                 required List<PresetInterval> intervals,
                 required FailureBehavior failureBehavior,
                 required SequenceEndBehavior endBehavior,
                 required bool typedAnswer,
-                required double targetRetention,
               }) => PresetsCompanion.insert(
                 id: id,
                 name: name,
                 builtInKey: builtInKey,
-                engine: engine,
                 intervals: intervals,
                 failureBehavior: failureBehavior,
                 endBehavior: endBehavior,
                 typedAnswer: typedAnswer,
-                targetRetention: targetRetention,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -5567,8 +5383,6 @@ typedef $$FlashcardsTableCreateCompanionBuilder = FlashcardsCompanion Function({
   required DateTime createdAt,
   required CardState state,
   Value<int?> step,
-  Value<double?> stability,
-  Value<double?> difficulty,
   Value<DateTime?> dueAt,
   Value<DateTime?> lastReviewedAt,
   Value<DateTime?> notifiedAt,
@@ -5586,8 +5400,6 @@ typedef $$FlashcardsTableUpdateCompanionBuilder = FlashcardsCompanion Function({
   Value<DateTime> createdAt,
   Value<CardState> state,
   Value<int?> step,
-  Value<double?> stability,
-  Value<double?> difficulty,
   Value<DateTime?> dueAt,
   Value<DateTime?> lastReviewedAt,
   Value<DateTime?> notifiedAt,
@@ -5723,16 +5535,6 @@ class $$FlashcardsTableFilterComposer
 
   ColumnFilters<int> get step => $composableBuilder(
     column: $table.step,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get stability => $composableBuilder(
-    column: $table.stability,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get difficulty => $composableBuilder(
-    column: $table.difficulty,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5907,16 +5709,6 @@ class $$FlashcardsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get stability => $composableBuilder(
-    column: $table.stability,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get difficulty => $composableBuilder(
-    column: $table.difficulty,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<DateTime> get dueAt => $composableBuilder(
     column: $table.dueAt,
     builder: (column) => ColumnOrderings(column),
@@ -6023,14 +5815,6 @@ class $$FlashcardsTableAnnotationComposer
 
   GeneratedColumn<int> get step =>
       $composableBuilder(column: $table.step, builder: (column) => column);
-
-  GeneratedColumn<double> get stability =>
-      $composableBuilder(column: $table.stability, builder: (column) => column);
-
-  GeneratedColumn<double> get difficulty => $composableBuilder(
-    column: $table.difficulty,
-    builder: (column) => column,
-  );
 
   GeneratedColumn<DateTime> get dueAt =>
       $composableBuilder(column: $table.dueAt, builder: (column) => column);
@@ -6191,8 +5975,6 @@ class $$FlashcardsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<CardState> state = const Value.absent(),
                 Value<int?> step = const Value.absent(),
-                Value<double?> stability = const Value.absent(),
-                Value<double?> difficulty = const Value.absent(),
                 Value<DateTime?> dueAt = const Value.absent(),
                 Value<DateTime?> lastReviewedAt = const Value.absent(),
                 Value<DateTime?> notifiedAt = const Value.absent(),
@@ -6209,8 +5991,6 @@ class $$FlashcardsTableTableManager
                 createdAt: createdAt,
                 state: state,
                 step: step,
-                stability: stability,
-                difficulty: difficulty,
                 dueAt: dueAt,
                 lastReviewedAt: lastReviewedAt,
                 notifiedAt: notifiedAt,
@@ -6229,8 +6009,6 @@ class $$FlashcardsTableTableManager
                 required DateTime createdAt,
                 required CardState state,
                 Value<int?> step = const Value.absent(),
-                Value<double?> stability = const Value.absent(),
-                Value<double?> difficulty = const Value.absent(),
                 Value<DateTime?> dueAt = const Value.absent(),
                 Value<DateTime?> lastReviewedAt = const Value.absent(),
                 Value<DateTime?> notifiedAt = const Value.absent(),
@@ -6247,8 +6025,6 @@ class $$FlashcardsTableTableManager
                 createdAt: createdAt,
                 state: state,
                 step: step,
-                stability: stability,
-                difficulty: difficulty,
                 dueAt: dueAt,
                 lastReviewedAt: lastReviewedAt,
                 notifiedAt: notifiedAt,

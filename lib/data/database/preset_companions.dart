@@ -15,11 +15,9 @@ abstract final class PresetCompanions {
     id: Value(preset.id),
     name: Value(preset.name),
     builtInKey: Value(preset.builtInKey),
-    engine: Value(preset.engine),
     intervals: Value(preset.intervals),
     failureBehavior: Value(preset.failureBehavior),
     endBehavior: Value(preset.endBehavior),
     typedAnswer: Value(preset.typedAnswer),
-    targetRetention: Value(preset.targetRetention),
   );
 }

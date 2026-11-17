@@ -14,10 +14,10 @@ extension ReminderLabels on AppLocalizations {
     IntervalUnit.month => reminderMonths(interval.amount),
   };
 
-  /// Label of a card at [progress]; `null` for a card never answered or
-  /// followed by FSRS, which only show their date.
+  /// Label of a card at [progress]; `null` for a card never answered, which
+  /// only shows its date.
   String? progressLabel(CardProgress progress) => switch (progress) {
     SequenceProgress(:final interval) => reminderLabel(interval),
-    NewProgress() || AdaptiveProgress() => null,
+    NewProgress() => null,
   };
 }

@@ -16,7 +16,7 @@ A distillation is a permanent setting of a group, at most one per group. The gro
 
 The [queue](../lexicon.md#queue) of a group is its pending cards in a fixed order, and the distillation takes its cards from the head of it. That order is the only one: the distillation has no order setting, and the user never reorders the queue by hand.
 
-A card created in the group, moved into it while pending, or reset joins the end of the queue. A card moved out of the group leaves it, keeping its progression if it was introduced. A suspended card keeps its place and is skipped.
+A card created in the group, moved into it while pending, or reset joins the end of the queue; a bulk add joins it as a whole batch, in the order chosen on its screen ([Feature 3](3-cards.md#bulk-add)). A card moved out of the group leaves it, keeping its progression if it was introduced. A suspended card keeps its place and is skipped.
 
 ### Rhythm
 

@@ -1,6 +1,6 @@
 # Feature 3 — Cards
 
-Status: in progress (2026-11-16)
+Status: in progress (2026-11-17)
 
 ## Goal
 

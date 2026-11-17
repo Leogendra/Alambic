@@ -10,13 +10,13 @@ import '../../features/cards/card_navigation.dart';
 import '../../features/groups/group_detail_screen.dart';
 import '../../features/groups/groups_screen.dart';
 import '../../features/home/home_screen.dart';
+import '../../features/session/session_launcher.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Root screen: four tabs and the "+" button that creates a card. A grouped
-/// reminder touched in the notifications opens its group above it, the
-/// digest of a moment opens Home. Right after the onboarding, the group it
-/// created opens with "Distill" highlighted.
+/// Root screen: four tabs and the "+" button that creates a card. A
+/// notification touched opens a session above it. Right after the
+/// onboarding, the group it created opens with "Distill" highlighted.
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
@@ -53,19 +53,8 @@ class _MainShellState extends ConsumerState<MainShell> {
     super.dispose();
   }
 
-  void _open(NotificationTarget target) {
-    final navigator = Navigator.of(context)..popUntil((route) => route.isFirst);
-    switch (target.groupId) {
-      case final groupId?:
-        navigator.push(
-          MaterialPageRoute<void>(
-            builder: (context) => GroupDetailScreen(groupId: groupId),
-          ),
-        );
-      case null:
-        setState(() => _selectedTab = 0);
-    }
-  }
+  void _open(NotificationTarget target) =>
+      openNotificationSession(context, ref, target);
 
   @override
   Widget build(BuildContext context) {

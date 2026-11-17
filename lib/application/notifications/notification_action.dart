@@ -16,6 +16,7 @@ enum NotificationAction {
   /// notification.
   start,
 
-  /// "Open the app" on a grouped reminder or on the digest.
+  /// "Open the app" on a grouped reminder or on the digest: opens a session,
+  /// like touching the notification.
   open,
 }

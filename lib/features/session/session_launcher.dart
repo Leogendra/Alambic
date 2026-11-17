@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../application/notifications/notification_providers.dart';
+import '../../application/notifications/notification_target.dart';
 import '../../application/reviews/review_providers.dart';
 import 'session_screen.dart';
 
@@ -23,6 +25,26 @@ Future<void> openSession(
           items: items,
           raisesMissedPending: raisesMissedPending,
         ),
+      ),
+    );
+  }
+}
+
+/// Opens the session of a touched notification above the root screen,
+/// closing the screens opened on it. Does nothing when no card is left to
+/// review.
+Future<void> openNotificationSession(
+  BuildContext context,
+  WidgetRef ref,
+  NotificationTarget target,
+) async {
+  final navigator = Navigator.of(context);
+  final items = await ref.read(notificationSessionProvider).itemsFor(target);
+  if (items.isNotEmpty) {
+    navigator.popUntil((route) => route.isFirst);
+    await navigator.push(
+      MaterialPageRoute<void>(
+        builder: (context) => SessionScreen(items: items),
       ),
     );
   }

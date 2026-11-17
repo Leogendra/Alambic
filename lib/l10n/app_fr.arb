@@ -300,6 +300,21 @@
   "groupReverse": "Verso",
   "groupReverseOffHint": "Les cartes sont posées recto → verso.",
   "groupReverseOnHint": "Chaque carte est posée recto ou verso, au hasard.",
+  "groupTypedAnswer": "Réponse tapée",
+  "groupTypedAnswerHint": "Taper la réponse avant de la voir",
+  "groupAfterLastStep": "Après le dernier cran",
+  "groupRemanence": "Rémanence",
+  "groupAcquired": "Acquise",
+  "groupRemanenceEvery": "Revient tous les",
+  "groupRemanenceEffect": "La carte reste dans le cycle et revient toujours au bout de {interval}.",
+  "@groupRemanenceEffect": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "groupAcquiredEffect": "Une fois le dernier cran réussi, la carte est acquise : elle ne revient plus.",
   "groupDelete": "Supprimer le groupe",
   "groupDeleteConfirmTitle": "Supprimer « {name} » ?",
   "@groupDeleteConfirmTitle": {

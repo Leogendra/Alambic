@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/alambic_colors.dart';
-
+import '../../application/onboarding/onboarding_providers.dart';
 import '../../application/preferences/interface_settings_providers.dart';
-import 'first_card_page.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'permissions_page.dart';
+import 'sample_group_page.dart';
 import 'welcome_page.dart';
 
 /// The three welcome screens of the first launch: the principle, the
-/// notification permissions with the reminder time, and the first card.
-/// Going through them, or skipping the last one, opens the app for good.
+/// notification permissions with the reminder time, and the sample group.
+/// Going through them, or skipping the last one, creates the sample group,
+/// named in the language of the app, and opens the app for good. The
+/// onboarding being shown once, so is the group created.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -22,11 +25,21 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   int _page = 0;
+  bool _isFinishing = false;
 
   void _next() => setState(() => _page++);
 
-  Future<void> _finish() =>
-      ref.read(interfaceSettingsProvider.notifier).completeOnboarding();
+  /// Creates the sample group, to be opened by the tabs when [openGroup].
+  Future<void> _finish({required bool openGroup}) async {
+    setState(() => _isFinishing = true);
+    final groupId = await ref
+        .read(sampleGroupServiceProvider)
+        .create(AppLocalizations.of(context).sampleGroupName);
+    if (openGroup) {
+      ref.read(firstGroupProvider.notifier).remember(groupId);
+    }
+    await ref.read(interfaceSettingsProvider.notifier).completeOnboarding();
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -39,7 +52,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: switch (_page) {
               0 => WelcomePage(onNext: _next),
               1 => PermissionsPage(onNext: _next),
-              _ => FirstCardPage(onDone: _finish),
+              _ => SampleGroupPage(
+                onStart: _isFinishing ? null : () => _finish(openGroup: true),
+                onSkip: _isFinishing ? null : () => _finish(openGroup: false),
+              ),
             },
           ),
         ],

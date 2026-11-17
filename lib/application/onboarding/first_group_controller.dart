@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The group created on the last onboarding screen, which the app opens once
-/// the onboarding is over; `null` when the screen was skipped, and once the
-/// group was opened.
+/// The sample group, which the app opens once the onboarding is over when
+/// it ended on "Start"; `null` when it was skipped, and once the group was
+/// opened.
 class FirstGroupController extends Notifier<int?> {
   @override
   int? build() => null;

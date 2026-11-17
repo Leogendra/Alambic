@@ -9,11 +9,13 @@ import 'package:alambic/application/preferences/interface_settings_providers.dar
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/preferences/interface_settings.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/onboarding/onboarding_screen.dart';
 
 import '../../support/fake_interface_settings_store.dart';
 import '../../support/fake_notifications.dart';
+import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
@@ -46,10 +48,11 @@ void main() {
   Future<void> pumpApp(
     WidgetTester tester, {
     bool onboardingDone = false,
+    Locale locale = const Locale('fr'),
   }) async {
     tester.view.physicalSize = phoneSize;
     tester.view.devicePixelRatio = 1;
-    tester.platformDispatcher.localesTestValue = const [Locale('fr')];
+    tester.platformDispatcher.localesTestValue = [locale];
     addTearDown(tester.view.reset);
     addTearDown(tester.platformDispatcher.clearLocalesTestValue);
     await tester.pumpWidget(
@@ -79,8 +82,37 @@ void main() {
     expect(find.byType(MainShell), findsOneWidget);
   });
 
-  testWidgets('going through the three screens creates a first group and card, '
-      'then opens the group', (tester) async {
+  Future<void> reachSampleGroup(WidgetTester tester) async {
+    await tapAndSettle(tester, find.text('Commencer'));
+    await tapAndSettle(tester, find.text('Continuer'));
+    // The sample cards are read from the assets.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  /// Ends the onboarding with [button], once the group is stored.
+  Future<void> finishWith(WidgetTester tester, String button) async {
+    await tester.tap(find.text(button));
+    for (var wait = 0; wait < 100 && !store.saved.onboardingDone; wait++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump();
+    }
+    await tester.pumpAndSettle();
+  }
+
+  Future<List<String>> groupNames(WidgetTester tester) async {
+    final groups = await tester.runAsync(
+      () => GroupRepository(database).watchAll().first,
+    );
+    return [for (final group in groups!) group.name];
+  }
+
+  testWidgets('going through the three screens asks the permissions, creates '
+      'the sample group, then opens it', (tester) async {
     await pumpApp(tester);
     await tapAndSettle(tester, find.text('Commencer'));
 
@@ -89,37 +121,75 @@ void main() {
     await tapAndSettle(tester, find.text('Autoriser'));
     expect(alarms.permissionRequests, 1);
     await tapAndSettle(tester, find.text('Continuer'));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextField).at(0), 'Capitales');
-    await tester.enterText(find.byType(TextField).at(1), 'Capitale du Pérou');
-    await tester.enterText(find.byType(TextField).at(2), 'Lima');
-    await tester.pump();
-    await tapAndSettle(tester, find.text('Créer la carte'));
+    expect(find.text('Alphabet OTAN'), findsOneWidget);
+    expect(find.text('26 cartes'), findsOneWidget);
+    await finishWith(tester, 'Commencer');
 
-    final cards = await CardRepository(database).getAll();
-    expect(cards, hasLength(1));
-    expect(cards.single.frontText, 'Capitale du Pérou');
-    expect(cards.single.isPending, isTrue);
+    expect(await groupNames(tester), ['Alphabet OTAN']);
+    final cards = await tester.runAsync(
+      () => CardRepository(database).getAll(),
+    );
+    expect(cards, hasLength(26));
+    expect(cards!.every((card) => card.isPending), isTrue);
     expect(store.saved.onboardingDone, isTrue);
     expect(find.byType(GroupDetailScreen), findsOneWidget);
     expect(
-      find.text(
-        'Ta première carte attend. Distille le groupe pour la recevoir.',
-      ),
+      find.text('Ses cartes attendent. Distille le groupe pour les recevoir.'),
       findsOneWidget,
     );
   });
 
-  testWidgets('the first card can be skipped', (tester) async {
+  testWidgets('"Skip" opens the tabs, the sample group created all the same', (
+    tester,
+  ) async {
     await pumpApp(tester);
-    await tapAndSettle(tester, find.text('Commencer'));
-    await tapAndSettle(tester, find.text('Continuer'));
-    await tapAndSettle(tester, find.text('Passer'));
+    await reachSampleGroup(tester);
+    await finishWith(tester, 'Passer');
 
-    expect(await CardRepository(database).getAll(), isEmpty);
+    expect(await groupNames(tester), ['Alphabet OTAN']);
     expect(store.saved.onboardingDone, isTrue);
     expect(find.byType(MainShell), findsOneWidget);
     expect(find.byType(GroupDetailScreen), findsNothing);
+  });
+
+  testWidgets('in English, the sample group is the NATO alphabet', (
+    tester,
+  ) async {
+    await pumpApp(tester, locale: const Locale('en'));
+    await tapAndSettle(tester, find.text('Get started'));
+    await tapAndSettle(tester, find.text('Continue'));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pumpAndSettle();
+    await finishWith(tester, 'Skip');
+
+    expect(await groupNames(tester), ['NATO alphabet']);
+  });
+
+  testWidgets('the sample group is created once: a later launch, even after '
+      'its deletion, does not create it again', (tester) async {
+    await pumpApp(tester);
+    await reachSampleGroup(tester);
+    await finishWith(tester, 'Passer');
+    final groupId = (await tester.runAsync(
+      () => GroupRepository(database).watchAll().first,
+    ))!.single.id;
+    await tester.runAsync(
+      () => SampleServices(
+        database,
+        FixedClock(sampleNow),
+      ).groups.delete(groupId),
+    );
+
+    await pumpApp(tester, onboardingDone: store.saved.onboardingDone);
+    expect(find.byType(MainShell), findsOneWidget);
+    expect(await groupNames(tester), isEmpty);
   });
 
   testWidgets('the welcome screens', (tester) async {
@@ -134,9 +204,13 @@ void main() {
       matchesGoldenFile('goldens/onboarding_permissions.png'),
     );
     await tapAndSettle(tester, find.text('Continuer'));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pumpAndSettle();
     await expectLater(
       find.byType(OnboardingScreen),
-      matchesGoldenFile('goldens/onboarding_first_card.png'),
+      matchesGoldenFile('goldens/onboarding_sample_group.png'),
     );
   });
 

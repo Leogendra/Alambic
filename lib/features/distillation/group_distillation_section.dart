@@ -19,7 +19,7 @@ class GroupDistillationSection extends ConsumerWidget {
 
   final int groupId;
 
-  /// Introduces the button with a line telling the first card waits for it.
+  /// Introduces the button with a line telling the cards wait for it.
   final bool highlighted;
 
   @override
@@ -34,7 +34,7 @@ class GroupDistillationSection extends ConsumerWidget {
         children: [
           if (highlighted)
             Text(
-              strings.groupDistillFirstCard,
+              strings.groupDistillWaiting,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,

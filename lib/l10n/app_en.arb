@@ -125,6 +125,7 @@
   "groupStatActive": "Active",
   "groupStatWaiting": "Waiting",
   "groupCardsSection": "Cards",
+  "groupAcquiredSection": "Learned · {count}",
   "groupReviewAll": "Review all",
   "groupEmpty": "No card yet. Add some with the + button or with bulk add.",
   "groupSettingsTitle": "Group settings",

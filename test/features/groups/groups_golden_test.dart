@@ -4,11 +4,13 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
+import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/groups/after_last_step.dart';
 import 'package:alambic/domain/groups/card_group.dart';
 import 'package:alambic/domain/groups/remanence_interval.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
+import 'package:alambic/domain/scheduling/card_schedule.dart';
 import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/groups/group_settings_screen.dart';
@@ -37,6 +39,15 @@ void main() {
       capitalsId = await seedSampleData(samples);
     });
   }
+
+  /// Adds to Capitales a card acquired at the end of its sequence.
+  Future<void> seedAcquired(WidgetTester tester) => tester.runAsync(() async {
+    final cardId = await samples.card('Chili', 'Santiago', groupId: capitalsId);
+    await CardRepository(database).applySchedule(
+      cardId,
+      const CardSchedule(state: CardState.acquired, step: null, dueAt: null),
+    );
+  });
 
   testWidgets('groups tab', (tester) async {
     await seed(tester);
@@ -88,6 +99,7 @@ void main() {
   ]) {
     testWidgets('group detail, ${brightness.name} theme', (tester) async {
       await seed(tester);
+      await seedAcquired(tester);
       await pumpGolden(
         tester,
         GroupDetailScreen(groupId: capitalsId),
@@ -100,6 +112,27 @@ void main() {
       );
     });
   }
+
+  testWidgets('the acquired cards are apart, folded until touched', (
+    tester,
+  ) async {
+    await seed(tester);
+    await seedAcquired(tester);
+    await pumpGolden(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    final title = find.text('ACQUISES · 1');
+    await tester.scrollUntilVisible(title, 200);
+    expect(find.text('Chili'), findsNothing);
+    await tester.tap(title);
+    await tester.pumpAndSettle();
+    expect(find.text('Chili'), findsOneWidget);
+    await tester.tap(title);
+    await tester.pumpAndSettle();
+    expect(find.text('Chili'), findsNothing);
+  });
 
   for (final (brightness, suffix) in [
     (Brightness.light, ''),

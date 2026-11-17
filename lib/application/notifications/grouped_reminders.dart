@@ -97,6 +97,10 @@ class GroupedReminders {
     }
   }
 
+  /// Cards left in the reminder of [key], the card currently asked included.
+  Future<int> remaining(GroupReminderKey key) async =>
+      (await _waiting(key)).length;
+
   /// Cards of the group whose notification moment has come, the earliest due
   /// first; none outside the grouped reminder mode. Cards held back by the
   /// daily cap are left out.

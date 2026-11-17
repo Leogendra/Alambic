@@ -12,6 +12,7 @@ import 'package:alambic/domain/cards/card_side.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/domain/notifications/schedule_kind.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
+import 'package:alambic/domain/reviews/review_record.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
@@ -133,38 +134,56 @@ void main() {
       await dispatchAt(DateTime(2026, 11, 10, 12));
     });
 
+    Future<void> press(NotificationAction action) =>
+        harness.read(notificationActionHandlerProvider).handle(key, action);
+
+    Future<List<ReviewRecord>> history() =>
+        ReviewRepository(database).watchHistory(key.cardId).first;
+
     test('"Correct" records the answer and closes the notification', () async {
-      await harness
-          .read(notificationActionHandlerProvider)
-          .handle(key, NotificationAction.correct);
-      final history = await ReviewRepository(database)
-          .watchHistory(key.cardId)
-          .first;
-      expect(history.single.source, ReviewSource.notification);
-      expect(history.single.isBonus, isFalse);
+      await press(NotificationAction.correct);
+      final record = (await history()).single;
+      expect(record.source, ReviewSource.notification);
+      expect(record.outcome, ReviewOutcome.correct);
+      expect(record.isBonus, isFalse);
       expect(harness.presenter.prompts.containsKey(key), isFalse);
-      expect(harness.presenter.reveals, isEmpty);
+      expect(harness.presenter.verdicts, isEmpty);
     });
 
-    test('"Again" reveals the answer and the next review', () async {
-      await harness
-          .read(notificationActionHandlerProvider)
-          .handle(key, NotificationAction.again);
-      final reveal = harness.presenter.reveals[key]!;
-      expect(reveal.answer, 'Oulan-Bator');
-      expect(reveal.result.isBonus, isFalse);
-      expect(reveal.result.schedule!.dueAt, DateTime(2026, 11, 11, 12));
-      await harness
-          .read(notificationActionHandlerProvider)
-          .handle(key, NotificationAction.acknowledge);
-      expect(harness.presenter.reveals, isEmpty);
+    test('"Again" records the failure and closes the notification, '
+        'without any result', () async {
+      await press(NotificationAction.again);
+      expect((await history()).single.outcome, ReviewOutcome.again);
+      final card = await CardRepository(database).getCard(key.cardId);
+      expect(card.dueAt, DateTime(2026, 11, 11, 12));
+      expect(harness.presenter.prompts.containsKey(key), isFalse);
+      expect(harness.presenter.verdicts, isEmpty);
+    });
+
+    test('"Reveal" shows the answer in place and records nothing', () async {
+      await press(NotificationAction.reveal);
+      final revealed = harness.presenter.prompts[key]!;
+      expect(revealed.isRevealed, isTrue);
+      expect(revealed.prompt, 'Mongolie');
+      expect(revealed.answer, 'Oulan-Bator');
+      expect(revealed.groupName, 'Capitales');
+      expect(await history(), isEmpty);
+      // Still on screen, the revealed card is withdrawn like any other once
+      // answered in the app.
+      expect(await harness.presenter.shownPrompts(), contains(key));
+    });
+
+    test('a revealed card is answered with "Correct" or "Again"', () async {
+      await press(NotificationAction.reveal);
+      await press(NotificationAction.again);
+      expect((await history()).single.outcome, ReviewOutcome.again);
+      expect(harness.presenter.prompts.containsKey(key), isFalse);
+      expect(harness.presenter.verdicts, isEmpty);
     });
 
     test('a card deleted meanwhile only closes the notification', () async {
       await CardRepository(database).deleteCard(key.cardId);
-      await harness
-          .read(notificationActionHandlerProvider)
-          .handle(key, NotificationAction.correct);
+      await press(NotificationAction.correct);
       expect(harness.presenter.prompts.containsKey(key), isFalse);
     });
   });
@@ -198,25 +217,53 @@ void main() {
       await harness
           .read(notificationActionHandlerProvider)
           .handle(key, NotificationAction.answer, input: 'oulan bater');
-      final reveal = harness.presenter.reveals[key]!;
-      expect(reveal.match, TypedAnswerMatch.oneTypo);
-      expect(reveal.answer, 'Oulan-Bator');
+      final verdict = harness.presenter.verdicts[key]!;
+      expect(verdict.match, TypedAnswerMatch.oneTypo);
+      expect(verdict.answer, 'Oulan-Bator');
       final history = await ReviewRepository(database)
           .watchHistory(key.cardId)
           .first;
       expect(history.single.outcome, ReviewOutcome.correct);
-      expect(reveal.result.schedule!.dueAt, DateTime(2026, 11, 11, 12));
+      expect(verdict.result.schedule!.dueAt, DateTime(2026, 11, 11, 12));
+      // "OK" closes the verdict.
+      await harness
+          .read(notificationActionHandlerProvider)
+          .handle(key, NotificationAction.acknowledge);
+      expect(harness.presenter.verdicts, isEmpty);
     });
 
     test('a wrong answer counts as a failure', () async {
       await harness
           .read(notificationActionHandlerProvider)
           .handle(key, NotificationAction.answer, input: 'Pékin');
-      expect(harness.presenter.reveals[key]!.match, TypedAnswerMatch.wrong);
+      expect(harness.presenter.verdicts[key]!.match, TypedAnswerMatch.wrong);
       final history = await ReviewRepository(database)
           .watchHistory(key.cardId)
           .first;
       expect(history.single.outcome, ReviewOutcome.again);
+    });
+
+    test('"Again" closes the notification without a verdict', () async {
+      await harness
+          .read(notificationActionHandlerProvider)
+          .handle(key, NotificationAction.again);
+      expect(harness.presenter.prompts.containsKey(key), isFalse);
+      expect(harness.presenter.verdicts, isEmpty);
+    });
+
+    test('"Reveal" shows the answer, to answer with "Correct"', () async {
+      await harness
+          .read(notificationActionHandlerProvider)
+          .handle(key, NotificationAction.reveal);
+      expect(harness.presenter.prompts[key]!.isRevealed, isTrue);
+      await harness
+          .read(notificationActionHandlerProvider)
+          .handle(key, NotificationAction.correct);
+      final history = await ReviewRepository(database)
+          .watchHistory(key.cardId)
+          .first;
+      expect(history.single.outcome, ReviewOutcome.correct);
+      expect(harness.presenter.verdicts, isEmpty);
     });
   });
 
@@ -236,9 +283,10 @@ void main() {
       expect(prompt.prompt, 'Oulan-Bator');
       await harness
           .read(notificationActionHandlerProvider)
-          .handle(key, NotificationAction.again, askedSide: CardSide.back);
-      expect(harness.presenter.reveals[key]!.answer, 'Mongolie');
-      expect(harness.presenter.reveals[key]!.askedSide, CardSide.back);
+          .handle(key, NotificationAction.reveal, askedSide: CardSide.back);
+      final revealed = harness.presenter.prompts[key]!;
+      expect(revealed.answer, 'Mongolie');
+      expect(revealed.askedSide, CardSide.back);
     });
 
     test('a typed answer is compared with the front', () async {
@@ -253,7 +301,7 @@ void main() {
             input: 'mongolie',
             askedSide: CardSide.back,
           );
-      expect(harness.presenter.reveals[key]!.match, TypedAnswerMatch.exact);
+      expect(harness.presenter.verdicts[key]!.match, TypedAnswerMatch.exact);
     });
 
     test('the draw changes nothing to the progression', () async {

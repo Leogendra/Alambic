@@ -1,22 +1,26 @@
 import '../../data/repositories/card_repository.dart';
+import '../../data/repositories/group_repository.dart';
 import '../../domain/cards/card_side.dart';
+import '../../domain/cards/flashcard.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
 import '../../domain/reviews/typed_answer_match.dart';
 import '../clock.dart';
 import '../reviews/review_service.dart';
-import 'answer_reveal.dart';
 import 'group_reminder_key.dart';
 import 'grouped_reminders.dart';
 import 'notification_action.dart';
 import 'notification_presenter.dart';
 import 'review_notification_key.dart';
+import 'review_prompt.dart';
+import 'typed_answer_verdict.dart';
 
 /// Handles a button pressed on a review notification, without opening the
 /// app. The answer goes through the same service as an in-app session.
 class NotificationActionHandler {
   const NotificationActionHandler({
     required this._cards,
+    required this._groups,
     required this._reviews,
     required this._groupedReminders,
     required this._presenter,
@@ -24,19 +28,22 @@ class NotificationActionHandler {
   });
 
   final CardRepository _cards;
+  final GroupRepository _groups;
   final ReviewService _reviews;
   final GroupedReminders _groupedReminders;
   final NotificationPresenter _presenter;
   final Clock _clock;
 
-  /// "Correct" closes the notification; "Again" replaces it with the
-  /// expected answer, the face opposite [askedSide], and an "OK" button. A typed answer counts as "Correct"
-  /// when it matches the expected one and as "Again" otherwise, and is always
-  /// followed by the expected answer. Answering an extra reminder is a bonus
-  /// review. A card deleted meanwhile only closes the notification.
+  /// "Correct" and "Again" record the answer and close the notification,
+  /// revealed or not. "Reveal" shows the answer, the face opposite
+  /// [askedSide], in its place and records nothing. A typed answer counts
+  /// as "Correct" when it matches the expected one and as "Again"
+  /// otherwise, then shows its verdict with an "OK" button. Answering an
+  /// extra reminder is a bonus review. A card deleted meanwhile only closes
+  /// the notification.
   ///
   /// In a grouped reminder whose cards are chained, the next card replaces
-  /// the one answered, or the expected answer once acknowledged.
+  /// the one answered, or the verdict once acknowledged.
   Future<void> handle(
     ReviewNotificationKey key,
     NotificationAction action, {
@@ -46,40 +53,20 @@ class NotificationActionHandler {
     final card = await _cards.findCard(key.cardId);
     if (action == NotificationAction.acknowledge || card == null) {
       await _close(key);
-      return;
-    }
-    final answer = card.answerFor(askedSide).text ?? '';
-    final typed = action == NotificationAction.answer ? input ?? '' : null;
-    final match = typed == null
-        ? null
-        : TypedAnswerMatch.compare(typed, answer);
-    final outcome = switch (action) {
-      NotificationAction.correct => ReviewOutcome.correct,
-      NotificationAction.answer when match!.isAccepted => ReviewOutcome.correct,
-      _ => ReviewOutcome.again,
-    };
-    final result = await _reviews.answer(
-      key.cardId,
-      outcome,
-      source: ReviewSource.notification,
-      forceBonus: key.isExtraReminder,
-    );
-    if (action == NotificationAction.correct) {
-      await _close(key);
+    } else if (action == NotificationAction.reveal) {
+      await _reveal(key, card, askedSide);
+    } else if (action == NotificationAction.answer) {
+      await _answerTyped(key, card, input ?? '', askedSide);
     } else {
-      await _presenter.showReveal(
-        AnswerReveal(
-          key: key,
-          askedSide: askedSide,
-          prompt: card.promptFor(askedSide).text ?? '',
-          answer: answer,
-          answerImage: card.answerFor(askedSide).imagePath,
-          result: result,
-          answeredAt: _clock(),
-          typed: typed,
-          match: match,
-        ),
+      await _reviews.answer(
+        key.cardId,
+        action == NotificationAction.correct
+            ? ReviewOutcome.correct
+            : ReviewOutcome.again,
+        source: ReviewSource.notification,
+        forceBonus: key.isExtraReminder,
       );
+      await _close(key);
     }
   }
 
@@ -91,6 +78,60 @@ class NotificationActionHandler {
     if (action == NotificationAction.start) {
       await _groupedReminders.showNext(key);
     }
+  }
+
+  Future<void> _reveal(
+    ReviewNotificationKey key,
+    Flashcard card,
+    CardSide askedSide,
+  ) async {
+    final group = await _groups.find(card.groupId);
+    if (group == null) {
+      await _close(key);
+      return;
+    }
+    final chain = key.chain;
+    await _presenter.showPrompt(
+      ReviewPrompt.of(
+        key: key,
+        card: card,
+        askedSide: askedSide,
+        group: group,
+        chainRemaining: chain == null
+            ? null
+            : await _groupedReminders.remaining(chain),
+        isRevealed: true,
+      ),
+    );
+  }
+
+  Future<void> _answerTyped(
+    ReviewNotificationKey key,
+    Flashcard card,
+    String typed,
+    CardSide askedSide,
+  ) async {
+    final answer = card.answerFor(askedSide).text ?? '';
+    final match = TypedAnswerMatch.compare(typed, answer);
+    final result = await _reviews.answer(
+      key.cardId,
+      match.isAccepted ? ReviewOutcome.correct : ReviewOutcome.again,
+      source: ReviewSource.notification,
+      forceBonus: key.isExtraReminder,
+    );
+    await _presenter.showVerdict(
+      TypedAnswerVerdict(
+        key: key,
+        askedSide: askedSide,
+        prompt: card.promptFor(askedSide).text ?? '',
+        answer: answer,
+        answerImage: card.answerFor(askedSide).imagePath,
+        typed: typed,
+        match: match,
+        result: result,
+        answeredAt: _clock(),
+      ),
+    );
   }
 
   Future<void> _close(ReviewNotificationKey key) async {

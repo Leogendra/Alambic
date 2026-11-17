@@ -4,7 +4,7 @@ Status: in progress (2026-11-17)
 
 ## Goal
 
-Make the notification the main way to review: a card arrives at the [daily slot](../lexicon.md#daily-slot), is answered with "Correct" or "Again", or with a typed answer, without opening the app, and the next review is planned at once. The app can instead gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the whole within a daily cap, outside quiet hours, and gather the notifications of a busy moment into one. A group, or everything, can be paused.
+Make the notification the main way to review: a card arrives at the [daily slot](../lexicon.md#daily-slot), is answered with "Correct" or "Again", after revealing its answer or not, or with a typed answer, without opening the app, and the next review is planned at once. The app can instead gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the whole within a daily cap, outside quiet hours, and gather the notifications of a busy moment into one. A group, or everything, can be paused.
 
 ## Implementation overview
 
@@ -70,20 +70,20 @@ On resume, `PauseShift`, in the domain, moves the due date of every scheduled ca
 
 When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per card whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app, and is notified again the next day at its slot.
 
-The notification shows the asked face as its title ("Que montre cette image ?" for a face that is an image alone), the name of the group as its text, and nothing of the step, with "verso → recto" before it when the back is asked, and two buttons, "Correct" and "Again". An extra reminder shows the same card with a "no effect on the schedule" mention before the group. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
+The notification shows the asked face as its title ("Que montre cette image ?" for a face that is an image alone), the name of the group as its text, and nothing of the step, with "verso → recto" before it when the back is asked, and three buttons, "Correct", "Again" and "Reveal" (*Correct*, *À revoir*, *Révéler*). An extra reminder shows the same card with a "no effect on the schedule" mention before the group. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
 
-With the [back option](../lexicon.md#back-option) of the group, the asked face is drawn when the notification is shown, one chance in two, and each chained card of a grouped reminder draws its own. The face drawn travels in the payload, so that the answer revealed after "Again" and the typed answer are read against the other face.
+With the [back option](../lexicon.md#back-option) of the group, the asked face is drawn when the notification is shown, one chance in two, and each chained card of a grouped reminder draws its own. The face drawn travels in the payload, so that the answer revealed and the typed answer are read against the other face.
 
 ### Showing a card's image
 
-When the asked face has an image, the expanded notification shows it in the Android *BigPicture* style, with the face and its group above; the collapsed notification shows the text only. After "Again" or a typed answer, an answer face with an image shows it the same way, under the answer and the verdict ("Réponse en image" when it has no text). The presenter reads the file from the image store; a file gone shows the text alone.
+When the asked face has an image, the expanded notification shows it in the Android *BigPicture* style, with the face and its group above; the collapsed notification shows the text only. Once revealed, or after a typed answer, an answer face with an image shows it the same way, under the answer ("Réponse en image" when it has no text). The presenter reads the file from the image store; a file gone shows the text alone.
 
 ### Answering from the notification
 
 The buttons are handled in a background isolate, app open or not, by `NotificationActionHandler`. The answer goes through `ReviewService`, exactly like an in-app session ([Feature 5](5-session.md#answer)), with the notification as its source:
 
-- "Correct" records the answer and closes the notification;
-- "Again" records the failure and replaces the notification in place with the expected answer, what the failure did ("Compté raté · revue demain") and an "OK" button that closes it;
+- "Correct" and "Again" record the answer and close the notification, with nothing shown afterwards;
+- "Reveal" replaces the notification in place, without sound or vibration, with the answer face (its text, "Réponse : Lima", and its image) under the asked face, and two buttons, "Correct" and "Again", which then behave as above. Nothing is recorded until one of them is pressed: a revealed notification swiped away is an ignored one, and the card stays due;
 - answering an extra reminder is always a [bonus review](../lexicon.md#bonus-review);
 - a card deleted meanwhile only closes the notification.
 
@@ -91,7 +91,7 @@ Touching the notification itself opens the app.
 
 ### Typed answer
 
-In a group with the [typed answer](../lexicon.md#typed-answer) option, the notification replaces "Correct" with "Answer" (*Répondre*), which opens a text field in the notification; "Again" stays. A card whose answer face has no text keeps "Correct", having nothing to compare with.
+In a group with the [typed answer](../lexicon.md#typed-answer) option, the buttons are "Again", "Reveal" and "Answer" (*Répondre*), which opens a text field in the notification. "Again" and "Reveal" behave as on any card. A card whose answer face has no text gets the usual buttons, having nothing to compare with.
 
 The typed answer is compared with the answer face by `TypedAnswerMatch`, in the domain:
 
@@ -99,7 +99,7 @@ The typed answer is compared with the answer face by `TypedAnswerMatch`, in the 
 - one typo is forgiven: a letter missing, added or replaced, or two neighbouring letters swapped;
 - no typo is forgiven on an answer of fewer than 4 characters, nor on a digit, so that "Lia" is not "Lim" and "1788" is not "1789".
 
-An accepted answer is recorded as "Correct", a refused one as "Again". In both cases the notification is replaced by the expected answer, how the typed answer compared and what the answer did ("« canbera » accepté, 1 faute · prochain rappel demain"), with "OK".
+An accepted answer is recorded as "Correct", a refused one as "Again". In both cases the notification is replaced by the expected answer, how the typed answer compared and what the answer did ("« canbera » accepté, 1 faute · prochain rappel demain", "« Quito » refusé · Compté raté · revue demain"), with "OK" to close it. It is the only notification that shows something after an answer: the user has to know whether the typed answer was accepted.
 
 ### Grouped reminder
 
@@ -110,7 +110,7 @@ The count is the number of cards of the group whose due moment has passed. When 
 What the reminder offers is set with the mode:
 
 - open the app (default): touching the notification or "Ouvrir l'app" opens the app on the group page;
-- chain the cards: "Commencer ici" replaces the reminder with the first card, the earliest due. Each answer replaces it with the next card, with "Capitales · 3 à réviser" as its text and an "Ouvrir" button to switch to the app; "Again" first shows the expected answer, and its "OK" moves on. The notification closes after the last card. A chained card answered in the app gives way to the next one.
+- chain the cards: "Commencer ici" replaces the reminder with the first card, the earliest due. Each answer replaces it with the next card, with "Capitales · 3 à réviser" as its text and the same buttons as a card notification, "Reveal" included; there is no room left for a button opening the app. The "OK" of a typed answer's verdict moves on. The notification closes after the last card. A chained card answered in the app gives way to the next one.
 
 ### Exact alarms, restarts and permissions
 
@@ -123,18 +123,19 @@ The notification permission of Android 13 and exact alarms are both asked on the
 ## Acceptance criteria
 
 - [x] An introduced card is notified at the [daily slot](../lexicon.md#daily-slot), without the app being open.
-- [x] The notification shows the asked face and the name of the group only, with "Correct" and "Again".
-- [x] A face with an image shows it in the expanded notification, text only when collapsed; so does an answer face with an image after "Again".
-- [x] "Correct" records the answer from the notification and closes it; "Again" records the failure and shows the answer and the next review, with "OK".
+- [x] The notification shows the asked face and the name of the group only, with "Correct", "Again" and "Reveal".
+- [x] A face with an image shows it in the expanded notification, text only when collapsed; so does an answer face with an image once revealed.
+- [x] "Correct" and "Again" record the answer from the notification and close it, without any result notification, revealed or not.
+- [x] "Reveal" shows the answer in place, silently, with "Correct" and "Again", and records nothing.
 - [x] A card reviewed in the app before its slot is not notified, and a notification already shown is withdrawn.
 - [x] A suspended card is never notified; a reminder more than an hour late is not shown.
 - [x] A notification ignored or swiped, or not shown for being late, is sent again the next day at the [daily slot](../lexicon.md#daily-slot), without any effect on the step.
 - [x] A "Review soon" reminder is notified at its moment, and its answer is a bonus review.
 - [x] Without the exact alarm permission, reminders are still planned as inexact alarms, and Settings offers to allow exact alarms.
 - [x] Wake-ups are planned again after a phone restart and at each launch.
-- [x] With the typed answer option, the card is answered in a field of the notification; the comparison ignores case, accents and spaces and forgives one typo, then the expected answer is shown with "OK".
+- [x] With the typed answer option, the card is answered in a field of the notification; the buttons are "Again", "Reveal" and "Answer"; the comparison ignores case, accents and spaces and forgives one typo, then the verdict and the expected answer are shown with "OK".
 - [x] In grouped reminder mode, the due cards of a group are announced by one notification with their count, which opens the app on the group.
-- [x] With chaining, the cards of the reminder are answered one after the other inside the notification, with "Open" to switch to the app.
+- [x] With chaining, the cards of the reminder are answered one after the other inside the notification, with the buttons of a card notification.
 - [x] A grouped reminder follows the answers given in the app, and closes when no card is left.
 - [x] With a time range, the cards of the day are notified one by one, spread evenly over the range; a grouped reminder arrives at the start of the range.
 - [x] A time range whose end would precede its start cannot be entered.
@@ -149,6 +150,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 
 - The timing rules (shown once, within an hour, wake-ups rounded and capped), the notification moments and the typed answer comparison are tested as pure domain logic.
 - The planner, the dispatcher and the action handler are tested together on an in-memory database, through the same providers as the app, with in-memory fakes of the three platform interfaces that behave like an alarm manager and a notification shade.
+- Each button is tested through the action handler: "Correct" and "Again" record and close; "Reveal" shows the answer and records nothing, then its "Correct" or "Again"; the typed answer with its verdict, "Again" and "Reveal"; "Reveal" and "Again" on a chained card.
 - The notification texts and the payload carried by a notification are tested without a device.
 - The exact alarm panel is tested on screen, with a golden test of the refused state; the safeguards, schedule and notification mode screens have golden tests too, and their changes are checked in the database.
 - Moving the due dates to a new slot is tested as pure domain logic, then through the settings service on an in-memory database.
@@ -172,9 +174,9 @@ The notification permission of Android 13 and exact alarms are both asked on the
 
 The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its card id; extra reminders use ids from 1,000,000,000 upwards so that they never replace the notification of a due card; the digest of a moment uses 2,000,000,000; the grouped reminder of a group uses the negative id `-1 - groupId`, and the cards chained in it take the same id, so that each one replaces the previous. A notification carries its key (card, extra reminder, chained group, prompt or answer, the [asked side](../lexicon.md#asked-side), or the group and count of a grouped reminder) in its payload, which is how the planner finds the notifications shown and how a pressed button finds what it answers.
 
-"Open" and touching a grouped reminder launch the app instead of a background isolate: the plugin hands the response to the running app, or to the launch details when the notification started it. `notificationTargetsProvider` turns both into a stream of groups to open, which the main shell follows.
+"Ouvrir l'app" and touching a grouped reminder launch the app instead of a background isolate: the plugin hands the response to the running app, or to the launch details when the notification started it. `notificationTargetsProvider` turns both into a stream of groups to open, which the main shell follows.
 
-The "Again" and "Answer" buttons do not let the plugin close the notification, so that the answer replaces it in place; the replaced notification only alerts once. The text typed in the field reaches the background isolate in the `input` of the notification response.
+The "Reveal" and "Answer" buttons, and every button of a chained card, do not let the plugin close the notification, so that the answer, the verdict or the next card replaces it in place. The revealed notification is silent and alerts only once; it stays a prompt in its payload, so that the planner withdraws it like any other once its card is answered in the app. The text typed in the field reaches the background isolate in the `input` of the notification response.
 
 `android_alarm_manager_plus` drops an exact alarm without the permission instead of falling back by itself: the scheduler asks for an exact alarm only when `canScheduleExactNotifications` says it is allowed.
 

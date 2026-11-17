@@ -16,11 +16,11 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Bulk add: paste one card per line into a group, chosen or created on the spot, with an editable separator (`;` by default) and a report of the skipped lines. The batch joins the end of the group's queue "In order" or shuffled, and a "First" box shows the card that will come out first.
 - Home tab: a timeline of the coming cards, today first with the late ones, then the next six days, card by card with their group, and one line per group for its new cards ("Capitales: 2 new cards").
 - Card sheet: both faces, a bar of the preset steps ending with the remanence, next review and history, with Review soon (one-off reminder), Suspend / Resume and Reset, which sends the card back to its group's queue. Lists show the next date of each card ("in 3 d"), or "waiting"; no step is named anywhere, notifications included.
-- Notifications: an introduced card arrives at the reminder time with Correct / Again buttons, answered without opening the app; Again shows the expected answer and the next review. A card reviewed in the app before its slot is not notified twice. "Review soon" reminders are notified too.
+- Notifications: an introduced card arrives at the reminder time with Correct / Again / Reveal buttons, answered without opening the app. Reveal shows the answer in the notification, without a sound, before answering Correct or Again. A card reviewed in the app before its slot is not notified twice. "Review soon" reminders are notified too.
 - Reminders survive a phone restart. Without the exact alarm permission they may arrive a few minutes late, and Settings offers to allow exact alarms.
 - Distillation: "Distill" on a group page introduces its waiting cards a few at a time, from the head of its queue ("N cards every X days"), even with the app closed. It is a permanent setting of the group, adjusted, paused and resumed from the group page; cards added later join the end of its queue. "Avoid collisions" gives it a daily budget while cards wait: reminders first, new cards in what is left.
-- Typed answer in the notification, for groups with this option: the answer is accepted despite case, accents, spaces and one typo, then the expected answer is shown.
-- Grouped reminder, as the notification mode of the app: one notification per group with its number of due cards, which opens the app on the group or chains the cards inside the notification.
+- Typed answer in the notification, for groups with this option, with Again / Reveal / Answer buttons: the answer is accepted despite case, accents, spaces and one typo, then the verdict and the expected answer are shown.
+- Grouped reminder, as the notification mode of the app: one notification per group with its number of due cards, which opens the app on the group or chains the cards inside the notification, each with the buttons of a card notification.
 - Time range schedule: the notifications of the day are spread evenly over the range, and Home's timeline shows them at their moment.
 - A notification ignored or swiped is sent again the next day at the reminder time.
 - Schedule and notification mode in Settings, for every group at once: a fixed time (12:00 by default) or a time range, one notification per card or a grouped reminder. A new reminder time also moves the reminders already set at the old one.
@@ -41,6 +41,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - The end of sequence and the typed answer belong to the group instead of the preset, and are set in the group settings: after the last step, the cards come back every 3 months, 6 months (by default) or year, or are learned for good; the typed answer is off by default.
 - The distillation always takes the head of its group's queue: the "Distill" screen no longer offers an order (group order or random).
 - In a session, the top half of the card no longer shrinks or greys at the reveal: the answer fades in below it with a short animation and a light vibration, shown at once when the phone reduces animations. "Show answer" is the only button before the reveal, in the place of the answer buttons, and a bonus review no longer shows "no effect" under them.
+- Again in a notification closes it like Correct, instead of showing the expected answer and the next review: Reveal shows the answer beforehand.
 - Preset steps can be set in years.
 - The schedule refuses a time range whose end comes before its start.
 - The preset editor says what a missed card does under the failure choice, now named "On failure": one step back, back to start or stay.
@@ -52,6 +53,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - The preset of a card: a card always follows the preset of its group, and the card editor no longer offers one.
 - The end of sequence (including "Loop") and the typed answer in the preset editor.
 - The counters at the top of a group page (due, active, waiting) and its "Review the N due" button: "Review all" starts the reviews of a group.
+- The Open button of a card chained in a grouped reminder, replaced by Reveal.
 - The Adaptive preset and the choice of an adaptive engine in the preset editor: every preset follows its fixed sequence of steps. The card sheet no longer shows a stability and a difficulty.
 
 ### Fixed

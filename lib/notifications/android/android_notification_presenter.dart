@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import '../../application/notifications/answer_reveal.dart';
 import '../../application/notifications/group_reminder.dart';
 import '../../application/notifications/group_reminder_key.dart';
 import '../../application/notifications/notification_digest.dart';
@@ -10,6 +9,7 @@ import '../../application/notifications/notification_action.dart';
 import '../../application/notifications/notification_presenter.dart';
 import '../../application/notifications/review_notification_key.dart';
 import '../../application/notifications/review_prompt.dart';
+import '../../application/notifications/typed_answer_verdict.dart';
 import '../../data/images/image_store.dart';
 import '../review_texts.dart';
 import 'notification_payload.dart';
@@ -42,81 +42,99 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   Future<void> showPrompt(ReviewPrompt prompt) {
     final title = _texts.promptTitle(prompt.prompt);
     final detail = _texts.promptDetail(prompt);
+    final answer = _texts.answerLine(prompt.answer);
     return _plugin.show(
       id: _idOf(prompt.key),
       title: title,
-      body: detail,
+      body: prompt.isRevealed ? answer : detail,
       payload: NotificationPayload.encode(
         prompt.key,
         isPrompt: true,
         askedSide: prompt.askedSide,
       ),
       notificationDetails: _details(
-        style: _picture(prompt.image, title: title, summary: detail),
-        // A chained card follows the answer of the previous one.
-        onlyAlertOnce: prompt.key.chain != null,
-        actions: [
-          if (prompt.typedAnswer)
-            // Kept on screen, like "Again": the notification is replaced by
-            // the expected answer.
-            AndroidNotificationAction(
-              NotificationAction.answer.name,
-              _texts.strings.notificationAnswerButton,
-              cancelNotification: false,
-              inputs: [
-                AndroidNotificationActionInput(
-                  label: _texts.strings.notificationAnswerField,
-                ),
-              ],
-            )
-          else
-            AndroidNotificationAction(
-              NotificationAction.correct.name,
-              _texts.strings.reviewCorrect,
-              // A chained card is replaced by the next one.
-              cancelNotification: prompt.key.chain == null,
-            ),
-          // Kept on screen: the notification is replaced by the answer.
-          AndroidNotificationAction(
-            NotificationAction.again.name,
-            _texts.strings.reviewAgain,
-            cancelNotification: false,
-          ),
-          if (prompt.key.chain != null)
-            AndroidNotificationAction(
-              NotificationAction.open.name,
-              _texts.strings.notificationOpen,
-              showsUserInterface: true,
-            ),
-        ],
+        style: prompt.isRevealed
+            ? _picture(prompt.answerImage, title: answer, summary: detail) ??
+                  BigTextStyleInformation('$answer\n$detail')
+            : _picture(prompt.image, title: title, summary: detail),
+        // A chained card follows the answer of the previous one, and a card
+        // revealed replaces itself without a sound.
+        onlyAlertOnce: prompt.isRevealed || prompt.key.chain != null,
+        silent: prompt.isRevealed,
+        actions: _promptActions(prompt),
       ),
     );
   }
 
+  /// "Correct", "Again", "Reveal"; "Again", "Reveal", "Answer" for a typed
+  /// answer; "Correct", "Again" once revealed.
+  List<AndroidNotificationAction> _promptActions(ReviewPrompt prompt) {
+    final strings = _texts.strings;
+    // A chained card is replaced by the next one rather than closed.
+    final closes = prompt.key.chain == null;
+    final correct = AndroidNotificationAction(
+      NotificationAction.correct.name,
+      strings.reviewCorrect,
+      cancelNotification: closes,
+    );
+    final again = AndroidNotificationAction(
+      NotificationAction.again.name,
+      strings.reviewAgain,
+      cancelNotification: closes,
+    );
+    // Kept on screen: the notification shows the answer in place.
+    final reveal = AndroidNotificationAction(
+      NotificationAction.reveal.name,
+      strings.notificationReveal,
+      cancelNotification: false,
+    );
+    if (prompt.isRevealed) {
+      return [correct, again];
+    } else if (prompt.typedAnswer) {
+      return [
+        again,
+        reveal,
+        // Kept on screen: the notification shows the verdict in place.
+        AndroidNotificationAction(
+          NotificationAction.answer.name,
+          strings.notificationAnswerButton,
+          cancelNotification: false,
+          inputs: [
+            AndroidNotificationActionInput(
+              label: strings.notificationAnswerField,
+            ),
+          ],
+        ),
+      ];
+    } else {
+      return [correct, again, reveal];
+    }
+  }
+
   @override
-  Future<void> showReveal(AnswerReveal reveal) {
-    final answer = _texts.answerLine(reveal);
-    final verdict = _texts.verdict(reveal);
+  Future<void> showVerdict(TypedAnswerVerdict verdict) {
+    final answer = _texts.answerLine(verdict.answer);
+    final summary = _texts.verdict(verdict);
     return _plugin.show(
-      id: _idOf(reveal.key),
-      title: _texts.promptTitle(reveal.prompt),
+      id: _idOf(verdict.key),
+      title: _texts.promptTitle(verdict.prompt),
       body: answer,
       payload: NotificationPayload.encode(
-        reveal.key,
+        verdict.key,
         isPrompt: false,
-        askedSide: reveal.askedSide,
+        askedSide: verdict.askedSide,
       ),
       notificationDetails: _details(
         style:
-            _picture(reveal.answerImage, title: answer, summary: verdict) ??
-            BigTextStyleInformation('$answer\n$verdict'),
+            _picture(verdict.answerImage, title: answer, summary: summary) ??
+            BigTextStyleInformation('$answer\n$summary'),
         onlyAlertOnce: true,
         actions: [
           AndroidNotificationAction(
             NotificationAction.acknowledge.name,
             _texts.strings.commonOk,
             // A chained card is replaced by the next one.
-            cancelNotification: reveal.key.chain == null,
+            cancelNotification: verdict.key.chain == null,
           ),
         ],
       ),

@@ -3,16 +3,21 @@ import '../../domain/cards/flashcard.dart';
 import '../../domain/groups/card_group.dart';
 import 'review_notification_key.dart';
 
-/// Content of a notification asking a card: the asked face and its group. Formatted into text by the platform implementation.
+/// Content of a notification asking a card: the asked face and its group,
+/// and the answer face once revealed. Formatted into text by the platform
+/// implementation.
 class ReviewPrompt {
   const ReviewPrompt({
     required this.key,
     required this.askedSide,
     required this.prompt,
     required this.image,
+    required this.answer,
+    required this.answerImage,
     required this.groupName,
     required this.typedAnswer,
     this.chainRemaining,
+    this.isRevealed = false,
   });
 
   /// The notification of [card] asking its [askedSide] face, following
@@ -23,15 +28,19 @@ class ReviewPrompt {
     required CardSide askedSide,
     required CardGroup group,
     int? chainRemaining,
+    bool isRevealed = false,
   }) => ReviewPrompt(
     key: key,
     askedSide: askedSide,
     prompt: card.promptFor(askedSide).text ?? '',
     image: card.promptFor(askedSide).imagePath,
+    answer: card.answerFor(askedSide).text ?? '',
+    answerImage: card.answerFor(askedSide).imagePath,
     groupName: group.name,
     // Without text on the answer face, there is nothing to compare with.
     typedAnswer: group.typedAnswer && card.answerFor(askedSide).hasText,
     chainRemaining: chainRemaining,
+    isRevealed: isRevealed,
   );
 
   final ReviewNotificationKey key;
@@ -44,13 +53,23 @@ class ReviewPrompt {
 
   /// Image of the asked face, by its name in the image store.
   final String? image;
+
+  /// Text of the answer face, shown once revealed; empty for an image alone.
+  final String answer;
+
+  /// Image of the answer face, by its name in the image store.
+  final String? answerImage;
   final String groupName;
 
-  /// Asks for a typed answer ("Answer" and "Again") instead of "Correct" and
-  /// "Again".
+  /// Asks for a typed answer ("Again", "Reveal" and "Answer") instead of
+  /// "Correct", "Again" and "Reveal".
   final bool typedAnswer;
 
   /// Cards left in the grouped reminder, this one included, when the cards
   /// are chained in the notification.
   final int? chainRemaining;
+
+  /// Shows the answer face, with "Correct" and "Again" only; nothing is
+  /// recorded until one of them is pressed.
+  final bool isRevealed;
 }

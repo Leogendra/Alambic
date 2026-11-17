@@ -1,9 +1,9 @@
-import 'answer_reveal.dart';
 import 'group_reminder.dart';
 import 'group_reminder_key.dart';
 import 'notification_digest.dart';
 import 'review_notification_key.dart';
 import 'review_prompt.dart';
+import 'typed_answer_verdict.dart';
 
 /// Shows review notifications. Implemented per platform: the application
 /// decides what to show, the implementation decides how.
@@ -12,14 +12,15 @@ abstract interface class NotificationPresenter {
   /// returns whether the app may post them.
   Future<bool> requestPermission();
 
-  /// Shows a card with its "Correct" and "Again" buttons, or "Answer" and
-  /// "Again" for a typed answer, plus "Open" when it is chained in a grouped
-  /// reminder.
+  /// Shows a card with its "Correct", "Again" and "Reveal" buttons, or
+  /// "Again", "Reveal" and "Answer" for a typed answer. A revealed card
+  /// replaces the notification silently, with the answer and "Correct" and
+  /// "Again".
   Future<void> showPrompt(ReviewPrompt prompt);
 
-  /// Replaces the notification of [reveal]'s key with the expected answer
-  /// and an "OK" button.
-  Future<void> showReveal(AnswerReveal reveal);
+  /// Replaces the notification of [verdict]'s key with the verdict of a
+  /// typed answer, the expected answer and an "OK" button.
+  Future<void> showVerdict(TypedAnswerVerdict verdict);
 
   Future<void> dismiss(ReviewNotificationKey key);
 

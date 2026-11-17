@@ -88,6 +88,7 @@ final notificationDispatcherProvider = Provider(
 final notificationActionHandlerProvider = Provider(
   (ref) => NotificationActionHandler(
     cards: ref.watch(cardRepositoryProvider),
+    groups: ref.watch(groupRepositoryProvider),
     reviews: ref.watch(reviewServiceProvider),
     groupedReminders: ref.watch(groupedRemindersProvider),
     presenter: ref.watch(notificationPresenterProvider),

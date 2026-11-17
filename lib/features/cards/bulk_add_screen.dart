@@ -5,18 +5,26 @@ import '../../app/layout/bottom_action_area.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
+import '../../app/widgets/segment_option.dart';
+import '../../app/widgets/segmented_choice.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_draft.dart';
 import '../../application/cards/card_providers.dart';
+import '../../application/randomness.dart';
+import '../../domain/cards/bulk/bulk_card_draft.dart';
 import '../../domain/cards/bulk/bulk_card_parser.dart';
 import '../../domain/cards/bulk/bulk_line_error.dart';
 import '../../domain/cards/bulk/bulk_line_error_kind.dart';
+import '../../domain/cards/bulk/bulk_order.dart';
 import '../../domain/cards/bulk/bulk_parse_result.dart';
+import '../../domain/distillation/distillation_queue.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'group_field.dart';
 
 /// Pastes "front ; back" lines to create many cards in a group at once. The
 /// group is the one the user came from, and can be changed or created here.
+/// The batch joins the end of the queue of the group, in the order of the
+/// list or shuffled; the card that will come first is shown.
 class BulkAddScreen extends ConsumerStatefulWidget {
   const BulkAddScreen({required this.initialGroupId, super.key});
 
@@ -32,6 +40,7 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
     text: BulkCardParser.defaultSeparator,
   );
   late int _groupId = widget.initialGroupId;
+  BulkOrder _order = const BulkOrder.listed();
 
   @override
   void dispose() {
@@ -47,6 +56,7 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final result = _result;
+    final batch = _order.apply(result.drafts);
     return Scaffold(
       appBar: AppBar(title: Text(strings.bulkTitle)),
       body: Column(
@@ -67,13 +77,20 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
                 ),
                 const SizedBox(height: 12),
                 _report(strings, result),
+                const SizedBox(height: 20),
+                SectionLabel(strings.bulkOrder),
+                _orderChoice(strings),
+                if (batch.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  _firstCard(strings, batch.first),
+                ],
               ],
             ),
           ),
           BottomActionArea(
             child: FilledButton(
-              onPressed: result.drafts.isEmpty ? null : () => _add(result),
-              child: Text(strings.bulkAddButton(result.drafts.length)),
+              onPressed: batch.isEmpty ? null : () => _add(batch),
+              child: Text(strings.bulkAddButton(batch.length)),
             ),
           ),
         ],
@@ -122,6 +139,57 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
     );
   }
 
+  /// Choosing "Shuffle", even again, draws a new order.
+  Widget _orderChoice(AppLocalizations strings) => SegmentedChoice<bool>(
+    options: [
+      SegmentOption(false, strings.bulkOrderListed),
+      SegmentOption(true, strings.bulkOrderShuffled),
+    ],
+    selected: _order.isShuffled,
+    onSelected: (shuffled) => setState(
+      () => _order = shuffled
+          ? BulkOrder.shuffled(ref.read(randomProvider).nextInt(1 << 32))
+          : const BulkOrder.listed(),
+    ),
+  );
+
+  /// The card of the batch that will come out first, after the cards already
+  /// waiting in the group.
+  Widget _firstCard(AppLocalizations strings, BulkCardDraft first) {
+    final colors = AlambicColors.of(context);
+    final cards = ref.watch(groupCardsProvider(_groupId)).value ?? const [];
+    final waiting = DistillationQueue.remaining(cards);
+    return SurfacePanel(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 4,
+          children: [
+            Text(
+              strings.bulkFirst.toUpperCase(),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+                color: colors.accentText,
+              ),
+            ),
+            Text(
+              '${first.front} → ${first.back}',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            if (waiting > 0)
+              Text(
+                strings.bulkAfterPending(waiting),
+                style: TextStyle(fontSize: 13, color: colors.textSecondary),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
   String _errorText(AppLocalizations strings, BulkLineError error) =>
       switch (error.kind) {
         BulkLineErrorKind.missingSeparator => strings.bulkErrorMissingSeparator(
@@ -133,11 +201,11 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
         ),
       };
 
-  Future<void> _add(BulkParseResult result) async {
+  Future<void> _add(List<BulkCardDraft> batch) async {
     final strings = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final count = await ref.read(cardServiceProvider).createAll([
-      for (final draft in result.drafts)
+      for (final draft in batch)
         CardDraft(
           frontText: draft.front,
           backText: draft.back,

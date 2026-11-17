@@ -413,6 +413,18 @@
     }
   },
   "bulkTooltip": "Ajout en masse",
+  "bulkOrder": "Ordre",
+  "bulkOrderListed": "Dans l'ordre",
+  "bulkOrderShuffled": "Mélanger",
+  "bulkFirst": "En premier",
+  "bulkAfterPending": "{count, plural, =1{après la carte déjà en attente} other{après les {count} cartes déjà en attente}}",
+  "@bulkAfterPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "reviewCorrect": "Correct",
   "reviewAgain": "À revoir",
   "sessionQuit": "Quitter la session",

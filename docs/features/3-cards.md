@@ -38,7 +38,11 @@ Reading the lines is a domain rule (`BulkCardParser`), rerun at each keystroke:
 - the front stops at the first separator, so the back may itself contain the separator;
 - a line without a separator, or whose front or back is empty, is reported by its number and skipped.
 
-The screen announces the number of ready cards and lists the skipped lines before adding. Cards are created in a single transaction, in line order, at the end of the group's queue; they follow their group's preset.
+The screen announces the number of ready cards and lists the skipped lines before adding.
+
+Under them, the order of the batch: "In order" (by default), the top line first, or "Shuffle". Shuffling draws an order when it is chosen, and choosing it again draws a new one; it only mixes the batch, never the cards already waiting. A "First" box shows the card of the batch that will come out first ("Capitale du Chili → Santiago"), with "after the 2 cards already waiting" when the queue of the group is not empty. It follows every keystroke, separator and order change, and is hidden while no line is valid.
+
+Cards are created in a single transaction, in the order shown, at the end of the group's queue; they follow their group's preset.
 
 ### Where a card stands
 
@@ -75,7 +79,8 @@ Every operation that touches due dates or reminders notifies the notification pl
 - [x] Each face takes an image from the gallery, alone or with a text; the image is copied into the app and leaves it with its card, its group, or when it is replaced or removed.
 - [x] A new card is not due: it is pending at the end of its group's queue.
 - [x] Editing a card changes its text, its group and its preset; a pending card moved to another group joins the end of its queue, an introduced one keeps its progression.
-- [x] Bulk add creates one card per valid line, in order, and reports the skipped lines by number.
+- [x] Bulk add creates one card per valid line and reports the skipped lines by number.
+- [x] The batch joins the end of the queue in the order of the list, or in a shuffled order drawn when "Shuffle" is chosen and drawn again at each touch; the "First" box shows its first card and the cards already waiting.
 - [x] The bulk-add separator is editable; changing it rereads every line.
 - [x] Resetting sends the card back to the end of its group's queue, keeping the history.
 - [x] Lists show the next date only, or "waiting", "suspended", "learned": no status and no step.
@@ -88,7 +93,8 @@ Every operation that touches due dates or reminders notifies the notification pl
 - The service is tested on an in-memory database with a fixed clock: state, queue position and due date after creation, group change, editing and reset, read back from the database.
 - Each test also checks that the notification planning was notified, through a listener that counts calls.
 - Parsing the pasted lines is tested as pure logic: spaces, empty lines, missing separator, empty face, multi-character separator.
-- The bulk-add screen is tested end to end on an in-memory database: report before adding, separator change, cards created pending in the queue of the group.
+- The order of a batch is tested as pure logic: listed, shuffled within the batch, the same draw giving the same order.
+- The bulk-add screen is tested end to end on an in-memory database with a seeded random generator: report and "First" box before adding, separator change, cards created pending at the end of the queue of the group, in the order listed or drawn.
 - The group row is tested on the editor: a card without group is refused, "+" creates a group and puts the card in it, and with no group the row asks for a name.
 - The days offered by "Review soon" are tested as pure logic, Saturday and Sunday included; the reminder service is tested on an in-memory database (added, refused in the past, removed).
 - The editor, the bulk add and the card sheet (with history, bonus reviews and a reminder) are covered by golden tests, the card sheet in light and dark theme.
@@ -100,7 +106,7 @@ Every operation that touches due dates or reminders notifies the notification pl
 - `lib/application/reminders/` and `lib/data/repositories/reminder_repository.dart` — "Review soon" reminders.
 - `lib/domain/reviews/review_soon_days.dart` — the days offered by "Review soon".
 - `lib/data/repositories/card_repository.dart` — storage of the cards, their progression and their queue position.
-- `lib/domain/cards/bulk/` — parsing of bulk-add lines.
+- `lib/domain/cards/bulk/` — parsing of bulk-add lines and the order of a batch.
 - `lib/features/cards/` — card editor, group row and picker, card sheet and its panels, "Review soon" sheet, bulk add, card row of the lists and the text of where a card stands, card image and gallery picker.
 - `lib/data/images/image_store.dart` — the folder of the card images.
 

@@ -1,6 +1,6 @@
 # Feature 6 — Home
 
-Status: in progress (2026-11-16)
+Status: in progress (2026-11-17)
 
 ## Goal
 
@@ -18,7 +18,7 @@ Each day lists its reminders card by card:
 
 - an introduced card goes on the day of its [due date](../lexicon.md#due-date), or on today when it is [due](../lexicon.md#due), with "late" in red when its due day is past; today's cards also give their time ("at 12:00");
 - a "Review soon" reminder goes on its day, labelled "Review soon";
-- each card shows its front, its group and its [reminder label](../lexicon.md#reminder-label) on the right; touching it opens its sheet.
+- each card shows its front and its group, never its step; touching it opens its sheet.
 
 Late cards come first, then the others by moment. A card already answered today has left today, since its due date moved: today only shows what is left to do. Suspended and pending cards are not reminders.
 
@@ -40,7 +40,7 @@ There is no count of due cards and no "Review all" on Home: reviewing happens fr
 ## Acceptance criteria
 
 - [x] Today shows first, outlined, with its late cards first, even when empty; the next six days follow when something falls on them.
-- [x] Each reminder shows its card's front, its group and its reminder label; a "Review soon" reminder shows on its day.
+- [x] Each reminder shows its card's front and its group, without its step; a "Review soon" reminder shows on its day.
 - [x] New cards show as one line per group and day, made of the introduced cards never answered and of the arrivals expected from the distillation.
 - [x] A paused distillation or group announces no arrival.
 - [x] The pause button starts the global pause; Home then offers to resume it.

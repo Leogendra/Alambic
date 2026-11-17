@@ -62,30 +62,6 @@
       }
     }
   },
-  "reminderDays": "J{amount}",
-  "@reminderDays": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "reminderWeeks": "S{amount}",
-  "@reminderWeeks": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "reminderMonths": "M{amount}",
-  "@reminderMonths": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
   "unitMinutes": "minutes",
   "unitHours": "heures",
   "unitDays": "jours",
@@ -342,7 +318,6 @@
     }
   },
   "groupSettingsTooltip": "Réglages du groupe",
-  "cardStatusNew": "nouvelle",
   "cardImageOnly": "Image",
   "cardAddImage": "Image",
   "cardRemoveImage": "Retirer l'image",
@@ -606,7 +581,6 @@
   },
   "notificationChannelName": "Révisions",
   "notificationChannelDescription": "Les cartes à réviser, avec leurs boutons de réponse.",
-  "notificationNewCard": "Nouvelle carte",
   "notificationImagePrompt": "Que montre cette image ?",
   "notificationAnswerImage": "Réponse en image",
   "notificationExtra": "Réviser bientôt · sans effet sur le planning",
@@ -653,12 +627,9 @@
       }
     }
   },
-  "notificationFailed": "Compté raté · retour à {label}, revue {when}",
+  "notificationFailed": "Compté raté · revue {when}",
   "@notificationFailed": {
     "placeholders": {
-      "label": {
-        "type": "String"
-      },
       "when": {
         "type": "String"
       }

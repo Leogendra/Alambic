@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/interval_labels.dart';
-import '../../app/formatting/preset_labels.dart';
-import '../../app/formatting/reminder_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
+import '../../domain/groups/after_last_step.dart';
 import '../../domain/groups/sequence_end.dart';
 import '../../domain/presets/preset.dart';
 import '../../domain/scheduling/card_progress.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Where a card stands: the reminder label of its step in the preset
-/// sequence and its next review; or why it is not scheduled.
+/// Where a card stands: its position in the sequence of its preset, the
+/// remanence of its group as a last step, and its next review; or why it is
+/// not scheduled.
 class CardProgressPanel extends StatelessWidget {
   const CardProgressPanel({
     required this.card,
@@ -51,97 +51,76 @@ class CardProgressPanel extends StatelessWidget {
     return switch (card.state) {
       CardState.pending => [_message(strings.cardSheetPending, colors)],
       CardState.acquired => [
-        ..._sequence(context, colors, preset.sequenceLength - 1),
+        _sequence(strings, colors, preset.lastStep),
         _message(strings.cardSheetAcquired, colors),
       ],
       CardState.active || CardState.remanent => [
-        ..._sequence(context, colors, switch (CardProgress.of(
-          card,
-          preset,
-          end,
-        )) {
+        _sequence(strings, colors, switch (CardProgress.of(card, preset, end)) {
           NewProgress() => null,
           SequenceProgress(:final step) => step,
-          RemanenceProgress() => preset.lastStep,
+          RemanenceProgress(:final sequenceLength) => sequenceLength,
         }),
         _nextReview(context, colors, card.dueAt!),
       ],
     };
   }
 
-  /// [title] on the left, the preset on the right.
-  Widget _title(AppLocalizations strings, AlambicColors colors, String title) =>
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ),
-          Text(
-            strings.presetName(preset),
-            style: TextStyle(fontSize: 13, color: colors.textSecondary),
-          ),
-        ],
-      );
-
-  List<Widget> _sequence(
-    BuildContext context,
+  /// The steps of the preset, then the remanence when the group has one,
+  /// each over its interval; filled up to [position], bold at it.
+  Widget _sequence(
+    AppLocalizations strings,
     AlambicColors colors,
-    int? step,
+    int? position,
   ) {
-    final strings = AppLocalizations.of(context);
-    final length = preset.sequenceLength;
-    return [
-      _title(
-        strings,
-        colors,
-        step == null
-            ? _capitalized(strings.cardStatusNew)
-            : strings.reminderLabel(preset.intervals[step]),
-      ),
-      Row(
-        spacing: 4,
-        children: [
-          for (var index = 0; index < length; index++)
-            Expanded(
-              child: Container(
-                height: 8,
-                decoration: BoxDecoration(
-                  color: step != null && index <= step
-                      ? colors.accent
-                      : colors.well,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-        ],
-      ),
-      Row(
-        spacing: 4,
-        children: [
-          for (var index = 0; index < length; index++)
-            Expanded(
-              child: Text(
-                strings.intervalLabel(preset.intervals[index]),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.clip,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: index == step ? FontWeight.w700 : null,
-                  color: index == step
-                      ? colors.accentText
-                      : colors.textSecondary,
-                ),
-              ),
-            ),
-        ],
-      ),
+    final intervals = [
+      ...preset.intervals,
+      if (end.afterLastStep == AfterLastStep.remanence)
+        end.remanenceAfter(preset),
     ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 6,
+      children: [
+        Row(
+          spacing: 4,
+          children: [
+            for (var index = 0; index < intervals.length; index++)
+              Expanded(
+                child: Container(
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: position != null && index <= position
+                        ? colors.accent
+                        : colors.well,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        Row(
+          spacing: 4,
+          children: [
+            for (var index = 0; index < intervals.length; index++)
+              Expanded(
+                child: Text(
+                  strings.intervalLabel(intervals[index]),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: index == position ? FontWeight.w700 : null,
+                    color: index == position
+                        ? colors.accentText
+                        : colors.textSecondary,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _nextReview(
@@ -189,7 +168,4 @@ class CardProgressPanel extends StatelessWidget {
     text,
     style: TextStyle(fontSize: 15, height: 1.4, color: colors.textSecondary),
   );
-
-  static String _capitalized(String text) =>
-      text.isEmpty ? text : text[0].toUpperCase() + text.substring(1);
 }

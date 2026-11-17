@@ -1,12 +1,10 @@
 import '../app/formatting/due_labels.dart';
-import '../app/formatting/reminder_labels.dart';
 import '../app/formatting/review_duration_labels.dart';
 import '../application/notifications/answer_reveal.dart';
 import '../application/notifications/group_reminder.dart';
 import '../application/notifications/notification_digest.dart';
 import '../application/notifications/review_prompt.dart';
 import '../domain/cards/card_side.dart';
-import '../domain/scheduling/card_progress.dart';
 import '../domain/reviews/typed_answer_match.dart';
 import '../domain/scheduling/scheduling_calendar.dart';
 import '../l10n/generated/app_localizations.dart';
@@ -24,30 +22,20 @@ class ReviewTexts {
   String promptTitle(String prompt) =>
       prompt.isEmpty ? strings.notificationImagePrompt : prompt;
 
-  /// Line under the asked face: the reminder label ("S1"), "verso → recto ·
-  /// Nouvelle carte", or the bonus mention of an extra reminder.
+  /// Line under the asked face: its group, and the cards left when the card
+  /// is chained in a grouped reminder ("Capitales · 3 à réviser"); preceded
+  /// by "verso → recto" when the back is asked, and by the bonus mention of
+  /// an extra reminder.
   String promptDetail(ReviewPrompt prompt) {
-    if (prompt.key.isExtraReminder) {
-      return strings.notificationExtra;
-    }
-    final position = switch (prompt.progress) {
-      NewProgress() => strings.notificationNewCard,
-      SequenceProgress(:final interval) ||
-      RemanenceProgress(:final interval) => strings.reminderLabel(interval),
-    };
-    return prompt.askedSide == CardSide.back
-        ? '${strings.sessionReverseBadge} · $position'
-        : position;
-  }
-
-  /// The group, and the cards left when the card is chained in a grouped
-  /// reminder: "Capitales · 3 à réviser".
-  String groupLabel(ReviewPrompt prompt) {
-    final group = prompt.groupName;
     final remaining = prompt.chainRemaining;
-    return remaining == null
-        ? group
-        : strings.notificationChainRemaining(group, remaining);
+    return [
+      if (prompt.askedSide == CardSide.back) strings.sessionReverseBadge,
+      if (prompt.key.isExtraReminder) strings.notificationExtra,
+      if (remaining == null)
+        prompt.groupName
+      else
+        strings.notificationChainRemaining(prompt.groupName, remaining),
+    ].join(' · ');
   }
 
   /// "Capitales : 5 cartes à réviser".
@@ -73,8 +61,8 @@ class ReviewTexts {
       : strings.notificationAnswer(reveal.answer);
 
   /// How the typed answer compared, then what the answer did: "« canbera »
-  /// accepté, 1 faute · prochain rappel demain", "Compté raté · retour à
-  /// J1, revue demain", or the bonus mention.
+  /// accepté, 1 faute · prochain rappel demain", "Compté raté · revue
+  /// demain", or the bonus mention.
   String verdict(AnswerReveal reveal) {
     final typed = reveal.typed;
     final match = reveal.match;
@@ -108,14 +96,8 @@ class ReviewTexts {
       now: reveal.answeredAt,
       calendar: calendar,
     );
-    final step = schedule.step;
-    // A failure kept in remanence has no step to go back to.
-    if (correct || step == null) {
-      return strings.notificationNextReview(when);
-    }
-    return strings.notificationFailed(
-      strings.reminderLabel(reveal.result.preset.intervals[step]),
-      when,
-    );
+    return correct
+        ? strings.notificationNextReview(when)
+        : strings.notificationFailed(when);
   }
 }

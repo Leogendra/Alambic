@@ -52,10 +52,6 @@ The other end of sequence of a group (`AfterLastStep.acquired`, `CardState.acqui
 
 Option of a group (`CardGroup.typedAnswer`; *réponse tapée*): its cards whose answer face has text are answered by typing that text, compared leniently, instead of saying "Correct".
 
-### Reminder label
-
-Short name of the interval a card waits (*étiquette de rappel*): "J1", "J2", "S1", "M3" in French, "D1", "W1", "M3" in English, or the interval itself below a day ("10 min"). It is taken from the interval of the current [step](#step), not from its number.
-
 ### Due date
 
 Moment when a card becomes [due](#due) again (`dueAt`; *échéance*). For an interval of a day or more, it is the [daily slot](#daily-slot) on the target day; for a shorter interval, the answer moment plus the interval.

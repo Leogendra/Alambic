@@ -13,7 +13,6 @@ import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/notification_timing.dart';
 import '../../domain/pauses/pauses.dart';
 import '../../domain/notifications/notification_mode.dart';
-import '../../domain/presets/preset_catalog.dart';
 import '../clock.dart';
 import '../distillation/distillation_service.dart';
 import 'delivery_candidates.dart';
@@ -101,7 +100,7 @@ class NotificationDispatcher {
         if (reminderSettings.notificationMode == NotificationMode.grouped) {
           groupedReminders.add(GroupReminderKey(card.groupId));
         } else {
-          prompts.add(_prompt(card, catalog, groups, null));
+          prompts.add(_prompt(card, groups, null));
         }
         notifiedGroups.add(card.groupId);
         await _cards.markNotified(card.id, now);
@@ -122,7 +121,7 @@ class NotificationDispatcher {
     if (notifiedGroups.isNotEmpty) {
       await _settings.addNotified(today, notifiedGroups.length);
     }
-    await _dispatchExtraReminders(cards, catalog, groups, pauses, now);
+    await _dispatchExtraReminders(cards, groups, pauses, now);
     await _planner.replan();
   }
 
@@ -131,7 +130,6 @@ class NotificationDispatcher {
   /// of a due card.
   Future<void> _dispatchExtraReminders(
     List<Flashcard> cards,
-    PresetCatalog catalog,
     Map<int, CardGroup> groups,
     Pauses pauses,
     DateTime now,
@@ -146,9 +144,7 @@ class NotificationDispatcher {
       if (card != null &&
           !pauses.covers(card.groupId) &&
           NotificationTiming.isOnTime(reminder.remindAt, now)) {
-        await _presenter.showPrompt(
-          _prompt(card, catalog, groups, reminder.id),
-        );
+        await _presenter.showPrompt(_prompt(card, groups, reminder.id));
       }
       await _reminders.markNotified(reminder.id, now);
     }
@@ -156,7 +152,6 @@ class NotificationDispatcher {
 
   ReviewPrompt _prompt(
     Flashcard card,
-    PresetCatalog catalog,
     Map<int, CardGroup> groups,
     int? extraReminderId,
   ) {
@@ -169,7 +164,6 @@ class NotificationDispatcher {
       card: card,
       askedSide: AskedSideDraw.draw(group, _random),
       group: group,
-      preset: catalog.presetForGroup(card.groupId),
     );
   }
 }

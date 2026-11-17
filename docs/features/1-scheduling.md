@@ -25,9 +25,9 @@ The engine never reads the time: the answer moment is given to it. It does not r
 
 The step is the index, in the preset sequence, of the interval currently waited. A card never answered has no step: its first correct answer waits the first interval. In the Standard sequence (1 d, 2 d, 1 wk, 1 mo, 3 mo, 6 mo), a card answered correctly three times in a row therefore waits 1 week, at its fourth step.
 
-Screens and notifications name the step by its [reminder label](../lexicon.md#reminder-label), taken from the interval waited: "J1", "J2", "S1", "M3" in French, "D1", "W1", "M3" in English, "10 min" or "1 h" below a day.
+No screen and no notification names the step: a card only shows its next date, and its sheet shows its position on a bar of the sequence ([Feature 3](3-cards.md#card-sheet)).
 
-If the sequence was shortened, or the card moved to a shorter preset, the engine clamps the step to the last existing step before computing. The stored step is only corrected at the next answer. `CardProgress` gives, for any card, its preset and the end of sequence of its group, the clamped step and the interval it waits, the remanence and its interval, or "new": screens, notifications and the priority of the daily cap all read it.
+If the sequence was shortened, or the card moved to a shorter preset, the engine clamps the step to the last existing step before computing. The stored step is only corrected at the next answer. `CardProgress` gives, for any card, its preset and the end of sequence of its group, the clamped step and the interval it waits, the remanence and its interval, or "new": the card sheet and the priority of the daily cap read it.
 
 ### After the last step
 
@@ -71,12 +71,12 @@ Standard preset, 12:00 slot, remanence every 6 months:
 
 | Situation | Answer | Result |
 |---|---|---|
-| Never reviewed, Tuesday 9:30pm | Correct | J1, Wednesday 12:00 |
-| At J1, Tuesday 9:30pm | Correct | J2, Thursday 12:00 |
-| At M1, Tuesday 12:05 | Again | S1, next Tuesday 12:00 |
-| Never reviewed, Wednesday 1am | Correct | J1, Wednesday 12:00 (the answer counts for Tuesday) |
-| At M6 (last step), 10 November | Correct | Remanence, 9 May 12:00 (180 days) |
-| In remanence, step back on failure | Again | M6, in 180 days |
+| Never reviewed, Tuesday 9:30pm | Correct | 1 d, Wednesday 12:00 |
+| Waiting 1 d, Tuesday 9:30pm | Correct | 2 d, Thursday 12:00 |
+| Waiting 1 mo, Tuesday 12:05 | Again | 1 wk, next Tuesday 12:00 |
+| Never reviewed, Wednesday 1am | Correct | 1 d, Wednesday 12:00 (the answer counts for Tuesday) |
+| Waiting 6 mo (last step), 10 November | Correct | Remanence, 9 May 12:00 (180 days) |
+| In remanence, step back on failure | Again | 6 mo, in 180 days |
 
 Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due date at 15:17, whatever the [daily slot](../lexicon.md#daily-slot).
 
@@ -96,7 +96,6 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 - [x] After a failure, the due date is the interval of the step reached: never the same day for a day-based sequence.
 - [x] The day starts at 4am.
 - [x] A step beyond a shortened sequence is clamped to the last step.
-- [x] The reminder label comes from the interval of the current step.
 
 ## Test strategy
 
@@ -104,14 +103,12 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 - The failure behaviours and the end of sequence are proven again through the services on stored cards, so that the step, the due date, the state and the queue position are read back from the database. This covers a preset edited between two answers and a group switched between remanence and acquired in both directions.
 - Dates are fixed in the tests (November 2026): no test reads the clock or waits.
 - The day boundaries (3:59am and 4am, end of month, slot before 4am) are tested explicitly on the calendar.
-- The reminder labels are tested in both languages, for day, week, month and sub-day intervals.
 
 ## File mapping
 
 - `lib/domain/scheduling/` — 4am calendar, sequence engine, scheduler, "due" rule and `CardProgress`.
 - `lib/domain/groups/sequence_end.dart` — the end of sequence of a group and the remanence interval it gives after a preset.
 - `lib/domain/presets/preset_interval.dart` — an interval and its unit; a unit of a day or more counts in days.
-- `lib/app/formatting/reminder_labels.dart` — the reminder label of an interval.
 
 ## Technical details
 

@@ -42,17 +42,16 @@ The screen announces the number of ready cards and lists the skipped lines befor
 
 ### Where a card stands
 
-No status is shown. A list shows each card's front, its back below, and on the right where it stands:
+No status and no step is shown. A list shows each card's front, its back below, and on the right where it stands:
 
-- its [reminder label](../lexicon.md#reminder-label) and next date, "J2 · in 3 d", or "J2 · Due" in the accent colour when it is due;
-- only the date for a card never answered;
+- its next date, "in 3 d", or "Due" in the accent colour when it is due;
 - "waiting", "suspended" or "learned" for a card without a next date.
 
 ### Card sheet
 
 Touching a card in a list opens its sheet. It shows both faces, then:
 
-- its progress: the reminder label over a bar of the preset sequence, with the interval of each step; then its next review ("Next review Fri 13 Nov, 12:00", or "Due now");
+- its progress: a bar of the preset sequence, without title, one segment per step with its interval below, then one more for the [remanence](../lexicon.md#remanence) when the group has one, with the remanence interval. The segments are filled up to where the card stands, and its interval is in bold. Then its next review ("Next review Fri 13 Nov, 12:00", or "Due now");
 - or, when it is not scheduled, why: waiting in its group's queue, or learned;
 - its upcoming "Review soon" reminders, each removable;
 - its history, most recent first: date, answer, a "bonus" tag for a [bonus review](../lexicon.md#bonus-review), and the effect ("→ 1 mo", "back to 2 d", "→ 6 mo" for the [remanence](../lexicon.md#remanence), "acquired", "no effect"). The effect is read against the current preset and end of sequence of the group, so it may differ from what the user saw if they changed since.
@@ -79,8 +78,8 @@ Every operation that touches due dates or reminders notifies the notification pl
 - [x] Bulk add creates one card per valid line, in order, and reports the skipped lines by number.
 - [x] The bulk-add separator is editable; changing it rereads every line.
 - [x] Resetting sends the card back to the end of its group's queue, keeping the history.
-- [x] Lists show the reminder label and the next date, or "waiting", "suspended", "learned", and no status.
-- [x] The card sheet shows the reminder label on the step bar, the next review or why there is none, the reminders and the history with each answer's effect.
+- [x] Lists show the next date only, or "waiting", "suspended", "learned": no status and no step.
+- [x] The card sheet shows the step bar without title, the remanence as its last segment, the next review or why there is none, the reminders and the history with each answer's effect.
 - [x] "Review soon" adds a reminder at a chosen day and time; a past moment is refused; a reminder can be removed.
 - [x] Touching the faces reviews the card, as a bonus review when it is not due.
 

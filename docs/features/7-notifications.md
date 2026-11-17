@@ -1,6 +1,6 @@
 # Feature 7 — Notifications
 
-Status: in progress (2026-11-16)
+Status: in progress (2026-11-17)
 
 ## Goal
 

@@ -1,6 +1,6 @@
 # Feature 2 — Presets
 
-Status: in progress (2026-11-17)
+Status: implemented (2026-11-17)
 
 ## Goal
 
@@ -27,9 +27,9 @@ This rule has a single implementation, `PresetResolver`. Screens and services go
 
 ### Preset management
 
-A single "Presets" row of Settings opens the Presets screen, one tile per preset. A tile shows the name, the steps ("1 d · 2 d · 1 wk · 1 mo · 3 mo · 6 mo") and the failure behaviour ("On failure: one step back"). Two buttons act on it: "Edit" opens the editor, "Make default" makes it the global preset. The global preset shows a "Default" badge in place of that button. The tile's menu holds "Duplicate", which stores a copy named "<name> (copy)" right away, and "Delete", except on the global preset: another preset must be made the default first.
+A single "Presets" row of Settings opens the Presets screen, one tile per preset. A tile shows the name, the steps ("1 d · 2 d · 1 wk · 1 mo · 3 mo · 6 mo") and the failure behaviour ("On failure: one step back"). Two buttons act on it: "Edit" opens the editor, "Make default" makes it the global preset. The global preset shows a "Default" badge in place of that button. "New preset", at the end of the list, opens the editor on a draft with the Standard values. The tile's menu holds "Duplicate", which stores a copy named "<name> (copy)" right away, and "Delete", except on the global preset: another preset must be made the default first.
 
-Deleting a preset first says how many groups chose it ("2 groups use it: they will move to the default preset, Standard, keeping their steps and due dates."). Once confirmed, those groups inherit the global preset again and the preset is deleted. Their cards keep their steps and due dates, as for any preset change; a step beyond the shorter sequence counts as its last step. "New preset", at the end of the list, opens the editor on a draft with the Standard values.
+Deleting a preset first says how many groups chose it ("2 groups use it: they will move to the default preset, Standard, keeping their steps and due dates."). Once confirmed, those groups inherit the global preset again and the preset is deleted. Their cards keep their steps and due dates, as for any preset change; a step beyond the shorter sequence counts as its last step.
 
 The editor works on a draft and writes nothing before "Save". It sets the name, the sequence (adding a step as a duration and a unit, removing a step as long as another one remains), the failure behaviour, the end of sequence and the typed answer. The failure behaviour is a three-way choice, "One step back", "Back to start" or "Stay" ([Feature 1](1-scheduling.md#on-failure)), with a line under it that says what a missed card then does ("A missed card goes back to the previous step.").
 

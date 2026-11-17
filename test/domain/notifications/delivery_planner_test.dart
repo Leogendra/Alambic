@@ -209,6 +209,19 @@ void main() {
       expect(moments[1], DateTime(2026, 11, 11, 8));
     });
 
+    test('hold a late notification until their end', () {
+      final noon = DateTime(2026, 11, 10, 12);
+      final moments = guarded([
+        candidate(1, noon),
+        candidate(2, noon, notifiedAt: noon),
+      ], DateTime(2026, 11, 10, 23));
+      expect(moments, {1: DateTime(2026, 11, 11, 8), 2: noon});
+      // Outside them, a late notification is shown at once.
+      expect(guarded([candidate(1, noon)], DateTime(2026, 11, 10, 18)), {
+        1: DateTime(2026, 11, 10, 18),
+      });
+    });
+
     test('are ignored when turned off', () {
       final moments = planner.plan(
         [candidate(1, DateTime(2026, 11, 10, 23, 10), preset: intensive)],

@@ -8,7 +8,7 @@ Infrastructure with no functional requirement of its own: the Flutter project `f
 
 ## Implementation overview
 
-The app starts on `AlambicApp`, which applies the theme and the language chosen in Settings (see [Language and theme](#language-and-theme)). The root screen is a shell with four tabs (Home, Groups, Statistics, Settings) and a floating "+" button that creates a card.
+The app starts on `AlambicApp`, which applies the theme and the language chosen in Settings (see [Language and theme](#language-and-theme)). The root screen is a shell with three tabs (Home, Groups, Settings) and a floating "+" button that creates a card.
 
 The DM Sans font is bundled as static weights (400, 500, 600, 700) rather than as a variable font. Flutter does not apply the weight axis of a variable font by itself, whereas it picks the right static file from `fontWeight`.
 
@@ -74,7 +74,7 @@ When the database is created, the Standard and Intensive presets are inserted an
 - [x] Both themes keep the contrast ratios of [Theme and contrast](#theme-and-contrast); no component has a shadow.
 - [x] No text or button shows under the status bar or the navigation bar; a list can always bring its last element above the navigation bar, and the main button of a page stays above the keyboard.
 - [x] The app and its notifications speak French or English, from the phone language or the choice in Settings.
-- [x] The main navigation shows four tabs and a "+" button.
+- [x] The main navigation shows three tabs and a "+" button.
 - [x] A fresh database contains the Standard and Intensive presets, Standard being the global preset.
 - [x] Deleting a group deletes its cards and its distillation; deleting a card deletes its history and its reminders.
 

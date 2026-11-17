@@ -3,20 +3,26 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/alambic_colors.dart';
+import '../../app/formatting/typed_answer_labels.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/clock.dart';
+import '../../application/groups/group_providers.dart';
 import '../../application/reviews/review_providers.dart';
 import '../../application/reviews/review_session.dart';
 import '../../application/reviews/session_item.dart';
+import '../../application/reviews/typed_answer_result.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'answer_buttons.dart';
 import 'session_card_view.dart';
 import 'session_end_view.dart';
+import 'typed_answer_field.dart';
 
 /// Reviews [items] one by one: the prompt, "Show answer" (or a tap on the
-/// card) to reveal the answer, then "Again" or "Correct". Ends on a summary.
+/// card) to reveal the answer, then "Again" or "Correct". A card of a group
+/// with the typed answer option is answered in a field instead, recorded at
+/// once with its verdict, then "Next". Ends on a summary.
 class SessionScreen extends ConsumerStatefulWidget {
   const SessionScreen({
     required this.items,
@@ -56,6 +62,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   bool _isRevealed = false;
   bool _isAnswering = false;
 
+  /// The typed answer of the current card, once checked and recorded.
+  _TypedAnswer? _typedAnswer;
+
   @override
   void dispose() {
     _revealController.dispose();
@@ -80,6 +89,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
   Widget _question(SessionItem item) {
     final strings = AppLocalizations.of(context);
     final card = ref.watch(cardProvider(item.cardId)).value;
+    final group = card == null
+        ? null
+        : ref.watch(groupProvider(card.groupId)).value;
+    final asksTypedAnswer =
+        card != null && (group?.asksTypedAnswer(card, item.askedSide) ?? false);
     return Column(
       children: [
         _header(strings),
@@ -95,21 +109,30 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
                       askedSide: item.askedSide,
                       reveal: _revealProgress,
                       isBonus: widget.isBonus,
+                      verdict: switch (_typedAnswer) {
+                        final typedAnswer? => _verdict(typedAnswer, strings),
+                        null => null,
+                      },
                     ),
                   ),
                 ),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-          child: _buttons(item, strings),
+          child: _buttons(item, strings, asksTypedAnswer: asksTypedAnswer),
         ),
       ],
     );
   }
 
-  /// "Show answer", cross-faded into "Again" / "Correct" in the same space,
+  /// "Show answer", or the field of a typed answer, cross-faded into
+  /// "Again" / "Correct", or "Next" after a typed answer, in the same space,
   /// so the card above does not move.
-  Widget _buttons(SessionItem item, AppLocalizations strings) => SizedBox(
+  Widget _buttons(
+    SessionItem item,
+    AppLocalizations strings, {
+    required bool asksTypedAnswer,
+  }) => SizedBox(
     height: AnswerButtons.height,
     child: AnimatedBuilder(
       animation: _revealProgress,
@@ -121,37 +144,88 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
               opacity: 1 - _revealProgress.value,
               child: IgnorePointer(
                 ignoring: _isRevealed,
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  onPressed: _reveal,
-                  child: Text(
-                    strings.sessionShowAnswer,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
+                child: asksTypedAnswer
+                    ? TypedAnswerField(
+                        // A new field, empty, for each card.
+                        key: ValueKey(_session.position),
+                        enabled: !_isAnswering,
+                        onSubmit: (typed) => _answerTyped(item, typed),
+                        onReveal: _reveal,
+                      )
+                    : _wideButton(
+                        strings.sessionShowAnswer,
+                        onPressed: _reveal,
+                      ),
               ),
             ),
           if (_isRevealed)
             Opacity(
               opacity: _revealProgress.value,
-              child: AnswerButtons(
-                cardId: item.cardId,
-                isBonus: widget.isBonus,
-                enabled: !_isAnswering,
-                onAnswer: (outcome) => _answer(item, outcome),
-              ),
+              child: switch (_typedAnswer) {
+                final typedAnswer? => _wideButton(
+                  strings.sessionNext,
+                  onPressed: () => _next(typedAnswer.outcome),
+                ),
+                null => AnswerButtons(
+                  cardId: item.cardId,
+                  isBonus: widget.isBonus,
+                  enabled: !_isAnswering,
+                  onAnswer: (outcome) => _answer(item, outcome),
+                ),
+              },
             ),
         ],
       ),
     ),
   );
+
+  Widget _wideButton(String label, {required VoidCallback onPressed}) =>
+      FilledButton(
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        onPressed: onPressed,
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+      );
+
+  /// How the typed answer compared, in the colour of its outcome, then what
+  /// it did to the schedule.
+  Widget _verdict(_TypedAnswer typedAnswer, AppLocalizations strings) {
+    final colors = AlambicColors.of(context);
+    final answered = typedAnswer.answered;
+    final result = answered.result;
+    return Column(
+      spacing: 4,
+      children: [
+        Text(
+          strings.typedAnswerVerdict(typedAnswer.typed, answered.match),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: answered.match.isAccepted
+                ? colors.accentText
+                : colors.againForeground,
+          ),
+        ),
+        Text(
+          strings.typedAnswerEffect(
+            result.isBonus ? null : result.schedule,
+            accepted: answered.match.isAccepted,
+            answeredAt: typedAnswer.answeredAt,
+            calendar: ref.read(schedulingCalendarProvider),
+          ),
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 13, color: colors.textSecondary),
+        ),
+      ],
+    );
+  }
 
   Widget _header(AppLocalizations strings) {
     final colors = AlambicColors.of(context);
@@ -221,13 +295,62 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
           raisesMissedPending: widget.raisesMissedPending,
         );
     if (mounted) {
-      setState(() {
-        _session.record(outcome);
-        _isRevealed = false;
-        _isAnswering = false;
-      });
-      // The next card shows unrevealed, without playing the reveal back.
-      _revealController.value = 0;
+      _next(outcome);
     }
   }
+
+  /// Records the typed answer at once, then shows the answer with its
+  /// verdict, the keyboard closed.
+  Future<void> _answerTyped(SessionItem item, String typed) async {
+    setState(() => _isAnswering = true);
+    FocusScope.of(context).unfocus();
+    final answered = await ref
+        .read(reviewServiceProvider)
+        .answerTyped(
+          item.cardId,
+          typed,
+          askedSide: item.askedSide,
+          source: ReviewSource.session,
+          forceBonus: widget.isBonus,
+          raisesMissedPending: widget.raisesMissedPending,
+        );
+    if (mounted) {
+      setState(() {
+        _typedAnswer = _TypedAnswer(
+          typed: typed,
+          answered: answered,
+          answeredAt: ref.read(clockProvider)(),
+        );
+        _isAnswering = false;
+      });
+      _reveal();
+    }
+  }
+
+  /// Counts [outcome] for the current card and moves to the next one.
+  void _next(ReviewOutcome outcome) {
+    setState(() {
+      _session.record(outcome);
+      _isRevealed = false;
+      _isAnswering = false;
+      _typedAnswer = null;
+    });
+    // The next card shows unrevealed, without playing the reveal back.
+    _revealController.value = 0;
+  }
+}
+
+class _TypedAnswer {
+  const _TypedAnswer({
+    required this.typed,
+    required this.answered,
+    required this.answeredAt,
+  });
+
+  final String typed;
+  final TypedAnswerResult answered;
+  final DateTime answeredAt;
+
+  ReviewOutcome get outcome =>
+      answered.match.isAccepted ? ReviewOutcome.correct : ReviewOutcome.again;
 }

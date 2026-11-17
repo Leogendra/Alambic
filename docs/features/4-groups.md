@@ -47,7 +47,7 @@ With the back enabled, each display of a card of the group (session, notificatio
 A group carries two more options, set in its settings:
 
 - After the last step: [remanence](../lexicon.md#remanence) (the default) at an interval of 3 months, 6 months (the default) or 1 year, or [acquired](../lexicon.md#acquired). They belong to the group rather than to the preset, so that two groups can share a rhythm and end it differently. Their effect on the cards, including switching from one to the other, is in [Feature 1](1-scheduling.md#after-the-last-step).
-- The [typed answer](../lexicon.md#typed-answer), off by default: the cards of the group whose answer face has text are answered by typing it in the notification ([Feature 7](7-notifications.md#typed-answer)).
+- The [typed answer](../lexicon.md#typed-answer), off by default: the cards of the group whose answer face has text are answered by typing it, in the notification ([Feature 7](7-notifications.md#typed-answer)) as in a session ([Feature 5](5-session.md#typed-answer)), with the same comparison.
 
 ### Group settings
 

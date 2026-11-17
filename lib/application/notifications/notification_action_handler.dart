@@ -4,7 +4,6 @@ import '../../domain/cards/card_side.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
-import '../../domain/reviews/typed_answer_match.dart';
 import '../clock.dart';
 import '../reviews/review_service.dart';
 import 'group_reminder_key.dart';
@@ -111,11 +110,10 @@ class NotificationActionHandler {
     String typed,
     CardSide askedSide,
   ) async {
-    final answer = card.answerFor(askedSide).text ?? '';
-    final match = TypedAnswerMatch.compare(typed, answer);
-    final result = await _reviews.answer(
+    final answered = await _reviews.answerTyped(
       key.cardId,
-      match.isAccepted ? ReviewOutcome.correct : ReviewOutcome.again,
+      typed,
+      askedSide: askedSide,
       source: ReviewSource.notification,
       forceBonus: key.isExtraReminder,
     );
@@ -124,11 +122,11 @@ class NotificationActionHandler {
         key: key,
         askedSide: askedSide,
         prompt: card.promptFor(askedSide).text ?? '',
-        answer: answer,
+        answer: card.answerFor(askedSide).text ?? '',
         answerImage: card.answerFor(askedSide).imagePath,
         typed: typed,
-        match: match,
-        result: result,
+        match: answered.match,
+        result: answered.result,
         answeredAt: _clock(),
       ),
     );

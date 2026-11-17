@@ -31,6 +31,14 @@ Rereading the card at each answer keeps the session right if the same card was r
 
 The preview shown under the buttons is computed by the same service, with the same rules, without writing anything.
 
+### Typed answer
+
+In a group with the [typed answer](../lexicon.md#typed-answer) option, a card whose answer face has text is answered by typing it. A field ("Ta réponse") takes the place of "Show answer", with a send button and a "Reveal" (*Révéler*) link beside it; it takes the focus, so the keyboard opens on each card. A blank answer is not submitted.
+
+Once submitted, the answer is compared and recorded at once, Correct when accepted and Again when refused, with the rules of the notifications ([Feature 7](7-notifications.md#typed-answer)). The keyboard closes, the answer shows with the usual reveal, and under it the verdict, in blue when accepted and in orange when refused ("« oulan batr » accepté, 1 faute"), then what the answer did ("prochain rappel demain"). "Next" (*Suivant*) takes the place of the field and moves to the next card.
+
+"Reveal", or a tap on the card, reveals the answer as for any card, with "Again" and "Correct": nothing is typed nor recorded until one of them is pressed.
+
 ### End of session
 
 The end screen gives the number of cards, the duration, and the number of correct and Again answers. If cards were missed, "Review the N missed now" opens a bonus session on them, their asked side drawn again: their answers are written to the history but their due dates do not move. "Back to home" closes the session.
@@ -47,24 +55,29 @@ The end screen gives the number of cards, the duration, and the number of correc
 - [x] A group page starts a session on all its cards with "Review all".
 - [x] Touching a notification starts a session on its card or group, then every due card.
 - [x] With the back option, each card of the session asks its front or its back, drawn at the opening.
+- [x] With the typed answer option, a field replaces "Show answer", with "Reveal"; the typed answer is compared like in the notifications, recorded at once, shown with its verdict and the answer, then "Next" moves on.
 
 ## Test strategy
 
 - The answer service is tested on an in-memory database with a fixed clock: answer on a due card, on a card due later in the day, on a card already reviewed (bonus), forced bonus, and agreement between the preview and the recorded answer.
 - Session tracking (order, counts, missed) is tested as pure logic; the draw of the asked side per group is tested with a fixed random generator.
 - The full flow is tested on screen: reveal, answer, end screen, bonus session of the missed cards, then the history read from the database. The front, the back and the end screen are also golden tests, the front and the back in light and dark theme; between the two, the asked face is checked at the same place with the same style.
+- The typed answer is tested on screen: an accepted answer with one typo and a refused one, their verdict and the answer recorded in the database, "Next", "Reveal" recording nothing, a blank answer not submitted; the field and the verdict are golden tests.
 - The reveal is tested on screen frame by frame: the answer half-faded midway, "Show answer" gone and the card unmoved at the end, the haptic call read on the platform channel; under reduced motion (a test accessibility setting), the answer is fully shown on the first frame; the next card starts unrevealed.
 
 ## File mapping
 
 - `lib/application/reviews/` — answer service, preview, due queue, the items of a session with their drawn side, and session tracking.
 - `lib/data/repositories/review_repository.dart` — answer history.
-- `lib/features/session/` — session screen, card, answer buttons, end screen and launcher.
+- `lib/features/session/` — session screen, card, answer buttons, typed answer field, end screen and launcher.
+- `lib/app/formatting/typed_answer_labels.dart` — the verdict of a typed answer and what it did, shared with the notifications.
 
 ## Technical details
 
 The session receives its list of cards when it opens and keeps it: a card that becomes due during the session does not join it.
 
 The reveal is one `AnimationController` of the session screen, eased once and handed to the card and to the button zone. Going to the next card sets it back to 0 instead of reversing it.
+
+A typed answer goes through `ReviewService.answerTyped`, which compares it with `TypedAnswerMatch` and records it like any answer: the notifications use the same method, so the two cannot drift apart. `CardGroup.asksTypedAnswer` decides, for both, which card is answered by typing.
 
 A bonus review does not update the card's last review date. That date drives the "due" rule; changing it would make a card due today disappear after a mere bonus review.

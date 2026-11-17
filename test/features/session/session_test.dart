@@ -8,6 +8,7 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/card_side.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/features/session/session_card_view.dart';
 import 'package:alambic/features/session/session_screen.dart';
 
@@ -228,6 +229,110 @@ void main() {
       expect(find.text('Correct'), findsOneWidget);
       expect(find.text('sans effet'), findsNothing);
       expect(find.text('demain'), findsNothing);
+    });
+  });
+
+  group('typed answer', () {
+    /// A session on Mongolie, then Pérou, in a group with the typed answer.
+    Future<void> pumpTyped(WidgetTester tester) async {
+      await tester.runAsync(() async {
+        final services = SampleServices(database, FixedClock(sampleNow));
+        final capitals = await seedSampleData(services);
+        await services.groups.setTypedAnswer(capitals, enabled: true);
+        final cards = await CardRepository(database)
+            .watchCardsOfGroup(capitals)
+            .first;
+        items = [
+          for (final card in cards.take(2))
+            SessionItem(cardId: card.id, askedSide: CardSide.front),
+        ];
+      });
+      await pumpGolden(
+        tester,
+        SessionScreen(items: items),
+        overrides: screenOverrides(database, sampleNow),
+      );
+    }
+
+    Future<void> submit(WidgetTester tester, String typed) async {
+      await tester.enterText(find.byType(TextField), typed);
+      await tester.runAsync(() async {
+        await tester.tap(find.byTooltip('Valider la réponse'));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pumpAndSettle();
+    }
+
+    Future<List<(ReviewOutcome, bool)>> history(WidgetTester tester) async {
+      final records = await tester.runAsync(
+        () => ReviewRepository(database).watchHistory(items[0].cardId).first,
+      );
+      return [for (final record in records!) (record.outcome, record.isBonus)];
+    }
+
+    testWidgets('a field takes the place of "Show answer", then the answer '
+        'shows with its verdict, recorded at once', (tester) async {
+      await pumpTyped(tester);
+      expect(find.text('Afficher la réponse'), findsNothing);
+      expect(find.text('Révéler'), findsOneWidget);
+      await expectLater(
+        find.byType(SessionScreen),
+        matchesGoldenFile('goldens/session_typed.png'),
+      );
+      await submit(tester, 'oulan batr');
+      expect(find.text('Oulan-Bator'), findsOneWidget);
+      expect(find.text('« oulan batr » accepté, 1 faute'), findsOneWidget);
+      expect(find.textContaining('prochain rappel'), findsOneWidget);
+      expect(find.text('Correct'), findsNothing);
+      expect(await history(tester), [(ReviewOutcome.correct, false)]);
+      await expectLater(
+        find.byType(SessionScreen),
+        matchesGoldenFile('goldens/session_typed_verdict.png'),
+      );
+      await tester.tap(find.text('Suivant'));
+      await tester.pumpAndSettle();
+      expect(find.text('Pérou'), findsOneWidget);
+      expect(find.text('Lima'), findsNothing);
+      expect(find.text('2 / 2'), findsOneWidget);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        isEmpty,
+      );
+    });
+
+    testWidgets('a refused answer counts as Again', (tester) async {
+      await pumpTyped(tester);
+      await submit(tester, 'Ulaanbaatar');
+      expect(find.text('« Ulaanbaatar » refusé'), findsOneWidget);
+      expect(find.textContaining('Compté raté'), findsOneWidget);
+      expect(await history(tester), [(ReviewOutcome.again, false)]);
+      await tester.tap(find.text('Suivant'));
+      await tester.pumpAndSettle();
+      await submit(tester, 'Lima');
+      await tester.tap(find.text('Suivant'));
+      await tester.pumpAndSettle();
+      expect(find.text('Session terminée'), findsOneWidget);
+      expect(find.text('Revoir la ratée maintenant'), findsOneWidget);
+    });
+
+    testWidgets('"Reveal" shows the answer with "Again" and "Correct", '
+        'recording nothing', (tester) async {
+      await pumpTyped(tester);
+      await tester.tap(find.text('Révéler'));
+      await tester.pumpAndSettle();
+      expect(find.text('Oulan-Bator'), findsOneWidget);
+      expect(find.text('Correct'), findsOneWidget);
+      expect(find.text('À revoir'), findsOneWidget);
+      expect(find.textContaining('accepté'), findsNothing);
+      expect(await history(tester), isEmpty);
+    });
+
+    testWidgets('a blank answer is not submitted', (tester) async {
+      await pumpTyped(tester);
+      await submit(tester, '   ');
+      expect(find.text('Oulan-Bator'), findsNothing);
+      expect(find.byType(TextField), findsOneWidget);
+      expect(await history(tester), isEmpty);
     });
   });
 

@@ -442,6 +442,9 @@
   "reviewAgain": "À revoir",
   "sessionQuit": "Quitter la session",
   "sessionShowAnswer": "Afficher la réponse",
+  "sessionReveal": "Révéler",
+  "sessionNext": "Suivant",
+  "sessionSubmitAnswer": "Valider la réponse",
   "sessionProgress": "{position} / {total}",
   "@sessionProgress": {
     "placeholders": {
@@ -631,50 +634,50 @@
       }
     }
   },
-  "notificationBonus": "Révision bonus · sans effet",
+  "typedAnswerBonus": "Révision bonus · sans effet",
   "notificationAnswerButton": "Répondre",
-  "notificationAnswerField": "Ta réponse",
-  "notificationTypedAccepted": "« {typed} » accepté",
-  "@notificationTypedAccepted": {
+  "typedAnswerField": "Ta réponse",
+  "typedAnswerAccepted": "« {typed} » accepté",
+  "@typedAnswerAccepted": {
     "placeholders": {
       "typed": {
         "type": "String"
       }
     }
   },
-  "notificationTypedAcceptedTypo": "« {typed} » accepté, 1 faute",
-  "@notificationTypedAcceptedTypo": {
+  "typedAnswerAcceptedTypo": "« {typed} » accepté, 1 faute",
+  "@typedAnswerAcceptedTypo": {
     "placeholders": {
       "typed": {
         "type": "String"
       }
     }
   },
-  "notificationTypedRefused": "« {typed} » refusé",
-  "@notificationTypedRefused": {
+  "typedAnswerRefused": "« {typed} » refusé",
+  "@typedAnswerRefused": {
     "placeholders": {
       "typed": {
         "type": "String"
       }
     }
   },
-  "notificationNextReview": "prochain rappel {when}",
-  "@notificationNextReview": {
+  "typedAnswerNextReview": "prochain rappel {when}",
+  "@typedAnswerNextReview": {
     "placeholders": {
       "when": {
         "type": "String"
       }
     }
   },
-  "notificationFailed": "Compté raté · revue {when}",
-  "@notificationFailed": {
+  "typedAnswerFailed": "Compté raté · revue {when}",
+  "@typedAnswerFailed": {
     "placeholders": {
       "when": {
         "type": "String"
       }
     }
   },
-  "notificationAcquired": "carte acquise",
+  "typedAnswerAcquired": "carte acquise",
   "notificationGroupTitle": "{group} : {count, plural, =1{1 carte à réviser} other{{count} cartes à réviser}}",
   "@notificationGroupTitle": {
     "placeholders": {

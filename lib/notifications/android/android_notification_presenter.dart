@@ -100,9 +100,7 @@ class AndroidNotificationPresenter implements NotificationPresenter {
           strings.notificationAnswerButton,
           cancelNotification: false,
           inputs: [
-            AndroidNotificationActionInput(
-              label: strings.notificationAnswerField,
-            ),
+            AndroidNotificationActionInput(label: strings.typedAnswerField),
           ],
         ),
       ];

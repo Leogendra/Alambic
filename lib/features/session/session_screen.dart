@@ -17,12 +17,21 @@ import 'session_end_view.dart';
 /// Reviews [items] one by one: the prompt, a tap to reveal the answer, then
 /// "Correct" or "Again". Ends on a summary.
 class SessionScreen extends ConsumerStatefulWidget {
-  const SessionScreen({required this.items, this.isBonus = false, super.key});
+  const SessionScreen({
+    required this.items,
+    this.isBonus = false,
+    this.raisesMissedPending = false,
+    super.key,
+  });
 
   final List<SessionItem> items;
 
   /// A bonus session records the answers without moving any due date.
   final bool isBonus;
+
+  /// "Review all" of a group: a pending card answered "Again" goes to the
+  /// head of the queue, at once, so leaving the session keeps it there.
+  final bool raisesMissedPending;
 
   @override
   ConsumerState<SessionScreen> createState() => _SessionScreenState();
@@ -149,6 +158,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           outcome,
           source: ReviewSource.session,
           forceBonus: widget.isBonus,
+          raisesMissedPending: widget.raisesMissedPending,
         );
     if (mounted) {
       setState(() {

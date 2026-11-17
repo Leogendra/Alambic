@@ -3,6 +3,7 @@ import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/review_repository.dart';
 import '../../domain/cards/flashcard.dart';
+import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
 import '../../domain/scheduling/card_schedule.dart';
@@ -39,12 +40,14 @@ class ReviewService {
   /// Records [outcome] for a card. The answer is a bonus review, kept in the
   /// history without any effect, when the card is not due (a pending card
   /// stays pending) or when [forceBonus] is set (reviewing the missed cards
-  /// again, extra reminder).
+  /// again, extra reminder). With [raisesMissedPending] ("Review all" of a
+  /// group), a pending card answered "Again" goes to the head of its queue.
   Future<ReviewResult> answer(
     int cardId,
     ReviewOutcome outcome, {
     required ReviewSource source,
     bool forceBonus = false,
+    bool raisesMissedPending = false,
   }) async {
     final result = await _cards.transaction(() async {
       final now = _clock();
@@ -52,6 +55,12 @@ class ReviewService {
       final catalog = await _presets.loadCatalog();
       if (forceBonus || !_duePolicy.isDueToday(card, now: now)) {
         await _recordBonus(card, outcome, source, now);
+        if (raisesMissedPending &&
+            !forceBonus &&
+            card.isPending &&
+            outcome == ReviewOutcome.again) {
+          await _raiseToHead(card);
+        }
         return const ReviewResult(isBonus: true, schedule: null);
       } else {
         final schedule = _scheduler.afterAnswer(
@@ -123,6 +132,13 @@ class ReviewService {
     stateAfter: null,
     dueAtAfter: null,
     source: source,
+  );
+
+  /// The card will be the next one the distillation introduces, ahead of the
+  /// cards raised before it.
+  Future<void> _raiseToHead(Flashcard card) async => _cards.setQueuePosition(
+    card.id,
+    DistillationQueue.headPosition(await _cards.getCardsOfGroup(card.groupId)),
   );
 
   Future<ClockTime> _dailySlot() async =>

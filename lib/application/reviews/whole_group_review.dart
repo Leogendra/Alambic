@@ -1,10 +1,12 @@
+import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/scheduling/due_policy.dart';
 
 /// Orders the cards of a group for "Review all": the cards due today first,
 /// earliest due first, then the other introduced cards, soonest due first,
-/// then the pending ones in queue order. Suspended cards are left out: the
-/// user took them out of the reviews.
+/// then the pending ones in queue order. Suspended cards are left out, as the
+/// user took them out of the reviews, and so are the acquired ones, done with
+/// for good.
 class WholeGroupReview {
   const WholeGroupReview(this._duePolicy);
 
@@ -14,7 +16,7 @@ class WholeGroupReview {
     final due = <Flashcard>[];
     final introduced = <Flashcard>[];
     final pending = <Flashcard>[];
-    for (final card in groupCards.where((card) => !card.suspended)) {
+    for (final card in groupCards.where(_isReviewed)) {
       if (_duePolicy.isDueToday(card, now: now)) {
         due.add(card);
       } else if (card.isPending) {
@@ -30,6 +32,9 @@ class WholeGroupReview {
       for (final card in [...due, ...introduced, ...pending]) card.id,
     ];
   }
+
+  static bool _isReviewed(Flashcard card) =>
+      !card.suspended && card.state != CardState.acquired;
 
   /// Cards due at the same moment keep their creation order.
   static int _byDueAt(Flashcard first, Flashcard second) {

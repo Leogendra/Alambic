@@ -26,6 +26,21 @@ abstract final class DistillationQueue {
     return end;
   }
 
+  /// Rank before the first one of the queue: where a card raised to its head
+  /// goes.
+  static int headPosition(Iterable<Flashcard> groupCards) {
+    int? head;
+    for (final card in groupCards) {
+      final position = card.queuePosition;
+      if (card.isPending &&
+          position != null &&
+          (head == null || position <= head)) {
+        head = position - 1;
+      }
+    }
+    return head ?? 0;
+  }
+
   static int _byRank(Flashcard first, Flashcard second) {
     final byPosition = (first.queuePosition ?? 0).compareTo(
       second.queuePosition ?? 0,

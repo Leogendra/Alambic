@@ -14,7 +14,7 @@ State of a card never introduced (`CardState.pending`; *en attente*). Every new 
 
 ### Queue
 
-The pending cards of a group, in a fixed order that is the only one (`queuePosition`; *file*): the [distillation](#distillation) takes its head. A card created in the group, moved into it while pending, or reset, joins its end, and so does a bulk add, as a whole batch.
+The pending cards of a group, in a fixed order that is the only one (`queuePosition`; *file*): the [distillation](#distillation) takes its head. A card created in the group, moved into it while pending, or reset, joins its end, and so does a bulk add, as a whole batch. A pending card missed in "Review all" goes to its head.
 
 ### Distillation
 
@@ -90,4 +90,4 @@ A moment at which the app is woken up by an alarm to show what is due (*réveil*
 
 ### Bonus review
 
-An answer to a card that is not due (*révision bonus*), pending cards included. It is written to the history but changes neither the step nor the due date, and a pending card stays pending.
+An answer to a card that is not due (*révision bonus*), pending cards included. It is written to the history but changes neither the step nor the due date, and a pending card stays pending (missed in "Review all", it still goes to the head of its [queue](#queue)).

@@ -237,7 +237,7 @@ void main() {
   });
 
   testWidgets('"Review all" asks the due cards, then the others, then the '
-      'queue', (tester) async {
+      'queue, without the acquired ones', (tester) async {
     await seed(tester);
     final ids = (await tester.runAsync(() async {
       final cards = await CardRepository(database).getCardsOfGroup(capitalsId);
@@ -253,6 +253,7 @@ void main() {
       );
       return [for (final card in cards) card.id, chile];
     }))!;
+    await seedAcquired(tester);
     await pumpGolden(
       tester,
       GroupDetailScreen(groupId: capitalsId),
@@ -266,6 +267,7 @@ void main() {
     await tester.pumpAndSettle();
     final session = tester.widget<SessionScreen>(find.byType(SessionScreen));
     expect(session.isBonus, isFalse);
+    expect(session.raisesMissedPending, isTrue);
     expect(session.items.map((item) => item.cardId), [
       ids[1],
       ids[2],

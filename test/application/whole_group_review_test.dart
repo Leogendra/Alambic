@@ -36,11 +36,11 @@ void main() {
     expect(review.cardIds(cards, now), [3]);
   });
 
-  test('an acquired card without due date comes after the dated ones', () {
+  test('acquired cards are left out', () {
     final cards = [
       testCard(id: 1, state: CardState.acquired),
       testCard(id: 2, dueAt: DateTime(2026, 12, 1, 12)),
     ];
-    expect(review.cardIds(cards, now), [2, 1]);
+    expect(review.cardIds(cards, now), [2]);
   });
 }

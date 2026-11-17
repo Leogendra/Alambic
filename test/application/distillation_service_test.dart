@@ -213,7 +213,6 @@ void main() {
       await services.distillations.advance();
       expect(await states(), [active, active, active, active]);
     });
-
   });
 
   test('a suspended card keeps its place without being introduced', () async {

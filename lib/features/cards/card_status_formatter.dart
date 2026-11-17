@@ -34,7 +34,7 @@ class CardStatusFormatter {
       return switch (card.state) {
         CardState.pending => strings.cardStatusPending,
         CardState.acquired => strings.cardStatusAcquired,
-        CardState.active => _scheduled(card),
+        CardState.active || CardState.remanent => _scheduled(card),
       };
     }
   }
@@ -47,7 +47,11 @@ class CardStatusFormatter {
 
   /// "S1"; `null` for a card never answered.
   String? reminderLabel(Flashcard card) => strings.progressLabel(
-    CardProgress.of(card, catalog.presetForGroup(card.groupId)),
+    CardProgress.of(
+      card,
+      catalog.presetForGroup(card.groupId),
+      catalog.sequenceEndForGroup(card.groupId),
+    ),
   );
 
   String _scheduled(Flashcard card) {

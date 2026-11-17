@@ -1,4 +1,3 @@
-import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_queue.dart';
@@ -53,7 +52,7 @@ class TimelinePlanner {
   void _placeCards(_DayBuckets days, List<Flashcard> cards, DateTime now) {
     for (final card in cards) {
       final dueAt = card.dueAt;
-      if (card.suspended || card.state != CardState.active || dueAt == null) {
+      if (card.suspended || !card.isScheduled || dueAt == null) {
         continue;
       }
       final day = duePolicy.isDueToday(card, now: now)

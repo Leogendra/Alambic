@@ -7,6 +7,7 @@ import '../../app/formatting/reminder_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
+import '../../domain/groups/sequence_end.dart';
 import '../../domain/presets/preset.dart';
 import '../../domain/scheduling/card_progress.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -17,12 +18,14 @@ class CardProgressPanel extends StatelessWidget {
   const CardProgressPanel({
     required this.card,
     required this.preset,
+    required this.end,
     required this.isDue,
     super.key,
   });
 
   final Flashcard card;
   final Preset preset;
+  final SequenceEnd end;
   final bool isDue;
 
   @override
@@ -51,10 +54,15 @@ class CardProgressPanel extends StatelessWidget {
         ..._sequence(context, colors, preset.sequenceLength - 1),
         _message(strings.cardSheetAcquired, colors),
       ],
-      CardState.active => [
-        ..._sequence(context, colors, switch (CardProgress.of(card, preset)) {
+      CardState.active || CardState.remanent => [
+        ..._sequence(context, colors, switch (CardProgress.of(
+          card,
+          preset,
+          end,
+        )) {
           NewProgress() => null,
           SequenceProgress(:final step) => step,
+          RemanenceProgress() => preset.lastStep,
         }),
         _nextReview(context, colors, card.dueAt!),
       ],

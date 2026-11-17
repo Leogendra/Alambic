@@ -55,7 +55,7 @@ Touching a card in a list opens its sheet. It shows both faces, then:
 - its progress: the reminder label over a bar of the preset sequence, with the interval of each step; then its next review ("Next review Fri 13 Nov, 12:00", or "Due now");
 - or, when it is not scheduled, why: waiting in its group's queue, or learned;
 - its upcoming "Review soon" reminders, each removable;
-- its history, most recent first: date, answer, a "bonus" tag for a [bonus review](../lexicon.md#bonus-review), and the effect ("→ 1 mo", "back to 2 d", "acquired", "no effect"). The effect is read against the current preset, so it may differ from what the user saw if the preset changed since.
+- its history, most recent first: date, answer, a "bonus" tag for a [bonus review](../lexicon.md#bonus-review), and the effect ("→ 1 mo", "back to 2 d", "→ 6 mo" for the [remanence](../lexicon.md#remanence), "acquired", "no effect"). The effect is read against the current preset and end of sequence of the group, so it may differ from what the user saw if they changed since.
 
 Touching the faces opens a one-card session; when the card is not due, the answer is a bonus review. The edit button opens the card editor, and the menu deletes the card after confirmation.
 

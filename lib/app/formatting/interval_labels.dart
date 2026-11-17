@@ -13,6 +13,7 @@ extension IntervalLabels on AppLocalizations {
     IntervalUnit.day => intervalDays(amount),
     IntervalUnit.week => intervalWeeks(amount),
     IntervalUnit.month => intervalMonths(amount),
+    IntervalUnit.year => intervalYears(amount),
   };
 
   String intervalUnitName(IntervalUnit unit) => switch (unit) {
@@ -21,5 +22,6 @@ extension IntervalLabels on AppLocalizations {
     IntervalUnit.day => unitDays,
     IntervalUnit.week => unitWeeks,
     IntervalUnit.month => unitMonths,
+    IntervalUnit.year => unitYears,
   };
 }

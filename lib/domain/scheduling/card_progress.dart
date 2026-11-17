@@ -1,16 +1,25 @@
+import '../cards/card_state.dart';
 import '../cards/flashcard.dart';
+import '../groups/sequence_end.dart';
 import '../presets/preset.dart';
 import '../presets/preset_interval.dart';
-import 'sequence_engine.dart';
 
 /// Where a card stands in the sequence of its preset.
 sealed class CardProgress {
   const CardProgress();
 
   /// The step is read against the current sequence: a step kept from a longer
-  /// one counts as the last step.
-  factory CardProgress.of(Flashcard card, Preset preset) {
-    final step = SequenceEngine.clampToSequence(card.step, preset);
+  /// one counts as the last step. A card in remanence stays in remanence
+  /// whatever the length of the sequence, and waits the remanence interval
+  /// its group gives after [preset].
+  factory CardProgress.of(Flashcard card, Preset preset, SequenceEnd end) {
+    if (card.state == CardState.remanent) {
+      return RemanenceProgress(
+        sequenceLength: preset.sequenceLength,
+        interval: end.remanenceAfter(preset),
+      );
+    }
+    final step = preset.clampStep(card.step);
     return step == null
         ? const NewProgress()
         : SequenceProgress(
@@ -42,6 +51,21 @@ final class SequenceProgress extends CardProgress {
   });
 
   final int step;
+  final int sequenceLength;
+  final PresetInterval interval;
+
+  @override
+  Duration get waitedInterval => interval.length;
+}
+
+/// Past the [sequenceLength] steps of the sequence, coming back every
+/// [interval].
+final class RemanenceProgress extends CardProgress {
+  const RemanenceProgress({
+    required this.sequenceLength,
+    required this.interval,
+  });
+
   final int sequenceLength;
   final PresetInterval interval;
 

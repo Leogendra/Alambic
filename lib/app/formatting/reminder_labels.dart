@@ -12,12 +12,14 @@ extension ReminderLabels on AppLocalizations {
     IntervalUnit.day => reminderDays(interval.amount),
     IntervalUnit.week => reminderWeeks(interval.amount),
     IntervalUnit.month => reminderMonths(interval.amount),
+    IntervalUnit.year => reminderMonths(interval.amount * 12),
   };
 
   /// Label of a card at [progress]; `null` for a card never answered, which
   /// only shows its date.
   String? progressLabel(CardProgress progress) => switch (progress) {
-    SequenceProgress(:final interval) => reminderLabel(interval),
+    SequenceProgress(:final interval) ||
+    RemanenceProgress(:final interval) => reminderLabel(interval),
     NewProgress() => null,
   };
 }

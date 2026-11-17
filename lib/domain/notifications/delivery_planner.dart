@@ -1,5 +1,4 @@
 import '../scheduling/clock_time.dart';
-import '../scheduling/card_progress.dart';
 import '../scheduling/scheduling_calendar.dart';
 import 'delivery_candidate.dart';
 import 'notification_guards.dart';
@@ -171,8 +170,9 @@ class DeliveryPlanner {
     DeliveryCandidate second,
     Map<int, DateTime> moments,
   ) {
-    final byInterval = CardProgress.of(first.card, first.preset).waitedInterval
-        .compareTo(CardProgress.of(second.card, second.preset).waitedInterval);
+    final byInterval = first.progress.waitedInterval.compareTo(
+      second.progress.waitedInterval,
+    );
     if (byInterval != 0) {
       return byInterval;
     }

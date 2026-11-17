@@ -3,7 +3,6 @@ import 'failure_behavior.dart';
 import 'interval_unit.dart';
 import 'preset.dart';
 import 'preset_interval.dart';
-import 'sequence_end_behavior.dart';
 
 /// Presets created on first launch. Their [Preset.id] is 0 until stored.
 abstract final class BuiltInPresets {
@@ -20,8 +19,6 @@ abstract final class BuiltInPresets {
       PresetInterval(6, IntervalUnit.month),
     ],
     failureBehavior: FailureBehavior.stepBack,
-    endBehavior: SequenceEndBehavior.repeatLast,
-    typedAnswer: false,
   );
 
   static const Preset intensive = Preset(
@@ -36,8 +33,6 @@ abstract final class BuiltInPresets {
       PresetInterval(1, IntervalUnit.week),
     ],
     failureBehavior: FailureBehavior.stepBack,
-    endBehavior: SequenceEndBehavior.repeatLast,
-    typedAnswer: false,
   );
 
   static const List<Preset> all = [standard, intensive];

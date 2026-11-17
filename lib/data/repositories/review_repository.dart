@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../domain/cards/card_state.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_record.dart';
 import '../../domain/reviews/review_source.dart';
@@ -18,6 +19,7 @@ class ReviewRepository {
     required bool isBonus,
     required int? stepBefore,
     required int? stepAfter,
+    required CardState? stateAfter,
     required DateTime? dueAtAfter,
     required ReviewSource source,
   }) => _database
@@ -30,6 +32,7 @@ class ReviewRepository {
           isBonus: isBonus,
           stepBefore: Value(stepBefore),
           stepAfter: Value(stepAfter),
+          stateAfter: Value(stateAfter),
           dueAtAfter: Value(dueAtAfter),
           source: source,
         ),

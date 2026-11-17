@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
+import '../../../domain/groups/after_last_step.dart';
 import '../../../domain/groups/card_group.dart';
+import '../../../domain/groups/remanence_interval.dart';
 import 'presets.dart';
 
 @UseRowClass(CardGroup)
@@ -11,6 +13,13 @@ class CardGroups extends Table {
   DateTimeColumn get createdAt => dateTime()();
   BoolColumn get reverseEnabled =>
       boolean().withDefault(const Constant(false))();
+  TextColumn get afterLastStep => textEnum<AfterLastStep>().withDefault(
+    Constant(AfterLastStep.remanence.name),
+  )();
+  TextColumn get remanenceInterval => textEnum<RemanenceInterval>().withDefault(
+    Constant(RemanenceInterval.sixMonths.name),
+  )();
+  BoolColumn get typedAnswer => boolean().withDefault(const Constant(false))();
 
   /// Start of the pause of the group, `null` when it is not paused.
   DateTimeColumn get pausedAt => dateTime().nullable()();

@@ -6,7 +6,7 @@ The only place where terms are defined. Specs link here instead of redefining th
 
 ### Card
 
-A front / back flashcard (`Flashcard`; *carte*). Each face holds plain text and/or an image. A card always belongs to one [group](#group) and has a single progression: its state, [step](#step), [due date](#due-date) and history. Its states are [pending](#pending), active and acquired (`CardState`).
+A front / back flashcard (`Flashcard`; *carte*). Each face holds plain text and/or an image. A card always belongs to one [group](#group) and has a single progression: its state, [step](#step), [due date](#due-date) and history. Its states are [pending](#pending), active (walking its sequence), in [remanence](#remanence) and [acquired](#acquired) (`CardState`).
 
 ### Pending
 
@@ -30,15 +30,27 @@ Option of a group (`CardGroup.reverseEnabled`; *verso*) that makes each display 
 
 ### Group
 
-A flat list of cards sharing a [preset](#preset) (`CardGroup`; *groupe*), with its [distillation](#distillation) and its [back option](#back-option). Every card is in a group.
+A flat list of cards sharing a [preset](#preset) (`CardGroup`; *groupe*), with its [distillation](#distillation), its [back option](#back-option), its end of sequence ([remanence](#remanence) or [acquired](#acquired)) and its [typed answer](#typed-answer) option. Every card is in a group.
 
 ### Preset
 
-The rhythm of the reviews (`Preset`): interval sequence, behaviour on failure and at the end of the sequence. It says nothing of when in the day nor how a card is notified: that is the [schedule](#schedule) of the app. A group picks a whole preset or inherits the global one; a card follows its group.
+The rhythm of the reviews (`Preset`): interval sequence and behaviour on failure. It says nothing of when in the day nor how a card is notified: that is the [schedule](#schedule) of the app. A group picks a whole preset or inherits the global one; a card follows its group.
 
 ### Step
 
 Position of a card in its preset's sequence (`step`; *cran*): the index of the interval currently waited. A card never answered has no step.
+
+### Remanence
+
+End of sequence of a group (`AfterLastStep.remanence`, `CardState.remanent`; *rémanence*): past the last [step](#step) of its preset, a card comes back forever at a fixed interval of the group (`RemanenceInterval`: 3 months, 6 months or 1 year), or at its last step when that is longer. It counts as one more step after the last one.
+
+### Acquired
+
+The other end of sequence of a group (`AfterLastStep.acquired`, `CardState.acquired`; *acquise*): past the last [step](#step), the card has no due date any more.
+
+### Typed answer
+
+Option of a group (`CardGroup.typedAnswer`; *réponse tapée*): its cards whose answer face has text are answered by typing that text, compared leniently, instead of saying "Correct".
 
 ### Reminder label
 

@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
+import '../../domain/groups/after_last_step.dart';
 import '../../domain/groups/card_group.dart';
+import '../../domain/groups/remanence_interval.dart';
 import '../database/alambic_database.dart';
 
 class GroupRepository {
@@ -48,6 +50,22 @@ class GroupRepository {
       (_database.update(_database.cardGroups)
             ..where((group) => group.id.equals(groupId)))
           .write(CardGroupsCompanion(reverseEnabled: Value(enabled)));
+
+  Future<void> setAfterLastStep(int groupId, AfterLastStep afterLastStep) =>
+      (_database.update(_database.cardGroups)
+            ..where((group) => group.id.equals(groupId)))
+          .write(CardGroupsCompanion(afterLastStep: Value(afterLastStep)));
+
+  /// Moves no due date: the new interval applies from the next answer.
+  Future<void> setRemanenceInterval(int groupId, RemanenceInterval interval) =>
+      (_database.update(_database.cardGroups)
+            ..where((group) => group.id.equals(groupId)))
+          .write(CardGroupsCompanion(remanenceInterval: Value(interval)));
+
+  Future<void> setTypedAnswer(int groupId, {required bool enabled}) =>
+      (_database.update(_database.cardGroups)
+            ..where((group) => group.id.equals(groupId)))
+          .write(CardGroupsCompanion(typedAnswer: Value(enabled)));
 
   /// Its cards, their history and its distillation are deleted with it.
   Future<void> delete(int groupId) => (_database.delete(

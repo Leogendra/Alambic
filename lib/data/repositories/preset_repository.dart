@@ -49,7 +49,8 @@ class PresetRepository {
 
   Future<PresetCatalog> loadCatalog() => watchCatalog().first;
 
-  /// Re-emitted whenever a preset, the global choice or a group choice changes.
+  /// Re-emitted whenever a preset, the global choice or a group choice
+  /// (preset or end of sequence) changes.
   Stream<PresetCatalog> watchCatalog() {
     final query = _database.customSelect(
       'SELECT 1',
@@ -70,6 +71,9 @@ class PresetRepository {
       presetsById: {for (final preset in presets) preset.id: preset},
       globalPresetId: settings.globalPresetId,
       groupPresetIds: {for (final group in groups) group.id: group.presetId},
+      groupSequenceEnds: {
+        for (final group in groups) group.id: group.sequenceEnd,
+      },
     );
   });
 }

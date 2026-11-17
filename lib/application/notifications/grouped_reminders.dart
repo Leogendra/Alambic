@@ -91,8 +91,8 @@ class GroupedReminders {
           key: ReviewNotificationKey(cardId: next.card.id, chain: key),
           card: next.card,
           askedSide: AskedSideDraw.draw(group, _random),
+          group: group,
           preset: next.preset,
-          groupName: group.name,
           chainRemaining: waiting.length,
         ),
       );

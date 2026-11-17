@@ -36,10 +36,11 @@ class Flashcard {
   final CardState state;
 
   /// Index, in the preset sequence, of the interval currently waited.
-  /// `null` while the card has never been answered.
+  /// `null` while the card has never been answered, and outside the sequence
+  /// (remanent or acquired).
   final int? step;
 
-  /// `null` unless the card is [CardState.active].
+  /// `null` unless the card is [CardState.active] or [CardState.remanent].
   final DateTime? dueAt;
   final DateTime? lastReviewedAt;
 
@@ -67,5 +68,8 @@ class Flashcard {
 
   bool get isPending => state == CardState.pending;
 
-  bool get isScheduled => state == CardState.active && dueAt != null;
+  /// Waits a due date: in its sequence or in remanence.
+  bool get isScheduled =>
+      (state == CardState.active || state == CardState.remanent) &&
+      dueAt != null;
 }

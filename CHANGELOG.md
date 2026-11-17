@@ -19,7 +19,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Notifications: an introduced card arrives at the reminder time with Correct / Again buttons, answered without opening the app; Again shows the expected answer and the next review. A card reviewed in the app before its slot is not notified twice. "Review soon" reminders are notified too.
 - Reminders survive a phone restart. Without the exact alarm permission they may arrive a few minutes late, and Settings offers to allow exact alarms.
 - Distillation: "Distill" on a group page introduces its waiting cards a few at a time ("N cards every X days", in group or random order), even with the app closed. It is a permanent setting of the group, adjusted, paused and resumed from the group page; cards added later join the end of its queue. "Avoid collisions" gives it a daily budget while cards wait: reminders first, new cards in what is left.
-- Typed answer in the notification, for presets with this option: the answer is accepted despite case, accents, spaces and one typo, then the expected answer is shown.
+- Typed answer in the notification, for groups with this option: the answer is accepted despite case, accents, spaces and one typo, then the expected answer is shown.
 - Grouped reminder, as the notification mode of the app: one notification per group with its number of due cards, which opens the app on the group or chains the cards inside the notification.
 - Time range schedule: the notifications of the day are spread evenly over the range, and Home's timeline shows them at their moment.
 - A notification ignored or swiped is sent again the next day at the reminder time.
@@ -36,7 +36,10 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 
 ### Changed
 
-- Backups made before the removal of the adaptive preset and of the card preset are refused at import, as from another version.
+- Backups made before the end of sequence and the typed answer moved to the group are refused at import, as from another version.
+- After the last step of its preset, a card now comes back every 6 months, or at its last step when that is longer, instead of repeating its last interval. A failure then follows the failure behaviour of the preset.
+- The end of sequence and the typed answer belong to the group instead of the preset. Until the group settings offer them, every group comes back every 6 months and has no typed answer.
+- Preset steps can be set in years.
 - The schedule refuses a time range whose end comes before its start.
 - The preset editor says what a missed card does under the failure choice, now named "On failure": one step back, back to start or stay.
 - Sharper dark theme: a darker background, lighter cards and a brighter blue, so cards stand out and the selected option of a choice is clearly visible. Both themes are flat, with outlines instead of shadows.
@@ -45,6 +48,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 ### Removed
 
 - The preset of a card: a card always follows the preset of its group, and the card editor no longer offers one.
+- The end of sequence (including "Loop") and the typed answer in the preset editor.
 - The Adaptive preset and the choice of an adaptive engine in the preset editor: every preset follows its fixed sequence of steps. The card sheet no longer shows a stability and a difficulty.
 
 ### Fixed

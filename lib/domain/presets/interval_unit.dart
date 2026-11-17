@@ -6,7 +6,10 @@ enum IntervalUnit {
   week(daysPerUnit: 7, minutesPerUnit: 0),
 
   /// A month counts as 30 days, so that "1 mois" is always the same length.
-  month(daysPerUnit: 30, minutesPerUnit: 0);
+  month(daysPerUnit: 30, minutesPerUnit: 0),
+
+  /// A year counts as 365 days.
+  year(daysPerUnit: 365, minutesPerUnit: 0);
 
   const IntervalUnit({required this.daysPerUnit, required this.minutesPerUnit});
 

@@ -46,6 +46,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
     }
     final groupName = ref.watch(groupProvider(card.groupId)).value?.name ?? '';
     final preset = catalog.presetForGroup(card.groupId);
+    final end = catalog.sequenceEndForGroup(card.groupId);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -92,6 +93,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
           CardProgressPanel(
             card: card,
             preset: preset,
+            end: end,
             isDue: formatter.duePolicy.isDueToday(card, now: formatter.now),
           ),
           const SizedBox(height: 14),
@@ -99,7 +101,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
           _Reminders(cardId: card.id),
           const SizedBox(height: 24),
           SectionLabel(strings.cardSheetHistory),
-          ReviewHistoryList(cardId: card.id, preset: preset),
+          ReviewHistoryList(cardId: card.id, preset: preset, end: end),
         ],
       ),
     );

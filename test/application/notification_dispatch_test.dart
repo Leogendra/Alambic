@@ -7,7 +7,6 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
-import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/card_side.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
@@ -176,15 +175,25 @@ void main() {
     late ReviewNotificationKey key;
 
     setUp(() async {
-      final presets = PresetRepository(database);
-      final catalog = await presets.loadCatalog();
-      await presets.update(catalog.globalPreset.copyWith(typedAnswer: true));
+      await GroupRepository(database).setTypedAnswer(capitals, enabled: true);
       key = ReviewNotificationKey(cardId: await mongoliaId());
       await dispatchAt(DateTime(2026, 11, 10, 12));
     });
 
     test('asks for an answer when the answer face has text', () {
       expect(harness.presenter.prompts[key]!.typedAnswer, isTrue);
+    });
+
+    test('is read on the group: the other groups keep "Correct"', () {
+      final prompts = harness.presenter.prompts.values;
+      expect(
+        {
+          for (final prompt in prompts.where((p) => p.typedAnswer))
+            prompt.groupName,
+        },
+        {'Capitales'},
+      );
+      expect(prompts.where((prompt) => !prompt.typedAnswer), isNotEmpty);
     });
 
     test('an answer with one typo counts as correct', () async {
@@ -235,9 +244,7 @@ void main() {
     });
 
     test('a typed answer is compared with the front', () async {
-      final presets = PresetRepository(database);
-      final catalog = await presets.loadCatalog();
-      await presets.update(catalog.globalPreset.copyWith(typedAnswer: true));
+      await GroupRepository(database).setTypedAnswer(capitals, enabled: true);
       await dispatchAt(DateTime(2026, 11, 10, 12));
       expect(harness.presenter.prompts[key]!.typedAnswer, isTrue);
       await harness

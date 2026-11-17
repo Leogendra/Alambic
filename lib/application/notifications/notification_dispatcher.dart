@@ -168,8 +168,8 @@ class NotificationDispatcher {
       ),
       card: card,
       askedSide: AskedSideDraw.draw(group, _random),
+      group: group,
       preset: catalog.presetForGroup(card.groupId),
-      groupName: group.name,
     );
   }
 }

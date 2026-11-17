@@ -3,7 +3,6 @@ import 'package:alambic/domain/presets/failure_behavior.dart';
 import 'package:alambic/domain/presets/interval_unit.dart';
 import 'package:alambic/domain/presets/preset.dart';
 import 'package:alambic/domain/presets/preset_interval.dart';
-import 'package:alambic/domain/presets/sequence_end_behavior.dart';
 
 /// Standard preset with an id, as stored.
 final Preset standardPreset = BuiltInPresets.standard.copyWith(id: 1);
@@ -13,7 +12,6 @@ final Preset intensivePreset = BuiltInPresets.intensive.copyWith(id: 2);
 /// Short sequence "1 j, 2 j, 4 j" to reach the end quickly.
 Preset shortSequence({
   FailureBehavior failureBehavior = FailureBehavior.stepBack,
-  SequenceEndBehavior endBehavior = SequenceEndBehavior.repeatLast,
 }) => standardPreset.copyWith(
   id: 3,
   intervals: const [
@@ -22,5 +20,4 @@ Preset shortSequence({
     PresetInterval(4, IntervalUnit.day),
   ],
   failureBehavior: failureBehavior,
-  endBehavior: endBehavior,
 );

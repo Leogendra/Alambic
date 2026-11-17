@@ -186,15 +186,15 @@ void main() {
     );
   });
 
-  test('a backup written before the adaptive engine and the card preset were '
-      'removed is refused as another version', () async {
+  test('a backup written while the end of sequence and the typed answer '
+      'belonged to the preset is refused as another version', () async {
     await source.backup.export();
     final contents = const BackupArchive().decode(drive.saved!);
-    contents.tables['presets']!.first['engine'] = 'sequence';
-    contents.tables['presets']!.first['target_retention'] = 0.9;
+    contents.tables['presets']!.first['end_behavior'] = 'repeatLast';
+    contents.tables['presets']!.first['typed_answer'] = 0;
 
     expect(
-      () => DatabaseSnapshot(target.database).validate(2, contents.tables),
+      () => DatabaseSnapshot(target.database).validate(4, contents.tables),
       throwsA(
         isA<InvalidBackupException>().having(
           (error) => error.kind,

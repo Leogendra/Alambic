@@ -17,7 +17,5 @@ abstract final class PresetCompanions {
     builtInKey: Value(preset.builtInKey),
     intervals: Value(preset.intervals),
     failureBehavior: Value(preset.failureBehavior),
-    endBehavior: Value(preset.endBehavior),
-    typedAnswer: Value(preset.typedAnswer),
   );
 }

@@ -1,13 +1,13 @@
 import '../cards/flashcard.dart';
-import '../presets/preset.dart';
+import '../scheduling/card_progress.dart';
 
-/// A scheduled card that is not suspended, with the preset ranking its
-/// interval against the daily cap.
+/// A scheduled card that is not suspended, with where it stands in its
+/// sequence, which ranks its interval against the daily cap.
 class DeliveryCandidate {
-  const DeliveryCandidate({required this.card, required this.preset});
+  const DeliveryCandidate({required this.card, required this.progress});
 
   final Flashcard card;
-  final Preset preset;
+  final CardProgress progress;
 
   int get groupId => card.groupId;
 }

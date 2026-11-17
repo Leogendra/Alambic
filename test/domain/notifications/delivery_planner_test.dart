@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/domain/cards/card_state.dart';
+import 'package:alambic/domain/groups/sequence_end.dart';
 import 'package:alambic/domain/notifications/delivery_candidate.dart';
 import 'package:alambic/domain/notifications/delivery_planner.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
@@ -8,6 +9,7 @@ import 'package:alambic/domain/notifications/reminder_settings.dart';
 import 'package:alambic/domain/notifications/schedule_kind.dart';
 import 'package:alambic/domain/presets/built_in_presets.dart';
 import 'package:alambic/domain/presets/preset.dart';
+import 'package:alambic/domain/scheduling/card_progress.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
@@ -29,17 +31,24 @@ void main() {
     int groupId = 1,
     int? step = 1,
     DateTime? notifiedAt,
-  }) => DeliveryCandidate(
-    card: testCard(
+  }) {
+    final card = testCard(
       id: id,
       groupId: groupId,
       state: CardState.active,
       step: step,
       dueAt: dueAt,
       notifiedAt: notifiedAt,
-    ),
-    preset: preset ?? BuiltInPresets.standard,
-  );
+    );
+    return DeliveryCandidate(
+      card: card,
+      progress: CardProgress.of(
+        card,
+        preset ?? BuiltInPresets.standard,
+        SequenceEnd.standard,
+      ),
+    );
+  }
 
   Map<int, DateTime> plan(
     List<DeliveryCandidate> candidates, {

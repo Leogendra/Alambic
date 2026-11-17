@@ -5,14 +5,11 @@ import 'package:alambic/domain/cards/asked_side_draw.dart';
 import 'package:alambic/domain/cards/card_side.dart';
 import 'package:alambic/domain/groups/card_group.dart';
 
+import '../test_groups.dart';
+
 void main() {
-  CardGroup group({required bool reverseEnabled}) => CardGroup(
-    id: 1,
-    name: 'Capitales',
-    presetId: null,
-    createdAt: DateTime(2026, 11, 10),
-    reverseEnabled: reverseEnabled,
-  );
+  CardGroup group({required bool reverseEnabled}) =>
+      testGroup(reverseEnabled: reverseEnabled);
 
   List<CardSide> draws(CardGroup group) {
     final random = Random(7);

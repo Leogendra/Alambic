@@ -54,6 +54,14 @@
       }
     }
   },
+  "intervalYears": "{amount, plural, =1{1 an} other{{amount} ans}}",
+  "@intervalYears": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "reminderDays": "J{amount}",
   "@reminderDays": {
     "placeholders": {
@@ -83,6 +91,7 @@
   "unitDays": "jours",
   "unitWeeks": "semaines",
   "unitMonths": "mois",
+  "unitYears": "ans",
   "settingsTitle": "Réglages",
   "settingsPresetsSection": "Presets",
   "settingsPresets": "Presets",
@@ -227,12 +236,6 @@
   "presetFailureStepBackEffect": "Une carte ratée revient au cran précédent.",
   "presetFailureRestartEffect": "Une carte ratée repart du premier cran, sans retourner dans la file.",
   "presetFailureStayEffect": "Une carte ratée garde son cran et revient après le même intervalle.",
-  "presetEditorAfterLastStep": "Après le dernier cran",
-  "presetEndRepeatLast": "Répète",
-  "presetEndAcquired": "Acquis",
-  "presetEndLoop": "Boucle",
-  "presetEditorTypedAnswer": "Réponse tapée",
-  "presetEditorTypedAnswerHint": "Répondre au clavier depuis la notification",
   "scheduleTitle": "Horaire",
   "scheduleHint": "Un seul horaire pour tous les groupes. Les rappels déjà prévus à l'ancienne heure passent à la nouvelle.",
   "scheduleFixed": "Heure fixe",

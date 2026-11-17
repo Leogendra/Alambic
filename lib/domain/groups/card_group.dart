@@ -1,3 +1,7 @@
+import 'after_last_step.dart';
+import 'remanence_interval.dart';
+import 'sequence_end.dart';
+
 /// A flat list of cards sharing a preset. Every card belongs to one.
 class CardGroup {
   const CardGroup({
@@ -6,6 +10,9 @@ class CardGroup {
     required this.presetId,
     required this.createdAt,
     required this.reverseEnabled,
+    required this.afterLastStep,
+    required this.remanenceInterval,
+    required this.typedAnswer,
     this.pausedAt,
   });
 
@@ -20,8 +27,23 @@ class CardGroup {
   /// the front or the back, one chance in two. The draw is visual only.
   final bool reverseEnabled;
 
+  /// Read at each answer: changing it moves no due date.
+  final AfterLastStep afterLastStep;
+
+  /// Read at each answer: changing it moves no due date.
+  final RemanenceInterval remanenceInterval;
+
+  /// The cards whose answer face has text are answered by typing it, in a
+  /// notification as in a session.
+  final bool typedAnswer;
+
   /// Start of the pause of the group, `null` when it is not paused.
   final DateTime? pausedAt;
 
   bool get isPaused => pausedAt != null;
+
+  SequenceEnd get sequenceEnd => SequenceEnd(
+    afterLastStep: afterLastStep,
+    remanenceInterval: remanenceInterval,
+  );
 }

@@ -91,7 +91,7 @@ Touching the notification itself opens the app.
 
 ### Typed answer
 
-A preset with the typed answer option replaces "Correct" with "Answer" (*Répondre*), which opens a text field in the notification; "Again" stays. A card whose answer face has no text keeps "Correct", having nothing to compare with.
+In a group with the [typed answer](../lexicon.md#typed-answer) option, the notification replaces "Correct" with "Answer" (*Répondre*), which opens a text field in the notification; "Again" stays. A card whose answer face has no text keeps "Correct", having nothing to compare with.
 
 The typed answer is compared with the answer face by `TypedAnswerMatch`, in the domain:
 

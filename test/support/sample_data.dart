@@ -68,7 +68,10 @@ class SampleServices {
       groups = GroupService(
         groups: GroupRepository(database),
         cards: CardRepository(database),
+        presets: PresetRepository(database),
+        settings: NotificationSettingsRepository(database),
         images: images,
+        scheduler: const ReviewScheduler(SchedulingCalendar()),
         clock: clock.call,
         scheduleChangeListener: const IgnoredScheduleChanges(),
       ),

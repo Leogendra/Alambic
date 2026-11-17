@@ -50,7 +50,10 @@ final groupServiceProvider = Provider(
   (ref) => GroupService(
     groups: ref.watch(groupRepositoryProvider),
     cards: ref.watch(cardRepositoryProvider),
+    presets: ref.watch(presetRepositoryProvider),
+    settings: ref.watch(notificationSettingsRepositoryProvider),
     images: ref.watch(imageStoreProvider),
+    scheduler: ref.watch(reviewSchedulerProvider),
     clock: ref.watch(clockProvider),
     scheduleChangeListener: ref.watch(scheduleChangeListenerProvider),
   ),

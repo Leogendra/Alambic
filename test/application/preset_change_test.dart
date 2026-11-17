@@ -61,8 +61,12 @@ void main() {
   }
 
   Future<CardProgress> progressOf(Flashcard card) async {
-    final preset = (await presets.loadCatalog()).presetForGroup(card.groupId);
-    return CardProgress.of(card, preset);
+    final catalog = await presets.loadCatalog();
+    return CardProgress.of(
+      card,
+      catalog.presetForGroup(card.groupId),
+      catalog.sequenceEndForGroup(card.groupId),
+    );
   }
 
   Future<void> expectKept(int cardId, {required int step}) async {
@@ -121,19 +125,41 @@ void main() {
         source: ReviewSource.session,
       );
       var card = await cards.getCard(cardId);
-      expect(card.step, 2, reason: 'the last step is repeated');
-      expect(card.dueAt, DateTime(2026, 11, 27, 12));
+      expect(card.state, CardState.remanent, reason: 'past the last step');
+      expect(card.dueAt, DateTime(2027, 5, 19, 12));
 
-      clock.now = DateTime(2026, 11, 27, 12, 5);
+      clock.now = DateTime(2027, 5, 19, 12, 5);
       await samples.reviews.answer(
         cardId,
         ReviewOutcome.again,
         source: ReviewSource.session,
       );
       card = await cards.getCard(cardId);
-      expect(card.step, 1, reason: 'one step back from the last');
-      expect(card.dueAt, DateTime(2026, 11, 30, 12));
+      expect(card.state, CardState.active);
+      expect(card.step, 2, reason: 'one step back from the remanence');
+      expect(card.dueAt, DateTime(2027, 5, 26, 12));
     });
+  });
+
+  test('a card in remanence stays in remanence, with its due date, on a '
+      'shorter or a longer sequence', () async {
+    final cardId = await samples.card('Pérou', 'Lima', groupId: groupId);
+    final remanenceDue = DateTime(2027, 5, 9, 12);
+    await cards.applySchedule(
+      cardId,
+      CardSchedule(state: CardState.remanent, step: null, dueAt: remanenceDue),
+    );
+    final standard = await shipped(BuiltInPresetKey.standard);
+    for (final intervals in [
+      const [PresetInterval(1, IntervalUnit.day)],
+      [...standard.intervals, const PresetInterval(1, IntervalUnit.year)],
+    ]) {
+      await presetService.save(standard.copyWith(intervals: intervals));
+      final card = await cards.getCard(cardId);
+      expect(card.state, CardState.remanent);
+      expect(card.dueAt, remanenceDue);
+      expect(await progressOf(card), isA<RemanenceProgress>());
+    }
   });
 
   test('an acquired card stays acquired', () async {

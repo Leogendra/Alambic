@@ -32,7 +32,8 @@ class ReviewTexts {
     }
     final position = switch (prompt.progress) {
       NewProgress() => strings.notificationNewCard,
-      SequenceProgress(:final interval) => strings.reminderLabel(interval),
+      SequenceProgress(:final interval) ||
+      RemanenceProgress(:final interval) => strings.reminderLabel(interval),
     };
     return prompt.askedSide == CardSide.back
         ? '${strings.sessionReverseBadge} · $position'
@@ -107,11 +108,13 @@ class ReviewTexts {
       now: reveal.answeredAt,
       calendar: calendar,
     );
-    if (correct) {
+    final step = schedule.step;
+    // A failure kept in remanence has no step to go back to.
+    if (correct || step == null) {
       return strings.notificationNextReview(when);
     }
     return strings.notificationFailed(
-      strings.reminderLabel(reveal.result.preset.intervals[schedule.step!]),
+      strings.reminderLabel(reveal.result.preset.intervals[step]),
       when,
     );
   }

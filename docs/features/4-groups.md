@@ -1,6 +1,6 @@
 # Feature 4 — Groups
 
-Status: in progress (2026-11-16)
+Status: in progress (2026-11-17)
 
 ## Goal
 
@@ -37,6 +37,13 @@ The page opened at the end of the onboarding points out "Distill" with a line ab
 
 With the back enabled, each display of a card of the group (session, notification, typed answer) asks its front or its back, one chance in two, drawn again at every display. The progression of the card is the same whichever face is asked. The option is a button on the group page and a "Back" switch in the group settings.
 
+### Sequence end and typed answer
+
+A group carries two more options, which the group settings screen does not offer yet: every group keeps their defaults until it does.
+
+- After the last step: [remanence](../lexicon.md#remanence) (the default) at an interval of 3 months, 6 months (the default) or 1 year, or [acquired](../lexicon.md#acquired). They belong to the group rather than to the preset, so that two groups can share a rhythm and end it differently. Their effect on the cards, including switching from one to the other, is in [Feature 1](1-scheduling.md#after-the-last-step).
+- The [typed answer](../lexicon.md#typed-answer), off by default: the cards of the group whose answer face has text are answered by typing it in the notification ([Feature 7](7-notifications.md#typed-answer)).
+
 ### Group settings
 
 A group's settings are its name, its preset, its back option, its pause and its deletion. The preset is picked from the preset list, or inherits the global preset. The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
@@ -61,12 +68,14 @@ Counters are computed by `GroupOverview` from all cards, the preset catalog and 
 - [x] Deleting a group deletes its cards and their history.
 - [x] A suspended card does not count as due.
 - [x] A group is paused and resumed from its settings or its page; a paused group is shown as such in the tab.
+- [x] A new group comes back in remanence every 6 months after the last step, without typed answer.
+- [ ] The group settings set the end of sequence and the typed answer.
 
 ## Test strategy
 
 - Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the [daily slot](../lexicon.md#daily-slot), with a suspended card.
 - The order of "Review all" is tested as pure logic (due, introduced, pending, suspended, acquired without date), then on the group page, down to the session it opens.
-- The group service is tested for creation, renaming, refusal of an empty name, the back option and deletion with its cards.
+- The group service is tested for creation, renaming, refusal of an empty name, the back option, the end of sequence (the acquired cards sent back into remanence) and deletion with its cards.
 - The tab (list and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock; the group page in light and dark theme.
 
 ## File mapping

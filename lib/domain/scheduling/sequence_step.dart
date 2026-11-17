@@ -1,16 +1,26 @@
 import '../presets/preset_interval.dart';
 
 /// Position reached in a sequence after an answer.
-class SequenceStep {
-  const SequenceStep.scheduled(int this.step, PresetInterval this.interval)
-    : acquired = false;
+sealed class SequenceStep {
+  const SequenceStep();
+}
 
-  const SequenceStep.acquired() : step = null, interval = null, acquired = true;
+/// At [step] of the sequence, waiting its [interval].
+final class StepReached extends SequenceStep {
+  const StepReached(this.step, this.interval);
 
-  /// Index of the interval now waited; `null` once acquired.
-  final int? step;
+  final int step;
+  final PresetInterval interval;
+}
 
-  /// Interval to wait before the next review; `null` once acquired.
-  final PresetInterval? interval;
-  final bool acquired;
+/// Past the last step, coming back every [interval].
+final class RemanenceReached extends SequenceStep {
+  const RemanenceReached(this.interval);
+
+  final PresetInterval interval;
+}
+
+/// Past the last step, with no more reminder.
+final class AcquiredReached extends SequenceStep {
+  const AcquiredReached();
 }

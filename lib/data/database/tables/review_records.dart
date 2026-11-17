@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../domain/cards/card_state.dart';
 import '../../../domain/reviews/review_outcome.dart';
 import '../../../domain/reviews/review_record.dart';
 import '../../../domain/reviews/review_source.dart';
@@ -16,6 +17,7 @@ class ReviewRecords extends Table {
   BoolColumn get isBonus => boolean()();
   IntColumn get stepBefore => integer().nullable()();
   IntColumn get stepAfter => integer().nullable()();
+  TextColumn get stateAfter => textEnum<CardState>().nullable()();
   DateTimeColumn get dueAtAfter => dateTime().nullable()();
   TextColumn get source => textEnum<ReviewSource>()();
 }

@@ -58,37 +58,12 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
     requiredDuringInsert: true,
   ).withConverter<FailureBehavior>($PresetsTable.$converterfailureBehavior);
   @override
-  late final GeneratedColumnWithTypeConverter<SequenceEndBehavior, String>
-  endBehavior = GeneratedColumn<String>(
-    'end_behavior',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<SequenceEndBehavior>($PresetsTable.$converterendBehavior);
-  static const VerificationMeta _typedAnswerMeta = const VerificationMeta(
-    'typedAnswer',
-  );
-  @override
-  late final GeneratedColumn<bool> typedAnswer = GeneratedColumn<bool>(
-    'typed_answer',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("typed_answer" IN (0, 1))',
-    ),
-  );
-  @override
   List<GeneratedColumn> get $columns => [
     id,
     name,
     builtInKey,
     intervals,
     failureBehavior,
-    endBehavior,
-    typedAnswer,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -112,17 +87,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
-    }
-    if (data.containsKey('typed_answer')) {
-      context.handle(
-        _typedAnswerMeta,
-        typedAnswer.isAcceptableOrUnknown(
-          data['typed_answer']!,
-          _typedAnswerMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_typedAnswerMeta);
     }
     return context;
   }
@@ -159,16 +123,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
           data['${effectivePrefix}failure_behavior'],
         )!,
       ),
-      endBehavior: $PresetsTable.$converterendBehavior.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}end_behavior'],
-        )!,
-      ),
-      typedAnswer: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}typed_answer'],
-      )!,
     );
   }
 
@@ -189,10 +143,6 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, Preset> {
   $converterfailureBehavior = const EnumNameConverter<FailureBehavior>(
     FailureBehavior.values,
   );
-  static JsonTypeConverter2<SequenceEndBehavior, String, String>
-  $converterendBehavior = const EnumNameConverter<SequenceEndBehavior>(
-    SequenceEndBehavior.values,
-  );
 }
 
 class PresetsCompanion extends UpdateCompanion<Preset> {
@@ -201,16 +151,12 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
   final Value<BuiltInPresetKey?> builtInKey;
   final Value<List<PresetInterval>> intervals;
   final Value<FailureBehavior> failureBehavior;
-  final Value<SequenceEndBehavior> endBehavior;
-  final Value<bool> typedAnswer;
   const PresetsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.builtInKey = const Value.absent(),
     this.intervals = const Value.absent(),
     this.failureBehavior = const Value.absent(),
-    this.endBehavior = const Value.absent(),
-    this.typedAnswer = const Value.absent(),
   });
   PresetsCompanion.insert({
     this.id = const Value.absent(),
@@ -218,21 +164,15 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
     this.builtInKey = const Value.absent(),
     required List<PresetInterval> intervals,
     required FailureBehavior failureBehavior,
-    required SequenceEndBehavior endBehavior,
-    required bool typedAnswer,
   }) : name = Value(name),
        intervals = Value(intervals),
-       failureBehavior = Value(failureBehavior),
-       endBehavior = Value(endBehavior),
-       typedAnswer = Value(typedAnswer);
+       failureBehavior = Value(failureBehavior);
   static Insertable<Preset> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? builtInKey,
     Expression<String>? intervals,
     Expression<String>? failureBehavior,
-    Expression<String>? endBehavior,
-    Expression<bool>? typedAnswer,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -240,8 +180,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
       if (builtInKey != null) 'built_in_key': builtInKey,
       if (intervals != null) 'intervals': intervals,
       if (failureBehavior != null) 'failure_behavior': failureBehavior,
-      if (endBehavior != null) 'end_behavior': endBehavior,
-      if (typedAnswer != null) 'typed_answer': typedAnswer,
     });
   }
 
@@ -251,8 +189,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
     Value<BuiltInPresetKey?>? builtInKey,
     Value<List<PresetInterval>>? intervals,
     Value<FailureBehavior>? failureBehavior,
-    Value<SequenceEndBehavior>? endBehavior,
-    Value<bool>? typedAnswer,
   }) {
     return PresetsCompanion(
       id: id ?? this.id,
@@ -260,8 +196,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
       builtInKey: builtInKey ?? this.builtInKey,
       intervals: intervals ?? this.intervals,
       failureBehavior: failureBehavior ?? this.failureBehavior,
-      endBehavior: endBehavior ?? this.endBehavior,
-      typedAnswer: typedAnswer ?? this.typedAnswer,
     );
   }
 
@@ -289,14 +223,6 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
         $PresetsTable.$converterfailureBehavior.toSql(failureBehavior.value),
       );
     }
-    if (endBehavior.present) {
-      map['end_behavior'] = Variable<String>(
-        $PresetsTable.$converterendBehavior.toSql(endBehavior.value),
-      );
-    }
-    if (typedAnswer.present) {
-      map['typed_answer'] = Variable<bool>(typedAnswer.value);
-    }
     return map;
   }
 
@@ -307,9 +233,7 @@ class PresetsCompanion extends UpdateCompanion<Preset> {
           ..write('name: $name, ')
           ..write('builtInKey: $builtInKey, ')
           ..write('intervals: $intervals, ')
-          ..write('failureBehavior: $failureBehavior, ')
-          ..write('endBehavior: $endBehavior, ')
-          ..write('typedAnswer: $typedAnswer')
+          ..write('failureBehavior: $failureBehavior')
           ..write(')'))
         .toString();
   }
@@ -1398,6 +1322,44 @@ class $CardGroupsTable extends CardGroups
     ),
     defaultValue: const Constant(false),
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<AfterLastStep, String>
+  afterLastStep = GeneratedColumn<String>(
+    'after_last_step',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: Constant(AfterLastStep.remanence.name),
+  ).withConverter<AfterLastStep>($CardGroupsTable.$converterafterLastStep);
+  @override
+  late final GeneratedColumnWithTypeConverter<RemanenceInterval, String>
+  remanenceInterval =
+      GeneratedColumn<String>(
+        'remanence_interval',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: Constant(RemanenceInterval.sixMonths.name),
+      ).withConverter<RemanenceInterval>(
+        $CardGroupsTable.$converterremanenceInterval,
+      );
+  static const VerificationMeta _typedAnswerMeta = const VerificationMeta(
+    'typedAnswer',
+  );
+  @override
+  late final GeneratedColumn<bool> typedAnswer = GeneratedColumn<bool>(
+    'typed_answer',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("typed_answer" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _pausedAtMeta = const VerificationMeta(
     'pausedAt',
   );
@@ -1416,6 +1378,9 @@ class $CardGroupsTable extends CardGroups
     presetId,
     createdAt,
     reverseEnabled,
+    afterLastStep,
+    remanenceInterval,
+    typedAnswer,
     pausedAt,
   ];
   @override
@@ -1464,6 +1429,15 @@ class $CardGroupsTable extends CardGroups
         ),
       );
     }
+    if (data.containsKey('typed_answer')) {
+      context.handle(
+        _typedAnswerMeta,
+        typedAnswer.isAcceptableOrUnknown(
+          data['typed_answer']!,
+          _typedAnswerMeta,
+        ),
+      );
+    }
     if (data.containsKey('paused_at')) {
       context.handle(
         _pausedAtMeta,
@@ -1499,6 +1473,22 @@ class $CardGroupsTable extends CardGroups
         DriftSqlType.bool,
         data['${effectivePrefix}reverse_enabled'],
       )!,
+      afterLastStep: $CardGroupsTable.$converterafterLastStep.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}after_last_step'],
+        )!,
+      ),
+      remanenceInterval: $CardGroupsTable.$converterremanenceInterval.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}remanence_interval'],
+        )!,
+      ),
+      typedAnswer: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}typed_answer'],
+      )!,
       pausedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}paused_at'],
@@ -1510,6 +1500,15 @@ class $CardGroupsTable extends CardGroups
   $CardGroupsTable createAlias(String alias) {
     return $CardGroupsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<AfterLastStep, String, String>
+  $converterafterLastStep = const EnumNameConverter<AfterLastStep>(
+    AfterLastStep.values,
+  );
+  static JsonTypeConverter2<RemanenceInterval, String, String>
+  $converterremanenceInterval = const EnumNameConverter<RemanenceInterval>(
+    RemanenceInterval.values,
+  );
 }
 
 class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
@@ -1518,6 +1517,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
   final Value<int?> presetId;
   final Value<DateTime> createdAt;
   final Value<bool> reverseEnabled;
+  final Value<AfterLastStep> afterLastStep;
+  final Value<RemanenceInterval> remanenceInterval;
+  final Value<bool> typedAnswer;
   final Value<DateTime?> pausedAt;
   const CardGroupsCompanion({
     this.id = const Value.absent(),
@@ -1525,6 +1527,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     this.presetId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.reverseEnabled = const Value.absent(),
+    this.afterLastStep = const Value.absent(),
+    this.remanenceInterval = const Value.absent(),
+    this.typedAnswer = const Value.absent(),
     this.pausedAt = const Value.absent(),
   });
   CardGroupsCompanion.insert({
@@ -1533,6 +1538,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     this.presetId = const Value.absent(),
     required DateTime createdAt,
     this.reverseEnabled = const Value.absent(),
+    this.afterLastStep = const Value.absent(),
+    this.remanenceInterval = const Value.absent(),
+    this.typedAnswer = const Value.absent(),
     this.pausedAt = const Value.absent(),
   }) : name = Value(name),
        createdAt = Value(createdAt);
@@ -1542,6 +1550,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Expression<int>? presetId,
     Expression<DateTime>? createdAt,
     Expression<bool>? reverseEnabled,
+    Expression<String>? afterLastStep,
+    Expression<String>? remanenceInterval,
+    Expression<bool>? typedAnswer,
     Expression<DateTime>? pausedAt,
   }) {
     return RawValuesInsertable({
@@ -1550,6 +1561,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
       if (presetId != null) 'preset_id': presetId,
       if (createdAt != null) 'created_at': createdAt,
       if (reverseEnabled != null) 'reverse_enabled': reverseEnabled,
+      if (afterLastStep != null) 'after_last_step': afterLastStep,
+      if (remanenceInterval != null) 'remanence_interval': remanenceInterval,
+      if (typedAnswer != null) 'typed_answer': typedAnswer,
       if (pausedAt != null) 'paused_at': pausedAt,
     });
   }
@@ -1560,6 +1574,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Value<int?>? presetId,
     Value<DateTime>? createdAt,
     Value<bool>? reverseEnabled,
+    Value<AfterLastStep>? afterLastStep,
+    Value<RemanenceInterval>? remanenceInterval,
+    Value<bool>? typedAnswer,
     Value<DateTime?>? pausedAt,
   }) {
     return CardGroupsCompanion(
@@ -1568,6 +1585,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
       presetId: presetId ?? this.presetId,
       createdAt: createdAt ?? this.createdAt,
       reverseEnabled: reverseEnabled ?? this.reverseEnabled,
+      afterLastStep: afterLastStep ?? this.afterLastStep,
+      remanenceInterval: remanenceInterval ?? this.remanenceInterval,
+      typedAnswer: typedAnswer ?? this.typedAnswer,
       pausedAt: pausedAt ?? this.pausedAt,
     );
   }
@@ -1590,6 +1610,21 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     if (reverseEnabled.present) {
       map['reverse_enabled'] = Variable<bool>(reverseEnabled.value);
     }
+    if (afterLastStep.present) {
+      map['after_last_step'] = Variable<String>(
+        $CardGroupsTable.$converterafterLastStep.toSql(afterLastStep.value),
+      );
+    }
+    if (remanenceInterval.present) {
+      map['remanence_interval'] = Variable<String>(
+        $CardGroupsTable.$converterremanenceInterval.toSql(
+          remanenceInterval.value,
+        ),
+      );
+    }
+    if (typedAnswer.present) {
+      map['typed_answer'] = Variable<bool>(typedAnswer.value);
+    }
     if (pausedAt.present) {
       map['paused_at'] = Variable<DateTime>(pausedAt.value);
     }
@@ -1604,6 +1639,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
           ..write('presetId: $presetId, ')
           ..write('createdAt: $createdAt, ')
           ..write('reverseEnabled: $reverseEnabled, ')
+          ..write('afterLastStep: $afterLastStep, ')
+          ..write('remanenceInterval: $remanenceInterval, ')
+          ..write('typedAnswer: $typedAnswer, ')
           ..write('pausedAt: $pausedAt')
           ..write(')'))
         .toString();
@@ -2697,6 +2735,15 @@ class $ReviewRecordsTable extends ReviewRecords
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<CardState?, String> stateAfter =
+      GeneratedColumn<String>(
+        'state_after',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<CardState?>($ReviewRecordsTable.$converterstateAftern);
   static const VerificationMeta _dueAtAfterMeta = const VerificationMeta(
     'dueAtAfter',
   );
@@ -2726,6 +2773,7 @@ class $ReviewRecordsTable extends ReviewRecords
     isBonus,
     stepBefore,
     stepAfter,
+    stateAfter,
     dueAtAfter,
     source,
   ];
@@ -2828,6 +2876,12 @@ class $ReviewRecordsTable extends ReviewRecords
         DriftSqlType.int,
         data['${effectivePrefix}step_after'],
       ),
+      stateAfter: $ReviewRecordsTable.$converterstateAftern.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}state_after'],
+        ),
+      ),
       dueAtAfter: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}due_at_after'],
@@ -2848,6 +2902,10 @@ class $ReviewRecordsTable extends ReviewRecords
 
   static JsonTypeConverter2<ReviewOutcome, String, String> $converteroutcome =
       const EnumNameConverter<ReviewOutcome>(ReviewOutcome.values);
+  static JsonTypeConverter2<CardState, String, String> $converterstateAfter =
+      const EnumNameConverter<CardState>(CardState.values);
+  static JsonTypeConverter2<CardState?, String?, String?>
+  $converterstateAftern = JsonTypeConverter2.asNullable($converterstateAfter);
   static JsonTypeConverter2<ReviewSource, String, String> $convertersource =
       const EnumNameConverter<ReviewSource>(ReviewSource.values);
 }
@@ -2860,6 +2918,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
   final Value<bool> isBonus;
   final Value<int?> stepBefore;
   final Value<int?> stepAfter;
+  final Value<CardState?> stateAfter;
   final Value<DateTime?> dueAtAfter;
   final Value<ReviewSource> source;
   const ReviewRecordsCompanion({
@@ -2870,6 +2929,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     this.isBonus = const Value.absent(),
     this.stepBefore = const Value.absent(),
     this.stepAfter = const Value.absent(),
+    this.stateAfter = const Value.absent(),
     this.dueAtAfter = const Value.absent(),
     this.source = const Value.absent(),
   });
@@ -2881,6 +2941,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     required bool isBonus,
     this.stepBefore = const Value.absent(),
     this.stepAfter = const Value.absent(),
+    this.stateAfter = const Value.absent(),
     this.dueAtAfter = const Value.absent(),
     required ReviewSource source,
   }) : cardId = Value(cardId),
@@ -2896,6 +2957,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     Expression<bool>? isBonus,
     Expression<int>? stepBefore,
     Expression<int>? stepAfter,
+    Expression<String>? stateAfter,
     Expression<DateTime>? dueAtAfter,
     Expression<String>? source,
   }) {
@@ -2907,6 +2969,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
       if (isBonus != null) 'is_bonus': isBonus,
       if (stepBefore != null) 'step_before': stepBefore,
       if (stepAfter != null) 'step_after': stepAfter,
+      if (stateAfter != null) 'state_after': stateAfter,
       if (dueAtAfter != null) 'due_at_after': dueAtAfter,
       if (source != null) 'source': source,
     });
@@ -2920,6 +2983,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     Value<bool>? isBonus,
     Value<int?>? stepBefore,
     Value<int?>? stepAfter,
+    Value<CardState?>? stateAfter,
     Value<DateTime?>? dueAtAfter,
     Value<ReviewSource>? source,
   }) {
@@ -2931,6 +2995,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
       isBonus: isBonus ?? this.isBonus,
       stepBefore: stepBefore ?? this.stepBefore,
       stepAfter: stepAfter ?? this.stepAfter,
+      stateAfter: stateAfter ?? this.stateAfter,
       dueAtAfter: dueAtAfter ?? this.dueAtAfter,
       source: source ?? this.source,
     );
@@ -2962,6 +3027,11 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
     if (stepAfter.present) {
       map['step_after'] = Variable<int>(stepAfter.value);
     }
+    if (stateAfter.present) {
+      map['state_after'] = Variable<String>(
+        $ReviewRecordsTable.$converterstateAftern.toSql(stateAfter.value),
+      );
+    }
     if (dueAtAfter.present) {
       map['due_at_after'] = Variable<DateTime>(dueAtAfter.value);
     }
@@ -2983,6 +3053,7 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
           ..write('isBonus: $isBonus, ')
           ..write('stepBefore: $stepBefore, ')
           ..write('stepAfter: $stepAfter, ')
+          ..write('stateAfter: $stateAfter, ')
           ..write('dueAtAfter: $dueAtAfter, ')
           ..write('source: $source')
           ..write(')'))
@@ -3264,8 +3335,6 @@ typedef $$PresetsTableCreateCompanionBuilder = PresetsCompanion Function({
   Value<BuiltInPresetKey?> builtInKey,
   required List<PresetInterval> intervals,
   required FailureBehavior failureBehavior,
-  required SequenceEndBehavior endBehavior,
-  required bool typedAnswer,
 });
 typedef $$PresetsTableUpdateCompanionBuilder = PresetsCompanion Function({
   Value<int> id,
@@ -3273,8 +3342,6 @@ typedef $$PresetsTableUpdateCompanionBuilder = PresetsCompanion Function({
   Value<BuiltInPresetKey?> builtInKey,
   Value<List<PresetInterval>> intervals,
   Value<FailureBehavior> failureBehavior,
-  Value<SequenceEndBehavior> endBehavior,
-  Value<bool> typedAnswer,
 });
 
 final class $$PresetsTableReferences
@@ -3357,21 +3424,6 @@ class $$PresetsTableFilterComposer
   get failureBehavior => $composableBuilder(
     column: $table.failureBehavior,
     builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<
-    SequenceEndBehavior,
-    SequenceEndBehavior,
-    String
-  >
-  get endBehavior => $composableBuilder(
-    column: $table.endBehavior,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<bool> get typedAnswer => $composableBuilder(
-    column: $table.typedAnswer,
-    builder: (column) => ColumnFilters(column),
   );
 
   Expression<bool> appSettingsRefs(
@@ -3458,16 +3510,6 @@ class $$PresetsTableOrderingComposer
     column: $table.failureBehavior,
     builder: (column) => ColumnOrderings(column),
   );
-
-  ColumnOrderings<String> get endBehavior => $composableBuilder(
-    column: $table.endBehavior,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get typedAnswer => $composableBuilder(
-    column: $table.typedAnswer,
-    builder: (column) => ColumnOrderings(column),
-  );
 }
 
 class $$PresetsTableAnnotationComposer
@@ -3498,17 +3540,6 @@ class $$PresetsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<FailureBehavior, String>
   get failureBehavior => $composableBuilder(
     column: $table.failureBehavior,
-    builder: (column) => column,
-  );
-
-  GeneratedColumnWithTypeConverter<SequenceEndBehavior, String>
-  get endBehavior => $composableBuilder(
-    column: $table.endBehavior,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<bool> get typedAnswer => $composableBuilder(
-    column: $table.typedAnswer,
     builder: (column) => column,
   );
 
@@ -3596,16 +3627,12 @@ class $$PresetsTableTableManager
                 Value<BuiltInPresetKey?> builtInKey = const Value.absent(),
                 Value<List<PresetInterval>> intervals = const Value.absent(),
                 Value<FailureBehavior> failureBehavior = const Value.absent(),
-                Value<SequenceEndBehavior> endBehavior = const Value.absent(),
-                Value<bool> typedAnswer = const Value.absent(),
               }) => PresetsCompanion(
                 id: id,
                 name: name,
                 builtInKey: builtInKey,
                 intervals: intervals,
                 failureBehavior: failureBehavior,
-                endBehavior: endBehavior,
-                typedAnswer: typedAnswer,
               ),
           createCompanionCallback:
               ({
@@ -3614,16 +3641,12 @@ class $$PresetsTableTableManager
                 Value<BuiltInPresetKey?> builtInKey = const Value.absent(),
                 required List<PresetInterval> intervals,
                 required FailureBehavior failureBehavior,
-                required SequenceEndBehavior endBehavior,
-                required bool typedAnswer,
               }) => PresetsCompanion.insert(
                 id: id,
                 name: name,
                 builtInKey: builtInKey,
                 intervals: intervals,
                 failureBehavior: failureBehavior,
-                endBehavior: endBehavior,
-                typedAnswer: typedAnswer,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -4291,6 +4314,9 @@ typedef $$CardGroupsTableCreateCompanionBuilder = CardGroupsCompanion Function({
   Value<int?> presetId,
   required DateTime createdAt,
   Value<bool> reverseEnabled,
+  Value<AfterLastStep> afterLastStep,
+  Value<RemanenceInterval> remanenceInterval,
+  Value<bool> typedAnswer,
   Value<DateTime?> pausedAt,
 });
 typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
@@ -4299,6 +4325,9 @@ typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
   Value<int?> presetId,
   Value<DateTime> createdAt,
   Value<bool> reverseEnabled,
+  Value<AfterLastStep> afterLastStep,
+  Value<RemanenceInterval> remanenceInterval,
+  Value<bool> typedAnswer,
   Value<DateTime?> pausedAt,
 });
 
@@ -4387,6 +4416,23 @@ class $$CardGroupsTableFilterComposer
 
   ColumnFilters<bool> get reverseEnabled => $composableBuilder(
     column: $table.reverseEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<AfterLastStep, AfterLastStep, String>
+  get afterLastStep => $composableBuilder(
+    column: $table.afterLastStep,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<RemanenceInterval, RemanenceInterval, String>
+  get remanenceInterval => $composableBuilder(
+    column: $table.remanenceInterval,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<bool> get typedAnswer => $composableBuilder(
+    column: $table.typedAnswer,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4498,6 +4544,21 @@ class $$CardGroupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get afterLastStep => $composableBuilder(
+    column: $table.afterLastStep,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get remanenceInterval => $composableBuilder(
+    column: $table.remanenceInterval,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get typedAnswer => $composableBuilder(
+    column: $table.typedAnswer,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get pausedAt => $composableBuilder(
     column: $table.pausedAt,
     builder: (column) => ColumnOrderings(column),
@@ -4547,6 +4608,23 @@ class $$CardGroupsTableAnnotationComposer
 
   GeneratedColumn<bool> get reverseEnabled => $composableBuilder(
     column: $table.reverseEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<AfterLastStep, String> get afterLastStep =>
+      $composableBuilder(
+        column: $table.afterLastStep,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<RemanenceInterval, String>
+  get remanenceInterval => $composableBuilder(
+    column: $table.remanenceInterval,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get typedAnswer => $composableBuilder(
+    column: $table.typedAnswer,
     builder: (column) => column,
   );
 
@@ -4664,6 +4742,10 @@ class $$CardGroupsTableTableManager
                 Value<int?> presetId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<bool> reverseEnabled = const Value.absent(),
+                Value<AfterLastStep> afterLastStep = const Value.absent(),
+                Value<RemanenceInterval> remanenceInterval =
+                    const Value.absent(),
+                Value<bool> typedAnswer = const Value.absent(),
                 Value<DateTime?> pausedAt = const Value.absent(),
               }) => CardGroupsCompanion(
                 id: id,
@@ -4671,6 +4753,9 @@ class $$CardGroupsTableTableManager
                 presetId: presetId,
                 createdAt: createdAt,
                 reverseEnabled: reverseEnabled,
+                afterLastStep: afterLastStep,
+                remanenceInterval: remanenceInterval,
+                typedAnswer: typedAnswer,
                 pausedAt: pausedAt,
               ),
           createCompanionCallback:
@@ -4680,6 +4765,10 @@ class $$CardGroupsTableTableManager
                 Value<int?> presetId = const Value.absent(),
                 required DateTime createdAt,
                 Value<bool> reverseEnabled = const Value.absent(),
+                Value<AfterLastStep> afterLastStep = const Value.absent(),
+                Value<RemanenceInterval> remanenceInterval =
+                    const Value.absent(),
+                Value<bool> typedAnswer = const Value.absent(),
                 Value<DateTime?> pausedAt = const Value.absent(),
               }) => CardGroupsCompanion.insert(
                 id: id,
@@ -4687,6 +4776,9 @@ class $$CardGroupsTableTableManager
                 presetId: presetId,
                 createdAt: createdAt,
                 reverseEnabled: reverseEnabled,
+                afterLastStep: afterLastStep,
+                remanenceInterval: remanenceInterval,
+                typedAnswer: typedAnswer,
                 pausedAt: pausedAt,
               ),
           withReferenceMapper: (p0) => p0
@@ -5927,6 +6019,7 @@ typedef $$ReviewRecordsTableCreateCompanionBuilder =
       required bool isBonus,
       Value<int?> stepBefore,
       Value<int?> stepAfter,
+      Value<CardState?> stateAfter,
       Value<DateTime?> dueAtAfter,
       required ReviewSource source,
     });
@@ -5939,6 +6032,7 @@ typedef $$ReviewRecordsTableUpdateCompanionBuilder =
       Value<bool> isBonus,
       Value<int?> stepBefore,
       Value<int?> stepAfter,
+      Value<CardState?> stateAfter,
       Value<DateTime?> dueAtAfter,
       Value<ReviewSource> source,
     });
@@ -6008,6 +6102,12 @@ class $$ReviewRecordsTableFilterComposer
   ColumnFilters<int> get stepAfter => $composableBuilder(
     column: $table.stepAfter,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<CardState?, CardState, String>
+  get stateAfter => $composableBuilder(
+    column: $table.stateAfter,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<DateTime> get dueAtAfter => $composableBuilder(
@@ -6084,6 +6184,11 @@ class $$ReviewRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get stateAfter => $composableBuilder(
+    column: $table.stateAfter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get dueAtAfter => $composableBuilder(
     column: $table.dueAtAfter,
     builder: (column) => ColumnOrderings(column),
@@ -6148,6 +6253,12 @@ class $$ReviewRecordsTableAnnotationComposer
 
   GeneratedColumn<int> get stepAfter =>
       $composableBuilder(column: $table.stepAfter, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<CardState?, String> get stateAfter =>
+      $composableBuilder(
+        column: $table.stateAfter,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<DateTime> get dueAtAfter => $composableBuilder(
     column: $table.dueAtAfter,
@@ -6218,6 +6329,7 @@ class $$ReviewRecordsTableTableManager
                 Value<bool> isBonus = const Value.absent(),
                 Value<int?> stepBefore = const Value.absent(),
                 Value<int?> stepAfter = const Value.absent(),
+                Value<CardState?> stateAfter = const Value.absent(),
                 Value<DateTime?> dueAtAfter = const Value.absent(),
                 Value<ReviewSource> source = const Value.absent(),
               }) => ReviewRecordsCompanion(
@@ -6228,6 +6340,7 @@ class $$ReviewRecordsTableTableManager
                 isBonus: isBonus,
                 stepBefore: stepBefore,
                 stepAfter: stepAfter,
+                stateAfter: stateAfter,
                 dueAtAfter: dueAtAfter,
                 source: source,
               ),
@@ -6240,6 +6353,7 @@ class $$ReviewRecordsTableTableManager
                 required bool isBonus,
                 Value<int?> stepBefore = const Value.absent(),
                 Value<int?> stepAfter = const Value.absent(),
+                Value<CardState?> stateAfter = const Value.absent(),
                 Value<DateTime?> dueAtAfter = const Value.absent(),
                 required ReviewSource source,
               }) => ReviewRecordsCompanion.insert(
@@ -6250,6 +6364,7 @@ class $$ReviewRecordsTableTableManager
                 isBonus: isBonus,
                 stepBefore: stepBefore,
                 stepAfter: stepAfter,
+                stateAfter: stateAfter,
                 dueAtAfter: dueAtAfter,
                 source: source,
               ),

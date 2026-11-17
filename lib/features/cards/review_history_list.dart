@@ -6,10 +6,11 @@ import '../../app/formatting/interval_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/reviews/review_providers.dart';
+import '../../domain/cards/card_state.dart';
+import '../../domain/groups/sequence_end.dart';
 import '../../domain/presets/preset.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_record.dart';
-import '../../domain/scheduling/sequence_engine.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// Answers given to one card, most recent first, with their effect:
@@ -18,11 +19,13 @@ class ReviewHistoryList extends ConsumerWidget {
   const ReviewHistoryList({
     required this.cardId,
     required this.preset,
+    required this.end,
     super.key,
   });
 
   final int cardId;
   final Preset preset;
+  final SequenceEnd end;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,16 +109,22 @@ class ReviewHistoryList extends ConsumerWidget {
     ),
   );
 
-  /// The step reached is read against the current sequence, which may differ
-  /// from the one in force at the time of the answer.
+  /// The step reached is read against the current sequence and end, which
+  /// may differ from the ones in force at the time of the answer.
   String _effect(AppLocalizations strings, ReviewRecord record) {
-    final stepAfter = SequenceEngine.clampToSequence(record.stepAfter, preset);
+    final reached = switch (record.stateAfter) {
+      CardState.remanent => end.remanenceAfter(preset),
+      _ => switch (preset.clampStep(record.stepAfter)) {
+        final step? => preset.intervals[step],
+        null => null,
+      },
+    };
     if (record.isBonus) {
       return strings.answerNoEffect;
-    } else if (stepAfter == null) {
+    } else if (reached == null) {
       return strings.answerAcquired;
     } else {
-      final interval = strings.intervalLabel(preset.intervals[stepAfter]);
+      final interval = strings.intervalLabel(reached);
       return record.outcome == ReviewOutcome.correct
           ? strings.historyTo(interval)
           : strings.historyBackTo(interval);

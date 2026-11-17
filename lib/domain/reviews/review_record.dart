@@ -1,3 +1,4 @@
+import '../cards/card_state.dart';
 import 'review_outcome.dart';
 import 'review_source.dart';
 
@@ -11,6 +12,7 @@ class ReviewRecord {
     required this.isBonus,
     required this.stepBefore,
     required this.stepAfter,
+    required this.stateAfter,
     required this.dueAtAfter,
     required this.source,
   });
@@ -24,12 +26,14 @@ class ReviewRecord {
   final bool isBonus;
   final int? stepBefore;
 
-  /// Step reached after the answer; `null` when the card became acquired
-  /// or for a bonus review.
+  /// Step reached after the answer; `null` outside the sequence (remanent or
+  /// acquired) and for a bonus review.
   final int? stepAfter;
 
-  /// Due date the answer gave; `null` for a bonus review, once acquired, and
-  /// for the answers recorded before it was stored.
+  /// State the answer gave the card; `null` for a bonus review.
+  final CardState? stateAfter;
+
+  /// Due date the answer gave; `null` for a bonus review and once acquired.
   final DateTime? dueAtAfter;
   final ReviewSource source;
 }

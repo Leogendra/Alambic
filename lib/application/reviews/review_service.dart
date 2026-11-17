@@ -3,7 +3,6 @@ import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/review_repository.dart';
 import '../../domain/cards/flashcard.dart';
-import '../../domain/presets/preset.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
 import '../../domain/scheduling/card_schedule.dart';
@@ -50,17 +49,19 @@ class ReviewService {
     final result = await _cards.transaction(() async {
       final now = _clock();
       final card = await _cards.getCard(cardId);
-      final preset = await _presetOf(card);
+      final catalog = await _presets.loadCatalog();
+      final preset = catalog.presetForGroup(card.groupId);
       if (forceBonus || !_duePolicy.isDueToday(card, now: now)) {
         await _recordBonus(card, outcome, source, now);
         return ReviewResult(isBonus: true, schedule: null, preset: preset);
       } else {
-        final schedule = previewAnswer(
-          card,
-          outcome,
-          preset,
-          now,
-          await _dailySlot(),
+        final schedule = _scheduler.afterAnswer(
+          card: card,
+          outcome: outcome,
+          preset: preset,
+          end: catalog.sequenceEndForGroup(card.groupId),
+          answeredAt: now,
+          dailySlot: await _dailySlot(),
         );
         await _cards.applySchedule(card.id, schedule, reviewedAt: now);
         await _reviews.insert(
@@ -70,6 +71,7 @@ class ReviewService {
           isBonus: false,
           stepBefore: card.step,
           stepAfter: schedule.step,
+          stateAfter: schedule.state,
           dueAtAfter: schedule.dueAt,
           source: source,
         );
@@ -90,35 +92,22 @@ class ReviewService {
     if (asBonus || !_duePolicy.isDueToday(card, now: now)) {
       return const AnswerPreview.noEffect();
     } else {
-      final preset = await _presetOf(card);
+      final catalog = await _presets.loadCatalog();
       final dailySlot = await _dailySlot();
+      CardSchedule after(ReviewOutcome outcome) => _scheduler.afterAnswer(
+        card: card,
+        outcome: outcome,
+        preset: catalog.presetForGroup(card.groupId),
+        end: catalog.sequenceEndForGroup(card.groupId),
+        answeredAt: now,
+        dailySlot: dailySlot,
+      );
       return AnswerPreview(
-        correct: previewAnswer(
-          card,
-          ReviewOutcome.correct,
-          preset,
-          now,
-          dailySlot,
-        ),
-        again: previewAnswer(card, ReviewOutcome.again, preset, now, dailySlot),
+        correct: after(ReviewOutcome.correct),
+        again: after(ReviewOutcome.again),
       );
     }
   }
-
-  /// Schedule [outcome] would give, without recording anything.
-  CardSchedule previewAnswer(
-    Flashcard card,
-    ReviewOutcome outcome,
-    Preset preset,
-    DateTime now,
-    ClockTime dailySlot,
-  ) => _scheduler.afterAnswer(
-    card: card,
-    outcome: outcome,
-    preset: preset,
-    answeredAt: now,
-    dailySlot: dailySlot,
-  );
 
   Future<void> _recordBonus(
     Flashcard card,
@@ -132,13 +121,11 @@ class ReviewService {
     isBonus: true,
     stepBefore: card.step,
     stepAfter: card.step,
+    stateAfter: null,
     dueAtAfter: null,
     source: source,
   );
 
   Future<ClockTime> _dailySlot() async =>
       (await _settings.loadReminderSettings()).dailySlot;
-
-  Future<Preset> _presetOf(Flashcard card) async =>
-      (await _presets.loadCatalog()).presetForGroup(card.groupId);
 }

@@ -5,16 +5,13 @@ import '../../app/formatting/interval_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/layout/scroll_padding.dart';
 import '../../app/widgets/interval_chip.dart';
-import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/segment_option.dart';
 import '../../app/widgets/segmented_choice.dart';
-import '../../app/widgets/surface_panel.dart';
 import '../../app/formatting/preset_labels.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../domain/presets/failure_behavior.dart';
 import '../../domain/presets/preset.dart';
-import '../../domain/presets/sequence_end_behavior.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'step_dialog.dart';
 
@@ -74,10 +71,6 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
           _stepsSection(strings),
           const SizedBox(height: 24),
           _failureSection(strings),
-          const SizedBox(height: 24),
-          _endSection(strings),
-          const SizedBox(height: 24),
-          _typedAnswerSection(strings),
         ],
       ),
     );
@@ -152,40 +145,6 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
             height: 1.4,
             color: AlambicColors.of(context).textSecondary,
           ),
-        ),
-      ),
-    ],
-  );
-
-  Widget _endSection(AppLocalizations strings) => _choiceSection(
-    strings.presetEditorAfterLastStep,
-    SegmentedChoice<SequenceEndBehavior>(
-      options: [
-        SegmentOption(
-          SequenceEndBehavior.repeatLast,
-          strings.presetEndRepeatLast,
-        ),
-        SegmentOption(
-          SequenceEndBehavior.markAcquired,
-          strings.presetEndAcquired,
-        ),
-        SegmentOption(SequenceEndBehavior.loop, strings.presetEndLoop),
-      ],
-      selected: _draft.endBehavior,
-      onSelected: (value) =>
-          _update((draft) => draft.copyWith(endBehavior: value)),
-    ),
-  );
-
-  Widget _typedAnswerSection(AppLocalizations strings) => SurfacePanel(
-    children: [
-      PanelRow(
-        title: strings.presetEditorTypedAnswer,
-        subtitle: strings.presetEditorTypedAnswerHint,
-        trailing: Switch(
-          value: _draft.typedAnswer,
-          onChanged: (value) =>
-              _update((draft) => draft.copyWith(typedAnswer: value)),
         ),
       ),
     ],

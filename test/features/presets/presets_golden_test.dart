@@ -50,4 +50,37 @@ void main() {
       );
     });
   }
+
+  testWidgets('the line under the failure choice says its effect', (
+    tester,
+  ) async {
+    final standard = await tester.runAsync(
+      () async => (await PresetRepository(database).loadCatalog()).globalPreset,
+    );
+    await pumpGolden(
+      tester,
+      PresetEditorScreen(initialPreset: standard!),
+      overrides: [databaseProvider.overrideWithValue(database)],
+    );
+    expect(
+      find.text('Une carte ratée revient au cran précédent.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Retour au début'));
+    await tester.pump();
+    expect(
+      find.text(
+        'Une carte ratée repart du premier cran, sans retourner dans la file.',
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Reste'));
+    await tester.pump();
+    expect(
+      find.text(
+        'Une carte ratée garde son cran et revient après le même intervalle.',
+      ),
+      findsOneWidget,
+    );
+  });
 }

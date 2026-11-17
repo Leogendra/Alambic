@@ -1,5 +1,6 @@
 import '../../domain/presets/built_in_preset_key.dart';
 import '../../domain/presets/built_in_presets.dart';
+import '../../domain/presets/failure_behavior.dart';
 import '../../domain/presets/preset.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'interval_labels.dart';
@@ -25,4 +26,11 @@ extension PresetLabels on AppLocalizations {
   /// The steps of the sequence: "1 j · 2 j · 1 sem".
   String presetStepsSummary(Preset preset) =>
       preset.intervals.map(intervalLabel).join(' · ');
+
+  /// What a missed card does: "Une carte ratée revient au cran précédent."
+  String failureEffect(FailureBehavior behavior) => switch (behavior) {
+    FailureBehavior.stepBack => presetFailureStepBackEffect,
+    FailureBehavior.restart => presetFailureRestartEffect,
+    FailureBehavior.stay => presetFailureStayEffect,
+  };
 }

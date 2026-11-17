@@ -29,7 +29,7 @@ This rule has a single implementation, `PresetResolver`. Screens and services go
 
 The preset list opens from Settings, which also lets the user choose the global preset. Each preset shows its sequence; the global preset carries a badge.
 
-The editor works on a draft and writes nothing before "Save". It sets the name, the sequence (adding a step as a duration and a unit, removing a step as long as another one remains), the failure behaviour, the end of sequence and the typed answer.
+The editor works on a draft and writes nothing before "Save". It sets the name, the sequence (adding a step as a duration and a unit, removing a step as long as another one remains), the failure behaviour, the end of sequence and the typed answer. The failure behaviour is a three-way choice, "One step back", "Back to start" or "Stay" ([Feature 1](1-scheduling.md#on-failure)), with a line under it that says what a missed card then does ("A missed card goes back to the previous step.").
 
 "New" opens a draft with the Standard values. "Duplicate" immediately stores a copy named "<name> (copy)" and opens its editor. A copy is never a shipped preset, even when it copies Standard. Shipped presets remain editable.
 
@@ -45,6 +45,7 @@ Changing the preset of a group, the global preset or the steps of a preset rewri
 - [x] Changing the preset of a group, the global preset or the steps of a preset keeps the step and the due date; a step beyond a shorter sequence counts as the last step, and the next answer starts from it.
 - [x] A preset is created from the Standard values, any preset can be edited, a preset can be duplicated under a new name.
 - [x] A preset without a name or without a step cannot be saved.
+- [x] The editor says, under the failure choice, the effect of the chosen behaviour.
 - [x] The global preset is chosen in Settings.
 
 ## Test strategy

@@ -30,7 +30,7 @@ The page of a group recalls the number of cards and the preset. Then, from top t
 
 The "+" button creates a card directly in the group, and the toolbar opens the bulk add and the group settings.
 
-The page opened at the end of the onboarding points out "Distill" with a line above it: "Your first card is waiting. Distill the group to receive it."
+The page opened at the end of the onboarding, on the sample group ([Feature 10](10-onboarding.md#sample-group)), points out "Distill" with a line above it: "Its cards are waiting. Distill the group to receive them."
 
 ### Review all
 

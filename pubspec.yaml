@@ -34,6 +34,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/samples/nato_alphabet.txt
   fonts:
     - family: DM Sans
       fonts:

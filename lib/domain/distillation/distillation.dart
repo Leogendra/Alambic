@@ -1,4 +1,3 @@
-import 'distillation_order.dart';
 import 'distillation_settings.dart';
 import 'distillation_status.dart';
 
@@ -11,7 +10,6 @@ class Distillation {
     required this.groupId,
     required this.cardsPerBatch,
     required this.everyDays,
-    required this.introductionOrder,
     required this.avoidCollisions,
     required this.status,
     required this.startedAt,
@@ -23,7 +21,6 @@ class Distillation {
   final int groupId;
   final int cardsPerBatch;
   final int everyDays;
-  final DistillationOrder introductionOrder;
   final bool avoidCollisions;
   final DistillationStatus status;
   final DateTime startedAt;
@@ -45,7 +42,6 @@ class Distillation {
   DistillationSettings get settings => DistillationSettings(
     cardsPerBatch: cardsPerBatch,
     everyDays: everyDays,
-    order: introductionOrder,
     avoidCollisions: avoidCollisions,
   );
 }

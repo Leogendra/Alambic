@@ -4,7 +4,6 @@ import 'package:drift_flutter/drift_flutter.dart';
 import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation.dart';
-import '../../domain/distillation/distillation_order.dart';
 import '../../domain/distillation/distillation_status.dart';
 import '../../domain/notifications/grouped_reminder_action.dart';
 import '../../domain/notifications/notification_mode.dart';
@@ -63,7 +62,7 @@ class AlambicDatabase extends _$AlambicDatabase {
   /// Raised at every schema change. There is no migration: a database of
   /// another version is erased and created again.
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

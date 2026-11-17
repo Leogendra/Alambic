@@ -23,7 +23,6 @@ class DistillationRepository {
           groupId: Value(groupId),
           cardsPerBatch: settings.cardsPerBatch,
           everyDays: settings.everyDays,
-          introductionOrder: settings.order,
           avoidCollisions: settings.avoidCollisions,
           status: DistillationStatus.running,
           startedAt: startedAt,
@@ -63,7 +62,6 @@ class DistillationRepository {
         DistillationsCompanion(
           cardsPerBatch: Value(settings.cardsPerBatch),
           everyDays: Value(settings.everyDays),
-          introductionOrder: Value(settings.order),
           avoidCollisions: Value(settings.avoidCollisions),
           nextBatchDay: Value(nextBatchDay),
           introducedInBatch: Value(introducedInBatch),

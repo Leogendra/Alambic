@@ -38,8 +38,7 @@ class DistillationService {
     required this._calendar,
     required this._clock,
     required this._scheduleChangeListener,
-    Random? random,
-  }) : _random = random ?? Random();
+  });
 
   final DistillationRepository _distillations;
   final CardRepository _cards;
@@ -50,12 +49,11 @@ class DistillationService {
   final SchedulingCalendar _calendar;
   final Clock _clock;
   final ScheduleChangeListener _scheduleChangeListener;
-  final Random _random;
 
   DistillationRhythm get _rhythm => DistillationRhythm(_calendar);
 
-  /// Activates the distillation of a group: its queue is ordered by
-  /// [DistillationSettings.order] and the first batch is introduced today.
+  /// Activates the distillation of a group: the first batch, from the head
+  /// of its queue, is introduced today.
   /// A group distills once: activating it again is an error.
   Future<void> activate(int groupId, DistillationSettings settings) async {
     await _cards.transaction(() async {
@@ -69,13 +67,12 @@ class DistillationService {
         startedAt: now,
         firstBatchDay: _calendar.dayOf(now),
       );
-      await _rankQueue(groupId, settings);
     });
     await _advanceAndReplan();
   }
 
-  /// Applies new settings to the distillation of a group. A new order ranks
-  /// the queue again. A batch already complete under a smaller rhythm closes:
+  /// Applies new settings to the distillation of a group. A batch already
+  /// complete under a smaller rhythm closes:
   /// the next one comes X days after the last day processed.
   Future<void> adjust(int groupId, DistillationSettings settings) async {
     await _cards.transaction(() async {
@@ -93,9 +90,6 @@ class DistillationService {
             : distillation.nextBatchDay,
         introducedInBatch: batchComplete ? 0 : distillation.introducedInBatch,
       );
-      if (settings.order != distillation.introductionOrder) {
-        await _rankQueue(groupId, settings);
-      }
     });
     await _advanceAndReplan();
   }
@@ -233,17 +227,5 @@ class DistillationService {
       );
     }
     return picked.length;
-  }
-
-  /// Ranks the queue of the group again, in the order of [settings].
-  Future<void> _rankQueue(int groupId, DistillationSettings settings) async {
-    final ordered = DistillationQueue.ordered(
-      await _cards.getCardsOfGroup(groupId),
-      settings.order,
-      _random,
-    );
-    for (final (position, card) in ordered.indexed) {
-      await _cards.setQueuePosition(card.id, position);
-    }
   }
 }

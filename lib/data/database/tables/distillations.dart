@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 
 import '../../../domain/distillation/distillation.dart';
-import '../../../domain/distillation/distillation_order.dart';
 import '../../../domain/distillation/distillation_status.dart';
 import 'card_groups.dart';
 
@@ -13,7 +12,6 @@ class Distillations extends Table {
       integer().references(CardGroups, #id, onDelete: KeyAction.cascade)();
   IntColumn get cardsPerBatch => integer()();
   IntColumn get everyDays => integer()();
-  TextColumn get introductionOrder => textEnum<DistillationOrder>()();
   BoolColumn get avoidCollisions => boolean()();
   TextColumn get status => textEnum<DistillationStatus>()();
   DateTimeColumn get startedAt => dateTime()();

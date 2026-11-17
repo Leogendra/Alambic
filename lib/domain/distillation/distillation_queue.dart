@@ -1,7 +1,4 @@
-import 'dart:math';
-
 import '../cards/flashcard.dart';
-import 'distillation_order.dart';
 
 /// The queue of a group: its pending cards, by rank.
 abstract final class DistillationQueue {
@@ -27,21 +24,6 @@ abstract final class DistillationQueue {
       }
     }
     return end;
-  }
-
-  /// The pending cards of [groupCards] in the order [order] gives them: by
-  /// creation for the group order, shuffled with [random] otherwise.
-  static List<Flashcard> ordered(
-    Iterable<Flashcard> groupCards,
-    DistillationOrder order,
-    Random random,
-  ) {
-    final pending = groupCards.where((card) => card.isPending).toList()
-      ..sort((first, second) => first.id.compareTo(second.id));
-    return switch (order) {
-      DistillationOrder.groupOrder => pending,
-      DistillationOrder.random => pending..shuffle(random),
-    };
   }
 
   static int _byRank(Flashcard first, Flashcard second) {

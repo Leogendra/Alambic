@@ -127,7 +127,7 @@ class CardRepository {
     _database.flashcards,
   )..where((card) => card.id.equals(cardId))).watchSingleOrNull();
 
-  /// Cards of a group in creation order (the group order).
+  /// Cards of a group in creation order.
   Stream<List<Flashcard>> watchCardsOfGroup(int groupId) =>
       _selectGroup(groupId).watch();
 

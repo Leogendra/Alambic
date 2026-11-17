@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
-import 'package:alambic/domain/distillation/distillation_order.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/distillation/distillation_status.dart';
 
@@ -29,7 +28,6 @@ void main() {
     settings: const DistillationSettings(
       cardsPerBatch: 3,
       everyDays: 2,
-      order: DistillationOrder.random,
       avoidCollisions: false,
     ),
     startedAt: now,
@@ -46,7 +44,6 @@ void main() {
     expect(distillation.groupId, groupId);
     expect(distillation.cardsPerBatch, 3);
     expect(distillation.everyDays, 2);
-    expect(distillation.introductionOrder, DistillationOrder.random);
     expect(distillation.avoidCollisions, isFalse);
     expect(distillation.status, DistillationStatus.running);
     expect(distillation.nextBatchDay, today);
@@ -75,7 +72,6 @@ void main() {
     );
     final distillation = (await distillations.find(groupId))!;
     expect(distillation.cardsPerBatch, 5);
-    expect(distillation.introductionOrder, DistillationOrder.groupOrder);
     expect(distillation.introducedInBatch, 1);
     expect(distillation.lastAdvancedDay, today);
   });

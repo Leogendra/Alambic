@@ -9,15 +9,12 @@ import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/count_stepper.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
-import '../../app/widgets/segment_option.dart';
-import '../../app/widgets/segmented_choice.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/notifications/guard_providers.dart';
 import '../../application/time/minute_ticker.dart';
-import '../../domain/distillation/distillation_order.dart';
 import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -96,23 +93,6 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
             ),
           const SizedBox(height: 16),
           ..._rhythmSection(strings),
-          const SizedBox(height: 16),
-          SectionLabel(strings.distillOrder),
-          SegmentedChoice<DistillationOrder>(
-            options: [
-              SegmentOption(
-                DistillationOrder.groupOrder,
-                strings.distillOrderGroup,
-              ),
-              SegmentOption(
-                DistillationOrder.random,
-                strings.distillOrderRandom,
-              ),
-            ],
-            selected: _settings.order,
-            onSelected: (value) =>
-                _update((settings) => settings.copyWith(order: value)),
-          ),
           const SizedBox(height: 16),
           _collisionsPanel(strings),
           const SizedBox(height: 24),

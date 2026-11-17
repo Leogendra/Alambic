@@ -14,7 +14,7 @@ State of a card never introduced (`CardState.pending`; *en attente*). Every new 
 
 ### Queue
 
-The pending cards of a group, in their queue order (`queuePosition`; *file*). A card created in the group, moved into it while pending, or reset, joins its end.
+The pending cards of a group, in a fixed order that is the only one (`queuePosition`; *file*): the [distillation](#distillation) takes its head. A card created in the group, moved into it while pending, or reset, joins its end, and so does a bulk add, as a whole batch.
 
 ### Distillation
 

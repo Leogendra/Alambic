@@ -24,9 +24,8 @@ class ReviewTexts {
   String promptTitle(String prompt) =>
       prompt.isEmpty ? strings.notificationImagePrompt : prompt;
 
-  /// Line under the asked face: the reminder label ("S1"), "Intervalle 12 j"
-  /// for a card followed by FSRS, "verso → recto · Nouvelle carte", or the
-  /// bonus mention of an extra reminder.
+  /// Line under the asked face: the reminder label ("S1"), "verso → recto ·
+  /// Nouvelle carte", or the bonus mention of an extra reminder.
   String promptDetail(ReviewPrompt prompt) {
     if (prompt.key.isExtraReminder) {
       return strings.notificationExtra;
@@ -34,9 +33,6 @@ class ReviewTexts {
     final position = switch (prompt.progress) {
       NewProgress() => strings.notificationNewCard,
       SequenceProgress(:final interval) => strings.reminderLabel(interval),
-      AdaptiveProgress(:final intervalDays) => strings.cardSheetInterval(
-        strings.intervalDays(intervalDays),
-      ),
     };
     return prompt.askedSide == CardSide.back
         ? '${strings.sessionReverseBadge} · $position'
@@ -114,13 +110,9 @@ class ReviewTexts {
     if (correct) {
       return strings.notificationNextReview(when);
     }
-    // Only the sequence engine has steps.
-    return switch (schedule.step) {
-      final step? => strings.notificationFailed(
-        strings.reminderLabel(reveal.result.preset.intervals[step]),
-        when,
-      ),
-      null => strings.notificationFailedAdaptive(when),
-    };
+    return strings.notificationFailed(
+      strings.reminderLabel(reveal.result.preset.intervals[schedule.step!]),
+      when,
+    );
   }
 }

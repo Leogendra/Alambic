@@ -55,7 +55,7 @@ Flutter caches the locale it derives from the phone and only derives it again wh
 
 All data lives in a local SQLite database managed by drift, `AlambicDatabase`. Tables use the domain classes directly as rows (`@UseRowClass`): a `Preset` or a `Flashcard` read from the database is the very object the business rules manipulate, with no conversion layer. Enums are stored by name, a preset sequence as JSON and times of day as minutes since midnight.
 
-The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset, the notification safeguards, the count of cards notified today and the start of the global pause), `card_groups` (with the back option), `distillations` (one row per group whose distillation was activated, keyed by the group), `flashcards` (the faces, the group, and the single progression: state, step or FSRS memory, due date, last answer, last notification and rank in the queue), `review_records` (the history) and `extra_reminders` (the "Review soon" reminders). Foreign keys are enabled at each opening, which gives these deletion rules:
+The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset, the notification safeguards, the count of cards notified today and the start of the global pause), `card_groups` (with the back option), `distillations` (one row per group whose distillation was activated, keyed by the group), `flashcards` (the faces, the group, and the single progression: state, step, due date, last answer, last notification and rank in the queue), `review_records` (the history) and `extra_reminders` (the "Review soon" reminders). Foreign keys are enabled at each opening, which gives these deletion rules:
 
 - deleting a card deletes its history and its reminders;
 - deleting a group deletes its cards, with their history, and its distillation.
@@ -64,7 +64,7 @@ The schema is at version 2 and has no migration: while the app has no users, its
 
 The global preset lives in the database rather than in the preferences, because it is part of the review data: it must be readable from background tasks and travel with the export.
 
-When the database is created, the Standard, Intensive and Adaptive presets are inserted and Standard becomes the global preset. The connection is shared between isolates (`shareAcrossIsolates`): an answer given from a notification, handled in a background isolate, refreshes the screens of the open app.
+When the database is created, the Standard and Intensive presets are inserted and Standard becomes the global preset. The connection is shared between isolates (`shareAcrossIsolates`): an answer given from a notification, handled in a background isolate, refreshes the screens of the open app.
 
 ## Acceptance criteria
 
@@ -75,7 +75,7 @@ When the database is created, the Standard, Intensive and Adaptive presets are i
 - [x] No text or button shows under the status bar or the navigation bar; a list can always bring its last element above the navigation bar, and the main button of a page stays above the keyboard.
 - [x] The app and its notifications speak French or English, from the phone language or the choice in Settings.
 - [x] The main navigation shows four tabs and a "+" button.
-- [x] A fresh database contains the Standard, Intensive and Adaptive presets, Standard being the global preset.
+- [x] A fresh database contains the Standard and Intensive presets, Standard being the global preset.
 - [x] Deleting a group deletes its cards and its distillation; deleting a card deletes its history and its reminders.
 
 ## Test strategy

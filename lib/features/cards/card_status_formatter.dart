@@ -25,9 +25,8 @@ class CardStatusFormatter {
   final SchedulingCalendar calendar;
   final DateTime now;
 
-  /// "S1 · in 4 d", "J2 · Due", only the date for a card never answered or
-  /// followed by FSRS; "waiting", "suspended" or "learned" for a card with no
-  /// next date.
+  /// "S1 · in 4 d", "J2 · Due", only the date for a card never answered;
+  /// "waiting", "suspended" or "learned" for a card with no next date.
   String standing(Flashcard card) {
     if (card.suspended) {
       return strings.cardStatusSuspended;
@@ -46,7 +45,7 @@ class CardStatusFormatter {
   String dueDateLabel(DateTime dueAt) =>
       strings.dueDateLabel(dueAt, now: now, calendar: calendar);
 
-  /// "S1"; `null` for a card never answered or followed by FSRS.
+  /// "S1"; `null` for a card never answered.
   String? reminderLabel(Flashcard card) =>
       strings.progressLabel(CardProgress.of(card, catalog.presetForCard(card)));
 

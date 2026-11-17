@@ -6,7 +6,7 @@ The only place where terms are defined. Specs link here instead of redefining th
 
 ### Card
 
-A front / back flashcard (`Flashcard`; *carte*). Each face holds plain text and/or an image. A card always belongs to one [group](#group) and has a single progression: its state, [step](#step) or FSRS memory, [due date](#due-date) and history. Its states are [pending](#pending), active and acquired (`CardState`).
+A front / back flashcard (`Flashcard`; *carte*). Each face holds plain text and/or an image. A card always belongs to one [group](#group) and has a single progression: its state, [step](#step), [due date](#due-date) and history. Its states are [pending](#pending), active and acquired (`CardState`).
 
 ### Pending
 
@@ -34,19 +34,15 @@ A flat list of cards sharing a [preset](#preset) (`CardGroup`; *groupe*), with i
 
 ### Preset
 
-The rhythm of the reviews (`Preset`): engine, interval sequence, behaviour on failure and at the end of the sequence. It says nothing of when in the day nor how a card is notified: that is the [schedule](#schedule) of the app. A level (card, group, global) picks a whole preset or inherits from the next level.
+The rhythm of the reviews (`Preset`): interval sequence, behaviour on failure and at the end of the sequence. It says nothing of when in the day nor how a card is notified: that is the [schedule](#schedule) of the app. A level (card, group, global) picks a whole preset or inherits from the next level.
 
 ### Step
 
-Position of a card in its preset's sequence (`step`; *cran*): the index of the interval currently waited. A card never answered has no step, nor does a card followed by the [adaptive engine](#adaptive-engine).
+Position of a card in its preset's sequence (`step`; *cran*): the index of the interval currently waited. A card never answered has no step.
 
 ### Reminder label
 
-Short name of the interval a card waits (*étiquette de rappel*): "J1", "J2", "S1", "M3" in French, "D1", "W1", "M3" in English, or the interval itself below a day ("10 min"). It is taken from the interval of the current [step](#step), not from its number. A card followed by the [adaptive engine](#adaptive-engine) has none.
-
-### Adaptive engine
-
-The engine of a preset that computes each interval with FSRS (`SchedulingEngineKind.adaptive`; *adaptatif*), instead of walking a fixed sequence. It keeps a memory per card (`FsrsMemory`): a stability, in days, and a difficulty from 1 to 10. Its interval brings the probability of recalling the card down to the preset's target retention (*rétention visée*).
+Short name of the interval a card waits (*étiquette de rappel*): "J1", "J2", "S1", "M3" in French, "D1", "W1", "M3" in English, or the interval itself below a day ("10 min"). It is taken from the interval of the current [step](#step), not from its number.
 
 ### Due date
 

@@ -5,7 +5,6 @@ import 'package:alambic/app/formatting/reminder_labels.dart';
 import 'package:alambic/domain/presets/interval_unit.dart';
 import 'package:alambic/domain/presets/preset_interval.dart';
 import 'package:alambic/domain/scheduling/card_progress.dart';
-import 'package:alambic/domain/scheduling/fsrs/fsrs_memory.dart';
 import 'package:alambic/l10n/generated/app_localizations.dart';
 
 void main() {
@@ -57,16 +56,7 @@ void main() {
     );
   });
 
-  test('a new card and a card followed by FSRS have no label', () {
+  test('a new card has no label', () {
     expect(french.progressLabel(const NewProgress()), isNull);
-    expect(
-      french.progressLabel(
-        const AdaptiveProgress(
-          memory: FsrsMemory(stability: 3, difficulty: 5),
-          intervalDays: 3,
-        ),
-      ),
-      isNull,
-    );
   });
 }

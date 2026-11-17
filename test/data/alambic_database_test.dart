@@ -5,7 +5,6 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/presets/built_in_presets.dart';
-import 'package:alambic/domain/presets/scheduling_engine_kind.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 
@@ -19,17 +18,14 @@ void main() {
   tearDown(() => database.close());
 
   test(
-    'a new database ships Standard, Intensif and Adaptatif, Standard as global',
+    'a new database ships Standard and Intensif, Standard as global',
     () async {
       final presets = await database.select(database.presets).get();
       expect(presets.map((preset) => preset.builtInKey), [
         BuiltInPresetKey.standard,
         BuiltInPresetKey.intensive,
-        BuiltInPresetKey.adaptive,
       ]);
       expect(presets.first.intervals, BuiltInPresets.standard.intervals);
-      expect(presets.last.engine, SchedulingEngineKind.adaptive);
-      expect(presets.last.targetRetention, 0.9);
       final settings = await database.select(database.appSettings).getSingle();
       expect(settings.globalPresetId, presets.first.id);
     },

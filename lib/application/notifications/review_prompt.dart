@@ -51,7 +51,7 @@ class ReviewPrompt {
   final String? image;
   final String groupName;
 
-  /// Where the card stands in the engine of its preset.
+  /// Where the card stands in the sequence of its preset.
   final CardProgress progress;
 
   /// Asks for a typed answer ("Answer" and "Again") instead of "Correct" and

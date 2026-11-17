@@ -1,23 +1,25 @@
 # Feature 1 — Review scheduling
 
-Status: implemented (2026-11-16)
+Status: implemented (2026-11-17)
 
 ## Goal
 
-Decide, after each answer, when a [card](../lexicon.md#card) must come back. This is the heart of spaced repetition: a successful card comes back later and later, a failed card comes back sooner. Two engines decide the interval: a fixed sequence of intervals, or FSRS, which computes each interval from the answers.
+Decide, after each answer, when a [card](../lexicon.md#card) must come back. This is the heart of spaced repetition: a successful card comes back later and later, a failed card comes back sooner. A single engine decides the interval: the fixed sequence of intervals of the [preset](../lexicon.md#preset), walked step by step.
+
+There is no adaptive engine (FSRS or other). With two answers and parameters not fitted to the user, it would only differ from a sequence on late answers and failures, for the cost of a second engine, a conversion of the progression and a display of its memory. It is worth reconsidering only together with fitting the parameters to the user's history.
 
 ## Implementation overview
 
 Scheduling lives entirely in the domain and works in two stages.
 
-1. The engine of the [preset](../lexicon.md#preset) computes the interval to wait. The sequence engine (`SequenceEngine`) moves the [step](../lexicon.md#step) from the current step and the answer, and may report that the card is acquired. The adaptive engine (`FsrsEngine`) updates the [memory](../lexicon.md#adaptive-engine) of the card and derives the interval from it.
+1. The sequence engine (`SequenceEngine`) computes the interval to wait: it moves the [step](../lexicon.md#step) from the current step and the answer, and may report that the card is acquired.
 2. The scheduler (`ReviewScheduler`) turns that interval into a [due date](../lexicon.md#due-date), depending on whether the interval counts in days or in minutes.
 
 A card has a single progression, whichever face is asked: the [back option](../lexicon.md#back-option) of a group changes what a display asks, never what the scheduler reads.
 
 The [day](../lexicon.md#day) starts at 4am, through `SchedulingCalendar`. An answer given at 1am counts for the previous day, and every "same day" comparison goes through this calendar. Days are added as calendar days rather than 24-hour slices, so that a daylight saving change does not shift the slot by an hour.
 
-The engines never read the time: the answer moment is given to them. They do not read the database either; the caller gives the scheduler the card and its resolved preset.
+The engine never reads the time: the answer moment is given to it. It does not read the database either; the caller gives the scheduler the card and its resolved preset.
 
 ### The step
 
@@ -25,15 +27,7 @@ The step is the index, in the preset sequence, of the interval currently waited.
 
 Screens and notifications name the step by its [reminder label](../lexicon.md#reminder-label), taken from the interval waited: "J1", "J2", "S1", "M3" in French, "D1", "W1", "M3" in English, "10 min" or "1 h" below a day.
 
-If the sequence was shortened, or the card moved to a shorter preset, the engine clamps the step to the last existing step before computing. The stored step is only corrected at the next answer.
-
-### The adaptive engine
-
-The adaptive engine is a port of FSRS-5 with its default parameters. It keeps two numbers per card: the stability (days until the probability of recalling the card falls to 90 %) and the difficulty (1 to 10). "Correct" counts as *Good* and "Again" as *Again*. Each answer updates both numbers from the days elapsed since the previous answer: the longer the card held, the more its stability grows; a failure drops it.
-
-The next interval is the number of days until the probability of recalling falls to the preset's target retention (90 % by default, 70 % to 97 %): a higher retention brings the reviews closer. It always lasts a day or more, even after a failure, and lands on the [daily slot](../lexicon.md#daily-slot) like any day-based interval. A new card answered "Correct" comes back in 3 days, then about 11 days, 35 days, 3 months; answered "Again", the next day.
-
-A card followed by FSRS has no step and no reminder label: lists and the card sheet only show its date, and a notification shows its current interval ("Intervalle 11 j"). `CardProgress` gives, for any card and its preset, the step and its interval, the FSRS memory and interval, or "new": screens, notifications and the priority of the daily cap all read it.
+If the sequence was shortened, or the card moved to a shorter preset, the engine clamps the step to the last existing step before computing. The stored step is only corrected at the next answer. `CardProgress` gives, for any card and its preset, the clamped step and the interval it waits, or "new": screens, notifications and the priority of the daily cap all read it.
 
 ### Introducing a card
 
@@ -72,8 +66,7 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 - [x] After a failure, the due date is the interval of the step reached: never the same day for a day-based sequence.
 - [x] The day starts at 4am.
 - [x] A step beyond a shortened sequence is clamped to the last step.
-- [x] The reminder label comes from the interval of the current step; a card followed by FSRS has none.
-- [x] With the adaptive engine, each answer updates the stability and the difficulty from the days elapsed since the previous answer; the interval is the time until the recall probability falls to the target retention, at least a day, at the [daily slot](../lexicon.md#daily-slot).
+- [x] The reminder label comes from the interval of the current step.
 
 ## Test strategy
 
@@ -81,12 +74,10 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 - Dates are fixed in the tests (November 2026): no test reads the clock or waits.
 - The day boundaries (3:59am and 4am, end of month, slot before 4am) are tested explicitly on the calendar.
 - The reminder labels are tested in both languages, for day, week, month and sub-day intervals.
-- The FSRS port is checked against values computed by hand from the FSRS-5 formulas (first answers, recall on time, failure, target retention), then end to end through the review service on a stored adaptive card.
 
 ## File mapping
 
 - `lib/domain/scheduling/` — 4am calendar, sequence engine, scheduler, "due" rule and `CardProgress`.
-- `lib/domain/scheduling/fsrs/` — the FSRS port: memory, ratings and formulas.
 - `lib/domain/presets/preset_interval.dart` — an interval and its unit; a unit of a day or more counts in days.
 - `lib/app/formatting/reminder_labels.dart` — the reminder label of an interval.
 
@@ -95,8 +86,6 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 Months count 30 days (`IntervalUnit.month`). A "1 month" always has the same length, and the "in 30 d" preview shown on the buttons stays true whatever the current month.
 
 A daily slot earlier than 4am (for example 2am) belongs to the end of the scheduling day: `momentAt` places it on the next calendar date. Without this, a due date "day D at 2am" would fall on the previous evening in the user's calendar.
-
-FSRS keeps its stability and difficulty in `flashcards` (`stability`, `difficulty`), empty for a card followed by a sequence. The elapsed days count scheduling days between the previous answer and this one; a bonus review does not count as an answer. Intervals are not fuzzed: two cards answered the same way the same day come back together, which the notification safeguards then spread. The parameters are the published defaults: they are not fitted to the user's history.
 
 ## Constraints
 

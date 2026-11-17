@@ -1,7 +1,6 @@
 import '../../domain/presets/built_in_preset_key.dart';
 import '../../domain/presets/built_in_presets.dart';
 import '../../domain/presets/preset.dart';
-import '../../domain/presets/scheduling_engine_kind.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'interval_labels.dart';
 
@@ -21,14 +20,9 @@ extension PresetLabels on AppLocalizations {
   String builtInPresetName(BuiltInPresetKey key) => switch (key) {
     BuiltInPresetKey.standard => presetNameStandard,
     BuiltInPresetKey.intensive => presetNameIntensive,
-    BuiltInPresetKey.adaptive => presetNameAdaptive,
   };
 
-  /// The steps of a sequence ("1 j · 2 j · 1 sem"), or the computed
-  /// intervals of the adaptive engine.
-  String presetStepsSummary(Preset preset) => switch (preset.engine) {
-    SchedulingEngineKind.sequence =>
-      preset.intervals.map(intervalLabel).join(' · '),
-    SchedulingEngineKind.adaptive => presetComputedIntervals,
-  };
+  /// The steps of the sequence: "1 j · 2 j · 1 sem".
+  String presetStepsSummary(Preset preset) =>
+      preset.intervals.map(intervalLabel).join(' · ');
 }

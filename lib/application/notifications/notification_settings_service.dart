@@ -63,12 +63,7 @@ class NotificationSettingsService {
       if (moved != null) {
         await _cards.applySchedule(
           card.id,
-          CardSchedule(
-            state: card.state,
-            step: card.step,
-            memory: card.memory,
-            dueAt: moved,
-          ),
+          CardSchedule(state: card.state, step: card.step, dueAt: moved),
         );
       }
     }

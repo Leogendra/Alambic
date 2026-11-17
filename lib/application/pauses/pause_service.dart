@@ -87,12 +87,7 @@ class PauseService {
       if (shifted != null) {
         await _cards.applySchedule(
           card.id,
-          CardSchedule(
-            state: card.state,
-            step: card.step,
-            memory: card.memory,
-            dueAt: shifted,
-          ),
+          CardSchedule(state: card.state, step: card.step, dueAt: shifted),
         );
       }
     }

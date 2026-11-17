@@ -8,7 +8,6 @@ import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/interval_chip.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../domain/presets/preset.dart';
-import '../../domain/presets/scheduling_engine_kind.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'preset_editor_screen.dart';
 
@@ -103,22 +102,14 @@ class _PresetTile extends StatelessWidget {
                   if (isGlobal) _Badge(strings.presetGlobalBadge),
                 ],
               ),
-              switch (preset.engine) {
-                SchedulingEngineKind.sequence => Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final interval in preset.intervals)
-                      IntervalChip(label: strings.intervalLabel(interval)),
-                  ],
-                ),
-                SchedulingEngineKind.adaptive => Text(
-                  strings.presetAdaptiveDescription(
-                    (preset.targetRetention * 100).round(),
-                  ),
-                  style: TextStyle(fontSize: 14, color: colors.textPrimary),
-                ),
-              },
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final interval in preset.intervals)
+                    IntervalChip(label: strings.intervalLabel(interval)),
+                ],
+              ),
             ],
           ),
         ),

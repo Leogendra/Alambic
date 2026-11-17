@@ -26,7 +26,6 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Schedule and notification mode in Settings, for every group at once: a fixed time (12:00 by default) or a time range, one notification per card or a grouped reminder. A new reminder time also moves the reminders already set at the old one.
 - Notification safeguards in Settings: a daily cap that holds back the longest intervals first, quiet hours (22:00 to 08:00 by default) and auto grouping of a busy moment into a single notification.
 - Pause of a group, from its settings or its page, and global pause, from Settings or Home: nothing is notified and distillations wait; on resume, due dates move by the length of the pause.
-- Adaptive preset (FSRS), shipped at a 90 % target retention: each interval is computed from the answers. The preset editor switches a preset between a fixed sequence and the adaptive engine, and sets its target retention. Moving cards to a preset with the other engine starts their progression over, keeping their due dates and history.
 - Images on cards: each face takes a picture from the gallery, alone or with a text. It shows on the card sheet, in the lists, in a session and in the expanded notification.
 - In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.
 - Export and import from Settings: all the cards, their history, the presets, the settings and the images in a single zip file saved where you choose. Importing a file replaces all the current data after a confirmation; a file that is not a valid backup is refused without changing anything.
@@ -39,6 +38,10 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 
 - Sharper dark theme: a darker background, lighter cards and a brighter blue, so cards stand out and the selected option of a choice is clearly visible. Both themes are flat, with outlines instead of shadows.
 - Settings rows show their value in grey with an arrow when they open something, and lists where one option is chosen (preset, group, language, theme) highlight it with a blue outline.
+
+### Removed
+
+- The Adaptive preset and the choice of an adaptive engine in the preset editor: every preset follows its fixed sequence of steps. The card sheet no longer shows a stability and a difficulty.
 
 ### Fixed
 

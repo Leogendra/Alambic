@@ -15,7 +15,6 @@ import 'package:alambic/domain/presets/preset_interval.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
 import 'package:alambic/domain/scheduling/card_progress.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
-import 'package:alambic/domain/scheduling/fsrs/fsrs_memory.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 import 'package:alambic/l10n/generated/app_localizations.dart';
 import 'package:alambic/notifications/android/notification_payload.dart';
@@ -121,40 +120,6 @@ void main() {
         ),
       ),
       'Réponse en image',
-    );
-  });
-
-  test('an adaptive card tells its interval instead of a step', () {
-    expect(
-      texts.promptDetail(
-        ReviewPrompt(
-          key: key,
-          askedSide: CardSide.front,
-          prompt: 'Pérou',
-          image: null,
-          groupName: 'Capitales',
-          progress: const AdaptiveProgress(
-            memory: FsrsMemory(stability: 11.7, difficulty: 5.3),
-            intervalDays: 12,
-          ),
-          typedAnswer: false,
-        ),
-      ),
-      'Intervalle 12 j',
-    );
-    expect(
-      texts.verdict(
-        reveal(
-          isBonus: false,
-          schedule: CardSchedule(
-            state: CardState.active,
-            step: null,
-            memory: const FsrsMemory(stability: 2.2, difficulty: 6.8),
-            dueAt: DateTime(2026, 11, 12, 12),
-          ),
-        ),
-      ),
-      'Compté raté · revue dans 2 j',
     );
   });
 

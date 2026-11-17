@@ -1690,18 +1690,6 @@ class $DistillationsTable extends Distillations
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  @override
-  late final GeneratedColumnWithTypeConverter<DistillationOrder, String>
-  introductionOrder =
-      GeneratedColumn<String>(
-        'introduction_order',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<DistillationOrder>(
-        $DistillationsTable.$converterintroductionOrder,
-      );
   static const VerificationMeta _avoidCollisionsMeta = const VerificationMeta(
     'avoidCollisions',
   );
@@ -1775,7 +1763,6 @@ class $DistillationsTable extends Distillations
     groupId,
     cardsPerBatch,
     everyDays,
-    introductionOrder,
     avoidCollisions,
     status,
     startedAt,
@@ -1891,13 +1878,6 @@ class $DistillationsTable extends Distillations
         DriftSqlType.int,
         data['${effectivePrefix}every_days'],
       )!,
-      introductionOrder: $DistillationsTable.$converterintroductionOrder
-          .fromSql(
-            attachedDatabase.typeMapping.read(
-              DriftSqlType.string,
-              data['${effectivePrefix}introduction_order'],
-            )!,
-          ),
       avoidCollisions: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}avoid_collisions'],
@@ -1932,10 +1912,6 @@ class $DistillationsTable extends Distillations
     return $DistillationsTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<DistillationOrder, String, String>
-  $converterintroductionOrder = const EnumNameConverter<DistillationOrder>(
-    DistillationOrder.values,
-  );
   static JsonTypeConverter2<DistillationStatus, String, String>
   $converterstatus = const EnumNameConverter<DistillationStatus>(
     DistillationStatus.values,
@@ -1946,7 +1922,6 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
   final Value<int> groupId;
   final Value<int> cardsPerBatch;
   final Value<int> everyDays;
-  final Value<DistillationOrder> introductionOrder;
   final Value<bool> avoidCollisions;
   final Value<DistillationStatus> status;
   final Value<DateTime> startedAt;
@@ -1957,7 +1932,6 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     this.groupId = const Value.absent(),
     this.cardsPerBatch = const Value.absent(),
     this.everyDays = const Value.absent(),
-    this.introductionOrder = const Value.absent(),
     this.avoidCollisions = const Value.absent(),
     this.status = const Value.absent(),
     this.startedAt = const Value.absent(),
@@ -1969,7 +1943,6 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     this.groupId = const Value.absent(),
     required int cardsPerBatch,
     required int everyDays,
-    required DistillationOrder introductionOrder,
     required bool avoidCollisions,
     required DistillationStatus status,
     required DateTime startedAt,
@@ -1978,7 +1951,6 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     this.lastAdvancedDay = const Value.absent(),
   }) : cardsPerBatch = Value(cardsPerBatch),
        everyDays = Value(everyDays),
-       introductionOrder = Value(introductionOrder),
        avoidCollisions = Value(avoidCollisions),
        status = Value(status),
        startedAt = Value(startedAt),
@@ -1988,7 +1960,6 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     Expression<int>? groupId,
     Expression<int>? cardsPerBatch,
     Expression<int>? everyDays,
-    Expression<String>? introductionOrder,
     Expression<bool>? avoidCollisions,
     Expression<String>? status,
     Expression<DateTime>? startedAt,
@@ -2000,7 +1971,6 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
       if (groupId != null) 'group_id': groupId,
       if (cardsPerBatch != null) 'cards_per_batch': cardsPerBatch,
       if (everyDays != null) 'every_days': everyDays,
-      if (introductionOrder != null) 'introduction_order': introductionOrder,
       if (avoidCollisions != null) 'avoid_collisions': avoidCollisions,
       if (status != null) 'status': status,
       if (startedAt != null) 'started_at': startedAt,
@@ -2014,7 +1984,6 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     Value<int>? groupId,
     Value<int>? cardsPerBatch,
     Value<int>? everyDays,
-    Value<DistillationOrder>? introductionOrder,
     Value<bool>? avoidCollisions,
     Value<DistillationStatus>? status,
     Value<DateTime>? startedAt,
@@ -2026,7 +1995,6 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
       groupId: groupId ?? this.groupId,
       cardsPerBatch: cardsPerBatch ?? this.cardsPerBatch,
       everyDays: everyDays ?? this.everyDays,
-      introductionOrder: introductionOrder ?? this.introductionOrder,
       avoidCollisions: avoidCollisions ?? this.avoidCollisions,
       status: status ?? this.status,
       startedAt: startedAt ?? this.startedAt,
@@ -2047,13 +2015,6 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     }
     if (everyDays.present) {
       map['every_days'] = Variable<int>(everyDays.value);
-    }
-    if (introductionOrder.present) {
-      map['introduction_order'] = Variable<String>(
-        $DistillationsTable.$converterintroductionOrder.toSql(
-          introductionOrder.value,
-        ),
-      );
     }
     if (avoidCollisions.present) {
       map['avoid_collisions'] = Variable<bool>(avoidCollisions.value);
@@ -2084,7 +2045,6 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
           ..write('groupId: $groupId, ')
           ..write('cardsPerBatch: $cardsPerBatch, ')
           ..write('everyDays: $everyDays, ')
-          ..write('introductionOrder: $introductionOrder, ')
           ..write('avoidCollisions: $avoidCollisions, ')
           ..write('status: $status, ')
           ..write('startedAt: $startedAt, ')
@@ -4904,7 +4864,6 @@ typedef $$DistillationsTableCreateCompanionBuilder =
       Value<int> groupId,
       required int cardsPerBatch,
       required int everyDays,
-      required DistillationOrder introductionOrder,
       required bool avoidCollisions,
       required DistillationStatus status,
       required DateTime startedAt,
@@ -4917,7 +4876,6 @@ typedef $$DistillationsTableUpdateCompanionBuilder =
       Value<int> groupId,
       Value<int> cardsPerBatch,
       Value<int> everyDays,
-      Value<DistillationOrder> introductionOrder,
       Value<bool> avoidCollisions,
       Value<DistillationStatus> status,
       Value<DateTime> startedAt,
@@ -4970,12 +4928,6 @@ class $$DistillationsTableFilterComposer
   ColumnFilters<int> get everyDays => $composableBuilder(
     column: $table.everyDays,
     builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<DistillationOrder, DistillationOrder, String>
-  get introductionOrder => $composableBuilder(
-    column: $table.introductionOrder,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<bool> get avoidCollisions => $composableBuilder(
@@ -5052,11 +5004,6 @@ class $$DistillationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get introductionOrder => $composableBuilder(
-    column: $table.introductionOrder,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<bool> get avoidCollisions => $composableBuilder(
     column: $table.avoidCollisions,
     builder: (column) => ColumnOrderings(column),
@@ -5127,12 +5074,6 @@ class $$DistillationsTableAnnotationComposer
 
   GeneratedColumn<int> get everyDays =>
       $composableBuilder(column: $table.everyDays, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<DistillationOrder, String>
-  get introductionOrder => $composableBuilder(
-    column: $table.introductionOrder,
-    builder: (column) => column,
-  );
 
   GeneratedColumn<bool> get avoidCollisions => $composableBuilder(
     column: $table.avoidCollisions,
@@ -5217,8 +5158,6 @@ class $$DistillationsTableTableManager
                 Value<int> groupId = const Value.absent(),
                 Value<int> cardsPerBatch = const Value.absent(),
                 Value<int> everyDays = const Value.absent(),
-                Value<DistillationOrder> introductionOrder =
-                    const Value.absent(),
                 Value<bool> avoidCollisions = const Value.absent(),
                 Value<DistillationStatus> status = const Value.absent(),
                 Value<DateTime> startedAt = const Value.absent(),
@@ -5229,7 +5168,6 @@ class $$DistillationsTableTableManager
                 groupId: groupId,
                 cardsPerBatch: cardsPerBatch,
                 everyDays: everyDays,
-                introductionOrder: introductionOrder,
                 avoidCollisions: avoidCollisions,
                 status: status,
                 startedAt: startedAt,
@@ -5242,7 +5180,6 @@ class $$DistillationsTableTableManager
                 Value<int> groupId = const Value.absent(),
                 required int cardsPerBatch,
                 required int everyDays,
-                required DistillationOrder introductionOrder,
                 required bool avoidCollisions,
                 required DistillationStatus status,
                 required DateTime startedAt,
@@ -5253,7 +5190,6 @@ class $$DistillationsTableTableManager
                 groupId: groupId,
                 cardsPerBatch: cardsPerBatch,
                 everyDays: everyDays,
-                introductionOrder: introductionOrder,
                 avoidCollisions: avoidCollisions,
                 status: status,
                 startedAt: startedAt,

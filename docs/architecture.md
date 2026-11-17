@@ -28,7 +28,7 @@ Notifications run without the app: an alarm or a pressed notification button sta
 
 ### The domain does not know the time
 
-Domain functions receive the current moment as a parameter instead of reading the clock. This is what makes the 4am day boundary, sub-day intervals and the distillation rhythm testable without waiting or faking time. Randomness is injected the same way (`randomProvider`): the random queue order and the draw of the asked side are tested with a fixed generator.
+Domain functions receive the current moment as a parameter instead of reading the clock. This is what makes the 4am day boundary, sub-day intervals and the distillation rhythm testable without waiting or faking time. Randomness is injected the same way (`randomProvider`): the draw of the asked side is tested with a fixed generator.
 
 ### A sequence step is clamped to the current sequence
 

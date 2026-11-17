@@ -133,6 +133,6 @@ void main() {
       () => DistillationRepository(database).find(japaneseId),
     );
     expect(distillation!.everyDays, 2);
-    expect(find.text('1 carte tous les 2 jours · ordre du groupe'), findsOne);
+    expect(find.text('1 carte tous les 2 jours'), findsOne);
   });
 }

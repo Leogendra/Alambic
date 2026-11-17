@@ -4,7 +4,6 @@ import 'package:alambic/application/home/timeline_planner.dart';
 import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/distillation/distillation.dart';
-import 'package:alambic/domain/distillation/distillation_order.dart';
 import 'package:alambic/domain/distillation/distillation_rhythm.dart';
 import 'package:alambic/domain/distillation/distillation_status.dart';
 import 'package:alambic/domain/pauses/pauses.dart';
@@ -31,7 +30,6 @@ void main() {
     groupId: 1,
     cardsPerBatch: 1,
     everyDays: 2,
-    introductionOrder: DistillationOrder.groupOrder,
     avoidCollisions: false,
     status: status,
     startedAt: DateTime(2026, 11, 1),

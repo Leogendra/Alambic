@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_riverpod/misc.dart';
 import 'package:alambic/application/cards/card_draft.dart';
 import 'package:alambic/application/cards/card_service.dart';
@@ -32,13 +30,11 @@ import 'test_images.dart';
 /// Tuesday 10 November 2026, 9am.
 final DateTime sampleNow = DateTime(2026, 11, 10, 9);
 
-/// Services over [database], driven by [clock]. [random] orders the random
-/// distillations.
+/// Services over [database], driven by [clock].
 class SampleServices {
   factory SampleServices(
     AlambicDatabase database,
     FixedClock clock, {
-    Random? random,
     ImageStore? images,
   }) => SampleServices._(
     database,
@@ -54,7 +50,6 @@ class SampleServices {
       calendar: const SchedulingCalendar(),
       clock: clock.call,
       scheduleChangeListener: const IgnoredScheduleChanges(),
-      random: random,
     ),
   );
 

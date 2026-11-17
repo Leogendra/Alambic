@@ -725,9 +725,6 @@
   "distillMoreCards": "Plus de cartes",
   "distillFewerDays": "Moins de jours",
   "distillMoreDays": "Plus de jours",
-  "distillOrder": "Ordre",
-  "distillOrderGroup": "Ordre du groupe",
-  "distillOrderRandom": "Aléatoire",
   "distillAvoidCollisions": "Éviter les collisions",
   "distillAvoidCollisionsHint": "{count, plural, =1{1 notif par jour au plus pour cette distillation.} other{{count} notifs par jour au plus pour cette distillation.}} Les rappels passent avant les nouvelles cartes.",
   "@distillAvoidCollisionsHint": {
@@ -782,8 +779,6 @@
       }
     }
   },
-  "distillationOrderGroup": "ordre du groupe",
-  "distillationOrderRandom": "ordre aléatoire",
   "distillationLastArrival": "dernière le {date}",
   "@distillationLastArrival": {
     "placeholders": {

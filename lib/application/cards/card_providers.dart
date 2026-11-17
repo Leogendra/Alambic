@@ -19,7 +19,7 @@ final cardProvider = StreamProvider.family<Flashcard?, int>(
   (ref, cardId) => ref.watch(cardRepositoryProvider).watchCard(cardId),
 );
 
-/// Cards of a group, in the group order.
+/// Cards of a group, in creation order.
 final groupCardsProvider = StreamProvider.family<List<Flashcard>, int>(
   (ref, groupId) =>
       ref.watch(cardRepositoryProvider).watchCardsOfGroup(groupId),

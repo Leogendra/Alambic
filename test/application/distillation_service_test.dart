@@ -1,12 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/cards/card_draft.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/domain/cards/card_state.dart';
-import 'package:alambic/domain/distillation/distillation_order.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/distillation/distillation_status.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
@@ -28,7 +25,7 @@ void main() {
   setUp(() async {
     database = openTestDatabase();
     clock = FixedClock(DateTime(2026, 11, 10, 9));
-    services = SampleServices(database, clock, random: Random(3));
+    services = SampleServices(database, clock);
     cards = CardRepository(database);
     distillations = DistillationRepository(database);
     groupId = await services.groups.create('Capitales');
@@ -119,20 +116,6 @@ void main() {
     moveTo(DateTime(2026, 11, 14, 9));
     await services.distillations.advance();
     expect(await states(), [active, active, pending, pending]);
-  });
-
-  test('a random order shuffles the queue at activation', () async {
-    await activate(
-      settings: const DistillationSettings(
-        order: DistillationOrder.random,
-        avoidCollisions: false,
-      ),
-    );
-    final positions = {
-      for (final cardId in cardIds) (await cards.getCard(cardId)).queuePosition,
-    };
-    expect(positions.whereType<int>(), unorderedEquals([1, 2, 3]));
-    expect((await states()).where((state) => state == active), hasLength(1));
   });
 
   group('the distillation never ends', () {
@@ -231,21 +214,6 @@ void main() {
       expect(await states(), [active, active, active, active]);
     });
 
-    test('a new order ranks the queue again', () async {
-      await activate();
-      await services.distillations.adjust(
-        groupId,
-        const DistillationSettings(
-          order: DistillationOrder.random,
-          avoidCollisions: false,
-        ),
-      );
-      final ranks = [
-        for (final cardId in cardIds.skip(1))
-          (await cards.getCard(cardId)).queuePosition,
-      ];
-      expect(ranks, unorderedEquals([0, 1, 2]));
-    });
   });
 
   test('a suspended card keeps its place without being introduced', () async {

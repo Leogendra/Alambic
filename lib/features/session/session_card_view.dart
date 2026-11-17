@@ -91,7 +91,12 @@ class SessionCardView extends ConsumerWidget {
     final colors = AlambicColors.of(context);
     final groupName = ref.watch(groupProvider(card.groupId)).value?.name ?? '';
     final presetName =
-        ref.watch(presetCatalogProvider).value?.presetForCard(card).name ?? '';
+        ref
+            .watch(presetCatalogProvider)
+            .value
+            ?.presetForGroup(card.groupId)
+            .name ??
+        '';
     final labels = [
       '$groupName · $presetName',
       if (askedSide == CardSide.back) strings.sessionReverseBadge,

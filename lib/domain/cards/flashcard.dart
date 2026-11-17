@@ -3,7 +3,8 @@ import 'card_side.dart';
 import 'card_state.dart';
 
 /// A front / back card of a group, with its single progression: whichever
-/// face is asked, the card has one step, one due date and one history.
+/// face is asked, the card has one step, one due date and one history. It
+/// has no preset of its own: it follows the preset of its group.
 class Flashcard {
   const Flashcard({
     required this.id,
@@ -12,7 +13,6 @@ class Flashcard {
     required this.frontImagePath,
     required this.backText,
     required this.backImagePath,
-    required this.presetId,
     required this.suspended,
     required this.createdAt,
     required this.state,
@@ -29,9 +29,6 @@ class Flashcard {
   final String? frontImagePath;
   final String? backText;
   final String? backImagePath;
-
-  /// Preset chosen on the card itself; `null` inherits from the group.
-  final int? presetId;
 
   /// A suspended card is never due.
   final bool suspended;

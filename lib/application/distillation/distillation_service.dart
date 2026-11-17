@@ -188,7 +188,7 @@ class DistillationService {
             cardId: card.id,
             interval: CardProgress.of(
               card,
-              catalog.presetForCard(card),
+              catalog.presetForGroup(card.groupId),
             ).waitedInterval,
             dueAt: card.dueAt!,
           ),

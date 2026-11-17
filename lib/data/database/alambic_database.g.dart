@@ -2135,20 +2135,6 @@ class $FlashcardsTable extends Flashcards
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _presetIdMeta = const VerificationMeta(
-    'presetId',
-  );
-  @override
-  late final GeneratedColumn<int> presetId = GeneratedColumn<int>(
-    'preset_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES presets (id)',
-    ),
-  );
   static const VerificationMeta _suspendedMeta = const VerificationMeta(
     'suspended',
   );
@@ -2244,7 +2230,6 @@ class $FlashcardsTable extends Flashcards
     frontImagePath,
     backText,
     backImagePath,
-    presetId,
     suspended,
     createdAt,
     state,
@@ -2305,12 +2290,6 @@ class $FlashcardsTable extends Flashcards
           data['back_image_path']!,
           _backImagePathMeta,
         ),
-      );
-    }
-    if (data.containsKey('preset_id')) {
-      context.handle(
-        _presetIdMeta,
-        presetId.isAcceptableOrUnknown(data['preset_id']!, _presetIdMeta),
       );
     }
     if (data.containsKey('suspended')) {
@@ -2396,10 +2375,6 @@ class $FlashcardsTable extends Flashcards
         DriftSqlType.string,
         data['${effectivePrefix}back_image_path'],
       ),
-      presetId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}preset_id'],
-      ),
       suspended: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}suspended'],
@@ -2453,7 +2428,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
   final Value<String?> frontImagePath;
   final Value<String?> backText;
   final Value<String?> backImagePath;
-  final Value<int?> presetId;
   final Value<bool> suspended;
   final Value<DateTime> createdAt;
   final Value<CardState> state;
@@ -2469,7 +2443,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     this.frontImagePath = const Value.absent(),
     this.backText = const Value.absent(),
     this.backImagePath = const Value.absent(),
-    this.presetId = const Value.absent(),
     this.suspended = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.state = const Value.absent(),
@@ -2486,7 +2459,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     this.frontImagePath = const Value.absent(),
     this.backText = const Value.absent(),
     this.backImagePath = const Value.absent(),
-    this.presetId = const Value.absent(),
     this.suspended = const Value.absent(),
     required DateTime createdAt,
     required CardState state,
@@ -2505,7 +2477,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     Expression<String>? frontImagePath,
     Expression<String>? backText,
     Expression<String>? backImagePath,
-    Expression<int>? presetId,
     Expression<bool>? suspended,
     Expression<DateTime>? createdAt,
     Expression<String>? state,
@@ -2522,7 +2493,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
       if (frontImagePath != null) 'front_image_path': frontImagePath,
       if (backText != null) 'back_text': backText,
       if (backImagePath != null) 'back_image_path': backImagePath,
-      if (presetId != null) 'preset_id': presetId,
       if (suspended != null) 'suspended': suspended,
       if (createdAt != null) 'created_at': createdAt,
       if (state != null) 'state': state,
@@ -2541,7 +2511,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     Value<String?>? frontImagePath,
     Value<String?>? backText,
     Value<String?>? backImagePath,
-    Value<int?>? presetId,
     Value<bool>? suspended,
     Value<DateTime>? createdAt,
     Value<CardState>? state,
@@ -2558,7 +2527,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
       frontImagePath: frontImagePath ?? this.frontImagePath,
       backText: backText ?? this.backText,
       backImagePath: backImagePath ?? this.backImagePath,
-      presetId: presetId ?? this.presetId,
       suspended: suspended ?? this.suspended,
       createdAt: createdAt ?? this.createdAt,
       state: state ?? this.state,
@@ -2590,9 +2558,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     }
     if (backImagePath.present) {
       map['back_image_path'] = Variable<String>(backImagePath.value);
-    }
-    if (presetId.present) {
-      map['preset_id'] = Variable<int>(presetId.value);
     }
     if (suspended.present) {
       map['suspended'] = Variable<bool>(suspended.value);
@@ -2632,7 +2597,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
           ..write('frontImagePath: $frontImagePath, ')
           ..write('backText: $backText, ')
           ..write('backImagePath: $backImagePath, ')
-          ..write('presetId: $presetId, ')
           ..write('suspended: $suspended, ')
           ..write('createdAt: $createdAt, ')
           ..write('state: $state, ')
@@ -3352,24 +3316,6 @@ final class $$PresetsTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
-
-  static MultiTypedResultKey<$FlashcardsTable, List<Flashcard>>
-  _flashcardsRefsTable(_$AlambicDatabase db) => MultiTypedResultKey.fromTable(
-    db.flashcards,
-    aliasName: 'presets__id__flashcards__preset_id',
-  );
-
-  $$FlashcardsTableProcessedTableManager get flashcardsRefs {
-    final manager = $$FlashcardsTableTableManager(
-      $_db,
-      $_db.flashcards,
-    ).filter((f) => f.presetId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_flashcardsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
 }
 
 class $$PresetsTableFilterComposer
@@ -3469,31 +3415,6 @@ class $$PresetsTableFilterComposer
           }) => $$CardGroupsTableFilterComposer(
             $db: $db,
             $table: $db.cardGroups,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> flashcardsRefs(
-    Expression<bool> Function($$FlashcardsTableFilterComposer f) f,
-  ) {
-    final $$FlashcardsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.flashcards,
-      getReferencedColumn: (t) => t.presetId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FlashcardsTableFilterComposer(
-            $db: $db,
-            $table: $db.flashcards,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3640,31 +3561,6 @@ class $$PresetsTableAnnotationComposer
     );
     return f(composer);
   }
-
-  Expression<T> flashcardsRefs<T extends Object>(
-    Expression<T> Function($$FlashcardsTableAnnotationComposer a) f,
-  ) {
-    final $$FlashcardsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.flashcards,
-      getReferencedColumn: (t) => t.presetId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FlashcardsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.flashcards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$PresetsTableTableManager
@@ -3680,11 +3576,7 @@ class $$PresetsTableTableManager
           $$PresetsTableUpdateCompanionBuilder,
           (Preset, $$PresetsTableReferences),
           Preset,
-          PrefetchHooks Function({
-            bool appSettingsRefs,
-            bool cardGroupsRefs,
-            bool flashcardsRefs,
-          })
+          PrefetchHooks Function({bool appSettingsRefs, bool cardGroupsRefs})
         > {
   $$PresetsTableTableManager(_$AlambicDatabase db, $PresetsTable table)
     : super(
@@ -3742,17 +3634,12 @@ class $$PresetsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({
-                appSettingsRefs = false,
-                cardGroupsRefs = false,
-                flashcardsRefs = false,
-              }) {
+              ({appSettingsRefs = false, cardGroupsRefs = false}) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (appSettingsRefs) db.appSettings,
                     if (cardGroupsRefs) db.cardGroups,
-                    if (flashcardsRefs) db.flashcards,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -3797,26 +3684,6 @@ class $$PresetsTableTableManager
                           referencedColumn: 'preset_id',
                           typedResults: items,
                         ),
-                      if (flashcardsRefs)
-                        await $_getPrefetchedDataByColumns<
-                          Preset,
-                          $PresetsTable,
-                          Flashcard,
-                          $FlashcardsTable
-                        >(
-                          currentTable: table,
-                          referencedTable: $$PresetsTableReferences
-                              ._flashcardsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$PresetsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).flashcardsRefs,
-                          currentColumn: 'id',
-                          referencedColumn: 'preset_id',
-                          typedResults: items,
-                        ),
                     ];
                   },
                 );
@@ -3837,11 +3704,7 @@ typedef $$PresetsTableProcessedTableManager =
       $$PresetsTableUpdateCompanionBuilder,
       (Preset, $$PresetsTableReferences),
       Preset,
-      PrefetchHooks Function({
-        bool appSettingsRefs,
-        bool cardGroupsRefs,
-        bool flashcardsRefs,
-      })
+      PrefetchHooks Function({bool appSettingsRefs, bool cardGroupsRefs})
     >;
 typedef $$AppSettingsTableCreateCompanionBuilder =
     AppSettingsCompanion Function({
@@ -5378,7 +5241,6 @@ typedef $$FlashcardsTableCreateCompanionBuilder = FlashcardsCompanion Function({
   Value<String?> frontImagePath,
   Value<String?> backText,
   Value<String?> backImagePath,
-  Value<int?> presetId,
   Value<bool> suspended,
   required DateTime createdAt,
   required CardState state,
@@ -5395,7 +5257,6 @@ typedef $$FlashcardsTableUpdateCompanionBuilder = FlashcardsCompanion Function({
   Value<String?> frontImagePath,
   Value<String?> backText,
   Value<String?> backImagePath,
-  Value<int?> presetId,
   Value<bool> suspended,
   Value<DateTime> createdAt,
   Value<CardState> state,
@@ -5421,23 +5282,6 @@ final class $$FlashcardsTableReferences
       $_db.cardGroups,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_groupIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $PresetsTable _presetIdTable(_$AlambicDatabase db) =>
-      db.presets.createAlias('flashcards__preset_id__presets__id');
-
-  $$PresetsTableProcessedTableManager? get presetId {
-    final $_column = $_itemColumn<int>('preset_id');
-    if ($_column == null) return null;
-    final manager = $$PresetsTableTableManager(
-      $_db,
-      $_db.presets,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_presetIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -5572,29 +5416,6 @@ class $$FlashcardsTableFilterComposer
           }) => $$CardGroupsTableFilterComposer(
             $db: $db,
             $table: $db.cardGroups,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$PresetsTableFilterComposer get presetId {
-    final $$PresetsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.presetId,
-      referencedTable: $db.presets,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PresetsTableFilterComposer(
-            $db: $db,
-            $table: $db.presets,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -5751,29 +5572,6 @@ class $$FlashcardsTableOrderingComposer
     );
     return composer;
   }
-
-  $$PresetsTableOrderingComposer get presetId {
-    final $$PresetsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.presetId,
-      referencedTable: $db.presets,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PresetsTableOrderingComposer(
-            $db: $db,
-            $table: $db.presets,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$FlashcardsTableAnnotationComposer
@@ -5857,29 +5655,6 @@ class $$FlashcardsTableAnnotationComposer
     return composer;
   }
 
-  $$PresetsTableAnnotationComposer get presetId {
-    final $$PresetsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.presetId,
-      referencedTable: $db.presets,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PresetsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.presets,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
   Expression<T> reviewRecordsRefs<T extends Object>(
     Expression<T> Function($$ReviewRecordsTableAnnotationComposer a) f,
   ) {
@@ -5946,7 +5721,6 @@ class $$FlashcardsTableTableManager
           Flashcard,
           PrefetchHooks Function({
             bool groupId,
-            bool presetId,
             bool reviewRecordsRefs,
             bool extraRemindersRefs,
           })
@@ -5970,7 +5744,6 @@ class $$FlashcardsTableTableManager
                 Value<String?> frontImagePath = const Value.absent(),
                 Value<String?> backText = const Value.absent(),
                 Value<String?> backImagePath = const Value.absent(),
-                Value<int?> presetId = const Value.absent(),
                 Value<bool> suspended = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<CardState> state = const Value.absent(),
@@ -5986,7 +5759,6 @@ class $$FlashcardsTableTableManager
                 frontImagePath: frontImagePath,
                 backText: backText,
                 backImagePath: backImagePath,
-                presetId: presetId,
                 suspended: suspended,
                 createdAt: createdAt,
                 state: state,
@@ -6004,7 +5776,6 @@ class $$FlashcardsTableTableManager
                 Value<String?> frontImagePath = const Value.absent(),
                 Value<String?> backText = const Value.absent(),
                 Value<String?> backImagePath = const Value.absent(),
-                Value<int?> presetId = const Value.absent(),
                 Value<bool> suspended = const Value.absent(),
                 required DateTime createdAt,
                 required CardState state,
@@ -6020,7 +5791,6 @@ class $$FlashcardsTableTableManager
                 frontImagePath: frontImagePath,
                 backText: backText,
                 backImagePath: backImagePath,
-                presetId: presetId,
                 suspended: suspended,
                 createdAt: createdAt,
                 state: state,
@@ -6041,7 +5811,6 @@ class $$FlashcardsTableTableManager
           prefetchHooksCallback:
               ({
                 groupId = false,
-                presetId = false,
                 reviewRecordsRefs = false,
                 extraRemindersRefs = false,
               }) {
@@ -6075,17 +5844,6 @@ class $$FlashcardsTableTableManager
                                 ._groupIdTable(db),
                             referencedColumn: $$FlashcardsTableReferences
                                 ._groupIdTable(db)
-                                .id,
-                          ) as T;
-                        }
-                        if (presetId) {
-                          state = state.withJoin(
-                            currentTable: table,
-                            currentColumn: table.presetId,
-                            referencedTable: $$FlashcardsTableReferences
-                                ._presetIdTable(db),
-                            referencedColumn: $$FlashcardsTableReferences
-                                ._presetIdTable(db)
                                 .id,
                           ) as T;
                         }
@@ -6156,7 +5914,6 @@ typedef $$FlashcardsTableProcessedTableManager =
       Flashcard,
       PrefetchHooks Function({
         bool groupId,
-        bool presetId,
         bool reviewRecordsRefs,
         bool extraRemindersRefs,
       })

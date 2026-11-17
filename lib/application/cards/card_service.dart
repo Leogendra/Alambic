@@ -68,7 +68,6 @@ class CardService {
         frontImagePath: frontImage,
         backText: _textOf(draft.backText),
         backImagePath: backImage,
-        presetId: draft.presetId,
       );
       if (joiningPosition != null) {
         await _cards.setQueuePosition(cardId, joiningPosition);
@@ -119,7 +118,6 @@ class CardService {
     frontImagePath: frontImage,
     backText: _textOf(draft.backText),
     backImagePath: backImage,
-    presetId: draft.presetId,
     createdAt: _clock(),
     queuePosition: await _queueEnd(draft.groupId),
   );

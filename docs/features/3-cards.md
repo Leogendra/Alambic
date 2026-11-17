@@ -4,11 +4,11 @@ Status: in progress (2026-11-16)
 
 ## Goal
 
-Create and edit front / back [cards](../lexicon.md#card), put them in a group and give them a preset, then follow and manage each card from its sheet. A face holds a text, an image, or both.
+Create and edit front / back [cards](../lexicon.md#card), put them in a group, then follow and manage each card from its sheet. A face holds a text, an image, or both.
 
 ## Implementation overview
 
-The "+" button of the navigation opens an empty card editor. The same screen edits an existing card. It shows the front, the back, the group (the group the user came from, or none chosen yet) and the preset, inherited until one is chosen. The preset row says where it comes from: "Inherited from the group: Standard" or "Global preset: Standard".
+The "+" button of the navigation opens an empty card editor. The same screen edits an existing card. It shows the front, the back and the group (the group the user came from, or none chosen yet). It offers no preset: a card follows the preset of its group ([Feature 2](2-presets.md#cascading-resolution)).
 
 Every card needs a group. The group row opens the list of groups; its "+" button asks for the name of a new group, creates it and chooses it. With no group yet, the row itself asks for a name. Saving without a group is refused with a message.
 

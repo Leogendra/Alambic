@@ -46,8 +46,9 @@ class CardStatusFormatter {
       strings.dueDateLabel(dueAt, now: now, calendar: calendar);
 
   /// "S1"; `null` for a card never answered.
-  String? reminderLabel(Flashcard card) =>
-      strings.progressLabel(CardProgress.of(card, catalog.presetForCard(card)));
+  String? reminderLabel(Flashcard card) => strings.progressLabel(
+    CardProgress.of(card, catalog.presetForGroup(card.groupId)),
+  );
 
   String _scheduled(Flashcard card) {
     final when = isDue(card) ? strings.dueNow : dueDateLabel(card.dueAt!);

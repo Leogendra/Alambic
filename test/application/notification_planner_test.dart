@@ -118,12 +118,7 @@ void main() {
     final cardIds = [
       for (final country in ['Mongolie', 'Pérou'])
         await cards.create(
-          CardDraft(
-            frontText: country,
-            backText: 'capitale',
-            groupId: groupId,
-            presetId: null,
-          ),
+          CardDraft(frontText: country, backText: 'capitale', groupId: groupId),
         ),
     ];
     await harness

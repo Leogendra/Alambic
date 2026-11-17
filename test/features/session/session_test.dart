@@ -63,7 +63,6 @@ void main() {
           backText: 'Pérou',
           frontImage: const PickedImage('test/support/fixtures/flag.png'),
           groupId: flags,
-          presetId: null,
         ),
       );
       await services.introduceAll(flags);

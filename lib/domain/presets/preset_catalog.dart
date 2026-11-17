@@ -1,9 +1,8 @@
-import '../cards/flashcard.dart';
 import 'preset.dart';
 import 'preset_resolver.dart';
 
 /// Snapshot of every preset and of the choices made at each level, to resolve
-/// the preset of many cards at once (lists, sessions) without querying.
+/// the preset of many groups at once (lists, sessions) without querying.
 class PresetCatalog {
   const PresetCatalog({
     required this.presetsById,
@@ -19,18 +18,10 @@ class PresetCatalog {
 
   Preset get globalPreset => presetsById[globalPresetId]!;
 
-  /// Preset applied to the cards of [groupId] that have no choice of their own.
+  /// Preset followed by the cards of [groupId].
   Preset presetForGroup(int groupId) =>
       presetsById[PresetResolver.resolve(
-        cardPresetId: null,
         groupPresetId: groupPresetIds[groupId],
-        globalPresetId: globalPresetId,
-      )]!;
-
-  Preset presetForCard(Flashcard card) =>
-      presetsById[PresetResolver.resolve(
-        cardPresetId: card.presetId,
-        groupPresetId: groupPresetIds[card.groupId],
         globalPresetId: globalPresetId,
       )]!;
 }

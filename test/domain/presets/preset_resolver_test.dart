@@ -2,36 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/domain/presets/preset_resolver.dart';
 
 void main() {
-  test('the card choice wins over the group and the global preset', () {
-    expect(
-      PresetResolver.resolve(
-        cardPresetId: 3,
-        groupPresetId: 2,
-        globalPresetId: 1,
-      ),
-      3,
-    );
+  test('the group choice wins over the global preset', () {
+    expect(PresetResolver.resolve(groupPresetId: 2, globalPresetId: 1), 2);
   });
 
-  test('a card without choice inherits its group preset', () {
-    expect(
-      PresetResolver.resolve(
-        cardPresetId: null,
-        groupPresetId: 2,
-        globalPresetId: 1,
-      ),
-      2,
-    );
-  });
-
-  test('a card outside any group inherits the global preset', () {
-    expect(
-      PresetResolver.resolve(
-        cardPresetId: null,
-        groupPresetId: null,
-        globalPresetId: 1,
-      ),
-      1,
-    );
+  test('a group without choice inherits the global preset', () {
+    expect(PresetResolver.resolve(groupPresetId: null, globalPresetId: 1), 1);
   });
 }

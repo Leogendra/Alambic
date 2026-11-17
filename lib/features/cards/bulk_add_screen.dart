@@ -142,7 +142,6 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
           frontText: draft.front,
           backText: draft.back,
           groupId: _groupId,
-          presetId: null,
         ),
     ]);
     messenger.showSnackBar(SnackBar(content: Text(strings.bulkAdded(count))));

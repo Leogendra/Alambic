@@ -9,7 +9,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Main navigation with four tabs and a card creation button, in light and dark theme.
 - Standard (1 day to 6 months) and Intensive (10 min to 1 week) presets, created on first launch.
 - Preset list and editor in Settings: create, edit and duplicate a preset, and choose the global preset.
-- Creation and editing of text cards, each in a group, with a card-specific preset. The group row creates a new group from its name with "+". A new card waits in its group's queue until the group's distillation brings it in.
+- Creation and editing of text cards, each in a group. The group row creates a new group from its name with "+". A new card waits in its group's queue until the group's distillation brings it in.
 - Groups tab: list of groups with their due cards, card search, group page and group settings (name, preset, back, deletion of the group with its cards).
 - "Review all" on a group page: a session on every card of the group, where only the cards due today count; the others are bonus reviews.
 - Back of a group: once enabled, each display of a card (session, notification, typed answer) asks its front or its back at random, with a single progression per card.
@@ -41,6 +41,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 
 ### Removed
 
+- The preset of a card: a card always follows the preset of its group, and the card editor no longer offers one.
 - The Adaptive preset and the choice of an adaptive engine in the preset editor: every preset follows its fixed sequence of steps. The card sheet no longer shows a stability and a difficulty.
 
 ### Fixed

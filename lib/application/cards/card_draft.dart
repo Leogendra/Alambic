@@ -6,7 +6,6 @@ class CardDraft {
     required this.frontText,
     required this.backText,
     required this.groupId,
-    required this.presetId,
     this.frontImage,
     this.backImage,
   });
@@ -20,9 +19,6 @@ class CardDraft {
 
   /// Every card belongs to a group.
   final int groupId;
-
-  /// Preset chosen on the card; `null` inherits from the group.
-  final int? presetId;
 
   /// Each face needs content: text, an image, or both.
   bool get isComplete =>

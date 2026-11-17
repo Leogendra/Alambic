@@ -4,8 +4,8 @@ import 'preset_interval.dart';
 import 'sequence_end_behavior.dart';
 
 /// The rhythm of the reviews: a fixed sequence of intervals walked step by
-/// step. A group or a card picks a whole preset: there is no field-by-field
-/// override.
+/// step. A group picks a whole preset or inherits the global one: there is no
+/// field-by-field override.
 class Preset {
   const Preset({
     required this.id,

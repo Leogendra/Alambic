@@ -49,7 +49,6 @@ void main() {
     frontText: front,
     backText: 'Oulan-Bator',
     groupId: inGroup ?? groupId,
-    presetId: null,
   );
 
   /// Gives a card a progression, as if its distillation had introduced it
@@ -113,7 +112,6 @@ void main() {
       frontText: 'Mongolie',
       backText: '  ',
       groupId: groupId,
-      presetId: null,
     );
     expect(() => service.create(incomplete), throwsArgumentError);
   });
@@ -127,7 +125,6 @@ void main() {
           backText: 'Pérou',
           frontImage: front,
           groupId: groupId,
-          presetId: null,
         );
 
     bool stored(String? name) =>

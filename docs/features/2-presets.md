@@ -4,7 +4,7 @@ Status: in progress (2026-11-17)
 
 ## Goal
 
-A [preset](../lexicon.md#preset) gathers the rhythm of the reviews of a card: interval sequence, failure behaviour, end of sequence. When in the day and how the cards are notified is the [schedule](../lexicon.md#schedule) of the app, set in Settings. The user has nothing to set up to begin (Standard applies everywhere), then can pick another preset for a group or a card, or create their own.
+A [preset](../lexicon.md#preset) gathers the rhythm of the reviews of a card: interval sequence, failure behaviour, end of sequence. When in the day and how the cards are notified is the [schedule](../lexicon.md#schedule) of the app, set in Settings. The user has nothing to set up to begin (Standard applies everywhere), then can pick another preset for a group, or create their own. A card has no preset of its own: it follows its group.
 
 ## Implementation overview
 
@@ -21,9 +21,9 @@ Each shipped preset carries a key (`builtInKey`) that recognises it even after a
 
 ### Cascading resolution
 
-A card's preset is read in three levels: the choice made on the card, otherwise its group's, otherwise the global preset. A level with no choice inherits from the next one; there is no field-by-field override. Cards without a group go straight from their own choice to the global preset.
+A card follows the preset of its group, read in two levels: the group's choice, otherwise the global preset. A group with no choice inherits the global preset; there is no field-by-field override.
 
-This rule has a single implementation, `PresetResolver`. Screens and services go through `PresetCatalog`, a snapshot of all presets and of every group's choice, which resolves the preset of many cards without querying the database for each one. The preset repository publishes it as a stream and republishes it as soon as a preset, the global preset or a group's choice changes.
+This rule has a single implementation, `PresetResolver`. Screens and services go through `PresetCatalog`, a snapshot of all presets and of every group's choice, which resolves the preset of many groups without querying the database for each card. The preset repository publishes it as a stream and republishes it as soon as a preset, the global preset or a group's choice changes.
 
 ### Preset management
 
@@ -35,13 +35,13 @@ The editor works on a draft and writes nothing before "Save". It sets the name, 
 
 ### Preset change
 
-Changing the preset of a card, of a group or the global preset rewrites no card: the step and due date of each card stay as they are. If the new sequence is shorter, the engine clamps the step to the last step at the next answer ([Feature 1](1-scheduling.md#the-step)).
+Changing the preset of a group or the global preset rewrites no card: the step and due date of each card stay as they are. If the new sequence is shorter, the engine clamps the step to the last step at the next answer ([Feature 1](1-scheduling.md#the-step)).
 
 ## Acceptance criteria
 
 - [x] A fresh database contains Standard and Intensive, with the intervals above.
-- [x] A card with no choice follows its group's preset, a group with no choice follows the global preset.
-- [x] The choice made on a card wins over its group's.
+- [x] A card follows its group's preset; a group with no choice follows the global preset.
+- [x] A card has no preset of its own: neither the card editor nor the card sheet offers one.
 - [x] Changing preset keeps the step and the due date; a step that is too high is clamped to the last step.
 - [x] A preset is created from the Standard values, any preset can be edited, a preset can be duplicated under a new name.
 - [x] A preset without a name or without a step cannot be saved.
@@ -60,7 +60,7 @@ Changing the preset of a card, of a group or the global preset rewrites no card:
 - `lib/data/repositories/preset_repository.dart` — reading and writing presets and the global preset, catalog stream.
 - `lib/data/database/preset_companions.dart` — writing a domain `Preset` into its table.
 - `lib/application/presets/` — creation, editing and duplication service; Riverpod providers of the presets and the catalog.
-- `lib/features/presets/` — list, editor, step dialog and the preset picker reused by groups and cards.
+- `lib/features/presets/` — list, editor, step dialog and the preset picker of the group settings.
 - `lib/features/settings/settings_screen.dart` — access to presets and choice of the global preset.
 
 ## Technical details

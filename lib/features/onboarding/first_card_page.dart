@@ -49,7 +49,6 @@ class _FirstCardPageState extends ConsumerState<FirstCardPage> {
             frontText: _frontController.text,
             backText: _backController.text,
             groupId: groupId,
-            presetId: null,
           ),
         );
     ref.read(firstGroupProvider.notifier).remember(groupId);

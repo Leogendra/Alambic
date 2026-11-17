@@ -160,7 +160,8 @@ class _GroupBody extends ConsumerWidget {
   }
 
   /// "Review all": a session on every card of the group, where only the
-  /// cards due today count; the others are bonus reviews.
+  /// cards due today count; the others are bonus reviews, and a pending card
+  /// missed goes to the head of the queue.
   Future<void> _reviewAll(BuildContext context, WidgetRef ref) {
     final cards = ref.read(groupCardsProvider(summary.groupId)).value ?? [];
     final review = WholeGroupReview(ref.read(duePolicyProvider));
@@ -168,6 +169,7 @@ class _GroupBody extends ConsumerWidget {
       context,
       ref,
       review.cardIds(cards, ref.read(clockProvider)()),
+      raisesMissedPending: true,
     );
   }
 }

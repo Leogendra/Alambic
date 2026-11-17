@@ -159,4 +159,39 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Mongolie'), findsOneWidget);
   });
+
+  testWidgets('"Review all" raises a missed pending card at once, even when '
+      'the session is left', (tester) async {
+    late int capitals;
+    late List<SessionItem> pendingItems;
+    await tester.runAsync(() async {
+      final services = SampleServices(database, FixedClock(sampleNow));
+      capitals = await services.groups.create('Capitales');
+      final ids = [
+        for (final country in ['Kenya', 'Chili', 'Maroc'])
+          await services.card(country, 'capitale', groupId: capitals),
+      ];
+      pendingItems = [
+        for (final cardId in ids.reversed)
+          SessionItem(cardId: cardId, askedSide: CardSide.front),
+      ];
+    });
+    await pumpGolden(
+      tester,
+      SessionScreen(items: pendingItems, raisesMissedPending: true),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await answer(tester, 'À revoir');
+    await tester.tap(find.byTooltip('Quitter la session'));
+    await tester.pumpAndSettle();
+    final cards = await tester.runAsync(
+      () => CardRepository(database).getCardsOfGroup(capitals),
+    );
+    final queue = cards!
+      ..sort(
+        (first, second) =>
+            first.queuePosition!.compareTo(second.queuePosition!),
+      );
+    expect(queue.map((card) => card.frontText), ['Maroc', 'Kenya', 'Chili']);
+  });
 }

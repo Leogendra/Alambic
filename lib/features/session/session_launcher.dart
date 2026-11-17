@@ -6,18 +6,23 @@ import 'session_screen.dart';
 
 /// Opens a session on [cardIds], due or not: answering a card that is not
 /// due is a bonus review. The asked face of each card is drawn now. Does
-/// nothing when there is no card.
+/// nothing when there is no card. [raisesMissedPending] is for "Review all"
+/// of a group (see [SessionScreen.raisesMissedPending]).
 Future<void> openSession(
   BuildContext context,
   WidgetRef ref,
-  Iterable<int> cardIds,
-) async {
+  Iterable<int> cardIds, {
+  bool raisesMissedPending = false,
+}) async {
   final navigator = Navigator.of(context);
   final items = await ref.read(sessionItemFactoryProvider).itemsFor(cardIds);
   if (items.isNotEmpty) {
     await navigator.push(
       MaterialPageRoute<void>(
-        builder: (context) => SessionScreen(items: items),
+        builder: (context) => SessionScreen(
+          items: items,
+          raisesMissedPending: raisesMissedPending,
+        ),
       ),
     );
   }

@@ -32,7 +32,9 @@ The page opened at the end of the onboarding points out "Distill" with a line ab
 
 ### Review all
 
-"Review all" opens a session on every card of the group, introduced or not. The cards due today come first, oldest due date first, and count normally; then the other introduced cards, soonest due first; then the pending cards in queue order. These last two kinds are [bonus reviews](../lexicon.md#bonus-review): their step and due date do not move, and a pending card stays pending. Suspended cards are left out.
+"Review all" opens a session on every card of the group, introduced or not. The cards due today come first, oldest due date first, and count normally; then the other introduced cards, soonest due first; then the pending cards in queue order. These last two kinds are [bonus reviews](../lexicon.md#bonus-review): their step and due date do not move, and a pending card stays pending. Suspended and [acquired](../lexicon.md#acquired) cards are left out.
+
+The session is also a pre-test of the [queue](../lexicon.md#queue): a pending card answered "Again" goes to the head of the queue, and will be the next card the distillation introduces; "Correct" leaves it in place. Each missed card goes to the very top in turn, so the last one missed comes out first, ahead of the other missed ones and of the rest of the queue, unchanged. The move is made at each answer: leaving the session halfway keeps the cards already raised. The history records these answers as bonus reviews, without the move. "Review the missed cards now", at the end of the session, raises nothing.
 
 ### Back option
 
@@ -66,7 +68,8 @@ Counters are computed by `GroupOverview` from all cards, the preset catalog and 
 - [x] A group page shows the due / active / waiting counters and the card list with where each card stands.
 - [x] The acquired cards are in their own section, folded by default and absent when there are none.
 - [x] A group that does not distill shows a large "Distill" button; once activated, its tracking replaces it.
-- [x] "Review all" asks the due cards first, then the other introduced cards, then the pending ones, all but the due ones as bonus reviews, and leaves suspended cards out.
+- [x] "Review all" asks the due cards first, then the other introduced cards, then the pending ones, all but the due ones as bonus reviews, and leaves suspended and acquired cards out.
+- [x] In "Review all", a pending card answered "Again" goes to the head of the queue at once, the last one missed first.
 - [x] The back option is switched from the group page or its settings.
 - [x] A group is created, renamed, changes preset or inherits the global preset.
 - [x] Deleting a group deletes its cards and their history.
@@ -78,7 +81,8 @@ Counters are computed by `GroupOverview` from all cards, the preset catalog and 
 ## Test strategy
 
 - Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the [daily slot](../lexicon.md#daily-slot), with a suspended card.
-- The order of "Review all" is tested as pure logic (due, introduced, pending, suspended, acquired without date), then on the group page, down to the session it opens.
+- The order of "Review all" is tested as pure logic (due, introduced, pending, suspended, acquired), then on the group page, down to the session it opens.
+- Raising a missed pending card is tested on an in-memory database with the queue as the distillation reads it: one card, several, a correct answer, a forced bonus, a card added afterwards, the next introduction; and through a session left after one answer.
 - The group service is tested for creation, renaming, refusal of an empty name, the back option, the end of sequence (the acquired cards sent back into remanence) and deletion with its cards.
 - The tab (list and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock; the group page (with a folded acquired section) and its settings in light and dark theme. The acquired section is unfolded and folded again by touch. The settings screen is driven to change the remanence interval, the typed answer and the end of sequence, read back from the database.
 

@@ -50,15 +50,14 @@ class ReviewService {
       final now = _clock();
       final card = await _cards.getCard(cardId);
       final catalog = await _presets.loadCatalog();
-      final preset = catalog.presetForGroup(card.groupId);
       if (forceBonus || !_duePolicy.isDueToday(card, now: now)) {
         await _recordBonus(card, outcome, source, now);
-        return ReviewResult(isBonus: true, schedule: null, preset: preset);
+        return const ReviewResult(isBonus: true, schedule: null);
       } else {
         final schedule = _scheduler.afterAnswer(
           card: card,
           outcome: outcome,
-          preset: preset,
+          preset: catalog.presetForGroup(card.groupId),
           end: catalog.sequenceEndForGroup(card.groupId),
           answeredAt: now,
           dailySlot: await _dailySlot(),
@@ -75,7 +74,7 @@ class ReviewService {
           dueAtAfter: schedule.dueAt,
           source: source,
         );
-        return ReviewResult(isBonus: false, schedule: schedule, preset: preset);
+        return ReviewResult(isBonus: false, schedule: schedule);
       }
     });
     if (!result.isBonus) {

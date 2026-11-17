@@ -15,7 +15,6 @@ import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
-import 'package:alambic/domain/scheduling/card_progress.dart';
 
 import '../support/fake_notifications.dart';
 import '../support/fixed_clock.dart';
@@ -57,7 +56,7 @@ void main() {
   }
 
   group('at the slot', () {
-    test('shows each due card once, with its group and step', () async {
+    test('shows each due card once, with its group', () async {
       await dispatchAt(DateTime(2026, 11, 10, 12));
       final prompts = harness.presenter.prompts.values;
       expect(prompts, hasLength(7));
@@ -66,7 +65,6 @@ void main() {
           .prompts[ReviewNotificationKey(cardId: await mongoliaId())]!;
       expect(mongolia.prompt, 'Mongolie');
       expect(mongolia.groupName, 'Capitales');
-      expect(mongolia.progress, isA<NewProgress>());
       expect(mongolia.image, isNull);
       harness.presenter.prompts.clear();
       await dispatchAt(DateTime(2026, 11, 10, 12, 1));

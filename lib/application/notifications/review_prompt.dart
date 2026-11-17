@@ -1,12 +1,9 @@
 import '../../domain/cards/card_side.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/groups/card_group.dart';
-import '../../domain/presets/preset.dart';
-import '../../domain/scheduling/card_progress.dart';
 import 'review_notification_key.dart';
 
-/// Content of a notification asking a card: the asked face and where the
-/// card stands. Formatted into text by the platform implementation.
+/// Content of a notification asking a card: the asked face and its group. Formatted into text by the platform implementation.
 class ReviewPrompt {
   const ReviewPrompt({
     required this.key,
@@ -14,19 +11,17 @@ class ReviewPrompt {
     required this.prompt,
     required this.image,
     required this.groupName,
-    required this.progress,
     required this.typedAnswer,
     this.chainRemaining,
   });
 
   /// The notification of [card] asking its [askedSide] face, following
-  /// [preset] and the options of its [group].
+  /// the options of its [group].
   factory ReviewPrompt.of({
     required ReviewNotificationKey key,
     required Flashcard card,
     required CardSide askedSide,
     required CardGroup group,
-    required Preset preset,
     int? chainRemaining,
   }) => ReviewPrompt(
     key: key,
@@ -34,7 +29,6 @@ class ReviewPrompt {
     prompt: card.promptFor(askedSide).text ?? '',
     image: card.promptFor(askedSide).imagePath,
     groupName: group.name,
-    progress: CardProgress.of(card, preset, group.sequenceEnd),
     // Without text on the answer face, there is nothing to compare with.
     typedAnswer: group.typedAnswer && card.answerFor(askedSide).hasText,
     chainRemaining: chainRemaining,
@@ -51,9 +45,6 @@ class ReviewPrompt {
   /// Image of the asked face, by its name in the image store.
   final String? image;
   final String groupName;
-
-  /// Where the card stands in the sequence of its preset.
-  final CardProgress progress;
 
   /// Asks for a typed answer ("Answer" and "Again") instead of "Correct" and
   /// "Again".

@@ -64,7 +64,9 @@ void main() {
         brightness: brightness,
         overrides: screenOverrides(database, renderAt),
       );
-      expect(find.text('J2'), findsOneWidget);
+      // No reminder label; the remanence follows the last step of Standard.
+      expect(find.text('J2'), findsNothing);
+      expect(find.text('6 mois'), findsNWidgets(2));
       expect(find.text('bonus'), findsNWidgets(2));
       await expectLater(
         find.byType(CardSheetScreen),

@@ -14,8 +14,8 @@ import '../../data/images/image_store.dart';
 import '../review_texts.dart';
 import 'notification_payload.dart';
 
-/// Review notifications on Android: the asked face as title, the step as
-/// text, the group as sub-text, and the answer buttons handled in the
+/// Review notifications on Android: the asked face as title, the group as
+/// text, and the answer buttons handled in the
 /// background without opening the app. A face with an image shows it once
 /// the notification is expanded.
 class AndroidNotificationPresenter implements NotificationPresenter {
@@ -52,7 +52,6 @@ class AndroidNotificationPresenter implements NotificationPresenter {
         askedSide: prompt.askedSide,
       ),
       notificationDetails: _details(
-        subText: _texts.groupLabel(prompt),
         style: _picture(prompt.image, title: title, summary: detail),
         // A chained card follows the answer of the previous one.
         onlyAlertOnce: prompt.key.chain != null,
@@ -236,7 +235,6 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   }
 
   AndroidNotificationDetails _details({
-    String? subText,
     StyleInformation? style,
     bool onlyAlertOnce = false,
     bool silent = false,
@@ -248,7 +246,6 @@ class AndroidNotificationPresenter implements NotificationPresenter {
     importance: Importance.high,
     priority: Priority.high,
     category: AndroidNotificationCategory.reminder,
-    subText: subText,
     styleInformation: style,
     onlyAlertOnce: onlyAlertOnce,
     silent: silent,

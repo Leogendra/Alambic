@@ -116,7 +116,7 @@ class _DaySection extends StatelessWidget {
 }
 
 /// A card reminder: its front, its group with "late" or the time of today's
-/// reminder, and its label ("S1", "Review soon").
+/// reminder, and "Review soon" for an extra reminder.
 class _CardRow extends StatelessWidget {
   const _CardRow({
     required this.entry,
@@ -134,9 +134,6 @@ class _CardRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = formatter.strings;
     final colors = AlambicColors.of(context);
-    final label = entry.isExtraReminder
-        ? strings.cardSheetReviewSoon
-        : formatter.reminderLabel(entry.card);
     return InkWell(
       onTap: () => openCard(context, entry.card.id),
       child: Padding(
@@ -178,9 +175,9 @@ class _CardRow extends StatelessWidget {
                 ],
               ),
             ),
-            if (label != null)
+            if (entry.isExtraReminder)
               Text(
-                label,
+                strings.cardSheetReviewSoon,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

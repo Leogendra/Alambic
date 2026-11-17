@@ -9,11 +9,7 @@ import 'package:alambic/application/notifications/review_prompt.dart';
 import 'package:alambic/application/reviews/review_result.dart';
 import 'package:alambic/domain/cards/card_side.dart';
 import 'package:alambic/domain/cards/card_state.dart';
-import 'package:alambic/domain/presets/built_in_presets.dart';
-import 'package:alambic/domain/presets/interval_unit.dart';
-import 'package:alambic/domain/presets/preset_interval.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
-import 'package:alambic/domain/scheduling/card_progress.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 import 'package:alambic/l10n/generated/app_localizations.dart';
@@ -29,22 +25,16 @@ void main() {
 
   ReviewPrompt prompt({
     ReviewNotificationKey key = key,
-    int? step = 1,
     CardSide askedSide = CardSide.front,
+    int? chainRemaining,
   }) => ReviewPrompt(
     key: key,
     askedSide: askedSide,
     prompt: 'Pérou',
     image: null,
     groupName: 'Capitales',
-    progress: step == null
-        ? const NewProgress()
-        : SequenceProgress(
-            step: step,
-            sequenceLength: 6,
-            interval: const PresetInterval(2, IntervalUnit.day),
-          ),
     typedAnswer: false,
+    chainRemaining: chainRemaining,
   );
 
   AnswerReveal reveal({
@@ -68,35 +58,29 @@ void main() {
                   step: 0,
                   dueAt: DateTime(2026, 11, 11, 12),
                 ),
-      preset: BuiltInPresets.standard,
     ),
     answeredAt: DateTime(2026, 11, 10, 12, 5),
     typed: typed,
     match: match,
   );
 
-  test('describes where the asked card stands', () {
-    expect(texts.promptDetail(prompt()), 'J2');
-    expect(texts.promptDetail(prompt(step: null)), 'Nouvelle carte');
+  test('names the group of the asked card, and nothing of its step', () {
+    expect(texts.promptDetail(prompt()), 'Capitales');
     expect(
       texts.promptDetail(prompt(askedSide: CardSide.back)),
-      'verso → recto · J2',
+      'verso → recto · Capitales',
     );
     expect(
       texts.promptDetail(
         prompt(key: const ReviewNotificationKey(cardId: 7, extraReminderId: 1)),
       ),
-      'Réviser bientôt · sans effet sur le planning',
+      'Réviser bientôt · sans effet sur le planning · Capitales',
     );
-    expect(texts.groupLabel(prompt()), 'Capitales');
   });
 
   test('tells what a failed answer did', () {
     expect(texts.answerLine(reveal(isBonus: false)), 'Réponse : Lima');
-    expect(
-      texts.verdict(reveal(isBonus: false)),
-      'Compté raté · retour à J1, revue demain',
-    );
+    expect(texts.verdict(reveal(isBonus: false)), 'Compté raté · revue demain');
     expect(texts.verdict(reveal(isBonus: true)), 'Révision bonus · sans effet');
   });
 
@@ -111,11 +95,7 @@ void main() {
           prompt: 'Drapeau',
           answer: '',
           answerImage: 'flag.png',
-          result: ReviewResult(
-            isBonus: true,
-            schedule: null,
-            preset: BuiltInPresets.standard,
-          ),
+          result: const ReviewResult(isBonus: true, schedule: null),
           answeredAt: DateTime(2026, 11, 10, 12, 5),
         ),
       ),
@@ -159,7 +139,7 @@ void main() {
       texts.verdict(
         reveal(isBonus: false, typed: 'Quito', match: TypedAnswerMatch.wrong),
       ),
-      '« Quito » refusé · Compté raté · retour à J1, revue demain',
+      '« Quito » refusé · Compté raté · revue demain',
     );
     expect(
       texts.verdict(
@@ -250,18 +230,12 @@ void main() {
     );
     expect(texts.groupReminderDetail(reminder), 'Environ 3 min');
     expect(
-      texts.groupLabel(
-        ReviewPrompt(
+      texts.promptDetail(
+        prompt(
           key: const ReviewNotificationKey(
             cardId: 7,
             chain: GroupReminderKey(4),
           ),
-          askedSide: CardSide.front,
-          prompt: 'Pérou',
-          image: null,
-          groupName: 'Capitales',
-          progress: const NewProgress(),
-          typedAnswer: false,
           chainRemaining: 3,
         ),
       ),

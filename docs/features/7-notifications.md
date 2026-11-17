@@ -70,7 +70,7 @@ On resume, `PauseShift`, in the domain, moves the due date of every scheduled ca
 
 When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per card whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app, and is notified again the next day at its slot.
 
-The notification shows the asked face as its title ("Que montre cette image ?" for a face that is an image alone), the [reminder label](../lexicon.md#reminder-label) ("J2" or "Nouvelle carte", with "verso → recto" when the back is asked) as its text, the group as its sub-text, and two buttons, "Correct" and "Again". An extra reminder shows the same card with a "no effect on the schedule" mention. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
+The notification shows the asked face as its title ("Que montre cette image ?" for a face that is an image alone), the name of the group as its text, and nothing of the step, with "verso → recto" before it when the back is asked, and two buttons, "Correct" and "Again". An extra reminder shows the same card with a "no effect on the schedule" mention before the group. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
 
 With the [back option](../lexicon.md#back-option) of the group, the asked face is drawn when the notification is shown, one chance in two, and each chained card of a grouped reminder draws its own. The face drawn travels in the payload, so that the answer revealed after "Again" and the typed answer are read against the other face.
 
@@ -83,7 +83,7 @@ When the asked face has an image, the expanded notification shows it in the Andr
 The buttons are handled in a background isolate, app open or not, by `NotificationActionHandler`. The answer goes through `ReviewService`, exactly like an in-app session ([Feature 5](5-session.md#answer)), with the notification as its source:
 
 - "Correct" records the answer and closes the notification;
-- "Again" records the failure and replaces the notification in place with the expected answer, what the failure did ("Compté raté · retour à J1, revue demain") and an "OK" button that closes it;
+- "Again" records the failure and replaces the notification in place with the expected answer, what the failure did ("Compté raté · revue demain") and an "OK" button that closes it;
 - answering an extra reminder is always a [bonus review](../lexicon.md#bonus-review);
 - a card deleted meanwhile only closes the notification.
 
@@ -110,7 +110,7 @@ The count is the number of cards of the group whose due moment has passed. When 
 What the reminder offers is set with the mode:
 
 - open the app (default): touching the notification or "Ouvrir l'app" opens the app on the group page;
-- chain the cards: "Commencer ici" replaces the reminder with the first card, the earliest due. Each answer replaces it with the next card, with "Capitales · 3 à réviser" as sub-text and an "Ouvrir" button to switch to the app; "Again" first shows the expected answer, and its "OK" moves on. The notification closes after the last card. A chained card answered in the app gives way to the next one.
+- chain the cards: "Commencer ici" replaces the reminder with the first card, the earliest due. Each answer replaces it with the next card, with "Capitales · 3 à réviser" as its text and an "Ouvrir" button to switch to the app; "Again" first shows the expected answer, and its "OK" moves on. The notification closes after the last card. A chained card answered in the app gives way to the next one.
 
 ### Exact alarms, restarts and permissions
 
@@ -123,9 +123,9 @@ The notification permission of Android 13 and exact alarms are both asked on the
 ## Acceptance criteria
 
 - [x] An introduced card is notified at the [daily slot](../lexicon.md#daily-slot), without the app being open.
-- [x] The notification shows the asked face, the reminder label and the group, with "Correct" and "Again".
+- [x] The notification shows the asked face and the name of the group only, with "Correct" and "Again".
 - [x] A face with an image shows it in the expanded notification, text only when collapsed; so does an answer face with an image after "Again".
-- [x] "Correct" records the answer from the notification and closes it; "Again" records the failure and shows the answer, the new step and the next review, with "OK".
+- [x] "Correct" records the answer from the notification and closes it; "Again" records the failure and shows the answer and the next review, with "OK".
 - [x] A card reviewed in the app before its slot is not notified, and a notification already shown is withdrawn.
 - [x] A suspended card is never notified; a reminder more than an hour late is not shown.
 - [x] A notification ignored or swiped, or not shown for being late, is sent again the next day at the [daily slot](../lexicon.md#daily-slot), without any effect on the step.

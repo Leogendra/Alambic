@@ -1,6 +1,6 @@
 # Feature 8 — Distillation
 
-Status: implemented (2026-11-16)
+Status: implemented (2026-11-17)
 
 ## Goal
 
@@ -16,7 +16,7 @@ A card created in the group, moved into it while pending, or reset joins the end
 
 ### Rhythm
 
-A batch of N cards is owed from its batch day on; the next batch comes X days after the day the previous one was completed. Introducing a card makes it due today at the [daily slot](../lexicon.md#daily-slot), due right away when the slot has passed. It arrives as a new card ("New card") and then follows its preset.
+A batch of N cards is owed from its batch day on; the next batch comes X days after the day the previous one was completed. Introducing a card makes it due today at the [daily slot](../lexicon.md#daily-slot), due right away when the slot has passed. It then follows its preset.
 
 Each scheduling day is processed once per distillation, by the first pass that sees it: at app launch, or at any wake-up of the app. A running distillation plans a wake-up at the start of the next day it has to process (4am), so cards are introduced with the app closed. A missed day is not caught up: at most one batch is introduced per day. A suspended card keeps its place in the queue and is skipped. When the queue is empty, the distillation simply waits for new cards.
 

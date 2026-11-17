@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/interval_labels.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/layout/scroll_padding.dart';
 import '../../app/widgets/interval_chip.dart';
 import '../../app/widgets/panel_row.dart';
@@ -127,18 +128,41 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
     );
   }
 
-  Widget _failureSection(AppLocalizations strings) => _choiceSection(
-    strings.presetEditorOnFailure,
-    SegmentedChoice<FailureBehavior>(
-      options: [
-        SegmentOption(FailureBehavior.stepBack, strings.presetFailureStepBack),
-        SegmentOption(FailureBehavior.restart, strings.presetFailureRestart),
-        SegmentOption(FailureBehavior.stay, strings.presetFailureStay),
-      ],
-      selected: _draft.failureBehavior,
-      onSelected: (value) =>
-          _update((draft) => draft.copyWith(failureBehavior: value)),
-    ),
+  /// The three behaviours, with the effect of the chosen one under them.
+  Widget _failureSection(AppLocalizations strings) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _choiceSection(
+        strings.presetEditorOnFailure,
+        SegmentedChoice<FailureBehavior>(
+          options: [
+            SegmentOption(
+              FailureBehavior.stepBack,
+              strings.presetFailureStepBack,
+            ),
+            SegmentOption(
+              FailureBehavior.restart,
+              strings.presetFailureRestart,
+            ),
+            SegmentOption(FailureBehavior.stay, strings.presetFailureStay),
+          ],
+          selected: _draft.failureBehavior,
+          onSelected: (value) =>
+              _update((draft) => draft.copyWith(failureBehavior: value)),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+        child: Text(
+          strings.failureEffect(_draft.failureBehavior),
+          style: TextStyle(
+            fontSize: 13,
+            height: 1.4,
+            color: AlambicColors.of(context).textSecondary,
+          ),
+        ),
+      ),
+    ],
   );
 
   Widget _endSection(AppLocalizations strings) => _choiceSection(

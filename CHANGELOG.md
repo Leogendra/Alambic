@@ -36,6 +36,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 
 ### Changed
 
+- The preset editor says what a missed card does under the failure choice, now named "On failure": one step back, back to start or stay.
 - Sharper dark theme: a darker background, lighter cards and a brighter blue, so cards stand out and the selected option of a choice is clearly visible. Both themes are flat, with outlines instead of shadows.
 - Settings rows show their value in grey with an arrow when they open something, and lists where one option is chosen (preset, group, language, theme) highlight it with a blue outline.
 

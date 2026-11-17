@@ -40,7 +40,7 @@ The planner also withdraws the notifications of cards that are no longer [due](.
 
 `DeliveryPlanner`, in the domain, decides when each scheduled card is notified. The moment is its due date, with two exceptions.
 
-A card still due from an earlier day is notified again today, at the daily slot: its notification was ignored or swiped, or was not shown because it was found too late. It never counts as an answer, neither a success nor a failure. "Notified" is therefore kept per day: a card notified yesterday and still due is notified again today, once.
+A card still due from an earlier day is notified again today, at the daily slot: its notification was ignored or swiped, or could not be shown that day. It never counts as an answer, neither a success nor a failure. "Notified" is therefore kept per day: a card notified yesterday and still due is notified again today, once.
 
 Then, with a time range in one-notification-per-card mode: the cards due at the start of the range on a day are spread evenly over the range, in the order of their ids. With 4 cards and a 9:00 – 17:00 range, they arrive at 9:00, 11:00, 13:00 and 15:00; the moments are rounded down to the minute. A grouped reminder stays at the start of the range, and so does a due date after an interval of less than a day, which keeps its own moment.
 
@@ -68,7 +68,7 @@ On resume, `PauseShift`, in the domain, moves the due date of every scheduled ca
 
 ### Showing a card
 
-When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per card whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A reminder found more than one hour late is not shown: the phone was off or the alarm was held back, and a notification hours late would be noise. The card stays due in the app, and is notified again the next day at its slot.
+When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per card whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A notification that could not be shown at its moment, the phone being off or the alarm held back, is shown as soon as the app wakes up, whatever the delay. During the quiet hours it waits for their end; when that end falls on the next day, the card comes back at the slot of that day, like an ignored one.
 
 The notification shows the asked face as its title ("Que montre cette image ?" for a face that is an image alone), the name of the group as its text, and nothing of the step, with "verso → recto" before it when the back is asked, and three buttons, "Correct", "Again" and "Reveal" (*Correct*, *À revoir*, *Révéler*). An extra reminder shows the same card with a "no effect on the schedule" mention before the group. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
 
@@ -116,7 +116,7 @@ What the reminder offers is set with the mode:
 
 Exact alarms need a permission that Android 14 refuses by default. Without it, wake-ups are scheduled as inexact alarms, which Android may deliver a few minutes late, and Settings shows a "Reminders at the exact time" panel with an "Allow" button opening the system page. Back in the app, the permission is read again and, when it changed, every wake-up is scheduled again with the new precision.
 
-Wake-ups survive a restart of the phone: the alarm plugin restores them at boot, and a wake-up whose moment passed while the phone was off fires right away, showing what is less than an hour late. Every launch of the app also schedules all wake-ups again, since a force-stop loses them.
+Wake-ups survive a restart of the phone: the alarm plugin restores them at boot, and a wake-up whose moment passed while the phone was off fires right away, showing everything late. Every launch of the app also schedules all wake-ups again, since a force-stop loses them.
 
 The notification permission of Android 13 and exact alarms are both asked on the second welcome screen ([Feature 10](10-onboarding.md)). A user who refused can still allow exact alarms from Settings, and notifications from the system settings of the app.
 
@@ -128,8 +128,9 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] "Correct" and "Again" record the answer from the notification and close it, without any result notification, revealed or not.
 - [x] "Reveal" shows the answer in place, silently, with "Correct" and "Again", and records nothing.
 - [x] A card reviewed in the app before its slot is not notified, and a notification already shown is withdrawn.
-- [x] A suspended card is never notified; a reminder more than an hour late is not shown.
-- [x] A notification ignored or swiped, or not shown for being late, is sent again the next day at the [daily slot](../lexicon.md#daily-slot), without any effect on the step.
+- [x] A suspended card is never notified.
+- [x] A notification that could not be shown at its moment is shown when the phone is back on, whatever the delay, outside the quiet hours.
+- [x] A notification ignored or swiped is sent again the next day at the [daily slot](../lexicon.md#daily-slot), without any effect on the step.
 - [x] A "Review soon" reminder is notified at its moment, and its answer is a bonus review.
 - [x] Without the exact alarm permission, reminders are still planned as inexact alarms, and Settings offers to allow exact alarms.
 - [x] Wake-ups are planned again after a phone restart and at each launch.
@@ -148,7 +149,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 
 ## Test strategy
 
-- The timing rules (shown once, within an hour, wake-ups rounded and capped), the notification moments and the typed answer comparison are tested as pure domain logic.
+- The timing rules (shown once, however late, wake-ups rounded and capped), the notification moments and the typed answer comparison are tested as pure domain logic.
 - The planner, the dispatcher and the action handler are tested together on an in-memory database, through the same providers as the app, with in-memory fakes of the three platform interfaces that behave like an alarm manager and a notification shade.
 - Each button is tested through the action handler: "Correct" and "Again" record and close; "Reveal" shows the answer and records nothing, then its "Correct" or "Again"; the typed answer with its verdict, "Again" and "Reveal"; "Reveal" and "Again" on a chained card.
 - The notification texts and the payload carried by a notification are tested without a device.

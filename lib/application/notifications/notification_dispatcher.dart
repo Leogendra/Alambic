@@ -125,9 +125,8 @@ class NotificationDispatcher {
     await _planner.replan();
   }
 
-  /// Shows the extra reminders whose moment has come. One found too late,
-  /// or falling during a pause of its card, is dropped, like a late reminder
-  /// of a due card.
+  /// Shows the extra reminders whose moment has come, however long ago. One
+  /// falling during a pause of its card is dropped.
   Future<void> _dispatchExtraReminders(
     List<Flashcard> cards,
     Map<int, CardGroup> groups,
@@ -141,9 +140,7 @@ class NotificationDispatcher {
       final card = cards
           .where((card) => card.id == reminder.cardId)
           .firstOrNull;
-      if (card != null &&
-          !pauses.covers(card.groupId) &&
-          NotificationTiming.isOnTime(reminder.remindAt, now)) {
+      if (card != null && !pauses.covers(card.groupId)) {
         await _presenter.showPrompt(_prompt(card, groups, reminder.id));
       }
       await _reminders.markNotified(reminder.id, now);

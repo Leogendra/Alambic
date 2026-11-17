@@ -72,9 +72,28 @@ void main() {
       expect(harness.presenter.prompts, isEmpty);
     });
 
-    test('drops reminders found more than an hour late', () async {
-      await dispatchAt(DateTime(2026, 11, 10, 13, 30));
+    test('shows a late notification however late, once', () async {
+      // The phone was off from 11:00 to 21:30.
+      await dispatchAt(DateTime(2026, 11, 10, 21, 30));
+      expect(harness.presenter.prompts, hasLength(7));
+      harness.presenter.prompts.clear();
+      await dispatchAt(DateTime(2026, 11, 10, 21, 31));
       expect(harness.presenter.prompts, isEmpty);
+    });
+
+    test('holds a late notification during the quiet hours', () async {
+      await dispatchAt(DateTime(2026, 11, 10, 23));
+      expect(harness.presenter.prompts, isEmpty);
+      expect(
+        harness.alarms.scheduled.values,
+        contains(DateTime(2026, 11, 11, 8)),
+      );
+      // Its day is over: it comes back at the slot, like an ignored card.
+      await dispatchAt(DateTime(2026, 11, 11, 12));
+      expect(
+        harness.presenter.prompts.keys,
+        contains(ReviewNotificationKey(cardId: await mongoliaId())),
+      );
     });
 
     test('notifies an ignored card again the next day, at the slot', () async {
@@ -95,12 +114,16 @@ void main() {
       expect(harness.presenter.prompts.keys, isNot(contains(mongolia)));
     });
 
-    test('notifies the next day a card not shown for being late', () async {
-      await dispatchAt(DateTime(2026, 11, 10, 13, 30));
-      await dispatchAt(DateTime(2026, 11, 11, 12));
+    test('shows a late Review soon reminder', () async {
+      final cardId = await mongoliaId();
+      await SampleServices(
+        database,
+        harness.clock,
+      ).reminders.add(cardId, DateTime(2026, 11, 10), const ClockTime(10, 0));
+      await dispatchAt(DateTime(2026, 11, 10, 15));
       expect(
-        harness.presenter.prompts.keys,
-        contains(ReviewNotificationKey(cardId: await mongoliaId())),
+        harness.presenter.prompts.keys.where((key) => key.isExtraReminder),
+        hasLength(1),
       );
     });
 
@@ -115,7 +138,8 @@ void main() {
         cardId: cardId,
         extraReminderId: reminderId,
       );
-      expect(harness.presenter.prompts.keys, [key]);
+      // The cards due at noon are late, and shown too.
+      expect(harness.presenter.prompts.keys, contains(key));
       await harness
           .read(notificationActionHandlerProvider)
           .handle(key, NotificationAction.correct);

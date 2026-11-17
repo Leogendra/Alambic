@@ -1,3 +1,4 @@
+import '../cards/flashcard.dart';
 import '../scheduling/clock_time.dart';
 import '../scheduling/scheduling_calendar.dart';
 import 'delivery_candidate.dart';
@@ -11,6 +12,8 @@ import 'reminder_settings.dart';
 /// Rules owned here:
 /// - a card still due from an earlier day (its notification was ignored,
 ///   swiped or not shown) is notified again today, at the daily slot;
+/// - a notification not shown at its moment today (the phone was off, the
+///   alarm held back) is shown now, whatever its delay;
 /// - with a time range and one notification per card, the cards due at
 ///   the start of the range on a day are spread evenly over the range, in
 ///   the order of their ids; a grouped reminder stays at the start;
@@ -32,8 +35,14 @@ class DeliveryPlanner {
     NotificationGuards? guards,
     int notifiedToday = 0,
   }) {
+    final cards = {
+      for (final candidate in candidates) candidate.card.id: candidate.card,
+    };
     final moments = _moments(candidates, now, reminders, guards)
-      ..updateAll((_, moment) => _outOfQuietHours(moment, guards));
+      ..updateAll(
+        (id, moment) =>
+            _outOfQuietHours(_late(cards[id]!, moment, now), guards),
+      );
     if (guards != null) {
       _applyDailyCap(
         moments,
@@ -113,6 +122,19 @@ class DeliveryPlanner {
         ),
     };
   }
+
+  /// [now] for a notification of [card] not shown at its [moment], already
+  /// passed, so that a late notification falling in the quiet hours waits
+  /// for their end like any other.
+  DateTime _late(Flashcard card, DateTime moment, DateTime now) =>
+      moment.isBefore(now) &&
+          !NotificationTiming.wasNotified(
+            card,
+            deliverAt: moment,
+            calendar: calendar,
+          )
+      ? now
+      : moment;
 
   /// [moment], or the end of the quiet hours when it falls inside them.
   DateTime _outOfQuietHours(DateTime moment, NotificationGuards? guards) {

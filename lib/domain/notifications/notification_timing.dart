@@ -3,14 +3,9 @@ import '../scheduling/scheduling_calendar.dart';
 
 /// When reminders are shown, and when the app must wake up to show them.
 abstract final class NotificationTiming {
-  /// A reminder found later than this after its moment is not shown: the
-  /// phone was off or the alarm was held back too long, and a notification
-  /// hours late would be noise.
-  static const Duration lateness = Duration(hours: 1);
-
   /// Whether [card] must be notified now: it is scheduled and not
-  /// suspended, the moment [deliverAt] planned for its notification has come
-  /// within [lateness], and it was not notified yet that day.
+  /// suspended, the moment [deliverAt] planned for its notification has
+  /// come, however long ago, and it was not notified yet that day.
   static bool shouldNotify(
     Flashcard card, {
     required DateTime deliverAt,
@@ -20,7 +15,7 @@ abstract final class NotificationTiming {
       !card.suspended &&
       card.isScheduled &&
       !wasNotified(card, deliverAt: deliverAt, calendar: calendar) &&
-      isOnTime(deliverAt, now);
+      !deliverAt.isAfter(now);
 
   /// Whether [card] was notified for its current due date on the day of
   /// [deliverAt]. A notification of an earlier day, ignored or swiped, does
@@ -34,10 +29,6 @@ abstract final class NotificationTiming {
     return notifiedAt != null &&
         !calendar.dayOf(notifiedAt).isBefore(calendar.dayOf(deliverAt));
   }
-
-  /// Whether a reminder planned at [moment] is due now and not too late.
-  static bool isOnTime(DateTime moment, DateTime now) =>
-      !moment.isAfter(now) && now.difference(moment) <= lateness;
 
   /// The [limit] next distinct wake-up moments after [now], each [moment]
   /// rounded up to the minute so that one wake-up shows everything due

@@ -37,8 +37,8 @@ void main() {
       expect(shouldNotify(card(), DateTime(2026, 11, 10, 12, 40)), true);
     });
 
-    test('not when more than an hour late', () {
-      expect(shouldNotify(card(), DateTime(2026, 11, 10, 13, 1)), false);
+    test('however late', () {
+      expect(shouldNotify(card(), DateTime(2026, 11, 10, 23, 30)), true);
     });
 
     test('only once per due date', () {

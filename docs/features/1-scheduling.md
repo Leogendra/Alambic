@@ -27,6 +27,16 @@ The step is the index, in the preset sequence, of the interval currently waited.
 
 Screens and notifications name the step by its [reminder label](../lexicon.md#reminder-label), taken from the interval waited: "J1", "J2", "S1", "M3" in French, "D1", "W1", "M3" in English, "10 min" or "1 h" below a day.
 
+### On failure
+
+"Again" on a due card applies the failure behaviour of the preset (`FailureBehavior`), then waits the interval of the step reached:
+
+- **step back** (the default) moves from step k to step k − 1, and stays at the first step;
+- **restart** goes back to the first step; the card stays introduced, unlike "Reset", which sends it back to the queue;
+- **stay** keeps the step, so the card waits its interval again.
+
+The behaviour is read at each answer, from the preset in force at that moment: editing it moves no due date. A [bonus review](../lexicon.md#bonus-review) never applies it.
+
 If the sequence was shortened, or the card moved to a shorter preset, the engine clamps the step to the last existing step before computing. The stored step is only corrected at the next answer. `CardProgress` gives, for any card and its preset, the clamped step and the interval it waits, or "new": screens, notifications and the priority of the daily cap all read it.
 
 ### Introducing a card
@@ -60,6 +70,8 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 - [x] An introduced card is due today at the [daily slot](../lexicon.md#daily-slot).
 - [x] Correct moves one step forward; the first correct answer waits the first interval.
 - [x] Again applies the preset behaviour: one step back without going below the first, back to the start, or same step. A never-reviewed card answered Again waits the first interval.
+- [x] Back to the start keeps the card introduced: it does not return to the queue.
+- [x] The failure behaviour is read at the answer: a preset edited between two answers moves no due date, and the next failure follows the new behaviour.
 - [x] After the last step, Correct applies the preset end-of-sequence behaviour: repeat the last interval, mark acquired (no more due date), or loop to the start.
 - [x] An interval of a day or more counts from the answer day and lands on the [daily slot](../lexicon.md#daily-slot).
 - [x] An interval shorter than a day counts from the answer moment.
@@ -71,6 +83,7 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 ## Test strategy
 
 - Each engine rule is proven by a domain unit test, without a database: moving forward, each failure behaviour, each end of sequence, clamped step.
+- The failure behaviours are proven again through the review service on stored cards, so that the step, the due date, the state and the queue position are read back from the database, including a preset edited between two answers.
 - Dates are fixed in the tests (November 2026): no test reads the clock or waits.
 - The day boundaries (3:59am and 4am, end of month, slot before 4am) are tested explicitly on the calendar.
 - The reminder labels are tested in both languages, for day, week, month and sub-day intervals.

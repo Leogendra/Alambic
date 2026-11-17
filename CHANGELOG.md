@@ -38,7 +38,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 
 - Backups made before the end of sequence and the typed answer moved to the group are refused at import, as from another version.
 - After the last step of its preset, a card now comes back every 6 months, or at its last step when that is longer, instead of repeating its last interval. A failure then follows the failure behaviour of the preset.
-- The end of sequence and the typed answer belong to the group instead of the preset. Until the group settings offer them, every group comes back every 6 months and has no typed answer.
+- The end of sequence and the typed answer belong to the group instead of the preset, and are set in the group settings: after the last step, the cards come back every 3 months, 6 months (by default) or year, or are learned for good; the typed answer is off by default.
 - Preset steps can be set in years.
 - The schedule refuses a time range whose end comes before its start.
 - The preset editor says what a missed card does under the failure choice, now named "On failure": one step back, back to start or stay.

@@ -76,7 +76,7 @@ With the [back option](../lexicon.md#back-option) of the group, the asked face i
 
 ### Showing a card's image
 
-When the asked face has an image, the expanded notification shows it in the Android *BigPicture* style, with the face and its step above; the collapsed notification shows the text only. After "Again" or a typed answer, an answer face with an image shows it the same way, under the answer and the verdict ("Réponse en image" when it has no text). The presenter reads the file from the image store; a file gone shows the text alone.
+When the asked face has an image, the expanded notification shows it in the Android *BigPicture* style, with the face and its group above; the collapsed notification shows the text only. After "Again" or a typed answer, an answer face with an image shows it the same way, under the answer and the verdict ("Réponse en image" when it has no text). The presenter reads the file from the image store; a file gone shows the text alone.
 
 ### Answering from the notification
 

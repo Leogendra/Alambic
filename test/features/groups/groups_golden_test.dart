@@ -4,6 +4,9 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
+import 'package:alambic/domain/groups/after_last_step.dart';
+import 'package:alambic/domain/groups/card_group.dart';
+import 'package:alambic/domain/groups/remanence_interval.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/features/distillation/distill_screen.dart';
@@ -98,16 +101,69 @@ void main() {
     });
   }
 
-  testWidgets('group settings', (tester) async {
+  for (final (brightness, suffix) in [
+    (Brightness.light, ''),
+    (Brightness.dark, '_dark'),
+  ]) {
+    testWidgets('group settings, ${brightness.name} theme', (tester) async {
+      await seed(tester);
+      await pumpGolden(
+        tester,
+        GroupSettingsScreen(groupId: capitalsId),
+        brightness: brightness,
+        overrides: screenOverrides(database, sampleNow),
+      );
+      expect(
+        find.text(
+          'La carte reste dans le cycle et revient toujours au bout de 6 mois.',
+        ),
+        findsOneWidget,
+      );
+      await expectLater(
+        find.byType(GroupSettingsScreen),
+        matchesGoldenFile('goldens/group_settings$suffix.png'),
+      );
+    });
+  }
+
+  testWidgets('the group settings set the end of sequence and the typed '
+      'answer', (tester) async {
     await seed(tester);
     await pumpGolden(
       tester,
       GroupSettingsScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
     );
-    await expectLater(
-      find.byType(GroupSettingsScreen),
-      matchesGoldenFile('goldens/group_settings.png'),
+    Future<CardGroup> tapThenRead(Finder finder) async {
+      await tester.runAsync(() async {
+        await tester.tap(finder);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pumpAndSettle();
+      return (await tester.runAsync(
+        () => GroupRepository(database).find(capitalsId),
+      ))!;
+    }
+
+    var group = await tapThenRead(find.text('1 an'));
+    expect(group.remanenceInterval, RemanenceInterval.oneYear);
+    expect(
+      find.text(
+        'La carte reste dans le cycle et revient toujours au bout de 1 an.',
+      ),
+      findsOneWidget,
+    );
+    group = await tapThenRead(find.byType(Switch).first);
+    expect(group.typedAnswer, isTrue);
+    group = await tapThenRead(find.text('Acquise'));
+    expect(group.afterLastStep, AfterLastStep.acquired);
+    expect(find.text('Revient tous les'), findsNothing);
+    expect(
+      find.text(
+        'Une fois le dernier cran réussi, la carte est acquise : elle ne '
+        'revient plus.',
+      ),
+      findsOneWidget,
     );
   });
 

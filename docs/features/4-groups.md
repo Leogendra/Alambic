@@ -4,7 +4,7 @@ Status: in progress (2026-11-17)
 
 ## Goal
 
-Sort cards into flat [groups](../lexicon.md#group), find a card by search, see at a glance what is due in each group, distill a group, review it all, and set a group's name, preset and [back option](../lexicon.md#back-option).
+Sort cards into flat [groups](../lexicon.md#group), find a card by search, see at a glance what is due in each group, distill a group, review it all, and set a group's name, preset, end of sequence, [typed answer](../lexicon.md#typed-answer) and [back option](../lexicon.md#back-option).
 
 ## Implementation overview
 
@@ -39,14 +39,16 @@ With the back enabled, each display of a card of the group (session, notificatio
 
 ### Sequence end and typed answer
 
-A group carries two more options, which the group settings screen does not offer yet: every group keeps their defaults until it does.
+A group carries two more options, set in its settings:
 
 - After the last step: [remanence](../lexicon.md#remanence) (the default) at an interval of 3 months, 6 months (the default) or 1 year, or [acquired](../lexicon.md#acquired). They belong to the group rather than to the preset, so that two groups can share a rhythm and end it differently. Their effect on the cards, including switching from one to the other, is in [Feature 1](1-scheduling.md#after-the-last-step).
 - The [typed answer](../lexicon.md#typed-answer), off by default: the cards of the group whose answer face has text are answered by typing it in the notification ([Feature 7](7-notifications.md#typed-answer)).
 
 ### Group settings
 
-A group's settings are its name, its preset, its back option, its pause and its deletion. The preset is picked from the preset list, or inherits the global preset. The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
+A group's settings are, from top to bottom: its name; its preset, picked from the preset list or inherited from the global preset; what comes after the last step; the typed answer and the back option, as two switches; its pause and its deletion. The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
+
+"After the last step" is a segmented control, "Remanence" / "Learned" (*Rémanence* / *Acquise*). With remanence, a second one picks its interval (3 months, 6 months, 1 year). A line under them says what the choice does: the interval the cards will actually come back at, which is the last step of the preset when it is longer than the one chosen, or that an acquired card never comes back. Every change is saved at once; switching to remanence sends the acquired cards of the group back into it.
 
 The pause silences the group: none of its cards is notified and its distillation introduces nothing, until it is resumed; its due dates then move by the length of the pause ([Feature 7](7-notifications.md#pauses)). A paused group is greyed in the tab, with "En pause" and a pause icon instead of its due count, and its page starts with "En pause depuis le …" and a "Reprendre" button.
 
@@ -69,14 +71,14 @@ Counters are computed by `GroupOverview` from all cards, the preset catalog and 
 - [x] A suspended card does not count as due.
 - [x] A group is paused and resumed from its settings or its page; a paused group is shown as such in the tab.
 - [x] A new group comes back in remanence every 6 months after the last step, without typed answer.
-- [ ] The group settings set the end of sequence and the typed answer.
+- [x] The group settings set the end of sequence and the typed answer.
 
 ## Test strategy
 
 - Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the [daily slot](../lexicon.md#daily-slot), with a suspended card.
 - The order of "Review all" is tested as pure logic (due, introduced, pending, suspended, acquired without date), then on the group page, down to the session it opens.
 - The group service is tested for creation, renaming, refusal of an empty name, the back option, the end of sequence (the acquired cards sent back into remanence) and deletion with its cards.
-- The tab (list and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock; the group page in light and dark theme.
+- The tab (list and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock; the group page and its settings in light and dark theme. The settings screen is driven to change the remanence interval, the typed answer and the end of sequence, read back from the database.
 
 ## File mapping
 

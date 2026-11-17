@@ -2,8 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/groups/group_overview.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/scheduling/due_policy.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
@@ -27,6 +29,7 @@ void main() {
     final summaries = overview.summarize(
       groups: await GroupRepository(database).watchAll().first,
       cards: await CardRepository(database).getAll(),
+      distillations: const [],
       catalog: await PresetRepository(database).loadCatalog(),
       now: now,
     );
@@ -38,6 +41,7 @@ void main() {
     final summaries = overview.summarize(
       groups: await GroupRepository(database).watchAll().first,
       cards: await CardRepository(database).getAll(),
+      distillations: const [],
       catalog: await PresetRepository(database).loadCatalog(),
       now: sampleNow,
     );
@@ -49,6 +53,32 @@ void main() {
     expect(summaries.map((summary) => summary.cardCount), [1, 4, 2]);
   });
 
+  test('marks the groups whose distillation was activated', () async {
+    final capitals = await seedSampleData(services);
+    await services.distillations.activate(
+      capitals,
+      const DistillationSettings(
+        cardsPerBatch: 1,
+        everyDays: 1,
+        avoidCollisions: false,
+      ),
+    );
+    final summaries = overview.summarize(
+      groups: await GroupRepository(database).watchAll().first,
+      cards: await CardRepository(database).getAll(),
+      distillations: await DistillationRepository(database).getAll(),
+      catalog: await PresetRepository(database).loadCatalog(),
+      now: sampleNow,
+    );
+    expect(
+      {
+        for (final summary in summaries)
+          summary.group.name: summary.isDistilling,
+      },
+      {'Biologie': false, 'Capitales': true, 'Espagnol': false},
+    );
+  });
+
   test('counts a pending card, never due', () async {
     final groupId = await services.groups.create('Capitales');
     await services.card('Laos', 'Vientiane', groupId: groupId);
@@ -57,6 +87,7 @@ void main() {
       await CardRepository(database).getAll(),
       await PresetRepository(database).loadCatalog(),
       sampleNow,
+      isDistilling: false,
     );
     expect(summary.cardCount, 1);
     expect(summary.dueCount, 0);

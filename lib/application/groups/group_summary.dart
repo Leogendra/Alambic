@@ -8,6 +8,7 @@ class GroupSummary {
     required this.preset,
     required this.cardCount,
     required this.dueCount,
+    required this.isDistilling,
   });
 
   final CardGroup group;
@@ -16,6 +17,9 @@ class GroupSummary {
   final Preset preset;
   final int cardCount;
   final int dueCount;
+
+  /// Whether the distillation of the group was activated, paused or not.
+  final bool isDistilling;
 
   int get groupId => group.id;
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/formatting/preset_labels.dart';
 import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/section_label.dart';
@@ -27,9 +26,10 @@ import '../session/session_launcher.dart';
 import 'group_settings_screen.dart';
 import 'reverse_button.dart';
 
-/// A group page: "Distill" or the tracking of its distillation, "Review
-/// all", the back option, then its cards in three sections: in progress,
-/// waiting in queue order, and learned, folded.
+/// A group page: "Distill" or the tracking of its distillation, the back
+/// option, then its cards, under a "Cards" title with "Review all" beside
+/// it, in three sections: in progress, waiting in queue order, and learned,
+/// folded.
 class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({
     required this.groupId,
@@ -98,35 +98,50 @@ class _GroupBody extends ConsumerWidget {
     return ListView(
       padding: scrollPadding(context, const EdgeInsets.fromLTRB(20, 0, 20, 96)),
       children: [
-        Text(
-          '${strings.cardCount(summary.cardCount)} · ${strings.presetName(summary.preset)}',
-          style: TextStyle(fontSize: 14, color: colors.textSecondary),
-        ),
         if (summary.group.pausedAt case final pausedAt?) ...[
-          const SizedBox(height: 16),
           PausedBanner(
             since: pausedAt,
             onResume: () =>
                 ref.read(pauseServiceProvider).resumeGroup(summary.groupId),
           ),
+          const SizedBox(height: 16),
         ],
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         GroupDistillationSection(
           groupId: summary.groupId,
           highlighted: highlightDistill,
         ),
-        if (sections.ongoing.isNotEmpty || sections.waiting.isNotEmpty)
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton.icon(
-              icon: const Icon(Icons.play_arrow, size: 20),
-              label: Text(strings.groupReviewAll),
-              onPressed: () => _reviewAll(context, ref, cards),
-            ),
-          ),
         const SizedBox(height: 16),
         ReverseButton(group: summary.group),
         const SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(child: SectionLabel(strings.groupCardsSection)),
+            if (sections.ongoing.isNotEmpty || sections.waiting.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 36),
+                    padding: const EdgeInsetsDirectional.fromSTEB(8, 0, 12, 0),
+                    backgroundColor: colors.surface,
+                    foregroundColor: colors.accentText,
+                    side: BorderSide(color: colors.border),
+                    shape: const StadiumBorder(),
+                  ),
+                  icon: const Icon(Icons.play_arrow, size: 18),
+                  label: Text(
+                    strings.groupReviewAll,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onPressed: () => _reviewAll(context, ref, cards),
+                ),
+              ),
+          ],
+        ),
         _CardSections(sections: sections),
       ],
     );
@@ -150,8 +165,8 @@ class _GroupBody extends ConsumerWidget {
   }
 }
 
-/// The cards of the group in their sections, each titled with its count; an
-/// empty section is left out.
+/// The cards of the group in their sections, each under a small title with
+/// its count; an empty section is left out.
 class _CardSections extends ConsumerWidget {
   const _CardSections({required this.sections});
 
@@ -179,7 +194,7 @@ class _CardSections extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SectionLabel(strings.groupOngoingSection(ongoing.length)),
+                _SubsectionLabel(strings.groupOngoingSection(ongoing.length)),
                 _panel(context, ongoing, formatter),
               ],
             ),
@@ -187,7 +202,7 @@ class _CardSections extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SectionLabel(strings.groupWaitingSection(waiting.length)),
+                _SubsectionLabel(strings.groupWaitingSection(waiting.length)),
                 _panel(
                   context,
                   waiting,
@@ -256,7 +271,7 @@ class _AcquiredSectionState extends State<_AcquiredSection> {
               child: Row(
                 children: [
                   Expanded(
-                    child: SectionLabel(
+                    child: _SubsectionLabel(
                       AppLocalizations.of(context)
                           .groupAcquiredSection(widget.count),
                     ),
@@ -277,4 +292,24 @@ class _AcquiredSectionState extends State<_AcquiredSection> {
       ],
     );
   }
+}
+
+/// Title of a section of cards, under "Cards": smaller, not in capitals.
+class _SubsectionLabel extends StatelessWidget {
+  const _SubsectionLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
+    child: Text(
+      text,
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: AlambicColors.of(context).textSecondary,
+      ),
+    ),
+  );
 }

@@ -5,6 +5,7 @@ import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
 import 'package:alambic/domain/cards/card_state.dart';
+import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/groups/after_last_step.dart';
 import 'package:alambic/domain/groups/card_group.dart';
 import 'package:alambic/domain/groups/remanence_interval.dart';
@@ -61,13 +62,23 @@ void main() {
     await samples.cards.setSuspended(myanmar.id, suspended: true);
   });
 
-  testWidgets('groups tab', (tester) async {
+  testWidgets('groups tab, "distillation" on a distilled group', (
+    tester,
+  ) async {
     await seed(tester);
+    await tester.runAsync(
+      () => samples.distillations.activate(
+        capitalsId,
+        const DistillationSettings(),
+      ),
+    );
     await pumpGolden(
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
     );
+    expect(find.text('4 cartes · distillation'), findsOneWidget);
+    expect(find.text('2 cartes'), findsOneWidget);
     await expectLater(
       find.byType(GroupsScreen),
       matchesGoldenFile('goldens/groups_tab.png'),
@@ -136,10 +147,10 @@ void main() {
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
     );
-    final acquired = find.text('ACQUISES · 1');
+    final acquired = find.text('Acquises · 1');
     await tester.scrollUntilVisible(acquired, 200);
-    expect(find.text('EN COURS · 4'), findsOneWidget);
-    expect(find.text('EN ATTENTE · 2'), findsOneWidget);
+    expect(find.text('En cours · 4'), findsOneWidget);
+    expect(find.text('En attente · 2'), findsOneWidget);
     expect(find.text('prochaine'), findsOneWidget);
     final maroc = find.ancestor(
       of: find.text('Maroc'),
@@ -163,7 +174,7 @@ void main() {
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
     );
-    final title = find.text('ACQUISES · 1');
+    final title = find.text('Acquises · 1');
     await tester.scrollUntilVisible(title, 200);
     expect(find.text('Chili'), findsNothing);
     await tester.tap(title);

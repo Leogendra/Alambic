@@ -102,7 +102,7 @@ The due cards are the ones a session counts as [due](../lexicon.md#due) today, e
 
 In a group with the [typed answer](../lexicon.md#typed-answer) option, the buttons are "Again", "Reveal" and "Answer" (*Répondre*), which opens a text field in the notification. "Again" and "Reveal" behave as on any card. A card whose answer face has no text gets the usual buttons, having nothing to compare with.
 
-The typed answer is compared with the answer face by `TypedAnswerMatch`, in the domain:
+The typed answer is compared with the answer face by `TypedAnswerMatch`, in the domain, through `ReviewService.answerTyped`, which a session uses too ([Feature 5](5-session.md#typed-answer)):
 
 - case, accents, spaces, hyphens and apostrophes are ignored: "oulan bator" is "Oulan-Bator", "coeur" is "cœur";
 - one typo is forgiven: a letter missing, added or replaced, or two neighbouring letters swapped;

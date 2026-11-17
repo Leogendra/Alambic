@@ -1,3 +1,5 @@
+import '../cards/card_side.dart';
+import '../cards/flashcard.dart';
 import 'after_last_step.dart';
 import 'remanence_interval.dart';
 import 'sequence_end.dart';
@@ -41,6 +43,12 @@ class CardGroup {
   final DateTime? pausedAt;
 
   bool get isPaused => pausedAt != null;
+
+  /// Whether [card], asking [askedSide], is answered by typing: with the
+  /// typed answer option, unless its answer face has no text to compare
+  /// with.
+  bool asksTypedAnswer(Flashcard card, CardSide askedSide) =>
+      typedAnswer && card.answerFor(askedSide).hasText;
 
   SequenceEnd get sequenceEnd => SequenceEnd(
     afterLastStep: afterLastStep,

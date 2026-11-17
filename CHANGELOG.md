@@ -28,6 +28,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Pause of a group, from its settings or its page, and global pause, from Settings or Home: nothing is notified and distillations wait; on resume, due dates move by the length of the pause.
 - Images on cards: each face takes a picture from the gallery, alone or with a text. It shows on the card sheet, in the lists, in a session and in the expanded notification.
 - In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.
+- Typed answer in a session, for groups with this option: a field takes the place of "Show answer", with Reveal beside it. The answer is checked like in the notifications, recorded at once and shown with its verdict, then Next moves on.
 - Export and import from Settings: all the cards, their history, the presets, the settings and the images in a single zip file saved where you choose. Importing a file replaces all the current data after a confirmation; a file that is not a valid backup is refused without changing anything.
 - Welcome screens on the first launch: the principle of the app, the notification and exact alarm permissions with the reminder time, and a first group with its first card, then the page of that group with "Distill" pointed out. The notification permission is no longer asked at every launch.
 - English translation of the whole app, notifications included.

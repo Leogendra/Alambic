@@ -2,10 +2,12 @@ import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/review_repository.dart';
+import '../../domain/cards/card_side.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
+import '../../domain/reviews/typed_answer_match.dart';
 import '../../domain/scheduling/card_schedule.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/due_policy.dart';
@@ -14,6 +16,7 @@ import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
 import 'answer_preview.dart';
 import 'review_result.dart';
+import 'typed_answer_result.dart';
 
 /// Records answers, from a session or a notification, and reschedules.
 class ReviewService {
@@ -36,6 +39,32 @@ class ReviewService {
   final DuePolicy _duePolicy;
   final Clock _clock;
   final ScheduleChangeListener _scheduleChangeListener;
+
+  /// Compares [typed] with the answer face of a card asking [askedSide],
+  /// then records it like [answer]: Correct when accepted, Again otherwise.
+  /// The same rules hold in a notification and in a session.
+  Future<TypedAnswerResult> answerTyped(
+    int cardId,
+    String typed, {
+    required CardSide askedSide,
+    required ReviewSource source,
+    bool forceBonus = false,
+    bool raisesMissedPending = false,
+  }) async {
+    final card = await _cards.getCard(cardId);
+    final match = TypedAnswerMatch.compare(
+      typed,
+      card.answerFor(askedSide).text ?? '',
+    );
+    final result = await answer(
+      cardId,
+      match.isAccepted ? ReviewOutcome.correct : ReviewOutcome.again,
+      source: source,
+      forceBonus: forceBonus,
+      raisesMissedPending: raisesMissedPending,
+    );
+    return TypedAnswerResult(match: match, result: result);
+  }
 
   /// Records [outcome] for a card. The answer is a bonus review, kept in the
   /// history without any effect, when the card is not due (a pending card

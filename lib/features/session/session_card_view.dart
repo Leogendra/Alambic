@@ -14,13 +14,14 @@ import '../cards/card_image.dart';
 /// and the asked face on top, unchanged by the reveal; the answer below.
 /// [reveal] runs from 0 to 1 as the answer shows: the line between the
 /// halves draws from the center to the edges, and the answer fades in while
-/// rising.
+/// rising. A typed answer gives its [verdict], shown under the answer.
 class SessionCardView extends ConsumerWidget {
   const SessionCardView({
     required this.card,
     required this.askedSide,
     required this.reveal,
     required this.isBonus,
+    this.verdict,
     super.key,
   });
 
@@ -30,6 +31,7 @@ class SessionCardView extends ConsumerWidget {
   final CardSide askedSide;
   final Animation<double> reveal;
   final bool isBonus;
+  final Widget? verdict;
 
   /// How far the answer rises while it fades in.
   static const _answerRise = 12.0;
@@ -84,7 +86,7 @@ class SessionCardView extends ConsumerWidget {
                           child: child,
                         ),
                       ),
-                child: _face(card.answerFor(askedSide), colors.textPrimary),
+                child: _answer(colors.textPrimary),
               ),
             ),
           ),
@@ -120,6 +122,20 @@ class SessionCardView extends ConsumerWidget {
         color: colors.textSecondary,
       ),
     );
+  }
+
+  Widget _answer(Color color) {
+    final answer = _face(card.answerFor(askedSide), color);
+    return switch (verdict) {
+      final verdict? => Column(
+        spacing: 12,
+        children: [
+          Expanded(child: answer),
+          verdict,
+        ],
+      ),
+      null => answer,
+    };
   }
 
   /// The image of a face above its text, the image shrinking to leave room

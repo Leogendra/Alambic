@@ -37,8 +37,7 @@ class ReviewPrompt {
     answer: card.answerFor(askedSide).text ?? '',
     answerImage: card.answerFor(askedSide).imagePath,
     groupName: group.name,
-    // Without text on the answer face, there is nothing to compare with.
-    typedAnswer: group.typedAnswer && card.answerFor(askedSide).hasText,
+    typedAnswer: group.asksTypedAnswer(card, askedSide),
     chainRemaining: chainRemaining,
     isRevealed: isRevealed,
   );

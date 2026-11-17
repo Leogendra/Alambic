@@ -145,20 +145,15 @@ class NotificationPlanner implements ScheduleChangeListener {
     await _refreshDigest(cards, now);
   }
 
-  /// Start of the next day each running distillation has to process: every
-  /// day when it spends a budget on its reminders, otherwise the day of its
-  /// next batch.
+  /// Start of the day on which each running distillation owes its next
+  /// batch.
   Future<List<DateTime>> _distillationPasses(DateTime now) async {
     final calendar = _rhythm.calendar;
     final today = calendar.dayOf(now);
     return [
       for (final distillation in await _distillations.getAll())
         if (distillation.isRunning)
-          calendar.startOf(
-            distillation.avoidCollisions
-                ? calendar.addDays(distillation.lastAdvancedDay ?? today, 1)
-                : _rhythm.nextIntroductionDay(distillation, today),
-          ),
+          calendar.startOf(_rhythm.nextIntroductionDay(distillation, today)),
     ];
   }
 

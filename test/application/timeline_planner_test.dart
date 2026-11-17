@@ -24,17 +24,16 @@ void main() {
 
   Distillation distillation({
     DistillationStatus status = DistillationStatus.running,
-    DateTime? nextBatchDay,
+    DateTime? lastBatchDay,
     DateTime? lastAdvancedDay,
   }) => Distillation(
     groupId: 1,
     cardsPerBatch: 1,
     everyDays: 2,
-    avoidCollisions: false,
+    prioritizeReviews: false,
     status: status,
     startedAt: DateTime(2026, 11, 1),
-    nextBatchDay: nextBatchDay ?? DateTime(2026, 11, 10),
-    introducedInBatch: 0,
+    lastBatchDay: lastBatchDay,
     lastAdvancedDay: lastAdvancedDay,
   );
 
@@ -102,7 +101,7 @@ void main() {
       ],
       distillations: [
         distillation(
-          nextBatchDay: DateTime(2026, 11, 12),
+          lastBatchDay: DateTime(2026, 11, 10),
           lastAdvancedDay: DateTime(2026, 11, 10),
         ),
       ],

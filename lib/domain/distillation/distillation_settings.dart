@@ -3,7 +3,7 @@ class DistillationSettings {
   const DistillationSettings({
     this.cardsPerBatch = 1,
     this.everyDays = 1,
-    this.avoidCollisions = true,
+    this.prioritizeReviews = true,
   }) : assert(cardsPerBatch > 0),
        assert(everyDays > 0);
 
@@ -13,17 +13,17 @@ class DistillationSettings {
   /// X in "N cards every X days".
   final int everyDays;
 
-  /// Gives the distillation a daily budget of [cardsPerBatch] notifications,
-  /// spent on its reminders first.
-  final bool avoidCollisions;
+  /// On a batch day, each card of the group due for review takes the place
+  /// of a new card.
+  final bool prioritizeReviews;
 
   DistillationSettings copyWith({
     int? cardsPerBatch,
     int? everyDays,
-    bool? avoidCollisions,
+    bool? prioritizeReviews,
   }) => DistillationSettings(
     cardsPerBatch: cardsPerBatch ?? this.cardsPerBatch,
     everyDays: everyDays ?? this.everyDays,
-    avoidCollisions: avoidCollisions ?? this.avoidCollisions,
+    prioritizeReviews: prioritizeReviews ?? this.prioritizeReviews,
   );
 }

@@ -12,11 +12,10 @@ class Distillations extends Table {
       integer().references(CardGroups, #id, onDelete: KeyAction.cascade)();
   IntColumn get cardsPerBatch => integer()();
   IntColumn get everyDays => integer()();
-  BoolColumn get avoidCollisions => boolean()();
+  BoolColumn get prioritizeReviews => boolean()();
   TextColumn get status => textEnum<DistillationStatus>()();
   DateTimeColumn get startedAt => dateTime()();
-  DateTimeColumn get nextBatchDay => dateTime()();
-  IntColumn get introducedInBatch => integer()();
+  DateTimeColumn get lastBatchDay => dateTime().nullable()();
   DateTimeColumn get lastAdvancedDay => dateTime().nullable()();
 
   @override

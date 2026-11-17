@@ -10,31 +10,26 @@ class Distillation {
     required this.groupId,
     required this.cardsPerBatch,
     required this.everyDays,
-    required this.avoidCollisions,
+    required this.prioritizeReviews,
     required this.status,
     required this.startedAt,
-    required this.nextBatchDay,
-    required this.introducedInBatch,
+    required this.lastBatchDay,
     required this.lastAdvancedDay,
   });
 
   final int groupId;
   final int cardsPerBatch;
   final int everyDays;
-  final bool avoidCollisions;
+  final bool prioritizeReviews;
   final DistillationStatus status;
   final DateTime startedAt;
 
-  /// Scheduling day from which the current batch may be introduced.
-  final DateTime nextBatchDay;
+  /// Last scheduling day on which a batch came out; the next one comes X
+  /// days later. `null` until the first batch.
+  final DateTime? lastBatchDay;
 
-  /// Cards of the current batch already introduced; the rest of the batch
-  /// comes the next days when the budget held it back or the queue was
-  /// empty.
-  final int introducedInBatch;
-
-  /// Last scheduling day on which the distillation introduced its cards and
-  /// spent its budget; each day is processed once.
+  /// Last scheduling day the daily pass processed; each day is processed
+  /// once.
   final DateTime? lastAdvancedDay;
 
   bool get isRunning => status == DistillationStatus.running;
@@ -42,6 +37,6 @@ class Distillation {
   DistillationSettings get settings => DistillationSettings(
     cardsPerBatch: cardsPerBatch,
     everyDays: everyDays,
-    avoidCollisions: avoidCollisions,
+    prioritizeReviews: prioritizeReviews,
   );
 }

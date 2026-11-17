@@ -60,7 +60,7 @@ void main() {
       const DistillationSettings(
         cardsPerBatch: 1,
         everyDays: 1,
-        avoidCollisions: false,
+        prioritizeReviews: false,
       ),
     );
     final summaries = overview.summarize(

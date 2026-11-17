@@ -123,7 +123,7 @@ void main() {
     ];
     await harness
         .read(distillationServiceProvider)
-        .activate(groupId, const DistillationSettings(avoidCollisions: false));
+        .activate(groupId, const DistillationSettings(prioritizeReviews: false));
     expect(scheduledMoments(), [
       DateTime(2026, 11, 10, 12),
       DateTime(2026, 11, 11, 4),

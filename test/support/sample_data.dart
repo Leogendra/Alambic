@@ -43,7 +43,6 @@ class SampleServices {
     DistillationService(
       distillations: DistillationRepository(database),
       cards: CardRepository(database),
-      presets: PresetRepository(database),
       settings: NotificationSettingsRepository(database),
       pauses: PauseRepository(database),
       scheduler: const ReviewScheduler(SchedulingCalendar()),

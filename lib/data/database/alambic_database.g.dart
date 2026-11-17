@@ -1690,18 +1690,18 @@ class $DistillationsTable extends Distillations
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _avoidCollisionsMeta = const VerificationMeta(
-    'avoidCollisions',
+  static const VerificationMeta _prioritizeReviewsMeta = const VerificationMeta(
+    'prioritizeReviews',
   );
   @override
-  late final GeneratedColumn<bool> avoidCollisions = GeneratedColumn<bool>(
-    'avoid_collisions',
+  late final GeneratedColumn<bool> prioritizeReviews = GeneratedColumn<bool>(
+    'prioritize_reviews',
     aliasedName,
     false,
     type: DriftSqlType.bool,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("avoid_collisions" IN (0, 1))',
+      'CHECK ("prioritize_reviews" IN (0, 1))',
     ),
   );
   @override
@@ -1724,27 +1724,16 @@ class $DistillationsTable extends Distillations
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _nextBatchDayMeta = const VerificationMeta(
-    'nextBatchDay',
+  static const VerificationMeta _lastBatchDayMeta = const VerificationMeta(
+    'lastBatchDay',
   );
   @override
-  late final GeneratedColumn<DateTime> nextBatchDay = GeneratedColumn<DateTime>(
-    'next_batch_day',
+  late final GeneratedColumn<DateTime> lastBatchDay = GeneratedColumn<DateTime>(
+    'last_batch_day',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _introducedInBatchMeta = const VerificationMeta(
-    'introducedInBatch',
-  );
-  @override
-  late final GeneratedColumn<int> introducedInBatch = GeneratedColumn<int>(
-    'introduced_in_batch',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _lastAdvancedDayMeta = const VerificationMeta(
     'lastAdvancedDay',
@@ -1763,11 +1752,10 @@ class $DistillationsTable extends Distillations
     groupId,
     cardsPerBatch,
     everyDays,
-    avoidCollisions,
+    prioritizeReviews,
     status,
     startedAt,
-    nextBatchDay,
-    introducedInBatch,
+    lastBatchDay,
     lastAdvancedDay,
   ];
   @override
@@ -1807,16 +1795,16 @@ class $DistillationsTable extends Distillations
     } else if (isInserting) {
       context.missing(_everyDaysMeta);
     }
-    if (data.containsKey('avoid_collisions')) {
+    if (data.containsKey('prioritize_reviews')) {
       context.handle(
-        _avoidCollisionsMeta,
-        avoidCollisions.isAcceptableOrUnknown(
-          data['avoid_collisions']!,
-          _avoidCollisionsMeta,
+        _prioritizeReviewsMeta,
+        prioritizeReviews.isAcceptableOrUnknown(
+          data['prioritize_reviews']!,
+          _prioritizeReviewsMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_avoidCollisionsMeta);
+      context.missing(_prioritizeReviewsMeta);
     }
     if (data.containsKey('started_at')) {
       context.handle(
@@ -1826,27 +1814,14 @@ class $DistillationsTable extends Distillations
     } else if (isInserting) {
       context.missing(_startedAtMeta);
     }
-    if (data.containsKey('next_batch_day')) {
+    if (data.containsKey('last_batch_day')) {
       context.handle(
-        _nextBatchDayMeta,
-        nextBatchDay.isAcceptableOrUnknown(
-          data['next_batch_day']!,
-          _nextBatchDayMeta,
+        _lastBatchDayMeta,
+        lastBatchDay.isAcceptableOrUnknown(
+          data['last_batch_day']!,
+          _lastBatchDayMeta,
         ),
       );
-    } else if (isInserting) {
-      context.missing(_nextBatchDayMeta);
-    }
-    if (data.containsKey('introduced_in_batch')) {
-      context.handle(
-        _introducedInBatchMeta,
-        introducedInBatch.isAcceptableOrUnknown(
-          data['introduced_in_batch']!,
-          _introducedInBatchMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_introducedInBatchMeta);
     }
     if (data.containsKey('last_advanced_day')) {
       context.handle(
@@ -1878,9 +1853,9 @@ class $DistillationsTable extends Distillations
         DriftSqlType.int,
         data['${effectivePrefix}every_days'],
       )!,
-      avoidCollisions: attachedDatabase.typeMapping.read(
+      prioritizeReviews: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
-        data['${effectivePrefix}avoid_collisions'],
+        data['${effectivePrefix}prioritize_reviews'],
       )!,
       status: $DistillationsTable.$converterstatus.fromSql(
         attachedDatabase.typeMapping.read(
@@ -1892,14 +1867,10 @@ class $DistillationsTable extends Distillations
         DriftSqlType.dateTime,
         data['${effectivePrefix}started_at'],
       )!,
-      nextBatchDay: attachedDatabase.typeMapping.read(
+      lastBatchDay: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
-        data['${effectivePrefix}next_batch_day'],
-      )!,
-      introducedInBatch: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}introduced_in_batch'],
-      )!,
+        data['${effectivePrefix}last_batch_day'],
+      ),
       lastAdvancedDay: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}last_advanced_day'],
@@ -1922,60 +1893,53 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
   final Value<int> groupId;
   final Value<int> cardsPerBatch;
   final Value<int> everyDays;
-  final Value<bool> avoidCollisions;
+  final Value<bool> prioritizeReviews;
   final Value<DistillationStatus> status;
   final Value<DateTime> startedAt;
-  final Value<DateTime> nextBatchDay;
-  final Value<int> introducedInBatch;
+  final Value<DateTime?> lastBatchDay;
   final Value<DateTime?> lastAdvancedDay;
   const DistillationsCompanion({
     this.groupId = const Value.absent(),
     this.cardsPerBatch = const Value.absent(),
     this.everyDays = const Value.absent(),
-    this.avoidCollisions = const Value.absent(),
+    this.prioritizeReviews = const Value.absent(),
     this.status = const Value.absent(),
     this.startedAt = const Value.absent(),
-    this.nextBatchDay = const Value.absent(),
-    this.introducedInBatch = const Value.absent(),
+    this.lastBatchDay = const Value.absent(),
     this.lastAdvancedDay = const Value.absent(),
   });
   DistillationsCompanion.insert({
     this.groupId = const Value.absent(),
     required int cardsPerBatch,
     required int everyDays,
-    required bool avoidCollisions,
+    required bool prioritizeReviews,
     required DistillationStatus status,
     required DateTime startedAt,
-    required DateTime nextBatchDay,
-    required int introducedInBatch,
+    this.lastBatchDay = const Value.absent(),
     this.lastAdvancedDay = const Value.absent(),
   }) : cardsPerBatch = Value(cardsPerBatch),
        everyDays = Value(everyDays),
-       avoidCollisions = Value(avoidCollisions),
+       prioritizeReviews = Value(prioritizeReviews),
        status = Value(status),
-       startedAt = Value(startedAt),
-       nextBatchDay = Value(nextBatchDay),
-       introducedInBatch = Value(introducedInBatch);
+       startedAt = Value(startedAt);
   static Insertable<Distillation> custom({
     Expression<int>? groupId,
     Expression<int>? cardsPerBatch,
     Expression<int>? everyDays,
-    Expression<bool>? avoidCollisions,
+    Expression<bool>? prioritizeReviews,
     Expression<String>? status,
     Expression<DateTime>? startedAt,
-    Expression<DateTime>? nextBatchDay,
-    Expression<int>? introducedInBatch,
+    Expression<DateTime>? lastBatchDay,
     Expression<DateTime>? lastAdvancedDay,
   }) {
     return RawValuesInsertable({
       if (groupId != null) 'group_id': groupId,
       if (cardsPerBatch != null) 'cards_per_batch': cardsPerBatch,
       if (everyDays != null) 'every_days': everyDays,
-      if (avoidCollisions != null) 'avoid_collisions': avoidCollisions,
+      if (prioritizeReviews != null) 'prioritize_reviews': prioritizeReviews,
       if (status != null) 'status': status,
       if (startedAt != null) 'started_at': startedAt,
-      if (nextBatchDay != null) 'next_batch_day': nextBatchDay,
-      if (introducedInBatch != null) 'introduced_in_batch': introducedInBatch,
+      if (lastBatchDay != null) 'last_batch_day': lastBatchDay,
       if (lastAdvancedDay != null) 'last_advanced_day': lastAdvancedDay,
     });
   }
@@ -1984,22 +1948,20 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     Value<int>? groupId,
     Value<int>? cardsPerBatch,
     Value<int>? everyDays,
-    Value<bool>? avoidCollisions,
+    Value<bool>? prioritizeReviews,
     Value<DistillationStatus>? status,
     Value<DateTime>? startedAt,
-    Value<DateTime>? nextBatchDay,
-    Value<int>? introducedInBatch,
+    Value<DateTime?>? lastBatchDay,
     Value<DateTime?>? lastAdvancedDay,
   }) {
     return DistillationsCompanion(
       groupId: groupId ?? this.groupId,
       cardsPerBatch: cardsPerBatch ?? this.cardsPerBatch,
       everyDays: everyDays ?? this.everyDays,
-      avoidCollisions: avoidCollisions ?? this.avoidCollisions,
+      prioritizeReviews: prioritizeReviews ?? this.prioritizeReviews,
       status: status ?? this.status,
       startedAt: startedAt ?? this.startedAt,
-      nextBatchDay: nextBatchDay ?? this.nextBatchDay,
-      introducedInBatch: introducedInBatch ?? this.introducedInBatch,
+      lastBatchDay: lastBatchDay ?? this.lastBatchDay,
       lastAdvancedDay: lastAdvancedDay ?? this.lastAdvancedDay,
     );
   }
@@ -2016,8 +1978,8 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     if (everyDays.present) {
       map['every_days'] = Variable<int>(everyDays.value);
     }
-    if (avoidCollisions.present) {
-      map['avoid_collisions'] = Variable<bool>(avoidCollisions.value);
+    if (prioritizeReviews.present) {
+      map['prioritize_reviews'] = Variable<bool>(prioritizeReviews.value);
     }
     if (status.present) {
       map['status'] = Variable<String>(
@@ -2027,11 +1989,8 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     if (startedAt.present) {
       map['started_at'] = Variable<DateTime>(startedAt.value);
     }
-    if (nextBatchDay.present) {
-      map['next_batch_day'] = Variable<DateTime>(nextBatchDay.value);
-    }
-    if (introducedInBatch.present) {
-      map['introduced_in_batch'] = Variable<int>(introducedInBatch.value);
+    if (lastBatchDay.present) {
+      map['last_batch_day'] = Variable<DateTime>(lastBatchDay.value);
     }
     if (lastAdvancedDay.present) {
       map['last_advanced_day'] = Variable<DateTime>(lastAdvancedDay.value);
@@ -2045,11 +2004,10 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
           ..write('groupId: $groupId, ')
           ..write('cardsPerBatch: $cardsPerBatch, ')
           ..write('everyDays: $everyDays, ')
-          ..write('avoidCollisions: $avoidCollisions, ')
+          ..write('prioritizeReviews: $prioritizeReviews, ')
           ..write('status: $status, ')
           ..write('startedAt: $startedAt, ')
-          ..write('nextBatchDay: $nextBatchDay, ')
-          ..write('introducedInBatch: $introducedInBatch, ')
+          ..write('lastBatchDay: $lastBatchDay, ')
           ..write('lastAdvancedDay: $lastAdvancedDay')
           ..write(')'))
         .toString();
@@ -4864,11 +4822,10 @@ typedef $$DistillationsTableCreateCompanionBuilder =
       Value<int> groupId,
       required int cardsPerBatch,
       required int everyDays,
-      required bool avoidCollisions,
+      required bool prioritizeReviews,
       required DistillationStatus status,
       required DateTime startedAt,
-      required DateTime nextBatchDay,
-      required int introducedInBatch,
+      Value<DateTime?> lastBatchDay,
       Value<DateTime?> lastAdvancedDay,
     });
 typedef $$DistillationsTableUpdateCompanionBuilder =
@@ -4876,11 +4833,10 @@ typedef $$DistillationsTableUpdateCompanionBuilder =
       Value<int> groupId,
       Value<int> cardsPerBatch,
       Value<int> everyDays,
-      Value<bool> avoidCollisions,
+      Value<bool> prioritizeReviews,
       Value<DistillationStatus> status,
       Value<DateTime> startedAt,
-      Value<DateTime> nextBatchDay,
-      Value<int> introducedInBatch,
+      Value<DateTime?> lastBatchDay,
       Value<DateTime?> lastAdvancedDay,
     });
 
@@ -4930,8 +4886,8 @@ class $$DistillationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<bool> get avoidCollisions => $composableBuilder(
-    column: $table.avoidCollisions,
+  ColumnFilters<bool> get prioritizeReviews => $composableBuilder(
+    column: $table.prioritizeReviews,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4946,13 +4902,8 @@ class $$DistillationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get nextBatchDay => $composableBuilder(
-    column: $table.nextBatchDay,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get introducedInBatch => $composableBuilder(
-    column: $table.introducedInBatch,
+  ColumnFilters<DateTime> get lastBatchDay => $composableBuilder(
+    column: $table.lastBatchDay,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5004,8 +4955,8 @@ class $$DistillationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get avoidCollisions => $composableBuilder(
-    column: $table.avoidCollisions,
+  ColumnOrderings<bool> get prioritizeReviews => $composableBuilder(
+    column: $table.prioritizeReviews,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5019,13 +4970,8 @@ class $$DistillationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get nextBatchDay => $composableBuilder(
-    column: $table.nextBatchDay,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get introducedInBatch => $composableBuilder(
-    column: $table.introducedInBatch,
+  ColumnOrderings<DateTime> get lastBatchDay => $composableBuilder(
+    column: $table.lastBatchDay,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5075,8 +5021,8 @@ class $$DistillationsTableAnnotationComposer
   GeneratedColumn<int> get everyDays =>
       $composableBuilder(column: $table.everyDays, builder: (column) => column);
 
-  GeneratedColumn<bool> get avoidCollisions => $composableBuilder(
-    column: $table.avoidCollisions,
+  GeneratedColumn<bool> get prioritizeReviews => $composableBuilder(
+    column: $table.prioritizeReviews,
     builder: (column) => column,
   );
 
@@ -5086,13 +5032,8 @@ class $$DistillationsTableAnnotationComposer
   GeneratedColumn<DateTime> get startedAt =>
       $composableBuilder(column: $table.startedAt, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get nextBatchDay => $composableBuilder(
-    column: $table.nextBatchDay,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get introducedInBatch => $composableBuilder(
-    column: $table.introducedInBatch,
+  GeneratedColumn<DateTime> get lastBatchDay => $composableBuilder(
+    column: $table.lastBatchDay,
     builder: (column) => column,
   );
 
@@ -5158,21 +5099,19 @@ class $$DistillationsTableTableManager
                 Value<int> groupId = const Value.absent(),
                 Value<int> cardsPerBatch = const Value.absent(),
                 Value<int> everyDays = const Value.absent(),
-                Value<bool> avoidCollisions = const Value.absent(),
+                Value<bool> prioritizeReviews = const Value.absent(),
                 Value<DistillationStatus> status = const Value.absent(),
                 Value<DateTime> startedAt = const Value.absent(),
-                Value<DateTime> nextBatchDay = const Value.absent(),
-                Value<int> introducedInBatch = const Value.absent(),
+                Value<DateTime?> lastBatchDay = const Value.absent(),
                 Value<DateTime?> lastAdvancedDay = const Value.absent(),
               }) => DistillationsCompanion(
                 groupId: groupId,
                 cardsPerBatch: cardsPerBatch,
                 everyDays: everyDays,
-                avoidCollisions: avoidCollisions,
+                prioritizeReviews: prioritizeReviews,
                 status: status,
                 startedAt: startedAt,
-                nextBatchDay: nextBatchDay,
-                introducedInBatch: introducedInBatch,
+                lastBatchDay: lastBatchDay,
                 lastAdvancedDay: lastAdvancedDay,
               ),
           createCompanionCallback:
@@ -5180,21 +5119,19 @@ class $$DistillationsTableTableManager
                 Value<int> groupId = const Value.absent(),
                 required int cardsPerBatch,
                 required int everyDays,
-                required bool avoidCollisions,
+                required bool prioritizeReviews,
                 required DistillationStatus status,
                 required DateTime startedAt,
-                required DateTime nextBatchDay,
-                required int introducedInBatch,
+                Value<DateTime?> lastBatchDay = const Value.absent(),
                 Value<DateTime?> lastAdvancedDay = const Value.absent(),
               }) => DistillationsCompanion.insert(
                 groupId: groupId,
                 cardsPerBatch: cardsPerBatch,
                 everyDays: everyDays,
-                avoidCollisions: avoidCollisions,
+                prioritizeReviews: prioritizeReviews,
                 status: status,
                 startedAt: startedAt,
-                nextBatchDay: nextBatchDay,
-                introducedInBatch: introducedInBatch,
+                lastBatchDay: lastBatchDay,
                 lastAdvancedDay: lastAdvancedDay,
               ),
           withReferenceMapper: (p0) => p0

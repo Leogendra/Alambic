@@ -50,7 +50,6 @@ void main() {
         backText: 'Pérou',
         frontImage: const PickedImage('test/support/fixtures/flag.png'),
         groupId: other,
-        presetId: null,
       ),
     );
     final card = await CardRepository(database).getCard(cardId);
@@ -61,7 +60,6 @@ void main() {
         backText: 'Pérou',
         frontImage: StoredImage(card.frontImagePath!),
         groupId: flags,
-        presetId: null,
       ),
     );
     final file = File(services.images.pathOf(card.frontImagePath!));

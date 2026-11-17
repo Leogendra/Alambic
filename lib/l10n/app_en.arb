@@ -105,7 +105,6 @@
   "cardGroup": "Group",
   "cardGroupNone": "Choose",
   "cardPreset": "Preset",
-  "cardPresetInheritedFromGroup": "From the group: {name}",
   "cardPresetInheritedGlobal": "Global preset: {name}",
   "cardIncomplete": "The front and the back each need a text or an image.",
   "cardGroupMissing": "Choose a group for this card.",

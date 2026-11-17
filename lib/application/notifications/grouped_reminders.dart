@@ -123,7 +123,7 @@ class GroupedReminders {
       for (final card in cards)
         if (deliveries[card.id] case final deliverAt?
             when !deliverAt.isAfter(now))
-          _Waiting(card, catalog.presetForCard(card)),
+          _Waiting(card, catalog.presetForGroup(card.groupId)),
     ];
     return waiting..sort(_earliestDueFirst);
   }

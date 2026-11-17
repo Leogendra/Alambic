@@ -262,12 +262,7 @@ void main() {
     final otherGroup = await services.groups.create('Autres');
     await services.cards.update(
       cardIds[1],
-      CardDraft(
-        frontText: 'Pérou',
-        backText: 'capitale',
-        groupId: otherGroup,
-        presetId: null,
-      ),
+      CardDraft(frontText: 'Pérou', backText: 'capitale', groupId: otherGroup),
     );
     moveTo(DateTime(2026, 11, 11, 9));
     await services.distillations.advance();

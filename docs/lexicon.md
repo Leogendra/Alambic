@@ -34,7 +34,7 @@ A flat list of cards sharing a [preset](#preset) (`CardGroup`; *groupe*), with i
 
 ### Preset
 
-The rhythm of the reviews (`Preset`): interval sequence, behaviour on failure and at the end of the sequence. It says nothing of when in the day nor how a card is notified: that is the [schedule](#schedule) of the app. A level (card, group, global) picks a whole preset or inherits from the next level.
+The rhythm of the reviews (`Preset`): interval sequence, behaviour on failure and at the end of the sequence. It says nothing of when in the day nor how a card is notified: that is the [schedule](#schedule) of the app. A group picks a whole preset or inherits the global one; a card follows its group.
 
 ### Step
 

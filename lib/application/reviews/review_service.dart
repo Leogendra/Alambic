@@ -140,5 +140,5 @@ class ReviewService {
       (await _settings.loadReminderSettings()).dailySlot;
 
   Future<Preset> _presetOf(Flashcard card) async =>
-      (await _presets.loadCatalog()).presetForCard(card);
+      (await _presets.loadCatalog()).presetForGroup(card.groupId);
 }

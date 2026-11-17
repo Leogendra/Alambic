@@ -74,7 +74,6 @@ void main() {
         backText: 'Pérou',
         frontImage: const PickedImage('test/support/fixtures/flag.png'),
         groupId: capitals,
-        presetId: null,
       ),
     );
     final cards = await CardRepository(source.database).getAll();

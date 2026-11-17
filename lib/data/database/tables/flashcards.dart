@@ -3,7 +3,6 @@ import 'package:drift/drift.dart';
 import '../../../domain/cards/card_state.dart';
 import '../../../domain/cards/flashcard.dart';
 import 'card_groups.dart';
-import 'presets.dart';
 
 @UseRowClass(Flashcard)
 @TableIndex(name: 'flashcards_due_at', columns: {#dueAt})
@@ -17,7 +16,6 @@ class Flashcards extends Table {
   TextColumn get frontImagePath => text().nullable()();
   TextColumn get backText => text().nullable()();
   TextColumn get backImagePath => text().nullable()();
-  IntColumn get presetId => integer().nullable().references(Presets, #id)();
   BoolColumn get suspended => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
   TextColumn get state => textEnum<CardState>()();

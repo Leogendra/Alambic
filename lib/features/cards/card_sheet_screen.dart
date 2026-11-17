@@ -45,7 +45,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
       return Scaffold(appBar: AppBar());
     }
     final groupName = ref.watch(groupProvider(card.groupId)).value?.name ?? '';
-    final preset = catalog.presetForCard(card);
+    final preset = catalog.presetForGroup(card.groupId);
     return Scaffold(
       appBar: AppBar(
         title: Text(

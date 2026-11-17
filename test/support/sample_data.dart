@@ -99,15 +99,8 @@ class SampleServices {
   final ReminderService reminders;
 
   /// A new card of [groupId], pending in its queue.
-  Future<int> card(String front, String back, {required int groupId}) =>
-      cards.create(
-        CardDraft(
-          frontText: front,
-          backText: back,
-          groupId: groupId,
-          presetId: null,
-        ),
-      );
+  Future<int> card(String front, String back, {required int groupId}) => cards
+      .create(CardDraft(frontText: front, backText: back, groupId: groupId));
 
   /// Introduces every pending card of [groupId] now, as a distillation would
   /// have done earlier: each becomes due today at the daily slot. Lets a

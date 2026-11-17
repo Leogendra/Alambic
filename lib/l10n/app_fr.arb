@@ -229,14 +229,6 @@
   "cardGroup": "Groupe",
   "cardGroupNone": "Choisir",
   "cardPreset": "Preset",
-  "cardPresetInheritedFromGroup": "Hérité du groupe : {name}",
-  "@cardPresetInheritedFromGroup": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "cardPresetInheritedGlobal": "Preset global : {name}",
   "@cardPresetInheritedGlobal": {
     "placeholders": {

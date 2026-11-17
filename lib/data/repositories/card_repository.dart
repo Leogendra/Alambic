@@ -22,7 +22,6 @@ class CardRepository {
     required String? frontImagePath,
     required String? backText,
     required String? backImagePath,
-    required int? presetId,
     required DateTime createdAt,
     required int queuePosition,
   }) => _database
@@ -34,7 +33,6 @@ class CardRepository {
           frontImagePath: Value(frontImagePath),
           backText: Value(backText),
           backImagePath: Value(backImagePath),
-          presetId: Value(presetId),
           createdAt: createdAt,
           state: CardState.pending,
           queuePosition: Value(queuePosition),
@@ -48,7 +46,6 @@ class CardRepository {
     required String? frontImagePath,
     required String? backText,
     required String? backImagePath,
-    required int? presetId,
   }) =>
       (_database.update(
         _database.flashcards,
@@ -59,15 +56,8 @@ class CardRepository {
           frontImagePath: Value(frontImagePath),
           backText: Value(backText),
           backImagePath: Value(backImagePath),
-          presetId: Value(presetId),
         ),
       );
-
-  /// A preset change keeps the step and the due date.
-  Future<void> setCardPreset(int cardId, int? presetId) =>
-      (_database.update(_database.flashcards)
-            ..where((card) => card.id.equals(cardId)))
-          .write(FlashcardsCompanion(presetId: Value(presetId)));
 
   Future<void> setSuspended(int cardId, {required bool suspended}) =>
       (_database.update(_database.flashcards)

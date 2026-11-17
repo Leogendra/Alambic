@@ -12,5 +12,8 @@ List<DeliveryCandidate> deliveryCandidates(
 ) => [
   for (final card in cards)
     if (!card.suspended && !pauses.covers(card.groupId) && card.isScheduled)
-      DeliveryCandidate(card: card, preset: catalog.presetForCard(card)),
+      DeliveryCandidate(
+        card: card,
+        preset: catalog.presetForGroup(card.groupId),
+      ),
 ];

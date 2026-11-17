@@ -33,8 +33,6 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
   late Preset _draft = widget.initialPreset;
   final TextEditingController _nameController = TextEditingController();
 
-  bool get _isStored => _draft.id != 0;
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -62,12 +60,6 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
       appBar: AppBar(
         title: Text(strings.presetName(_draft)),
         actions: [
-          if (_isStored)
-            IconButton(
-              tooltip: strings.presetDuplicate,
-              onPressed: _duplicate,
-              icon: const Icon(Icons.copy_outlined),
-            ),
           TextButton(onPressed: _save, child: Text(strings.commonSave)),
         ],
       ),
@@ -227,28 +219,6 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
     if (mounted) {
       Navigator.of(context).pop();
     }
-  }
-
-  Future<void> _duplicate() async {
-    final strings = AppLocalizations.of(context);
-    final copyName = strings.presetCopyName(strings.presetName(_draft));
-    final service = ref.read(presetServiceProvider);
-    final copyId = await service.duplicate(_draft, copyName);
-    if (!mounted) {
-      return;
-    }
-    _showMessage(strings.presetDuplicated(copyName));
-    await Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(
-        builder: (context) => PresetEditorScreen(
-          initialPreset: _draft.copyWith(
-            id: copyId,
-            name: copyName,
-            builtInKey: () => null,
-          ),
-        ),
-      ),
-    );
   }
 
   void _showMessage(String message) =>

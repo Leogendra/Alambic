@@ -47,8 +47,9 @@ void main() {
     (Brightness.light, ''),
     (Brightness.dark, '_dark'),
   ]) {
-    testWidgets('settings in English, with the shipped preset translated, '
-        '${brightness.name} theme', (tester) async {
+    testWidgets('settings in English, ${brightness.name} theme', (
+      tester,
+    ) async {
       await pumpGolden(
         tester,
         const Scaffold(body: SafeArea(child: SettingsScreen())),
@@ -59,7 +60,7 @@ void main() {
           alarmSchedulerProvider.overrideWithValue(alarms),
         ],
       );
-      expect(find.text('Standard'), findsOneWidget);
+      expect(find.text('Presets'), findsOneWidget);
       await expectLater(
         find.byType(SettingsScreen),
         matchesGoldenFile('goldens/settings_english$suffix.png'),

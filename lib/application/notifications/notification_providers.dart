@@ -12,6 +12,7 @@ import 'notification_action_handler.dart';
 import 'notification_dispatcher.dart';
 import 'notification_planner.dart';
 import 'notification_presenter.dart';
+import 'notification_session.dart';
 import 'notification_target.dart';
 import 'planned_alarm_store.dart';
 
@@ -96,10 +97,19 @@ final notificationActionHandlerProvider = Provider(
   ),
 );
 
-/// Groups opened from a notification, the one that launched the app first.
-/// Empty unless the platform layer overrides it.
+/// Notifications touched, the one that launched the app first. Empty unless
+/// the platform layer overrides it.
 final notificationTargetsProvider = Provider<Stream<NotificationTarget>>(
   (ref) => const Stream.empty(),
+);
+
+final notificationSessionProvider = Provider(
+  (ref) => NotificationSession(
+    cards: ref.watch(cardRepositoryProvider),
+    duePolicy: ref.watch(duePolicyProvider),
+    sessionItems: ref.watch(sessionItemFactoryProvider),
+    clock: ref.watch(clockProvider),
+  ),
 );
 
 /// Whether alarms fire at the exact minute; refreshed when the app resumes.

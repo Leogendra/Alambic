@@ -20,7 +20,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Reminders survive a phone restart. Without the exact alarm permission they may arrive a few minutes late, and Settings offers to allow exact alarms.
 - Distillation: "Distill" on a group page introduces its waiting cards a few at a time, from the head of its queue ("N cards every X days"), even with the app closed. It is a permanent setting of the group, adjusted, paused and resumed from the group page; cards added later join the end of its queue. "Avoid collisions" gives it a daily budget while cards wait: reminders first, new cards in what is left.
 - Typed answer in the notification, for groups with this option, with Again / Reveal / Answer buttons: the answer is accepted despite case, accents, spaces and one typo, then the verdict and the expected answer are shown.
-- Grouped reminder, as the notification mode of the app: one notification per group with its number of due cards, which opens the app on the group or chains the cards inside the notification, each with the buttons of a card notification.
+- Grouped reminder, as the notification mode of the app: one notification per group with its number of due cards, which opens a session on the group or chains the cards inside the notification, each with the buttons of a card notification.
 - Time range schedule: the notifications of the day are spread evenly over the range, and Home's timeline shows them at their moment.
 - A notification ignored or swiped is sent again the next day at the reminder time.
 - Schedule and notification mode in Settings, for every group at once: a fixed time (12:00 by default) or a time range, one notification per card or a grouped reminder. A new reminder time also moves the reminders already set at the old one.
@@ -41,6 +41,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - The end of sequence and the typed answer belong to the group instead of the preset, and are set in the group settings: after the last step, the cards come back every 3 months, 6 months (by default) or year, or are learned for good; the typed answer is off by default.
 - The distillation always takes the head of its group's queue: the "Distill" screen no longer offers an order (group order or random).
 - In a session, the top half of the card no longer shrinks or greys at the reveal: the answer fades in below it with a short animation and a light vibration, shown at once when the phone reduces animations. "Show answer" is the only button before the reveal, in the place of the answer buttons, and a bonus review no longer shows "no effect" under them.
+- Touching a notification opens a review session on its card, or on the due cards of its group, then on every due card, instead of opening Home or the group page.
 - A notification that could not arrive on time, the phone being off, arrives when it is turned back on, however late, instead of being dropped after an hour; during the quiet hours it waits for their end.
 - Again in a notification closes it like Correct, instead of showing the expected answer and the next review: Reveal shows the answer beforehand.
 - Preset steps can be set in years.

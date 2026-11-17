@@ -1,11 +1,29 @@
-/// Where the app opens when the user touches a notification or its "Open"
-/// button: the page of a group, or Home.
+import '../../domain/cards/card_side.dart';
+
+/// What a touched notification opens a session on: a card first, then the
+/// due cards of a group first, then every due card.
 class NotificationTarget {
-  const NotificationTarget.group(int this.groupId) : isHome = false;
+  /// A card notification: this card, asking [askedSide] like the
+  /// notification; a card chained in a grouped reminder also gives its
+  /// [groupId].
+  const NotificationTarget.card(
+    int this.cardId,
+    CardSide this.askedSide, {
+    this.groupId,
+  });
 
-  const NotificationTarget.home() : groupId = null, isHome = true;
+  /// A grouped reminder.
+  const NotificationTarget.group(int this.groupId)
+    : cardId = null,
+      askedSide = null;
 
-  /// `null` for Home.
+  /// The digest of a moment, or a notification whose card was answered.
+  const NotificationTarget.allDue()
+    : cardId = null,
+      askedSide = null,
+      groupId = null;
+
+  final int? cardId;
+  final CardSide? askedSide;
   final int? groupId;
-  final bool isHome;
 }

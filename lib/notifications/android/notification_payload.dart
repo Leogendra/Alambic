@@ -78,16 +78,24 @@ abstract final class NotificationPayload {
   static int decodeGroupCount(String? payload) =>
       _fields(payload)?['count'] as int? ?? 0;
 
-  /// The group to open for a grouped reminder or a card chained in it, Home
-  /// for the digest; `null` for any other notification.
+  /// What the session opened by touching the notification starts with: its
+  /// card while unanswered, else its group, else every due card; `null` for
+  /// a payload that is not a notification of the app.
   static NotificationTarget? target(String? payload) {
     final fields = _fields(payload);
+    final group = fields?['group'] as int?;
     if (fields == null) {
       return null;
-    } else if (fields['digest'] == true) {
-      return const NotificationTarget.home();
-    } else if (fields['summary'] == true || fields['chained'] == true) {
-      return NotificationTarget.group(fields['group'] as int);
+    } else if (fields['card'] is int && fields['prompt'] == true) {
+      return NotificationTarget.card(
+        fields['card'] as int,
+        askedSide(payload),
+        groupId: group,
+      );
+    } else if (group != null) {
+      return NotificationTarget.group(group);
+    } else if (fields['digest'] == true || fields['card'] is int) {
+      return const NotificationTarget.allDue();
     } else {
       return null;
     }

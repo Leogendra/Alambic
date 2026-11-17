@@ -54,7 +54,7 @@ Three safeguards, set in Settings › Notifications › Garde-fous and stored in
 
 - **Quiet hours** (*ne pas déranger*, on by default, 22:00 to 08:00): a notification falling inside is moved to their end, 23:10 to 08:00 the next morning. The hours may span midnight or stay within a day. A notification moved to the next morning keeps that moment even though its due day is over.
 - **Daily cap** (20 cards by default): each day, the cards beyond the cap are not notified; the ones waiting the longest interval of their sequence go last, a new card counting as the shortest. They are moved to the slot of the next day, where they compete again. The cards already notified that day count against the cap, through a counter of the day kept in `app_settings`, since a card answered loses the trace of its notification. A card in a grouped reminder counts as one card; "Review soon" reminders are not counted.
-- **Auto grouping** (on by default, beyond 5): when a wake-up has more notifications to show than the threshold, card notifications and grouped reminders together, a single notification replaces them, "12 cartes à réviser", naming the groups and the estimated time. Touching it opens Home. Its count follows the answers given in the app: it counts the cards notified that day that are still due, and closes when none is left.
+- **Auto grouping** (on by default, beyond 5): when a wake-up has more notifications to show than the threshold, card notifications and grouped reminders together, a single notification replaces them, "12 cartes à réviser", naming the groups and the estimated time. Touching it opens a session on every due card. Its count follows the answers given in the app: it counts the cards notified that day that are still due, and closes when none is left.
 
 The Garde-fous screen saves each change at once and plans the wake-ups again. Under the cap, it shows tomorrow's load: the cards due tomorrow, how many fit under the cap and how many would be moved to the day after.
 
@@ -87,7 +87,16 @@ The buttons are handled in a background isolate, app open or not, by `Notificati
 - answering an extra reminder is always a [bonus review](../lexicon.md#bonus-review);
 - a card deleted meanwhile only closes the notification.
 
-Touching the notification itself opens the app.
+### Touching a notification
+
+Touching the body of a notification opens a session in the app ([Feature 5](5-session.md)): notifications save time, they do not keep the user out of the app, and whoever touches one can review at once everything waiting for them.
+
+- A card notification: that card, asking the same face as the notification, then every due card of the app.
+- A card chained in a grouped reminder: that card, then the due cards of its group, then the others.
+- A grouped reminder, or its "Ouvrir l'app": the due cards of the group, then the others.
+- The digest, or its "Ouvrir l'app", and the verdict of a typed answer, whose card is already answered: every due card.
+
+The due cards are the ones a session counts as [due](../lexicon.md#due) today, earliest due first, each asked face drawn at the opening; the touched card is not asked twice. A card that is not due, such as the card of a "Review soon" reminder, is answered as a bonus review. The session opens above the root screen, closing the screens opened on it; when nothing is left to review, the app opens where it was, without a session.
 
 ### Typed answer
 
@@ -109,7 +118,7 @@ The count is the number of cards of the group whose due moment has passed. When 
 
 What the reminder offers is set with the mode:
 
-- open the app (default): touching the notification or "Ouvrir l'app" opens the app on the group page;
+- open the app (default): touching the notification or "Ouvrir l'app" opens a session on the due cards of the group, then the others;
 - chain the cards: "Commencer ici" replaces the reminder with the first card, the earliest due. Each answer replaces it with the next card, with "Capitales · 3 à réviser" as its text and the same buttons as a card notification, "Reveal" included; there is no room left for a button opening the app. The "OK" of a typed answer's verdict moves on. The notification closes after the last card. A chained card answered in the app gives way to the next one.
 
 ### Exact alarms, restarts and permissions
@@ -135,14 +144,15 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] Without the exact alarm permission, reminders are still planned as inexact alarms, and Settings offers to allow exact alarms.
 - [x] Wake-ups are planned again after a phone restart and at each launch.
 - [x] With the typed answer option, the card is answered in a field of the notification; the buttons are "Again", "Reveal" and "Answer"; the comparison ignores case, accents and spaces and forgives one typo, then the verdict and the expected answer are shown with "OK".
-- [x] In grouped reminder mode, the due cards of a group are announced by one notification with their count, which opens the app on the group.
+- [x] In grouped reminder mode, the due cards of a group are announced by one notification with their count, which opens a session starting with them.
 - [x] With chaining, the cards of the reminder are answered one after the other inside the notification, with the buttons of a card notification.
 - [x] A grouped reminder follows the answers given in the app, and closes when no card is left.
 - [x] With a time range, the cards of the day are notified one by one, spread evenly over the range; a grouped reminder arrives at the start of the range.
 - [x] A time range whose end would precede its start cannot be entered.
 - [x] Beyond the daily cap, the cards waiting the longest intervals are not notified that day and come back the next day.
 - [x] A notification falling in the quiet hours arrives at their end.
-- [x] Beyond the auto grouping threshold, the notifications of a moment are replaced by a single one that opens Home.
+- [x] Beyond the auto grouping threshold, the notifications of a moment are replaced by a single one.
+- [x] Touching a notification opens a session: its card, or the due cards of its group, first, then every due card.
 - [x] The safeguards are set in Settings, with tomorrow's load shown against the cap.
 - [x] The schedule and the notification mode are set once in Settings and apply to every group; a new daily slot moves the due dates set at the old one.
 - [x] A paused group, or every card during the global pause, is not notified and its distillations wait; on resume, its due dates move by the length of the pause, except those of cards answered meanwhile.
@@ -152,7 +162,8 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - The timing rules (shown once, however late, wake-ups rounded and capped), the notification moments and the typed answer comparison are tested as pure domain logic.
 - The planner, the dispatcher and the action handler are tested together on an in-memory database, through the same providers as the app, with in-memory fakes of the three platform interfaces that behave like an alarm manager and a notification shade.
 - Each button is tested through the action handler: "Correct" and "Again" record and close; "Reveal" shows the answer and records nothing, then its "Correct" or "Again"; the typed answer with its verdict, "Again" and "Reveal"; "Reveal" and "Again" on a chained card.
-- The notification texts and the payload carried by a notification are tested without a device.
+- The notification texts and the payload carried by a notification, including what a touched notification opens, are tested without a device.
+- The content of the session opened by each kind of notification is tested on an in-memory database with a fixed clock: its card or group first, then every due card, earliest first, without repeating the touched card.
 - The exact alarm panel is tested on screen, with a golden test of the refused state; the safeguards, schedule and notification mode screens have golden tests too, and their changes are checked in the database.
 - Moving the due dates to a new slot is tested as pure domain logic, then through the settings service on an in-memory database.
 - The Android implementation itself (alarm plugin, notification plugin, background isolates) is not covered by automated tests: it is checked on a phone.
@@ -168,14 +179,14 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - `lib/data/repositories/notification_settings_repository.dart` — the schedule, the mode, the safeguards and the count of cards notified today.
 - `lib/domain/pauses/`, `lib/application/pauses/`, `lib/data/repositories/pause_repository.dart` — the pauses, their shift on resume, their service and storage.
 - `lib/features/pauses/paused_banner.dart` — "En pause depuis le …" with "Reprendre", on Home and on a group page.
-- `lib/app/shell/main_shell.dart` — opens the group of a grouped reminder touched in the notifications.
+- `lib/app/shell/main_shell.dart` — opens the session of a touched notification.
 - `lib/main.dart` — initialisation and planning at launch.
 
 ## Technical details
 
 The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its card id; extra reminders use ids from 1,000,000,000 upwards so that they never replace the notification of a due card; the digest of a moment uses 2,000,000,000; the grouped reminder of a group uses the negative id `-1 - groupId`, and the cards chained in it take the same id, so that each one replaces the previous. A notification carries its key (card, extra reminder, chained group, prompt or answer, the [asked side](../lexicon.md#asked-side), or the group and count of a grouped reminder) in its payload, which is how the planner finds the notifications shown and how a pressed button finds what it answers.
 
-"Ouvrir l'app" and touching a grouped reminder launch the app instead of a background isolate: the plugin hands the response to the running app, or to the launch details when the notification started it. `notificationTargetsProvider` turns both into a stream of groups to open, which the main shell follows.
+"Ouvrir l'app" and touching a grouped reminder launch the app instead of a background isolate: the plugin hands the response to the running app, or to the launch details when the notification started it. `notificationTargetsProvider` turns both into a stream of `NotificationTarget`, read from the payload, which the main shell follows; `NotificationSession` turns a target into the items of the session. The due cards are read from the database, not from the screens' providers, which are still loading when a notification launches the app.
 
 The "Reveal" and "Answer" buttons, and every button of a chained card, do not let the plugin close the notification, so that the answer, the verdict or the next card replaces it in place. The revealed notification is silent and alerts only once; it stays a prompt in its payload, so that the planner withdraws it like any other once its card is answered in the app. The text typed in the field reaches the background isolate in the `input` of the notification response.
 

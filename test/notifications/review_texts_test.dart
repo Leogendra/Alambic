@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/notifications/group_reminder.dart';
 import 'package:alambic/application/notifications/group_reminder_key.dart';
+import 'package:alambic/application/notifications/notification_digest.dart';
+import 'package:alambic/application/notifications/notification_target.dart';
 import 'package:alambic/application/notifications/review_notification_key.dart';
 import 'package:alambic/application/notifications/review_prompt.dart';
 import 'package:alambic/application/notifications/typed_answer_verdict.dart';
@@ -163,23 +165,23 @@ void main() {
     expect(NotificationPayload.askedSide('{"card": 7}'), CardSide.front);
   });
 
-  test('the payload of a grouped reminder leads to its group', () {
-    const capitals = GroupReminderKey(4);
-    const spanish = GroupReminderKey(5);
+  test('the payload of a grouped reminder carries its group and count', () {
     final summary = NotificationPayload.encodeGroup(
       const GroupReminder(
-        key: spanish,
+        key: GroupReminderKey(5),
         groupName: 'Espagnol',
         count: 5,
         chain: true,
         alert: true,
       ),
     );
-    expect(NotificationPayload.decodeGroup(summary), spanish);
+    expect(NotificationPayload.decodeGroup(summary), const GroupReminderKey(5));
     expect(NotificationPayload.decodeGroupCount(summary), 5);
     expect(NotificationPayload.decode(summary), isNull);
-    expect(NotificationPayload.target(summary)!.groupId, 5);
-    const chained = ReviewNotificationKey(cardId: 7, chain: capitals);
+    const chained = ReviewNotificationKey(
+      cardId: 7,
+      chain: GroupReminderKey(4),
+    );
     final card = NotificationPayload.encode(
       chained,
       isPrompt: true,
@@ -187,17 +189,69 @@ void main() {
     );
     expect(NotificationPayload.decodePrompt(card), chained);
     expect(NotificationPayload.decodeGroup(card), isNull);
-    expect(NotificationPayload.target(card)!.groupId, 4);
-    expect(
-      NotificationPayload.target(
-        NotificationPayload.encode(
-          key,
-          isPrompt: true,
-          askedSide: CardSide.front,
-        ),
+  });
+
+  group('a touched notification opens a session on', () {
+    NotificationTarget? targetOf(
+      ReviewNotificationKey key, {
+      bool isPrompt = true,
+    }) => NotificationPayload.target(
+      NotificationPayload.encode(
+        key,
+        isPrompt: isPrompt,
+        askedSide: CardSide.back,
       ),
-      isNull,
     );
+
+    test('its card, asking the same face', () {
+      final target = targetOf(key)!;
+      expect(target.cardId, 7);
+      expect(target.askedSide, CardSide.back);
+      expect(target.groupId, isNull);
+    });
+
+    test('its card then its group, chained in a grouped reminder', () {
+      final target = targetOf(
+        const ReviewNotificationKey(cardId: 7, chain: GroupReminderKey(4)),
+      )!;
+      expect(target.cardId, 7);
+      expect(target.groupId, 4);
+    });
+
+    test('its group, for a grouped reminder', () {
+      final target = NotificationPayload.target(
+        NotificationPayload.encodeGroup(
+          const GroupReminder(
+            key: GroupReminderKey(4),
+            groupName: 'Capitales',
+            count: 5,
+            chain: false,
+            alert: true,
+          ),
+        ),
+      )!;
+      expect(target.cardId, isNull);
+      expect(target.groupId, 4);
+    });
+
+    test('every due card, for the digest or an answered card', () {
+      for (final target in [
+        NotificationPayload.target(
+          NotificationPayload.encodeDigest(
+            const NotificationDigest(count: 12, groupNames: [], alert: true),
+          ),
+        ),
+        targetOf(key, isPrompt: false),
+      ]) {
+        expect(target!.cardId, isNull);
+        expect(target.groupId, isNull);
+      }
+    });
+
+    test('nothing, for a payload of another app', () {
+      expect(NotificationPayload.target('not json'), isNull);
+      expect(NotificationPayload.target('{"other": 1}'), isNull);
+    });
   });
 
   test('a grouped reminder tells its count and the cards left', () {

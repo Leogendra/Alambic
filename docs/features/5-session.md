@@ -10,7 +10,7 @@ Review [due](../lexicon.md#due) cards in the app, one by one, with the same two 
 
 ### Flow
 
-A session starts from a list of cards. A group page starts it on all its cards ("Review all", [Feature 4](4-groups.md#review-all)); the card sheet starts it on a single card. Each card's [asked side](../lexicon.md#asked-side) is drawn when the session opens: the front, or one chance in two the back when its group has the [back option](../lexicon.md#back-option).
+A session starts from a list of cards. A group page starts it on all its cards ("Review all", [Feature 4](4-groups.md#review-all)); the card sheet starts it on a single card; a touched notification starts it on its card or the due cards of its group, then every due card ([Feature 7](7-notifications.md#touching-a-notification)), the touched card asking the face of its notification. Each card's [asked side](../lexicon.md#asked-side) is drawn when the session opens: the front, or one chance in two the back when its group has the [back option](../lexicon.md#back-option).
 
 For each card, the screen shows a card in two halves of fixed height. The top half holds a context line (the group and the preset, the mention "back → front" when the back is asked) and the asked face, its image above its text, the image shrinking to leave room for the text. The bottom half is empty until the reveal, then shows the other face. The top half does not change at the reveal: same position, same text size, same colour.
 
@@ -45,6 +45,7 @@ The end screen gives the number of cards, the duration, and the number of correc
 - [x] Answering a card that is not due is a bonus review: history only.
 - [x] The end screen counts the answers and offers to review the missed cards as a bonus review.
 - [x] A group page starts a session on all its cards with "Review all".
+- [x] Touching a notification starts a session on its card or group, then every due card.
 - [x] With the back option, each card of the session asks its front or its back, drawn at the opening.
 
 ## Test strategy

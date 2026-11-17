@@ -107,9 +107,14 @@ void main() {
       final second = handler().chained(capitals);
       expect(second.prompt, 'Pérou');
       expect(second.chainRemaining, 3);
+      // "Reveal" keeps the card and its count, then its answer moves on.
+      await handler().answer(second.key, NotificationAction.reveal);
+      final revealed = handler().chained(capitals);
+      expect(revealed.isRevealed, isTrue);
+      expect(revealed.answer, 'Lima');
+      expect(revealed.chainRemaining, 3);
       await handler().answer(second.key, NotificationAction.again);
-      expect(harness.presenter.reveals.keys.single.chain, capitals);
-      await handler().answer(second.key, NotificationAction.acknowledge);
+      expect(handler().chained(capitals).isRevealed, isFalse);
       expect(handler().chained(capitals).chainRemaining, 2);
       await handler().answer(
         handler().chained(capitals).key,

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:alambic/application/clock.dart';
 import 'package:alambic/application/notifications/alarm_scheduler.dart';
-import 'package:alambic/application/notifications/answer_reveal.dart';
 import 'package:alambic/application/notifications/group_reminder.dart';
 import 'package:alambic/application/notifications/group_reminder_key.dart';
 import 'package:alambic/application/notifications/notification_digest.dart';
@@ -13,6 +12,7 @@ import 'package:alambic/application/notifications/notification_providers.dart';
 import 'package:alambic/application/notifications/planned_alarm_store.dart';
 import 'package:alambic/application/notifications/review_notification_key.dart';
 import 'package:alambic/application/notifications/review_prompt.dart';
+import 'package:alambic/application/notifications/typed_answer_verdict.dart';
 import 'package:alambic/application/randomness.dart';
 import 'package:alambic/application/scheduling/scheduling_providers.dart';
 import 'package:alambic/data/data_providers.dart';
@@ -52,8 +52,9 @@ class FakeAlarmScheduler implements AlarmScheduler {
 
 /// Notifications kept in memory, as a notification shade would hold them.
 class FakePresenter implements NotificationPresenter {
+  /// Cards asked, revealed or not.
   final Map<ReviewNotificationKey, ReviewPrompt> prompts = {};
-  final Map<ReviewNotificationKey, AnswerReveal> reveals = {};
+  final Map<ReviewNotificationKey, TypedAnswerVerdict> verdicts = {};
   final Map<GroupReminderKey, GroupReminder> groupReminders = {};
   NotificationDigest? digest;
 
@@ -74,9 +75,9 @@ class FakePresenter implements NotificationPresenter {
   }
 
   @override
-  Future<void> showReveal(AnswerReveal reveal) async {
-    _clearSlotOf(reveal.key);
-    reveals[reveal.key] = reveal;
+  Future<void> showVerdict(TypedAnswerVerdict verdict) async {
+    _clearSlotOf(verdict.key);
+    verdicts[verdict.key] = verdict;
   }
 
   @override
@@ -96,7 +97,7 @@ class FakePresenter implements NotificationPresenter {
   Future<void> dismissGroupReminder(GroupReminderKey key) async {
     groupReminders.remove(key);
     prompts.removeWhere((prompt, _) => prompt.chain == key);
-    reveals.removeWhere((reveal, _) => reveal.chain == key);
+    verdicts.removeWhere((verdict, _) => verdict.chain == key);
   }
 
   @override
@@ -122,7 +123,7 @@ class FakePresenter implements NotificationPresenter {
       dismissGroupReminder(chain);
     } else {
       prompts.remove(key);
-      reveals.remove(key);
+      verdicts.remove(key);
     }
   }
 }

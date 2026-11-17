@@ -1,11 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:alambic/application/notifications/answer_reveal.dart';
 import 'package:alambic/application/notifications/group_reminder.dart';
 import 'package:alambic/application/notifications/group_reminder_key.dart';
 import 'package:alambic/application/notifications/review_notification_key.dart';
 import 'package:alambic/application/notifications/review_prompt.dart';
+import 'package:alambic/application/notifications/typed_answer_verdict.dart';
 import 'package:alambic/application/reviews/review_result.dart';
 import 'package:alambic/domain/cards/card_side.dart';
 import 'package:alambic/domain/cards/card_state.dart';
@@ -32,22 +32,26 @@ void main() {
     askedSide: askedSide,
     prompt: 'Pérou',
     image: null,
+    answer: 'Lima',
+    answerImage: null,
     groupName: 'Capitales',
     typedAnswer: false,
     chainRemaining: chainRemaining,
   );
 
-  AnswerReveal reveal({
+  TypedAnswerVerdict verdict({
     required bool isBonus,
-    String? typed,
-    TypedAnswerMatch? match,
+    required String typed,
+    required TypedAnswerMatch match,
     CardSchedule? schedule,
-  }) => AnswerReveal(
+  }) => TypedAnswerVerdict(
     key: key,
     askedSide: CardSide.front,
     prompt: 'Pérou',
     answer: 'Lima',
     answerImage: null,
+    typed: typed,
+    match: match,
     result: ReviewResult(
       isBonus: isBonus,
       schedule: isBonus
@@ -60,8 +64,6 @@ void main() {
                 ),
     ),
     answeredAt: DateTime(2026, 11, 10, 12, 5),
-    typed: typed,
-    match: match,
   );
 
   test('names the group of the asked card, and nothing of its step', () {
@@ -78,29 +80,11 @@ void main() {
     );
   });
 
-  test('tells what a failed answer did', () {
-    expect(texts.answerLine(reveal(isBonus: false)), 'Réponse : Lima');
-    expect(texts.verdict(reveal(isBonus: false)), 'Compté raté · revue demain');
-    expect(texts.verdict(reveal(isBonus: true)), 'Révision bonus · sans effet');
-  });
-
   test('a face that is an image alone is named as such', () {
     expect(texts.promptTitle('Pérou'), 'Pérou');
     expect(texts.promptTitle(''), 'Que montre cette image ?');
-    expect(
-      texts.answerLine(
-        AnswerReveal(
-          key: key,
-          askedSide: CardSide.front,
-          prompt: 'Drapeau',
-          answer: '',
-          answerImage: 'flag.png',
-          result: const ReviewResult(isBonus: true, schedule: null),
-          answeredAt: DateTime(2026, 11, 10, 12, 5),
-        ),
-      ),
-      'Réponse en image',
-    );
+    expect(texts.answerLine('Lima'), 'Réponse : Lima');
+    expect(texts.answerLine(''), 'Réponse en image');
   });
 
   test('tells how a typed answer compared, then what it did', () {
@@ -111,7 +95,7 @@ void main() {
     );
     expect(
       texts.verdict(
-        reveal(
+        verdict(
           isBonus: false,
           typed: 'lma',
           match: TypedAnswerMatch.oneTypo,
@@ -122,7 +106,7 @@ void main() {
     );
     expect(
       texts.verdict(
-        reveal(
+        verdict(
           isBonus: false,
           typed: 'Lima',
           match: TypedAnswerMatch.exact,
@@ -137,13 +121,13 @@ void main() {
     );
     expect(
       texts.verdict(
-        reveal(isBonus: false, typed: 'Quito', match: TypedAnswerMatch.wrong),
+        verdict(isBonus: false, typed: 'Quito', match: TypedAnswerMatch.wrong),
       ),
       '« Quito » refusé · Compté raté · revue demain',
     );
     expect(
       texts.verdict(
-        reveal(isBonus: true, typed: 'Lima', match: TypedAnswerMatch.exact),
+        verdict(isBonus: true, typed: 'Lima', match: TypedAnswerMatch.exact),
       ),
       '« Lima » accepté · Révision bonus · sans effet',
     );

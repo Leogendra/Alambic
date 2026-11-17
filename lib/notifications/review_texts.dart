@@ -1,9 +1,9 @@
 import '../app/formatting/due_labels.dart';
 import '../app/formatting/review_duration_labels.dart';
-import '../application/notifications/answer_reveal.dart';
 import '../application/notifications/group_reminder.dart';
 import '../application/notifications/notification_digest.dart';
 import '../application/notifications/review_prompt.dart';
+import '../application/notifications/typed_answer_verdict.dart';
 import '../domain/cards/card_side.dart';
 import '../domain/reviews/typed_answer_match.dart';
 import '../domain/scheduling/scheduling_calendar.dart';
@@ -56,35 +56,28 @@ class ReviewTexts {
     return '$groups · ${strings.reviewDuration(digest.count)}';
   }
 
-  String answerLine(AnswerReveal reveal) => reveal.answer.isEmpty
+  /// "Réponse : Lima", or a mention of the image for an answer face that
+  /// has no text.
+  String answerLine(String answer) => answer.isEmpty
       ? strings.notificationAnswerImage
-      : strings.notificationAnswer(reveal.answer);
+      : strings.notificationAnswer(answer);
 
   /// How the typed answer compared, then what the answer did: "« canbera »
-  /// accepté, 1 faute · prochain rappel demain", "Compté raté · revue
-  /// demain", or the bonus mention.
-  String verdict(AnswerReveal reveal) {
-    final typed = reveal.typed;
-    final match = reveal.match;
-    final typedPart = typed == null || match == null
-        ? null
-        : switch (match) {
-            TypedAnswerMatch.exact => strings.notificationTypedAccepted(typed),
-            TypedAnswerMatch.oneTypo => strings.notificationTypedAcceptedTypo(
-              typed,
-            ),
-            TypedAnswerMatch.wrong => strings.notificationTypedRefused(typed),
-          };
-    final schedulePart = _scheduleVerdict(
-      reveal,
-      correct: match?.isAccepted ?? false,
-    );
-    return typedPart == null ? schedulePart : '$typedPart · $schedulePart';
+  /// accepté, 1 faute · prochain rappel demain", "« Quito » refusé · Compté
+  /// raté · revue demain", or the bonus mention.
+  String verdict(TypedAnswerVerdict verdict) {
+    final typed = verdict.typed;
+    final typedPart = switch (verdict.match) {
+      TypedAnswerMatch.exact => strings.notificationTypedAccepted(typed),
+      TypedAnswerMatch.oneTypo => strings.notificationTypedAcceptedTypo(typed),
+      TypedAnswerMatch.wrong => strings.notificationTypedRefused(typed),
+    };
+    return '$typedPart · ${_scheduleVerdict(verdict)}';
   }
 
-  String _scheduleVerdict(AnswerReveal reveal, {required bool correct}) {
-    final schedule = reveal.result.schedule;
-    if (reveal.result.isBonus || schedule == null) {
+  String _scheduleVerdict(TypedAnswerVerdict verdict) {
+    final schedule = verdict.result.schedule;
+    if (verdict.result.isBonus || schedule == null) {
       return strings.notificationBonus;
     }
     final dueAt = schedule.dueAt;
@@ -93,10 +86,10 @@ class ReviewTexts {
     }
     final when = strings.dueDateLabel(
       dueAt,
-      now: reveal.answeredAt,
+      now: verdict.answeredAt,
       calendar: calendar,
     );
-    return correct
+    return verdict.match.isAccepted
         ? strings.notificationNextReview(when)
         : strings.notificationFailed(when);
   }

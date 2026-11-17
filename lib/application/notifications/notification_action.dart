@@ -3,17 +3,19 @@ enum NotificationAction {
   correct,
   again,
 
+  /// Shows the answer in place of the card, recording nothing.
+  reveal,
+
   /// Answer typed in the field of the notification.
   answer,
 
-  /// "OK" under a revealed answer.
+  /// "OK" under the verdict of a typed answer.
   acknowledge,
 
   /// "Start here" on a grouped reminder: chains its cards in the
   /// notification.
   start,
 
-  /// "Open" on a grouped reminder or a chained card: opens the app on the
-  /// group.
+  /// "Open the app" on a grouped reminder or on the digest.
   open,
 }

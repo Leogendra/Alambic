@@ -27,8 +27,12 @@ class NotificationSettingsService {
   final ScheduleChangeListener _scheduleChangeListener;
 
   /// Saves the schedule and the mode. When the daily slot changes, the due
-  /// dates set at the old slot move to the new one.
+  /// dates set at the old slot move to the new one. A range whose end
+  /// precedes its start is refused.
   Future<void> saveReminderSettings(ReminderSettings reminders) async {
+    if (!reminders.hasOrderedRange) {
+      throw ArgumentError('The end of a time range cannot precede its start');
+    }
     await _cards.transaction(() async {
       final previous = await _settings.loadReminderSettings();
       await _settings.saveReminderSettings(reminders);

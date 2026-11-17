@@ -15,7 +15,8 @@ import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// "Horaire": a fixed time or a time range, for every group. Each change is
-/// saved at once.
+/// saved at once, except a range whose end would precede its start: it is
+/// refused with a message.
 class ReminderScheduleScreen extends ConsumerWidget {
   const ReminderScheduleScreen({super.key});
 
@@ -91,13 +92,15 @@ class ReminderScheduleScreen extends ConsumerWidget {
           context,
           strings.scheduleRangeStart,
           reminders.rangeStart,
-          (time) => _save(ref, reminders.copyWith(rangeStart: time)),
+          (time) =>
+              _saveRange(context, ref, reminders.copyWith(rangeStart: time)),
         ),
         _timeRow(
           context,
           strings.scheduleRangeEnd,
           reminders.rangeEnd,
-          (time) => _save(ref, reminders.copyWith(rangeEnd: time)),
+          (time) =>
+              _saveRange(context, ref, reminders.copyWith(rangeEnd: time)),
         ),
       ],
     };
@@ -121,6 +124,22 @@ class ReminderScheduleScreen extends ConsumerWidget {
       }
     },
   );
+
+  Future<void> _saveRange(
+    BuildContext context,
+    WidgetRef ref,
+    ReminderSettings reminders,
+  ) async {
+    if (reminders.hasOrderedRange) {
+      await _save(ref, reminders);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).scheduleRangeUnordered),
+        ),
+      );
+    }
+  }
 
   Future<void> _save(WidgetRef ref, ReminderSettings reminders) => ref
       .read(notificationSettingsServiceProvider)

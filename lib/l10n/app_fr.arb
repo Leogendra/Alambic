@@ -241,6 +241,7 @@
   "scheduleRangeStart": "Début",
   "scheduleRangeEnd": "Fin",
   "scheduleRangeHint": "Les notifs du jour sont réparties dans la plage.",
+  "scheduleRangeUnordered": "La fin de la plage ne peut pas précéder son début.",
   "notificationModePerCard": "Une par carte",
   "notificationModeGrouped": "Rappel groupé",
   "notificationModePerCardHint": "Chaque carte due arrive seule, avec Correct / À revoir.",

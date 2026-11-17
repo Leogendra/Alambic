@@ -93,6 +93,7 @@
   "scheduleRangeStart": "Start",
   "scheduleRangeEnd": "End",
   "scheduleRangeHint": "The notifications of the day are spread over the range.",
+  "scheduleRangeUnordered": "The end of the range cannot come before its start.",
   "notificationModePerCard": "One per card",
   "notificationModeGrouped": "Grouped reminder",
   "notificationModePerCardHint": "Each due card arrives on its own, with Correct / Again.",

@@ -96,4 +96,19 @@ void main() {
       DateTime(2026, 11, 10, 10),
     );
   });
+
+  test('a range whose end precedes its start is refused', () async {
+    final before = await settings.loadReminderSettings();
+    await expectLater(
+      service.saveReminderSettings(
+        before.copyWith(
+          scheduleKind: ScheduleKind.timeRange,
+          rangeStart: const ClockTime(18, 0),
+          rangeEnd: const ClockTime(9, 0),
+        ),
+      ),
+      throwsArgumentError,
+    );
+    expect(await settings.loadReminderSettings(), before);
+  });
 }

@@ -6,6 +6,7 @@ import 'package:alambic/domain/notifications/grouped_reminder_action.dart';
 import 'package:alambic/domain/notifications/notification_mode.dart';
 import 'package:alambic/domain/notifications/reminder_settings.dart';
 import 'package:alambic/domain/notifications/schedule_kind.dart';
+import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/features/settings/notification_mode_screen.dart';
 import 'package:alambic/features/settings/reminder_schedule_screen.dart';
 
@@ -46,6 +47,50 @@ void main() {
       find.byType(ReminderScheduleScreen),
       matchesGoldenFile('goldens/schedule_range_dark.png'),
     );
+  });
+
+  testWidgets('an end before the start of the range is refused', (
+    tester,
+  ) async {
+    await tester.runAsync(
+      () => NotificationSettingsRepository(database).saveReminderSettings(
+        ReminderSettings.defaults.copyWith(
+          scheduleKind: ScheduleKind.timeRange,
+          rangeStart: const ClockTime(9, 0),
+          rangeEnd: const ClockTime(10, 0),
+        ),
+      ),
+    );
+    await pumpGolden(
+      tester,
+      const ReminderScheduleScreen(),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    Future<void> pickEnd(String hour) async {
+      await tester.tap(find.text('Fin'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.keyboard_outlined));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, hour);
+      await tester.enterText(find.byType(TextField).last, '00');
+      await tester.tap(find.text('OK'));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    // The picked hours read the same with a 12-hour or a 24-hour picker:
+    // the range sits in the morning.
+    await pickEnd('8');
+    expect(
+      find.text('La fin de la plage ne peut pas précéder son début.'),
+      findsOneWidget,
+    );
+    expect((await stored(tester))!.rangeEnd, const ClockTime(10, 0));
+
+    await pickEnd('11');
+    expect((await stored(tester))!.rangeEnd, const ClockTime(11, 0));
   });
 
   testWidgets('the grouped reminder offers to open the app or chain', (

@@ -40,6 +40,10 @@ class ReminderSettings {
     ScheduleKind.timeRange => rangeStart,
   };
 
+  /// The end of the time range never precedes its start: a range does not
+  /// run past midnight.
+  bool get hasOrderedRange => rangeEnd.compareTo(rangeStart) >= 0;
+
   /// One notification per card spread over a time range; a grouped reminder
   /// stays at the start of the range.
   bool get spreadsOverRange =>

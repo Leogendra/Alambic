@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/presets/preset_service.dart';
 import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/presets/interval_unit.dart';
@@ -16,7 +17,7 @@ void main() {
   setUp(() {
     database = openTestDatabase();
     presets = PresetRepository(database);
-    service = PresetService(presets);
+    service = PresetService(presets, GroupRepository(database));
   });
 
   tearDown(() => database.close());

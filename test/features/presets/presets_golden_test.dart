@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/data_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/features/presets/preset_editor_screen.dart';
@@ -70,6 +71,56 @@ void main() {
       'Intensif',
       'Intensif (copie)',
     ]);
+  });
+
+  testWidgets('the tile menu deletes a preset after saying who uses it', (
+    tester,
+  ) async {
+    await tester.runAsync(() async {
+      final groups = GroupRepository(database);
+      final catalog = await PresetRepository(database).loadCatalog();
+      final intensiveId = catalog.presetsById.values
+          .firstWhere(
+            (preset) => preset.builtInKey == BuiltInPresetKey.intensive,
+          )
+          .id;
+      for (final name in ['Capitales', 'Espagnol']) {
+        final groupId = await groups.create(name, DateTime(2026, 11, 10));
+        await groups.setPreset(groupId, intensiveId);
+      }
+    });
+    await pumpGolden(
+      tester,
+      const PresetsScreen(),
+      overrides: [databaseProvider.overrideWithValue(database)],
+    );
+    await tester.tap(find.byTooltip('Actions du preset Standard'));
+    await tester.pumpAndSettle();
+    expect(find.text('Dupliquer'), findsOneWidget);
+    expect(find.text('Supprimer'), findsNothing);
+    await tester.tapAt(Offset.zero);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Actions du preset Intensif'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Supprimer'));
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pumpAndSettle();
+    expect(find.text('Supprimer « Intensif » ?'), findsOneWidget);
+    expect(
+      find.text(
+        "2 groupes l'utilisent : ils passeront sur le preset par défaut, "
+        'Standard, en gardant leurs crans et leurs échéances.',
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.widgetWithText(TextButton, 'Supprimer'));
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pumpAndSettle();
+    final presets = await tester.runAsync(
+      () => PresetRepository(database).watchAll().first,
+    );
+    expect(presets!.map((preset) => preset.name), ['Standard']);
   });
 
   for (final (brightness, suffix) in [

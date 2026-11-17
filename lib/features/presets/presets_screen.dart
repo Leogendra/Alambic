@@ -58,7 +58,8 @@ Future<void> openPresetEditor(BuildContext context, Preset preset) =>
 
 /// Name, steps and failure behaviour of a preset, with "Edit" and "Make
 /// default" and a menu of the less frequent actions. The global preset shows
-/// the "Default" badge instead of the "Make default" button.
+/// the "Default" badge instead of the "Make default" button, and cannot be
+/// deleted.
 class _PresetTile extends ConsumerWidget {
   const _PresetTile({required this.preset, required this.isGlobal});
 
@@ -148,6 +149,17 @@ class _PresetTile extends ConsumerWidget {
               ],
             ),
           ),
+          if (!isGlobal)
+            PopupMenuItem(
+              onTap: () => _confirmDelete(context, ref, preset),
+              child: Row(
+                spacing: 10,
+                children: [
+                  const Icon(Icons.delete_outline, size: 20),
+                  Text(strings.commonDelete),
+                ],
+              ),
+            ),
         ],
       );
 
@@ -159,6 +171,45 @@ class _PresetTile extends ConsumerWidget {
     messenger.showSnackBar(
       SnackBar(content: Text(strings.presetDuplicated(copyName))),
     );
+  }
+}
+
+/// Tells how many groups chose the preset and move to the default one, then
+/// deletes it once confirmed.
+Future<void> _confirmDelete(
+  BuildContext context,
+  WidgetRef ref,
+  Preset preset,
+) async {
+  final strings = AppLocalizations.of(context);
+  final catalog = await ref.read(presetCatalogProvider.future);
+  if (!context.mounted) {
+    return;
+  }
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(strings.presetDeleteConfirmTitle(strings.presetName(preset))),
+      content: Text(
+        strings.presetDeleteConfirmBody(
+          catalog.groupCountChoosing(preset.id),
+          strings.presetName(catalog.globalPreset),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(strings.commonCancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(strings.commonDelete),
+        ),
+      ],
+    ),
+  );
+  if (confirmed == true) {
+    await ref.read(presetServiceProvider).delete(preset.id);
   }
 }
 

@@ -58,6 +58,8 @@
   "presetFailureStepBackShort": "one step back",
   "presetFailureRestartShort": "back to start",
   "presetFailureStayShort": "stays on the same step",
+  "presetDeleteConfirmTitle": "Delete \"{name}\"?",
+  "presetDeleteConfirmBody": "{count, plural, =0{No group uses it.} =1{One group uses it: it will move to the default preset, {defaultName}, keeping its steps and due dates.} other{{count} groups use it: they will move to the default preset, {defaultName}, keeping their steps and due dates.}}",
   "presetGlobalBadge": "Default",
   "scheduleRangeValue": "{start} to {end}",
   "presetNewName": "New preset",

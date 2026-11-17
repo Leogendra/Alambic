@@ -27,7 +27,9 @@ This rule has a single implementation, `PresetResolver`. Screens and services go
 
 ### Preset management
 
-A single "Presets" row of Settings opens the Presets screen, one tile per preset. A tile shows the name, the steps ("1 d · 2 d · 1 wk · 1 mo · 3 mo · 6 mo") and the failure behaviour ("On failure: one step back"). Two buttons act on it: "Edit" opens the editor, "Make default" makes it the global preset. The global preset shows a "Default" badge in place of that button. The tile's menu holds "Duplicate", which stores a copy named "<name> (copy)" right away. "New preset", at the end of the list, opens the editor on a draft with the Standard values.
+A single "Presets" row of Settings opens the Presets screen, one tile per preset. A tile shows the name, the steps ("1 d · 2 d · 1 wk · 1 mo · 3 mo · 6 mo") and the failure behaviour ("On failure: one step back"). Two buttons act on it: "Edit" opens the editor, "Make default" makes it the global preset. The global preset shows a "Default" badge in place of that button. The tile's menu holds "Duplicate", which stores a copy named "<name> (copy)" right away, and "Delete", except on the global preset: another preset must be made the default first.
+
+Deleting a preset first says how many groups chose it ("2 groups use it: they will move to the default preset, Standard, keeping their steps and due dates."). Once confirmed, those groups inherit the global preset again and the preset is deleted. Their cards keep their steps and due dates, as for any preset change; a step beyond the shorter sequence counts as its last step. "New preset", at the end of the list, opens the editor on a draft with the Standard values.
 
 The editor works on a draft and writes nothing before "Save". It sets the name, the sequence (adding a step as a duration and a unit, removing a step as long as another one remains), the failure behaviour, the end of sequence and the typed answer. The failure behaviour is a three-way choice, "One step back", "Back to start" or "Stay" ([Feature 1](1-scheduling.md#on-failure)), with a line under it that says what a missed card then does ("A missed card goes back to the previous step.").
 
@@ -48,12 +50,14 @@ Changing the preset of a group, the global preset or the steps of a preset rewri
 - [x] The editor says, under the failure choice, the effect of the chosen behaviour.
 - [x] The global preset is chosen with "Make default" on its tile of the Presets screen, which is reached from a single "Presets" row of Settings.
 - [x] A tile shows the steps and the failure behaviour of its preset; its menu duplicates it.
+- [x] Any preset but the global one can be deleted, after a confirmation that gives the number of groups that chose it; these groups go back to the global preset, their cards keeping their steps and due dates.
 
 ## Test strategy
 
 - The cascade is proven twice: as pure logic on `PresetCatalog`, then end to end on an in-memory database, changing the choices through the repositories as the screens do.
 - Keeping the step and the due date is checked on the stored data after each kind of change (group, global preset, edited steps), not on an in-memory object, then followed by an answer from the last step.
 - Creation, editing, duplication and refusal of an invalid preset are tested through the service, on an in-memory database.
+- Deletion is tested through the service on groups and cards read back from the database: the groups that chose the preset inherit the global one, the others keep their choice, the cards keep their steps and due dates, and the global preset is refused. The screen test checks that the global preset offers no "Delete" and that the confirmation counts the groups.
 - The Presets screen and the editor are covered by golden tests on the shipped presets, in light and dark theme; "Make default" and "Duplicate" are exercised on the screen and checked in the database.
 
 ## File mapping
@@ -61,7 +65,7 @@ Changing the preset of a group, the global preset or the steps of a preset rewri
 - `lib/domain/presets/` — preset model, shipped presets, resolution rule and `PresetCatalog`.
 - `lib/data/repositories/preset_repository.dart` — reading and writing presets and the global preset, catalog stream.
 - `lib/data/database/preset_companions.dart` — writing a domain `Preset` into its table.
-- `lib/application/presets/` — creation, editing and duplication service; Riverpod providers of the presets and the catalog.
+- `lib/application/presets/` — creation, editing, duplication and deletion service; Riverpod providers of the presets and the catalog.
 - `lib/features/presets/` — list, editor, step dialog and the preset picker of the group settings.
 - `lib/features/settings/settings_screen.dart` — the "Presets" row.
 

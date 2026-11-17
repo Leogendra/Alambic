@@ -18,6 +18,11 @@ class PresetCatalog {
 
   Preset get globalPreset => presetsById[globalPresetId]!;
 
+  /// Groups that chose [presetId] themselves; the groups that inherit it as
+  /// the global preset are not counted.
+  int groupCountChoosing(int presetId) =>
+      groupPresetIds.values.where((choice) => choice == presetId).length;
+
   /// Preset followed by the cards of [groupId].
   Preset presetForGroup(int groupId) =>
       presetsById[PresetResolver.resolve(

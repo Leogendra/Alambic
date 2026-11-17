@@ -21,4 +21,9 @@ void main() {
     expect(catalog.presetForGroup(11), standardPreset);
     expect(catalog.presetForGroup(12), standardPreset);
   });
+
+  test('counts the groups that chose a preset, not those that inherit it', () {
+    expect(catalog.groupCountChoosing(intensivePreset.id), 1);
+    expect(catalog.groupCountChoosing(standardPreset.id), 0);
+  });
 }

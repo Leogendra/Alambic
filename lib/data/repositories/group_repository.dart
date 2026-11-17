@@ -35,6 +35,13 @@ class GroupRepository {
             ..where((group) => group.id.equals(groupId)))
           .write(CardGroupsCompanion(presetId: Value(presetId)));
 
+  /// The groups that chose [presetId] inherit the global preset again. The
+  /// steps and due dates of their cards stay as they are.
+  Future<void> releasePreset(int presetId) =>
+      (_database.update(_database.cardGroups)
+            ..where((group) => group.presetId.equals(presetId)))
+          .write(const CardGroupsCompanion(presetId: Value(null)));
+
   /// Draws the asked face of each display of its cards, or always asks the
   /// front. Changes nothing to their progression.
   Future<void> setReverseEnabled(int groupId, {required bool enabled}) =>

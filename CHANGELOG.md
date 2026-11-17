@@ -36,6 +36,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 
 ### Changed
 
+- Backups made before the removal of the adaptive preset and of the card preset are refused at import, as from another version.
 - The schedule refuses a time range whose end comes before its start.
 - The preset editor says what a missed card does under the failure choice, now named "On failure": one step back, back to start or stay.
 - Sharper dark theme: a darker background, lighter cards and a brighter blue, so cards stand out and the selected option of a choice is clearly visible. Both themes are flat, with outlines instead of shadows.

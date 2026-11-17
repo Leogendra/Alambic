@@ -186,6 +186,25 @@ void main() {
     );
   });
 
+  test('a backup written before the adaptive engine and the card preset were '
+      'removed is refused as another version', () async {
+    await source.backup.export();
+    final contents = const BackupArchive().decode(drive.saved!);
+    contents.tables['presets']!.first['engine'] = 'sequence';
+    contents.tables['presets']!.first['target_retention'] = 0.9;
+
+    expect(
+      () => DatabaseSnapshot(target.database).validate(2, contents.tables),
+      throwsA(
+        isA<InvalidBackupException>().having(
+          (error) => error.kind,
+          'kind',
+          InvalidBackupKind.incompatibleVersion,
+        ),
+      ),
+    );
+  });
+
   test('a backup with an unknown column is refused', () async {
     await source.backup.export();
     final contents = const BackupArchive().decode(drive.saved!);

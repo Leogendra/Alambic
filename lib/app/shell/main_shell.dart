@@ -14,7 +14,7 @@ import '../../features/session/session_launcher.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Root screen: four tabs and the "+" button that creates a card. A
+/// Root screen: three tabs and the "+" button that creates a card. A
 /// notification touched opens a session above it. Right after the
 /// onboarding, the group it created opens with "Distill" highlighted.
 class MainShell extends ConsumerStatefulWidget {
@@ -66,7 +66,6 @@ class _MainShellState extends ConsumerState<MainShell> {
           children: [
             const HomeScreen(),
             const GroupsScreen(),
-            Center(child: Text(strings.statisticsComingSoon)),
             const SettingsScreen(),
           ],
         ),
@@ -89,11 +88,6 @@ class _MainShellState extends ConsumerState<MainShell> {
             icon: const Icon(Icons.folder_outlined),
             selectedIcon: const Icon(Icons.folder),
             label: strings.tabGroups,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.insights_outlined),
-            selectedIcon: const Icon(Icons.insights),
-            label: strings.tabStatistics,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),

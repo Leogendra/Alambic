@@ -198,7 +198,7 @@ void main() {
   }
 
   group('every tab', () {
-    for (final tab in ['Accueil', 'Groupes', 'Statistiques', 'Réglages']) {
+    for (final tab in ['Accueil', 'Groupes', 'Réglages']) {
       testWidgets(tab, (tester) async {
         await seed(tester);
         await pumpUnderSystemBars(

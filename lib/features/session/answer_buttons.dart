@@ -10,7 +10,8 @@ import '../../l10n/generated/app_localizations.dart';
 import '../cards/card_status_formatter.dart';
 import '../cards/card_status_formatter_provider.dart';
 
-/// "Again" and "Correct", each with when the card would come back.
+/// "Again" and "Correct", each with when the card would come back; a bonus
+/// review shows the labels alone.
 class AnswerButtons extends ConsumerWidget {
   const AnswerButtons({
     required this.cardId,
@@ -25,6 +26,9 @@ class AnswerButtons extends ConsumerWidget {
   final bool enabled;
   final ValueChanged<ReviewOutcome> onAnswer;
 
+  /// Height of the buttons, and of the space they share with "Show answer".
+  static const height = 64.0;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
@@ -33,9 +37,9 @@ class AnswerButtons extends ConsumerWidget {
         .watch(answerPreviewProvider((cardId: cardId, asBonus: isBonus)))
         .value;
     final formatter = watchCardStatusFormatter(context, ref);
-    String? hint(CardSchedule? schedule) => preview == null
+    String? hint(CardSchedule? schedule) => preview == null || preview.isBonus
         ? null
-        : _hint(strings, formatter, preview.isBonus, schedule);
+        : _hint(strings, formatter, schedule);
     return Row(
       spacing: 10,
       children: [
@@ -60,12 +64,9 @@ class AnswerButtons extends ConsumerWidget {
   String? _hint(
     AppLocalizations strings,
     CardStatusFormatter? formatter,
-    bool previewIsBonus,
     CardSchedule? schedule,
   ) {
-    if (previewIsBonus) {
-      return strings.answerNoEffect;
-    } else if (schedule?.state == CardState.acquired) {
+    if (schedule?.state == CardState.acquired) {
       return strings.answerAcquired;
     } else if (schedule?.dueAt == null || formatter == null) {
       return null;
@@ -82,7 +83,7 @@ class AnswerButtons extends ConsumerWidget {
     required VoidCallback onPressed,
   }) => Expanded(
     child: SizedBox(
-      height: 64,
+      height: height,
       child: FilledButton(
         style: FilledButton.styleFrom(
           backgroundColor: background,

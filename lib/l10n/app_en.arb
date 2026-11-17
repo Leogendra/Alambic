@@ -176,7 +176,6 @@
   "reviewAgain": "Again",
   "sessionQuit": "Quit the session",
   "sessionShowAnswer": "Show the answer",
-  "sessionTapToFlip": "Tap to flip",
   "sessionProgress": "{position} / {total}",
   "sessionReverseBadge": "back → front",
   "answerAcquired": "learned",

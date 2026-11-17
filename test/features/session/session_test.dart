@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/cards/card_draft.dart';
 import 'package:alambic/application/cards/draft_image.dart';
@@ -7,6 +8,7 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/card_side.dart';
+import 'package:alambic/features/session/session_card_view.dart';
 import 'package:alambic/features/session/session_screen.dart';
 
 import '../../support/fixed_clock.dart';
@@ -104,9 +106,18 @@ void main() {
         find.byType(SessionScreen),
         matchesGoldenFile('goldens/session_front$suffix.png'),
       );
+      final prompt = find.text('Mongolie');
+      final before = (
+        tester.getRect(prompt),
+        tester.widget<Text>(prompt).style,
+      );
       await tester.tap(find.text('Afficher la réponse'));
       await tester.pumpAndSettle();
       expect(find.text('Oulan-Bator'), findsOneWidget);
+      expect((
+        tester.getRect(prompt),
+        tester.widget<Text>(prompt).style,
+      ), before);
       expect(find.text('demain'), findsNWidgets(2));
       await expectLater(
         find.byType(SessionScreen),
@@ -114,6 +125,111 @@ void main() {
       );
     });
   }
+
+  group('reveal', () {
+    double answerOpacity(WidgetTester tester) => tester
+        .widget<Opacity>(
+          find
+              .ancestor(
+                of: find.text('Oulan-Bator'),
+                matching: find.byType(Opacity),
+              )
+              .first,
+        )
+        .opacity;
+
+    testWidgets('fades the answer in over 250 ms with a light haptic tap, '
+        'the card in place of the buttons', (tester) async {
+      final haptics = <Object?>[];
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'HapticFeedback.vibrate') {
+            haptics.add(call.arguments);
+          }
+          return null;
+        },
+      );
+      await pumpSession(tester);
+      final card = tester.getRect(find.byType(SessionCardView));
+      expect(find.text('Toucher pour retourner'), findsNothing);
+      expect(find.text('Oulan-Bator'), findsNothing);
+      await tester.tap(find.text('Afficher la réponse'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(answerOpacity(tester), inExclusiveRange(0, 1));
+      expect(find.text('Afficher la réponse'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(answerOpacity(tester), 1);
+      expect(find.text('Afficher la réponse'), findsNothing);
+      expect(tester.getRect(find.byType(SessionCardView)), card);
+      expect(haptics, ['HapticFeedbackType.lightImpact']);
+    });
+
+    testWidgets('shows the answer at once when the system reduces motion', (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await pumpSession(tester);
+      await tester.tap(find.text('Afficher la réponse'));
+      await tester.pump();
+      expect(answerOpacity(tester), 1);
+      expect(find.text('Afficher la réponse'), findsNothing);
+    });
+
+    testWidgets('a tap on the card reveals too; the next card shows '
+        'unrevealed', (tester) async {
+      await pumpSession(tester);
+      await tester.tap(find.byType(SessionCardView));
+      await tester.pumpAndSettle();
+      expect(find.text('Oulan-Bator'), findsOneWidget);
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Correct'));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pumpAndSettle();
+      expect(find.text('Pérou'), findsOneWidget);
+      expect(find.text('Lima'), findsNothing);
+      final show = find.ancestor(
+        of: find.text('Afficher la réponse'),
+        matching: find.byType(Opacity),
+      );
+      expect(tester.widget<Opacity>(show).opacity, 1);
+    });
+
+    testWidgets('a bonus review shows the answer buttons without effect', (
+      tester,
+    ) async {
+      await tester.runAsync(() async {
+        final capitals = await seedSampleData(
+          SampleServices(database, FixedClock(sampleNow)),
+        );
+        final card = (await CardRepository(database).getCardsOfGroup(capitals))
+            .first;
+        items = [SessionItem(cardId: card.id, askedSide: CardSide.front)];
+      });
+      await pumpGolden(
+        tester,
+        SessionScreen(items: items, isBonus: true),
+        overrides: screenOverrides(database, sampleNow),
+      );
+      await tester.tap(find.text('Afficher la réponse'));
+      await tester.pumpAndSettle();
+      expect(find.text('Correct'), findsOneWidget);
+      expect(find.text('sans effet'), findsNothing);
+      expect(find.text('demain'), findsNothing);
+    });
+  });
 
   testWidgets('ends on a summary and reviews the missed card as a bonus', (
     tester,

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../app/formatting/preset_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/count_badge.dart';
 import '../../application/groups/group_summary.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// A group in the groups tab: name, card count, preset and due badge, or
-/// the pause of a paused group.
+/// A row of the groups tab: name, number of cards, "distillation" once it
+/// is activated, and the due badge, or the pause of a paused group.
 class GroupSummaryTile extends StatelessWidget {
   const GroupSummaryTile({
     required this.summary,
@@ -25,18 +24,14 @@ class GroupSummaryTile extends StatelessWidget {
     final cards = strings.cardCount(summary.cardCount);
     final group = summary.group;
     final paused = group.isPaused;
-    return Material(
-      color: colors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: colors.border),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
+    return InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 64),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
+            spacing: 12,
             children: [
               Expanded(
                 child: Column(
@@ -46,18 +41,17 @@ class GroupSummaryTile extends StatelessWidget {
                     Text(
                       group.name,
                       style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                         color: paused ? colors.textSecondary : null,
                       ),
                     ),
                     Text(
                       paused
                           ? strings.groupLinePaused(cards)
-                          : strings.groupLine(
-                              cards,
-                              strings.presetName(summary.preset),
-                            ),
+                          : summary.isDistilling
+                          ? strings.groupLineDistilling(cards)
+                          : cards,
                       style: TextStyle(
                         fontSize: 13,
                         color: colors.textSecondary,

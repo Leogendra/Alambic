@@ -62,15 +62,20 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     ],
   );
 
+  /// One row per group, in a single panel; nothing while there is none.
   Widget _groupList() {
     final summaries = ref.watch(groupSummariesProvider);
-    return Column(
-      spacing: 10,
-      children: [
-        for (final summary in summaries)
-          GroupSummaryTile(summary: summary, onTap: () => _openGroup(summary)),
-      ],
-    );
+    return summaries.isEmpty
+        ? const SizedBox.shrink()
+        : SurfacePanel(
+            children: [
+              for (final summary in summaries)
+                GroupSummaryTile(
+                  summary: summary,
+                  onTap: () => _openGroup(summary),
+                ),
+            ],
+          );
   }
 
   Widget _searchResults(AppLocalizations strings) {

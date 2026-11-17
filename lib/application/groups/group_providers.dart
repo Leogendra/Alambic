@@ -4,6 +4,7 @@ import '../../data/data_providers.dart';
 import '../../domain/groups/card_group.dart';
 import '../cards/card_providers.dart';
 import '../clock.dart';
+import '../distillation/distillation_providers.dart';
 import '../presets/preset_providers.dart';
 import '../scheduling/scheduling_providers.dart';
 import '../time/minute_ticker.dart';
@@ -27,14 +28,25 @@ final groupOverviewProvider = Provider(
 final groupSummariesProvider = Provider<List<GroupSummary>>((ref) {
   final groups = ref.watch(groupsProvider).value;
   final cards = ref.watch(allCardsProvider).value;
+  final distillations = ref.watch(distillationsProvider).value;
   final catalog = ref.watch(presetCatalogProvider).value;
   final now = ref.watch(currentMomentProvider).value;
-  if (groups == null || cards == null || catalog == null || now == null) {
+  if (groups == null ||
+      cards == null ||
+      distillations == null ||
+      catalog == null ||
+      now == null) {
     return const [];
   } else {
     return ref
         .watch(groupOverviewProvider)
-        .summarize(groups: groups, cards: cards, catalog: catalog, now: now);
+        .summarize(
+          groups: groups,
+          cards: cards,
+          distillations: distillations,
+          catalog: catalog,
+          now: now,
+        );
   }
 });
 

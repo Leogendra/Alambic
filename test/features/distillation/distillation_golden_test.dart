@@ -124,10 +124,18 @@ void main() {
     await tester.tap(find.byTooltip('Plus de jours'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Enregistrer'));
-    await tester.runAsync(() async {
-      await tester.tap(find.text('Enregistrer'));
-      await Future<void>.delayed(const Duration(milliseconds: 200));
-    });
+    await tester.tap(find.text('Enregistrer'));
+    // The save runs on the database, then the screen closes.
+    for (
+      var wait = 0;
+      wait < 100 && find.byType(DistillScreen).evaluate().isNotEmpty;
+      wait++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump();
+    }
     await tester.pumpAndSettle();
     final distillation = await tester.runAsync(
       () => DistillationRepository(database).find(japaneseId),

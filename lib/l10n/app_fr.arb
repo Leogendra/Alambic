@@ -271,19 +271,17 @@
       }
     }
   },
-  "groupLine": "{cards} · {preset}",
-  "@groupLine": {
+  "groupLineDistilling": "{cards} · distillation",
+  "@groupLineDistilling": {
     "placeholders": {
       "cards": {
-        "type": "String"
-      },
-      "preset": {
         "type": "String"
       }
     }
   },
   "newGroupTitle": "Nouveau groupe",
   "groupNameLabel": "Nom",
+  "groupCardsSection": "Cartes",
   "groupOngoingSection": "En cours · {count}",
   "@groupOngoingSection": {
     "placeholders": {

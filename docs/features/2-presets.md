@@ -35,14 +35,14 @@ The editor works on a draft and writes nothing before "Save". It sets the name, 
 
 ### Preset change
 
-Changing the preset of a group or the global preset rewrites no card: the step and due date of each card stay as they are. If the new sequence is shorter, the engine clamps the step to the last step at the next answer ([Feature 1](1-scheduling.md#the-step)).
+Changing the preset of a group, the global preset or the steps of a preset rewrites no card: the step and due date of each card stay as they are, and an acquired card stays acquired. If the new sequence is shorter, a card beyond it counts as being at the last step: its sheet and its notifications show the last step, and its next answer starts from there ([Feature 1](1-scheduling.md#the-step)).
 
 ## Acceptance criteria
 
 - [x] A fresh database contains Standard and Intensive, with the intervals above.
 - [x] A card follows its group's preset; a group with no choice follows the global preset.
 - [x] A card has no preset of its own: neither the card editor nor the card sheet offers one.
-- [x] Changing preset keeps the step and the due date; a step that is too high is clamped to the last step.
+- [x] Changing the preset of a group, the global preset or the steps of a preset keeps the step and the due date; a step beyond a shorter sequence counts as the last step, and the next answer starts from it.
 - [x] A preset is created from the Standard values, any preset can be edited, a preset can be duplicated under a new name.
 - [x] A preset without a name or without a step cannot be saved.
 - [x] The global preset is chosen in Settings.
@@ -50,7 +50,7 @@ Changing the preset of a group or the global preset rewrites no card: the step a
 ## Test strategy
 
 - The cascade is proven twice: as pure logic on `PresetCatalog`, then end to end on an in-memory database, changing the choices through the repositories as the screens do.
-- Keeping the step and the due date is checked on the stored data after the change, not on an in-memory object.
+- Keeping the step and the due date is checked on the stored data after each kind of change (group, global preset, edited steps), not on an in-memory object, then followed by an answer from the last step.
 - Creation, editing, duplication and refusal of an invalid preset are tested through the service, on an in-memory database.
 - The list and the editor are covered by golden tests on the shipped presets, the editor in light and dark theme.
 

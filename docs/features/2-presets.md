@@ -37,7 +37,7 @@ A copy is never a shipped preset, even when it copies Standard. Shipped presets 
 
 ### Preset change
 
-Changing the preset of a group, the global preset or the steps of a preset rewrites no card: the step and due date of each card stay as they are, a card in remanence stays in remanence, and an acquired card stays acquired. If the new sequence is shorter, a card beyond it counts as being at the last step: its sheet and its notifications show the last step, and its next answer starts from there ([Feature 1](1-scheduling.md#the-step)).
+Changing the preset of a group, the global preset or the steps of a preset rewrites no card: the step and due date of each card stay as they are, a card in remanence stays in remanence, and an acquired card stays acquired. If the new sequence is shorter, a card beyond it counts as being at the last step: its sheet shows the last step, and its next answer starts from there ([Feature 1](1-scheduling.md#the-step)).
 
 ## Acceptance criteria
 

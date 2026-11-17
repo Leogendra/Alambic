@@ -27,6 +27,14 @@ extension PresetLabels on AppLocalizations {
   String presetStepsSummary(Preset preset) =>
       preset.intervals.map(intervalLabel).join(' · ');
 
+  /// The failure behaviour in a few words, for a preset tile: "recule d'un
+  /// cran".
+  String failureSummary(FailureBehavior behavior) => switch (behavior) {
+    FailureBehavior.stepBack => presetFailureStepBackShort,
+    FailureBehavior.restart => presetFailureRestartShort,
+    FailureBehavior.stay => presetFailureStayShort,
+  };
+
   /// What a missed card does: "Une carte ratée revient au cran précédent."
   String failureEffect(FailureBehavior behavior) => switch (behavior) {
     FailureBehavior.stepBack => presetFailureStepBackEffect,

@@ -84,10 +84,8 @@
   "unitWeeks": "semaines",
   "unitMonths": "mois",
   "settingsTitle": "Réglages",
-  "settingsRepetitionSection": "Répétition",
+  "settingsPresetsSection": "Presets",
   "settingsPresets": "Presets",
-  "settingsGlobalPreset": "Preset global",
-  "settingsGlobalPresetHint": "Pour les groupes et les cartes qui n'ont pas choisi de preset",
   "settingsNotificationsSection": "Notifications",
   "settingsGuards": "Garde-fous",
   "settingsGuardsSummary": "{cap} par jour max · silence {start} à {end}",
@@ -145,7 +143,29 @@
   "guardsAutoGroupHint": "Une seule notif au-delà du seuil",
   "guardsAutoGroupThreshold": "Seuil par créneau",
   "presetsTitle": "Presets",
-  "presetGlobalBadge": "Global",
+  "presetsNew": "Nouveau preset",
+  "presetEdit": "Modifier",
+  "presetMakeDefault": "Par défaut",
+  "presetActions": "Actions du preset {name}",
+  "@presetActions": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "presetFailureSummary": "En cas d'échec : {behavior}",
+  "@presetFailureSummary": {
+    "placeholders": {
+      "behavior": {
+        "type": "String"
+      }
+    }
+  },
+  "presetFailureStepBackShort": "recule d'un cran",
+  "presetFailureRestartShort": "retour au début",
+  "presetFailureStayShort": "reste au même cran",
+  "presetGlobalBadge": "Par défaut",
   "scheduleRangeValue": "{start} à {end}",
   "@scheduleRangeValue": {
     "placeholders": {

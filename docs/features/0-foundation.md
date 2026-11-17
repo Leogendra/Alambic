@@ -60,7 +60,7 @@ The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_set
 - deleting a card deletes its history and its reminders;
 - deleting a group deletes its cards, with their history, and its distillation.
 
-The schema is at version 2 and has no migration: while the app has no users, its version is raised at every schema change, and a database file of another version is erased and created again at launch, with the shipped presets. Every table found in the file is dropped, including tables an older schema had and this one no longer declares. A backup of another version is refused at import ([Feature 9](9-backup.md)).
+The schema is at version 4 and has no migration: while the app has no users, its version is raised at every schema change, and a database file of another version is erased and created again at launch, with the shipped presets. Every table found in the file is dropped, including tables an older schema had and this one no longer declares. A backup of another version is refused at import ([Feature 9](9-backup.md)).
 
 The global preset lives in the database rather than in the preferences, because it is part of the review data: it must be readable from background tasks and travel with the export.
 

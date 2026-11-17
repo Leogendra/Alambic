@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
-import '../../app/formatting/preset_labels.dart';
 import '../../app/formatting/reminder_settings_labels.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/notifications/guard_providers.dart';
 import '../../application/pauses/pause_providers.dart';
-import '../../application/presets/preset_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../presets/preset_picker.dart';
 import '../presets/presets_screen.dart';
 import 'backup_panel.dart';
 import 'display_panel.dart';
@@ -37,13 +34,13 @@ class SettingsScreen extends ConsumerWidget {
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
           ),
         ),
-        SectionLabel(strings.settingsRepetitionSection),
-        _RepetitionPanel(),
-        const SizedBox(height: 24),
         SectionLabel(strings.settingsNotificationsSection),
         const _NotificationsPanel(),
         const SizedBox(height: 14),
         const ExactAlarmsPanel(),
+        const SizedBox(height: 24),
+        SectionLabel(strings.settingsPresetsSection),
+        const _PresetsPanel(),
         const SizedBox(height: 24),
         SectionLabel(strings.settingsDisplaySection),
         const DisplayPanel(),
@@ -55,44 +52,21 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-class _RepetitionPanel extends ConsumerWidget {
+class _PresetsPanel extends StatelessWidget {
+  const _PresetsPanel();
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final presets = ref.watch(presetsProvider).value ?? const [];
-    final catalog = ref.watch(presetCatalogProvider).value;
     return SurfacePanel(
       children: [
         PanelRow(
           title: strings.settingsPresets,
-          value: '${presets.length}',
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (context) => const PresetsScreen(),
             ),
           ),
-        ),
-        PanelRow(
-          title: strings.settingsGlobalPreset,
-          subtitle: strings.settingsGlobalPresetHint,
-          value: catalog == null
-              ? ''
-              : strings.presetName(catalog.globalPreset),
-          onTap: catalog == null
-              ? null
-              : () async {
-                  final choice = await showPresetPicker(
-                    context,
-                    presets: presets,
-                    selectedPresetId: catalog.globalPresetId,
-                  );
-                  final presetId = choice?.presetId;
-                  if (presetId != null) {
-                    await ref
-                        .read(presetServiceProvider)
-                        .setGlobalPreset(presetId);
-                  }
-                },
         ),
       ],
     );

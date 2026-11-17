@@ -11,6 +11,9 @@ class PresetRepository {
 
   final AlambicDatabase _database;
 
+  Future<T> transaction<T>(Future<T> Function() action) =>
+      _database.transaction(action);
+
   Stream<List<Preset>> watchAll() => (_database.select(
     _database.presets,
   )..orderBy([(preset) => OrderingTerm.asc(preset.id)])).watch();
@@ -28,6 +31,11 @@ class PresetRepository {
       (_database.update(_database.presets)
             ..where((row) => row.id.equals(preset.id)))
           .write(PresetCompanions.forUpdate(preset));
+
+  /// No group may still choose it: the foreign key refuses the deletion.
+  Future<void> delete(int presetId) => (_database.delete(
+    _database.presets,
+  )..where((preset) => preset.id.equals(presetId))).go();
 
   Stream<int> watchGlobalPresetId() => _database
       .select(_database.appSettings)

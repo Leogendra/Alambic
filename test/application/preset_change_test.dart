@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/presets/preset_service.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/cards/flashcard.dart';
@@ -37,7 +38,7 @@ void main() {
     samples = SampleServices(database, clock);
     cards = CardRepository(database);
     presets = PresetRepository(database);
-    presetService = PresetService(presets);
+    presetService = PresetService(presets, GroupRepository(database));
     groupId = await samples.groups.create('Capitales');
   });
 

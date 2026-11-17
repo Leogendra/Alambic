@@ -8,7 +8,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 
 - Main navigation with four tabs and a card creation button, in light and dark theme.
 - Standard (1 day to 6 months) and Intensive (10 min to 1 week) presets, created on first launch.
-- Presets screen, from a single row of Settings: one tile per preset with its steps and failure behaviour, "Edit", "Make default" and "Duplicate" from its menu, and "New preset" at the end of the list.
+- Presets screen, from a single row of Settings: one tile per preset with its steps and failure behaviour, "Edit", "Make default" and "Duplicate" or "Delete" from its menu, and "New preset" at the end of the list. Deleting a preset moves the groups that use it to the default preset, keeping their progress.
 - Creation and editing of text cards, each in a group. The group row creates a new group from its name with "+". A new card waits in its group's queue until the group's distillation brings it in.
 - Groups tab: list of groups with their due cards, card search, group page and group settings (name, preset, back, deletion of the group with its cards).
 - "Review all" on a group page: a session on every card of the group, where only the cards due today count; the others are bonus reviews.

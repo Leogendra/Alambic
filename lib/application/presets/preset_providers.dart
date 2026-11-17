@@ -17,6 +17,7 @@ final presetCatalogProvider = StreamProvider<PresetCatalog>(
 final presetServiceProvider = Provider(
   (ref) => PresetService(
     ref.watch(presetRepositoryProvider),
+    ref.watch(groupRepositoryProvider),
     ref.watch(scheduleChangeListenerProvider),
   ),
 );

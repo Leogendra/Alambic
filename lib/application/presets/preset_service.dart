@@ -1,17 +1,20 @@
+import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../domain/presets/built_in_presets.dart';
 import '../../domain/presets/preset.dart';
 import '../scheduling/ignored_schedule_changes.dart';
 import '../scheduling/schedule_change_listener.dart';
 
-/// Creation, edition and duplication of presets.
+/// Creation, edition, duplication and deletion of presets.
 class PresetService {
   const PresetService(
-    this._presets, [
+    this._presets,
+    this._groups, [
     this._scheduleChangeListener = const IgnoredScheduleChanges(),
   ]);
 
   final PresetRepository _presets;
+  final GroupRepository _groups;
 
   /// Told when a preset is edited: its steps decide when its cards come
   /// back.
@@ -46,6 +49,21 @@ class PresetService {
   Future<int> duplicate(Preset preset, String copyName) => _presets.insert(
     preset.copyWith(id: 0, name: copyName, builtInKey: () => null),
   );
+
+  /// Deletes a preset other than the global one. The groups that chose it
+  /// go back to the global preset, keeping the steps and due dates of their
+  /// cards; their notifications follow it.
+  Future<void> delete(int presetId) async {
+    await _presets.transaction(() async {
+      final catalog = await _presets.loadCatalog();
+      if (presetId == catalog.globalPresetId) {
+        throw StateError('The global preset cannot be deleted.');
+      }
+      await _groups.releasePreset(presetId);
+      await _presets.delete(presetId);
+    });
+    await _scheduleChangeListener.onSchedulesChanged();
+  }
 
   void _checkValid(Preset preset) {
     if (preset.name.trim().isEmpty) {

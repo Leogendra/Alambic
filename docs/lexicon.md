@@ -78,7 +78,7 @@ A one-off reminder added to a card with "Review soon" (`ExtraReminder`; *rappel 
 
 ### Pause
 
-A period during which cards are not notified (`Pauses`; *pause*): the pause of a group, or the global pause (*vacances*) covering every card. The cards stay reviewable in the app; at the end of the pause, their [due dates](#due-date) move by its length.
+A period during which a [distillation](#distillation) introduces no card (`Distillation.pausedAt`; *pause*): the pause of one distillation, or the global pause, which holds back every distillation. A pause never stops the notifications nor moves a [due date](#due-date); a group has no pause of its own.
 
 ### Notification moment
 

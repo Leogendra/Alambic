@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../application/distillation/distillation_progress.dart';
-import '../../application/distillation/distillation_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'distill_screen.dart';
 import 'distillation_labels.dart';
 
-/// The distillation of a group: state, rhythm and waiting cards, with
-/// "Adjust" and pause / resume.
-class DistillationTile extends ConsumerWidget {
+/// The distillation of a group: state, rhythm, waiting cards and last
+/// arrival, with a single settings button that opens the "Distill" screen.
+class DistillationTile extends StatelessWidget {
   const DistillationTile({required this.progress, super.key});
 
   final DistillationProgress progress;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
     final distillation = progress.distillation;
-    final service = ref.read(distillationServiceProvider);
+    final pausedAt = distillation.pausedAt;
     final lastArrival = progress.lastArrival;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 10, 14),
@@ -35,40 +33,45 @@ class DistillationTile extends ConsumerWidget {
         spacing: 8,
         children: [
           Row(
-            spacing: 8,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.surfaceRaised,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  strings.groupDistillationSection,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
               Expanded(
-                child: Text(
-                  distillation.isRunning
-                      ? strings.distillationRunning
-                      : strings.distillationPaused,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: distillation.isRunning
-                        ? colors.accentText
-                        : colors.textSecondary,
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 6,
+                      children: [
+                        if (pausedAt != null) const Icon(Icons.pause, size: 14),
+                        Flexible(
+                          child: Text(
+                            pausedAt == null
+                                ? strings.groupDistillationSection
+                                : strings.pausedSince(
+                                    strings.shortDate(pausedAt),
+                                  ),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              TextButton(
+              IconButton.filledTonal(
+                tooltip: strings.distillAdjustTitle,
+                icon: const Icon(Icons.settings_outlined, size: 18),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (context) => DistillScreen(
@@ -77,19 +80,6 @@ class DistillationTile extends ConsumerWidget {
                     ),
                   ),
                 ),
-                child: Text(strings.distillationAdjust),
-              ),
-              IconButton.filledTonal(
-                tooltip: distillation.isRunning
-                    ? strings.distillationPause
-                    : strings.distillationResume,
-                icon: Icon(
-                  distillation.isRunning ? Icons.pause : Icons.play_arrow,
-                  size: 18,
-                ),
-                onPressed: () => distillation.isRunning
-                    ? service.pause(distillation.groupId)
-                    : service.resume(distillation.groupId),
               ),
             ],
           ),
@@ -107,11 +97,13 @@ class DistillationTile extends ConsumerWidget {
                     style: TextStyle(fontSize: 13, color: colors.textSecondary),
                   ),
                 ),
-                if (lastArrival != null)
+                if (lastArrival != null || progress.remaining > 0)
                   Text(
-                    strings.distillationLastArrival(
-                      strings.shortDate(lastArrival),
-                    ),
+                    lastArrival == null
+                        ? strings.distillationNoArrival
+                        : strings.distillationLastArrival(
+                            strings.shortDate(lastArrival),
+                          ),
                     style: TextStyle(fontSize: 13, color: colors.textSecondary),
                   ),
               ],

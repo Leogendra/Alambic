@@ -697,7 +697,8 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   final DateTime? notifiedDay;
   final int notifiedCount;
 
-  /// Start of the global pause, `null` when it is off.
+  /// Start of the global pause, `null` when it is off. It holds every
+  /// distillation back; the reminders go on.
   final DateTime? pausedAt;
   const AppSettingsRow({
     required this.id,
@@ -1360,17 +1361,6 @@ class $CardGroupsTable extends CardGroups
     ),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _pausedAtMeta = const VerificationMeta(
-    'pausedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> pausedAt = GeneratedColumn<DateTime>(
-    'paused_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1381,7 +1371,6 @@ class $CardGroupsTable extends CardGroups
     afterLastStep,
     remanenceInterval,
     typedAnswer,
-    pausedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1438,12 +1427,6 @@ class $CardGroupsTable extends CardGroups
         ),
       );
     }
-    if (data.containsKey('paused_at')) {
-      context.handle(
-        _pausedAtMeta,
-        pausedAt.isAcceptableOrUnknown(data['paused_at']!, _pausedAtMeta),
-      );
-    }
     return context;
   }
 
@@ -1489,10 +1472,6 @@ class $CardGroupsTable extends CardGroups
         DriftSqlType.bool,
         data['${effectivePrefix}typed_answer'],
       )!,
-      pausedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}paused_at'],
-      ),
     );
   }
 
@@ -1520,7 +1499,6 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
   final Value<AfterLastStep> afterLastStep;
   final Value<RemanenceInterval> remanenceInterval;
   final Value<bool> typedAnswer;
-  final Value<DateTime?> pausedAt;
   const CardGroupsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -1530,7 +1508,6 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     this.afterLastStep = const Value.absent(),
     this.remanenceInterval = const Value.absent(),
     this.typedAnswer = const Value.absent(),
-    this.pausedAt = const Value.absent(),
   });
   CardGroupsCompanion.insert({
     this.id = const Value.absent(),
@@ -1541,7 +1518,6 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     this.afterLastStep = const Value.absent(),
     this.remanenceInterval = const Value.absent(),
     this.typedAnswer = const Value.absent(),
-    this.pausedAt = const Value.absent(),
   }) : name = Value(name),
        createdAt = Value(createdAt);
   static Insertable<CardGroup> custom({
@@ -1553,7 +1529,6 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Expression<String>? afterLastStep,
     Expression<String>? remanenceInterval,
     Expression<bool>? typedAnswer,
-    Expression<DateTime>? pausedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1564,7 +1539,6 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
       if (afterLastStep != null) 'after_last_step': afterLastStep,
       if (remanenceInterval != null) 'remanence_interval': remanenceInterval,
       if (typedAnswer != null) 'typed_answer': typedAnswer,
-      if (pausedAt != null) 'paused_at': pausedAt,
     });
   }
 
@@ -1577,7 +1551,6 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Value<AfterLastStep>? afterLastStep,
     Value<RemanenceInterval>? remanenceInterval,
     Value<bool>? typedAnswer,
-    Value<DateTime?>? pausedAt,
   }) {
     return CardGroupsCompanion(
       id: id ?? this.id,
@@ -1588,7 +1561,6 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
       afterLastStep: afterLastStep ?? this.afterLastStep,
       remanenceInterval: remanenceInterval ?? this.remanenceInterval,
       typedAnswer: typedAnswer ?? this.typedAnswer,
-      pausedAt: pausedAt ?? this.pausedAt,
     );
   }
 
@@ -1625,9 +1597,6 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     if (typedAnswer.present) {
       map['typed_answer'] = Variable<bool>(typedAnswer.value);
     }
-    if (pausedAt.present) {
-      map['paused_at'] = Variable<DateTime>(pausedAt.value);
-    }
     return map;
   }
 
@@ -1641,8 +1610,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
           ..write('reverseEnabled: $reverseEnabled, ')
           ..write('afterLastStep: $afterLastStep, ')
           ..write('remanenceInterval: $remanenceInterval, ')
-          ..write('typedAnswer: $typedAnswer, ')
-          ..write('pausedAt: $pausedAt')
+          ..write('typedAnswer: $typedAnswer')
           ..write(')'))
         .toString();
   }
@@ -1704,15 +1672,17 @@ class $DistillationsTable extends Distillations
       'CHECK ("prioritize_reviews" IN (0, 1))',
     ),
   );
+  static const VerificationMeta _pausedAtMeta = const VerificationMeta(
+    'pausedAt',
+  );
   @override
-  late final GeneratedColumnWithTypeConverter<DistillationStatus, String>
-  status = GeneratedColumn<String>(
-    'status',
+  late final GeneratedColumn<DateTime> pausedAt = GeneratedColumn<DateTime>(
+    'paused_at',
     aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<DistillationStatus>($DistillationsTable.$converterstatus);
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _startedAtMeta = const VerificationMeta(
     'startedAt',
   );
@@ -1753,7 +1723,7 @@ class $DistillationsTable extends Distillations
     cardsPerBatch,
     everyDays,
     prioritizeReviews,
-    status,
+    pausedAt,
     startedAt,
     lastBatchDay,
     lastAdvancedDay,
@@ -1806,6 +1776,12 @@ class $DistillationsTable extends Distillations
     } else if (isInserting) {
       context.missing(_prioritizeReviewsMeta);
     }
+    if (data.containsKey('paused_at')) {
+      context.handle(
+        _pausedAtMeta,
+        pausedAt.isAcceptableOrUnknown(data['paused_at']!, _pausedAtMeta),
+      );
+    }
     if (data.containsKey('started_at')) {
       context.handle(
         _startedAtMeta,
@@ -1857,11 +1833,9 @@ class $DistillationsTable extends Distillations
         DriftSqlType.bool,
         data['${effectivePrefix}prioritize_reviews'],
       )!,
-      status: $DistillationsTable.$converterstatus.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}status'],
-        )!,
+      pausedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}paused_at'],
       ),
       startedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -1882,11 +1856,6 @@ class $DistillationsTable extends Distillations
   $DistillationsTable createAlias(String alias) {
     return $DistillationsTable(attachedDatabase, alias);
   }
-
-  static JsonTypeConverter2<DistillationStatus, String, String>
-  $converterstatus = const EnumNameConverter<DistillationStatus>(
-    DistillationStatus.values,
-  );
 }
 
 class DistillationsCompanion extends UpdateCompanion<Distillation> {
@@ -1894,7 +1863,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
   final Value<int> cardsPerBatch;
   final Value<int> everyDays;
   final Value<bool> prioritizeReviews;
-  final Value<DistillationStatus> status;
+  final Value<DateTime?> pausedAt;
   final Value<DateTime> startedAt;
   final Value<DateTime?> lastBatchDay;
   final Value<DateTime?> lastAdvancedDay;
@@ -1903,7 +1872,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     this.cardsPerBatch = const Value.absent(),
     this.everyDays = const Value.absent(),
     this.prioritizeReviews = const Value.absent(),
-    this.status = const Value.absent(),
+    this.pausedAt = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.lastBatchDay = const Value.absent(),
     this.lastAdvancedDay = const Value.absent(),
@@ -1913,21 +1882,20 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     required int cardsPerBatch,
     required int everyDays,
     required bool prioritizeReviews,
-    required DistillationStatus status,
+    this.pausedAt = const Value.absent(),
     required DateTime startedAt,
     this.lastBatchDay = const Value.absent(),
     this.lastAdvancedDay = const Value.absent(),
   }) : cardsPerBatch = Value(cardsPerBatch),
        everyDays = Value(everyDays),
        prioritizeReviews = Value(prioritizeReviews),
-       status = Value(status),
        startedAt = Value(startedAt);
   static Insertable<Distillation> custom({
     Expression<int>? groupId,
     Expression<int>? cardsPerBatch,
     Expression<int>? everyDays,
     Expression<bool>? prioritizeReviews,
-    Expression<String>? status,
+    Expression<DateTime>? pausedAt,
     Expression<DateTime>? startedAt,
     Expression<DateTime>? lastBatchDay,
     Expression<DateTime>? lastAdvancedDay,
@@ -1937,7 +1905,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
       if (cardsPerBatch != null) 'cards_per_batch': cardsPerBatch,
       if (everyDays != null) 'every_days': everyDays,
       if (prioritizeReviews != null) 'prioritize_reviews': prioritizeReviews,
-      if (status != null) 'status': status,
+      if (pausedAt != null) 'paused_at': pausedAt,
       if (startedAt != null) 'started_at': startedAt,
       if (lastBatchDay != null) 'last_batch_day': lastBatchDay,
       if (lastAdvancedDay != null) 'last_advanced_day': lastAdvancedDay,
@@ -1949,7 +1917,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     Value<int>? cardsPerBatch,
     Value<int>? everyDays,
     Value<bool>? prioritizeReviews,
-    Value<DistillationStatus>? status,
+    Value<DateTime?>? pausedAt,
     Value<DateTime>? startedAt,
     Value<DateTime?>? lastBatchDay,
     Value<DateTime?>? lastAdvancedDay,
@@ -1959,7 +1927,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
       cardsPerBatch: cardsPerBatch ?? this.cardsPerBatch,
       everyDays: everyDays ?? this.everyDays,
       prioritizeReviews: prioritizeReviews ?? this.prioritizeReviews,
-      status: status ?? this.status,
+      pausedAt: pausedAt ?? this.pausedAt,
       startedAt: startedAt ?? this.startedAt,
       lastBatchDay: lastBatchDay ?? this.lastBatchDay,
       lastAdvancedDay: lastAdvancedDay ?? this.lastAdvancedDay,
@@ -1981,10 +1949,8 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
     if (prioritizeReviews.present) {
       map['prioritize_reviews'] = Variable<bool>(prioritizeReviews.value);
     }
-    if (status.present) {
-      map['status'] = Variable<String>(
-        $DistillationsTable.$converterstatus.toSql(status.value),
-      );
+    if (pausedAt.present) {
+      map['paused_at'] = Variable<DateTime>(pausedAt.value);
     }
     if (startedAt.present) {
       map['started_at'] = Variable<DateTime>(startedAt.value);
@@ -2005,7 +1971,7 @@ class DistillationsCompanion extends UpdateCompanion<Distillation> {
           ..write('cardsPerBatch: $cardsPerBatch, ')
           ..write('everyDays: $everyDays, ')
           ..write('prioritizeReviews: $prioritizeReviews, ')
-          ..write('status: $status, ')
+          ..write('pausedAt: $pausedAt, ')
           ..write('startedAt: $startedAt, ')
           ..write('lastBatchDay: $lastBatchDay, ')
           ..write('lastAdvancedDay: $lastAdvancedDay')
@@ -4235,7 +4201,6 @@ typedef $$CardGroupsTableCreateCompanionBuilder = CardGroupsCompanion Function({
   Value<AfterLastStep> afterLastStep,
   Value<RemanenceInterval> remanenceInterval,
   Value<bool> typedAnswer,
-  Value<DateTime?> pausedAt,
 });
 typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
   Value<int> id,
@@ -4246,7 +4211,6 @@ typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
   Value<AfterLastStep> afterLastStep,
   Value<RemanenceInterval> remanenceInterval,
   Value<bool> typedAnswer,
-  Value<DateTime?> pausedAt,
 });
 
 final class $$CardGroupsTableReferences
@@ -4351,11 +4315,6 @@ class $$CardGroupsTableFilterComposer
 
   ColumnFilters<bool> get typedAnswer => $composableBuilder(
     column: $table.typedAnswer,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get pausedAt => $composableBuilder(
-    column: $table.pausedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4477,11 +4436,6 @@ class $$CardGroupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get pausedAt => $composableBuilder(
-    column: $table.pausedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   $$PresetsTableOrderingComposer get presetId {
     final $$PresetsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4545,9 +4499,6 @@ class $$CardGroupsTableAnnotationComposer
     column: $table.typedAnswer,
     builder: (column) => column,
   );
-
-  GeneratedColumn<DateTime> get pausedAt =>
-      $composableBuilder(column: $table.pausedAt, builder: (column) => column);
 
   $$PresetsTableAnnotationComposer get presetId {
     final $$PresetsTableAnnotationComposer composer = $composerBuilder(
@@ -4664,7 +4615,6 @@ class $$CardGroupsTableTableManager
                 Value<RemanenceInterval> remanenceInterval =
                     const Value.absent(),
                 Value<bool> typedAnswer = const Value.absent(),
-                Value<DateTime?> pausedAt = const Value.absent(),
               }) => CardGroupsCompanion(
                 id: id,
                 name: name,
@@ -4674,7 +4624,6 @@ class $$CardGroupsTableTableManager
                 afterLastStep: afterLastStep,
                 remanenceInterval: remanenceInterval,
                 typedAnswer: typedAnswer,
-                pausedAt: pausedAt,
               ),
           createCompanionCallback:
               ({
@@ -4687,7 +4636,6 @@ class $$CardGroupsTableTableManager
                 Value<RemanenceInterval> remanenceInterval =
                     const Value.absent(),
                 Value<bool> typedAnswer = const Value.absent(),
-                Value<DateTime?> pausedAt = const Value.absent(),
               }) => CardGroupsCompanion.insert(
                 id: id,
                 name: name,
@@ -4697,7 +4645,6 @@ class $$CardGroupsTableTableManager
                 afterLastStep: afterLastStep,
                 remanenceInterval: remanenceInterval,
                 typedAnswer: typedAnswer,
-                pausedAt: pausedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -4823,7 +4770,7 @@ typedef $$DistillationsTableCreateCompanionBuilder =
       required int cardsPerBatch,
       required int everyDays,
       required bool prioritizeReviews,
-      required DistillationStatus status,
+      Value<DateTime?> pausedAt,
       required DateTime startedAt,
       Value<DateTime?> lastBatchDay,
       Value<DateTime?> lastAdvancedDay,
@@ -4834,7 +4781,7 @@ typedef $$DistillationsTableUpdateCompanionBuilder =
       Value<int> cardsPerBatch,
       Value<int> everyDays,
       Value<bool> prioritizeReviews,
-      Value<DistillationStatus> status,
+      Value<DateTime?> pausedAt,
       Value<DateTime> startedAt,
       Value<DateTime?> lastBatchDay,
       Value<DateTime?> lastAdvancedDay,
@@ -4891,10 +4838,9 @@ class $$DistillationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<DistillationStatus, DistillationStatus, String>
-  get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
+  ColumnFilters<DateTime> get pausedAt => $composableBuilder(
+    column: $table.pausedAt,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<DateTime> get startedAt => $composableBuilder(
@@ -4960,8 +4906,8 @@ class $$DistillationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
+  ColumnOrderings<DateTime> get pausedAt => $composableBuilder(
+    column: $table.pausedAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5026,8 +4972,8 @@ class $$DistillationsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumnWithTypeConverter<DistillationStatus, String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
+  GeneratedColumn<DateTime> get pausedAt =>
+      $composableBuilder(column: $table.pausedAt, builder: (column) => column);
 
   GeneratedColumn<DateTime> get startedAt =>
       $composableBuilder(column: $table.startedAt, builder: (column) => column);
@@ -5100,7 +5046,7 @@ class $$DistillationsTableTableManager
                 Value<int> cardsPerBatch = const Value.absent(),
                 Value<int> everyDays = const Value.absent(),
                 Value<bool> prioritizeReviews = const Value.absent(),
-                Value<DistillationStatus> status = const Value.absent(),
+                Value<DateTime?> pausedAt = const Value.absent(),
                 Value<DateTime> startedAt = const Value.absent(),
                 Value<DateTime?> lastBatchDay = const Value.absent(),
                 Value<DateTime?> lastAdvancedDay = const Value.absent(),
@@ -5109,7 +5055,7 @@ class $$DistillationsTableTableManager
                 cardsPerBatch: cardsPerBatch,
                 everyDays: everyDays,
                 prioritizeReviews: prioritizeReviews,
-                status: status,
+                pausedAt: pausedAt,
                 startedAt: startedAt,
                 lastBatchDay: lastBatchDay,
                 lastAdvancedDay: lastAdvancedDay,
@@ -5120,7 +5066,7 @@ class $$DistillationsTableTableManager
                 required int cardsPerBatch,
                 required int everyDays,
                 required bool prioritizeReviews,
-                required DistillationStatus status,
+                Value<DateTime?> pausedAt = const Value.absent(),
                 required DateTime startedAt,
                 Value<DateTime?> lastBatchDay = const Value.absent(),
                 Value<DateTime?> lastAdvancedDay = const Value.absent(),
@@ -5129,7 +5075,7 @@ class $$DistillationsTableTableManager
                 cardsPerBatch: cardsPerBatch,
                 everyDays: everyDays,
                 prioritizeReviews: prioritizeReviews,
-                status: status,
+                pausedAt: pausedAt,
                 startedAt: startedAt,
                 lastBatchDay: lastBatchDay,
                 lastAdvancedDay: lastAdvancedDay,

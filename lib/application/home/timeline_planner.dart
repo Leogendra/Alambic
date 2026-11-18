@@ -2,7 +2,6 @@ import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
-import '../../domain/pauses/pauses.dart';
 import '../../domain/reviews/extra_reminder.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
@@ -33,14 +32,16 @@ class TimelinePlanner {
     required List<Flashcard> cards,
     required List<ExtraReminder> reminders,
     required List<Distillation> distillations,
-    required Pauses pauses,
+    required bool globallyPaused,
     required DateTime now,
   }) {
     final today = calendar.dayOf(now);
     final days = _DayBuckets(calendar, today);
     _placeCards(days, cards, now);
     _placeReminders(days, cards, reminders);
-    _placeDistillations(days, cards, distillations, pauses);
+    if (!globallyPaused) {
+      _placeDistillations(days, cards, distillations);
+    }
     return HomeTimeline([
       for (var offset = 0; offset < dayCount; offset++)
         if (days.dayAt(offset) case final day when offset == 0 || !day.isEmpty)
@@ -94,16 +95,15 @@ class TimelinePlanner {
     }
   }
 
-  /// Arrivals of the running distillations whose group is not paused.
+  /// Arrivals of the distillations not paused.
   void _placeDistillations(
     _DayBuckets days,
     List<Flashcard> cards,
     List<Distillation> distillations,
-    Pauses pauses,
   ) {
     for (final distillation in distillations) {
       final groupId = distillation.groupId;
-      if (!distillation.isRunning || pauses.covers(groupId)) {
+      if (distillation.isPaused) {
         continue;
       }
       final arrivals = rhythm.arrivals(

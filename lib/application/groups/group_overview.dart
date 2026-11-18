@@ -19,8 +19,9 @@ class GroupOverview {
     required PresetCatalog catalog,
     required DateTime now,
   }) {
-    final distilled = {
-      for (final distillation in distillations) distillation.groupId,
+    final distillationsByGroup = {
+      for (final distillation in distillations)
+        distillation.groupId: distillation,
     };
     final cardsByGroup = <int, List<Flashcard>>{};
     for (final card in cards) {
@@ -33,7 +34,7 @@ class GroupOverview {
           cardsByGroup[group.id] ?? const [],
           catalog,
           now,
-          isDistilling: distilled.contains(group.id),
+          distillation: distillationsByGroup[group.id],
         ),
     ];
   }
@@ -43,7 +44,7 @@ class GroupOverview {
     List<Flashcard> cards,
     PresetCatalog catalog,
     DateTime now, {
-    required bool isDistilling,
+    required Distillation? distillation,
   }) => GroupSummary(
     group: group,
     preset: catalog.presetForGroup(group.id),
@@ -51,6 +52,6 @@ class GroupOverview {
     dueCount: cards
         .where((card) => _duePolicy.isDueToday(card, now: now))
         .length,
-    isDistilling: isDistilling,
+    distillation: distillation,
   );
 }

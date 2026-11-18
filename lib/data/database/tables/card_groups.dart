@@ -20,7 +20,4 @@ class CardGroups extends Table {
     Constant(RemanenceInterval.sixMonths.name),
   )();
   BoolColumn get typedAnswer => boolean().withDefault(const Constant(false))();
-
-  /// Start of the pause of the group, `null` when it is not paused.
-  DateTimeColumn get pausedAt => dateTime().nullable()();
 }

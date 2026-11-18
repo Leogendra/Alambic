@@ -87,7 +87,7 @@ void main() {
       await CardRepository(database).getAll(),
       await PresetRepository(database).loadCatalog(),
       sampleNow,
-      isDistilling: false,
+      distillation: null,
     );
     expect(summary.cardCount, 1);
     expect(summary.dueCount, 0);

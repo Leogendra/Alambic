@@ -9,7 +9,6 @@ import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/groups/group_summary.dart';
 import '../../application/groups/group_sections.dart';
-import '../../application/pauses/pause_providers.dart';
 import '../../application/clock.dart';
 import '../../application/reviews/whole_group_review.dart';
 import '../../application/scheduling/scheduling_providers.dart';
@@ -21,7 +20,6 @@ import '../cards/card_navigation.dart';
 import '../cards/card_status_formatter.dart';
 import '../cards/card_status_formatter_provider.dart';
 import '../distillation/group_distillation_section.dart';
-import '../pauses/paused_banner.dart';
 import '../session/session_launcher.dart';
 import 'group_settings_screen.dart';
 import 'reverse_button.dart';
@@ -98,14 +96,6 @@ class _GroupBody extends ConsumerWidget {
     return ListView(
       padding: scrollPadding(context, const EdgeInsets.fromLTRB(20, 0, 20, 96)),
       children: [
-        if (summary.group.pausedAt case final pausedAt?) ...[
-          PausedBanner(
-            since: pausedAt,
-            onResume: () =>
-                ref.read(pauseServiceProvider).resumeGroup(summary.groupId),
-          ),
-          const SizedBox(height: 16),
-        ],
         const SizedBox(height: 8),
         GroupDistillationSection(
           groupId: summary.groupId,

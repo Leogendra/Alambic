@@ -3,7 +3,6 @@ import 'dart:math';
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
-import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../data/repositories/reminder_repository.dart';
 import '../../domain/cards/asked_side_draw.dart';
@@ -11,7 +10,6 @@ import '../../domain/cards/flashcard.dart';
 import '../../domain/groups/card_group.dart';
 import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/notification_timing.dart';
-import '../../domain/pauses/pauses.dart';
 import '../../domain/notifications/notification_mode.dart';
 import '../clock.dart';
 import '../distillation/distillation_service.dart';
@@ -39,7 +37,6 @@ class NotificationDispatcher {
     required this._presets,
     required this._reminders,
     required this._settings,
-    required this._pauses,
     required this._distillations,
     required this._groupedReminders,
     required this._presenter,
@@ -54,7 +51,6 @@ class NotificationDispatcher {
   final PresetRepository _presets;
   final ReminderRepository _reminders;
   final NotificationSettingsRepository _settings;
-  final PauseRepository _pauses;
   final DistillationService _distillations;
   final GroupedReminders _groupedReminders;
   final NotificationPresenter _presenter;
@@ -76,10 +72,9 @@ class NotificationDispatcher {
     final cards = await _cards.getAll();
     final guards = await _settings.loadGuards();
     final reminderSettings = await _settings.loadReminderSettings();
-    final pauses = await _pauses.loadPauses();
     final today = _deliveryPlanner.calendar.dayOf(now);
     final deliveries = _deliveryPlanner.plan(
-      deliveryCandidates(cards, catalog, pauses),
+      deliveryCandidates(cards, catalog),
       now: now,
       reminders: reminderSettings,
       guards: guards,
@@ -121,16 +116,14 @@ class NotificationDispatcher {
     if (notifiedGroups.isNotEmpty) {
       await _settings.addNotified(today, notifiedGroups.length);
     }
-    await _dispatchExtraReminders(cards, groups, pauses, now);
+    await _dispatchExtraReminders(cards, groups, now);
     await _planner.replan();
   }
 
-  /// Shows the extra reminders whose moment has come, however long ago. One
-  /// falling during a pause of its card is dropped.
+  /// Shows the extra reminders whose moment has come, however long ago.
   Future<void> _dispatchExtraReminders(
     List<Flashcard> cards,
     Map<int, CardGroup> groups,
-    Pauses pauses,
     DateTime now,
   ) async {
     for (final reminder in await _reminders.getAllUpcoming()) {
@@ -140,7 +133,7 @@ class NotificationDispatcher {
       final card = cards
           .where((card) => card.id == reminder.cardId)
           .firstOrNull;
-      if (card != null && !pauses.covers(card.groupId)) {
+      if (card != null) {
         await _presenter.showPrompt(_prompt(card, groups, reminder.id));
       }
       await _reminders.markNotified(reminder.id, now);

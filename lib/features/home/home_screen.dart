@@ -3,10 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../app/theme/alambic_colors.dart';
+import '../../application/distillation/distillation_providers.dart';
 import '../../application/home/home_providers.dart';
-import '../../application/pauses/pause_providers.dart';
 import '../../application/time/minute_ticker.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../pauses/global_pause_dialog.dart';
 import '../pauses/paused_banner.dart';
 import 'home_timeline_view.dart';
 
@@ -22,7 +23,7 @@ class HomeScreen extends ConsumerWidget {
     if (timeline == null || now == null) {
       return const SizedBox.shrink();
     }
-    final pausedAt = ref.watch(pausesProvider).value?.globalSince;
+    final pausedAt = ref.watch(globalPauseProvider).value;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 96),
       children: [
@@ -31,7 +32,7 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(height: 20),
           PausedBanner(
             since: pausedAt,
-            onResume: () => ref.read(pauseServiceProvider).resumeAll(),
+            onResume: () => ref.read(distillationServiceProvider).resumeAll(),
           ),
         ],
         const SizedBox(height: 20),
@@ -79,33 +80,9 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             tooltip: strings.pauseAllTooltip,
             icon: const Icon(Icons.pause),
-            onPressed: () => _confirmPauseAll(context, ref),
+            onPressed: () => confirmGlobalPause(context, ref),
           ),
       ],
     );
-  }
-
-  Future<void> _confirmPauseAll(BuildContext context, WidgetRef ref) async {
-    final strings = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(strings.pauseAllConfirmTitle),
-        content: Text(strings.pauseAllConfirmBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(strings.commonCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(strings.pauseAllConfirm),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true) {
-      await ref.read(pauseServiceProvider).pauseAll();
-    }
   }
 }

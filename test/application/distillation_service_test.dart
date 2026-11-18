@@ -5,7 +5,6 @@ import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
-import 'package:alambic/domain/distillation/distillation_status.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/sample_data.dart';
@@ -211,10 +210,7 @@ void main() {
   test('a paused distillation waits, and resumes where it stopped', () async {
     await activate();
     await services.distillations.pause(groupId);
-    expect(
-      (await distillations.find(groupId))!.status,
-      DistillationStatus.paused,
-    );
+    expect((await distillations.find(groupId))!.pausedAt, clock.now);
     moveTo(DateTime(2026, 11, 12, 9));
     await services.distillations.advance();
     expect(await states(), [active, pending, pending, pending]);

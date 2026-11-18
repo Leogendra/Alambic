@@ -3,7 +3,6 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
-import 'package:alambic/domain/distillation/distillation_status.dart';
 
 import '../support/test_database.dart';
 
@@ -44,7 +43,7 @@ void main() {
     expect(distillation.cardsPerBatch, 3);
     expect(distillation.everyDays, 2);
     expect(distillation.prioritizeReviews, isFalse);
-    expect(distillation.status, DistillationStatus.running);
+    expect(distillation.pausedAt, isNull);
     expect(distillation.lastBatchDay, isNull);
     expect(distillation.lastAdvancedDay, isNull);
   });

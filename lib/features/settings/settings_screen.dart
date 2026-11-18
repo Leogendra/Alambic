@@ -6,9 +6,10 @@ import '../../app/formatting/reminder_settings_labels.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
+import '../../application/distillation/distillation_providers.dart';
 import '../../application/notifications/guard_providers.dart';
-import '../../application/pauses/pause_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../pauses/global_pause_dialog.dart';
 import '../presets/presets_screen.dart';
 import 'backup_panel.dart';
 import 'display_panel.dart';
@@ -81,7 +82,7 @@ class _NotificationsPanel extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final reminders = ref.watch(reminderSettingsProvider).value;
     final guards = ref.watch(notificationGuardsProvider).value;
-    final pausedAt = ref.watch(pausesProvider).value?.globalSince;
+    final pausedAt = ref.watch(globalPauseProvider).value;
     return SurfacePanel(
       children: [
         PanelRow(
@@ -119,10 +120,9 @@ class _NotificationsPanel extends ConsumerWidget {
               : strings.pausedSince(strings.shortDate(pausedAt)),
           trailing: Switch(
             value: pausedAt != null,
-            onChanged: (paused) {
-              final service = ref.read(pauseServiceProvider);
-              paused ? service.pauseAll() : service.resumeAll();
-            },
+            onChanged: (paused) => paused
+                ? confirmGlobalPause(context, ref)
+                : ref.read(distillationServiceProvider).resumeAll(),
           ),
         ),
       ],

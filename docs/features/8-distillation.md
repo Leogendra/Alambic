@@ -1,6 +1,6 @@
 # Feature 8 — Distillation
 
-Status: implemented (2026-11-17)
+Status: implemented (2026-11-18)
 
 ## Goal
 
@@ -10,7 +10,7 @@ Introduce the cards of a group a few at a time ("one piece of knowledge a day") 
 
 ### Activating
 
-A distillation is a permanent setting of a group, at most one per group. The group does not distill until the user activates it from its page: until then its cards stay pending. Activating introduces the first batch the same day. A group with an empty queue can be activated too: the cards added later arrive at its rhythm.
+A distillation is a permanent setting of a group, at most one per group. The group does not distill until the user activates it from its page: until then its cards stay pending. Activating introduces the first batch the same day, or at the end of the global pause when it is on. A group with an empty queue can be activated too: the cards added later arrive at its rhythm.
 
 ### Queue
 
@@ -20,7 +20,7 @@ A card created in the group, moved into it while pending, or reset joins the end
 
 ### Rhythm
 
-The distillation makes one pass per scheduling day, by the first pass that sees it: at app launch, or at any wake-up of the app. A running distillation plans a wake-up at the start (4am) of the day it owes its next batch, so cards are introduced with the app closed. Introducing a card makes it due today at the [daily slot](../lexicon.md#daily-slot), due right away when the slot has passed. It then follows its preset.
+The distillation makes one pass per scheduling day, by the first pass that sees it: at app launch, or at any wake-up of the app. A running distillation plans a wake-up at the start (4am) of the day it owes its next batch, so cards are introduced with the app closed. When that wake-up is missed, the phone being off at 4am, it fires at restart, and the pass runs then; opening the app runs it too. Introducing a card makes it due today at the [daily slot](../lexicon.md#daily-slot), due right away when the slot has passed. It then follows its preset.
 
 A batch comes out every X days, counted from the last day a batch came out; the first one comes out on activation. A batch comes out only when a card is ready to leave the queue (pending and not suspended): while the queue is empty, the batch stays owed and comes out at the first pass after a card joins. A batch short of cards gives what the queue holds and is never completed the next days.
 
@@ -40,13 +40,17 @@ Without the option, the N new cards of a batch arrive at the rhythm whatever is 
 
 ### Pause
 
-A paused distillation introduces nothing; its introduced cards follow their preset. Resuming it processes the current day if it was not processed yet. There is no stop and no end.
+A distillation is paused and resumed from its "Distill" screen, opened from its group page; the button applies at once, without "Save". A paused distillation introduces nothing. Its introduced cards follow their preset and keep being notified: no due date moves, during the pause or at its end. There is no stop and no end.
+
+The global pause, started from Home or Settings after a confirmation and ended from Home's banner or Settings, holds back every distillation the same way, and only them: the reminders go on. It leaves each distillation's own pause alone: a distillation paused before it is still paused after it.
+
+Resuming, from either pause, processes the current day if it was not processed yet: a single batch comes out if the rhythm owes one, as after days with the phone off, and the rhythm starts again from that day. A distillation resumed on a day already processed waits for the next one.
 
 ### Screens
 
-While the group does not distill, its page shows a large "Distill" button ([Feature 4](4-groups.md#group-page)). Once activated, a "Distillation" section takes its place: "In progress" or "Paused", "Adjust", a pause / resume button, the rhythm ("1 card per day"), the waiting cards ("5 cards waiting") and the estimated day of the last arrival.
+While the group does not distill, its page shows a large "Distill" button ([Feature 4](4-groups.md#group-page)). Once activated, a "Distillation" section takes its place: a "Distillation" tag, or "En pause depuis le 3 nov." with a pause icon, a settings button that opens the "Distill" screen, the rhythm ("1 card per day"), the waiting cards ("5 cards waiting") and the estimated day of the last arrival, or "aucune arrivée prévue" while cards wait and no arrival is planned (paused, or during the global pause).
 
-The "Distill" screen shows the [schedule](../lexicon.md#schedule) of the app and the preset the cards will follow, then the settings: "N cards every X days" (1 / 1 by default) and "Prioritize reviews" (on, explaining that each card due takes the place of a new card). An estimate follows ("44 cards · last arrival on 23 December"), computed as if every batch went through, or a line saying no card waits. It ends on "Start distilling"; opened from "Adjust", it is titled "Adjust the distillation", starts from the current settings and ends on "Save".
+The "Distill" screen shows the [schedule](../lexicon.md#schedule) of the app and the preset the cards will follow, then the settings: "N cards every X days" (1 / 1 by default) and "Prioritize reviews" (on, explaining that each card due takes the place of a new card). An estimate follows ("44 cards · last arrival on 23 December"), computed as if every batch went through, or a line saying no card waits. It ends on "Start distilling"; opened from the group page, it is titled "Adjust the distillation", starts from the current settings and ends on "Save". There, a "Pause" or "Resume" button follows the settings, with a line saying that no new card comes out while the reminders go on ("En pause depuis le 3 novembre : …" while paused); a paused distillation shows "13 cartes en attente · en pause" instead of its estimate.
 
 On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#new-cards)).
 
@@ -60,7 +64,9 @@ On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#n
 - [x] Adjusting changes the rhythm and "Prioritize reviews"; the next batch comes out at the earliest today and X days (the new X) after the last one.
 - [x] Prioritizing reviews: a batch day brings N new cards minus the cards of the group due at the pass, late and unanswered ones included; reminders are never moved.
 - [x] The "Distill" screen activates or adjusts, with an estimate of the last arrival.
-- [x] The group page follows the distillation (state, rhythm, waiting cards, last arrival) with "Adjust" and pause / resume.
+- [x] The group page follows the distillation (pause, rhythm, waiting cards, last arrival) with a single settings button.
+- [x] A paused distillation, and every distillation during the global pause, introduces nothing; the reminders go on and no due date moves. Resuming brings a single batch at most; the global pause leaves each distillation's own pause alone.
+- [x] A missed 4am wake-up runs the pass at restart, or at the opening of the app.
 
 ## Test strategy
 
@@ -68,19 +74,27 @@ On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#n
 - The two examples of "Prioritize reviews" are replayed on an in-memory database, with late and unanswered cards counted and reminders left in place.
 - The service is tested on an in-memory database filled through the services, moving a fixed clock across days: activation, first batch, next days, 4am boundary, a week without pass (one batch, rhythm restarting from it), a batch short of cards, an empty queue, changes of rhythm before and after the day's pass, pause, suspension.
 - The "Distill" screen, the group page and Home are covered by golden tests; widget tests activate a distillation and adjust it from their screens.
-- The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, and the introduction done by the wake-up.
+- The pauses are tested with the notification fakes: a paused distillation keeps its cards notified and their due dates, a pause of a week brings one batch on resume, the global pause holds every distillation and plans no wake-up for them, and leaves alone a distillation paused on its own.
+- The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, the introduction done by the wake-up, and a wake-up firing late at restart, which notifies the batch at once.
+- The group page and the "Distill" screen of a paused distillation have golden tests; resuming from the screen is checked in the database.
 
 ## File mapping
 
 - `lib/domain/distillation/` — the distillation, its settings, the rhythm and the queue rules.
 - `lib/application/distillation/` — `DistillationService`, the progress of a distillation (`DistillationProgress`) and their providers.
 - `lib/features/distillation/` — the "Distill" screen, the tile and the section of a group page.
+- `lib/features/pauses/` — the global pause: its confirmation and Home's banner.
 - `lib/data/repositories/distillation_repository.dart` — storage of the distillations; the queue itself is stored on the cards (`CardRepository`).
+- `lib/data/repositories/pause_repository.dart` — the start of the global pause (`app_settings.paused_at`).
 
 ## Technical details
 
 The queue is not a table: a card is in the queue of its group when it is pending, at its `queuePosition`, ties broken by creation. A card joining the end takes the position after the last pending one. Introducing a card clears its position. A distillation row is keyed by its group, and deleted with it.
 
-A distillation row keeps only two days of progress: the last day processed (`lastAdvancedDay`) and the last day a batch came out (`lastBatchDay`, empty until the first batch). The next batch day follows from the latter and the current X, which is why a change of rhythm needs no rewrite.
+A distillation is paused by the start of its pause (`pausedAt`), shown on its page; `null` means running. A distillation row keeps only two days of progress: the last day processed (`lastAdvancedDay`) and the last day a batch came out (`lastBatchDay`, empty until the first batch). The next batch day follows from the latter and the current X, which is why a change of rhythm needs no rewrite.
+
+A pause records nothing about the days it covers: the pass simply skips a paused distillation, so the day of the last batch and the current X decide alone what the first pass after the pause owes.
+
+The restart relies on `android_alarm_manager_plus`: it keeps every alarm it scheduled and schedules them again at boot, and Android fires at once an alarm whose moment has passed. The 4am wake-up missed while the phone was off is one of them.
 
 The daily pass runs in a transaction and reads the distillation again inside it, because the app and a wake-up may run it at the same moment from two isolates; the day already processed makes the second pass a no-op.

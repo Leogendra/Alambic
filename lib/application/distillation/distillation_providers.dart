@@ -27,6 +27,11 @@ final distillationRhythmProvider = Provider(
   (ref) => DistillationRhythm(ref.watch(schedulingCalendarProvider)),
 );
 
+/// Start of the global pause, `null` when it is off.
+final globalPauseProvider = StreamProvider<DateTime?>(
+  (ref) => ref.watch(pauseRepositoryProvider).watchGlobalPause(),
+);
+
 /// The distillations of the groups that activated one.
 final distillationsProvider = StreamProvider<List<Distillation>>(
   (ref) => ref.watch(distillationRepositoryProvider).watchAll(),
@@ -39,7 +44,11 @@ final distillationProgressesProvider = Provider<List<DistillationProgress>>((
   final distillations = ref.watch(distillationsProvider).value;
   final cards = ref.watch(allCardsProvider).value;
   final now = ref.watch(currentMomentProvider).value;
-  if (distillations == null || cards == null || now == null) {
+  final globalPause = ref.watch(globalPauseProvider);
+  if (distillations == null ||
+      cards == null ||
+      now == null ||
+      !globalPause.hasValue) {
     return const [];
   }
   final rhythm = ref.watch(distillationRhythmProvider);
@@ -51,6 +60,7 @@ final distillationProgressesProvider = Provider<List<DistillationProgress>>((
         cards.where((card) => card.groupId == distillation.groupId).toList(),
         rhythm,
         today,
+        globallyPaused: globalPause.value != null,
       ),
   ];
 });

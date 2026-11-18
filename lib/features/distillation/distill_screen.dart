@@ -21,7 +21,8 @@ import '../../l10n/generated/app_localizations.dart';
 
 /// "Distill": settings of the distillation of a group, with an estimate of
 /// the last arrival of its queue. Activates the distillation, or adjusts it
-/// when [currentSettings] are given.
+/// when [currentSettings] are given; it is then paused and resumed here, at
+/// once, without "Save".
 class DistillScreen extends ConsumerStatefulWidget {
   const DistillScreen({required this.groupId, this.currentSettings, super.key});
 
@@ -52,6 +53,12 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     final reminders = ref.watch(reminderSettingsProvider).value;
     final cards = ref.watch(groupCardsProvider(widget.groupId)).value ?? [];
     final remaining = DistillationQueue.remaining(cards);
+    final pausedAt = widget.isAdjusting
+        ? ref
+              .watch(groupDistillationProvider(widget.groupId))
+              ?.distillation
+              .pausedAt
+        : null;
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -95,8 +102,12 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
           ..._rhythmSection(strings),
           const SizedBox(height: 16),
           _prioritizePanel(strings),
+          if (widget.isAdjusting) ...[
+            const SizedBox(height: 16),
+            _pauseButton(strings, colors, pausedAt),
+          ],
           const SizedBox(height: 24),
-          _footer(strings, colors, remaining),
+          _footer(strings, colors, remaining, pausedAt),
         ],
       ),
     );
@@ -125,10 +136,59 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     ],
   );
 
+  /// Pause or resume, applied at once, with what a pause does.
+  Widget _pauseButton(
+    AppLocalizations strings,
+    AlambicColors colors,
+    DateTime? pausedAt,
+  ) {
+    final service = ref.read(distillationServiceProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 6,
+      children: [
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+            backgroundColor: colors.surface,
+            foregroundColor: colors.accentText,
+            side: BorderSide(color: colors.border),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          icon: Icon(pausedAt == null ? Icons.pause : Icons.play_arrow),
+          label: Text(
+            pausedAt == null ? strings.distillPause : strings.pauseResume,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          ),
+          onPressed: () => pausedAt == null
+              ? service.pause(widget.groupId)
+              : service.resume(widget.groupId),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            pausedAt == null
+                ? strings.distillPauseHint
+                : strings.distillPausedHint(strings.longDate(pausedAt)),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.4,
+              color: colors.textSecondary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _footer(
     AppLocalizations strings,
     AlambicColors colors,
     int remaining,
+    DateTime? pausedAt,
   ) {
     final now = ref.watch(currentMomentProvider).value;
     final rhythm = ref.watch(distillationRhythmProvider);
@@ -149,12 +209,27 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
           children: [
             Icon(Icons.water_drop_outlined, size: 18, color: colors.accent),
             Expanded(
-              child: Text(
-                lastArrival == null
-                    ? strings.distillNothing
-                    : strings.distillEstimate(
-                        remaining,
-                        strings.longDate(lastArrival),
+              child: Text.rich(
+                pausedAt != null
+                    ? TextSpan(
+                        children: [
+                          TextSpan(
+                            text:
+                                '${strings.distillationWaiting(remaining)} · ',
+                          ),
+                          TextSpan(
+                            text: strings.distillPausedTag,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      )
+                    : TextSpan(
+                        text: lastArrival == null
+                            ? strings.distillNothing
+                            : strings.distillEstimate(
+                                remaining,
+                                strings.longDate(lastArrival),
+                              ),
                       ),
                 style: TextStyle(fontSize: 14, color: colors.textPrimary),
               ),

@@ -81,11 +81,7 @@ class NotificationPlanner implements ScheduleChangeListener {
     final now = _clock();
     final cards = await _cards.getAll();
     final reminders = await _reminders.getAllUpcoming();
-    final candidates = deliveryCandidates(
-      cards,
-      await _presets.loadCatalog(),
-      await _pauses.loadPauses(),
-    );
+    final candidates = deliveryCandidates(cards, await _presets.loadCatalog());
     final guards = await _settings.loadGuards();
     final reminderSettings = await _settings.loadReminderSettings();
     final deliveries = _deliveryPlanner.plan(
@@ -146,13 +142,16 @@ class NotificationPlanner implements ScheduleChangeListener {
   }
 
   /// Start of the day on which each running distillation owes its next
-  /// batch.
+  /// batch; none during the global pause.
   Future<List<DateTime>> _distillationPasses(DateTime now) async {
+    if (await _pauses.loadGlobalPause() != null) {
+      return const [];
+    }
     final calendar = _rhythm.calendar;
     final today = calendar.dayOf(now);
     return [
       for (final distillation in await _distillations.getAll())
-        if (distillation.isRunning)
+        if (!distillation.isPaused)
           calendar.startOf(_rhythm.nextIntroductionDay(distillation, today)),
     ];
   }

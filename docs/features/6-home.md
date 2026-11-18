@@ -1,6 +1,6 @@
 # Feature 6 — Home
 
-Status: in progress (2026-11-17)
+Status: in progress (2026-11-18)
 
 ## Goal
 
@@ -8,7 +8,7 @@ Answer, on opening the app, the question "what is coming?": the cards of today, 
 
 ## Implementation overview
 
-The Home tab is a single timeline, `HomeTimeline`, computed by `TimelinePlanner` from every card, the upcoming [extra reminders](../lexicon.md#extra-reminder), the distillations and the pauses. It is recomputed whenever one of these changes and every minute, through the current moment.
+The Home tab is a single timeline, `HomeTimeline`, computed by `TimelinePlanner` from every card, the upcoming [extra reminders](../lexicon.md#extra-reminder), the distillations and the global pause. It is recomputed whenever one of these changes and every minute, through the current moment.
 
 ### The timeline
 
@@ -29,11 +29,11 @@ New cards are never named. Each group gets one line per day, "Capitales: 2 new c
 - the introduced cards never answered, on the day they are due (today when late);
 - the cards the group's [distillation](8-distillation.md) should introduce that day, following its rhythm from its last batch, as if every batch went through: with "Prioritize reviews", the cards due on a batch day take the place of new cards, so an announced arrival may be smaller.
 
-A paused distillation, or a paused group, announces no future arrival. Cards of a paused group stay on the timeline: they remain reviewable in the app.
+A paused distillation announces no future arrival, and neither does any distillation during the global pause. The reminders of their cards stay on the timeline: a pause does not stop them.
 
 ### Header
 
-The title "Coming up" sits over today's date. A pause button next to it starts the global pause, after a confirmation ([Feature 7](7-notifications.md#pauses)). During the pause, Home starts with "En pause depuis le …" and a "Reprendre" button.
+The title "Coming up" sits over today's date. A pause button next to it starts the global pause, after a confirmation ([Feature 8](8-distillation.md#pause)). During the pause, Home starts with "En pause depuis le …", a line saying that no new card arrives and that the reminders go on, and a "Reprendre" button.
 
 There is no count of due cards and no "Review all" on Home: reviewing happens from the notifications, a group page or a card sheet.
 
@@ -42,12 +42,12 @@ There is no count of due cards and no "Review all" on Home: reviewing happens fr
 - [x] Today shows first, outlined, with its late cards first, even when empty; the next six days follow when something falls on them.
 - [x] Each reminder shows its card's front and its group, without its step; a "Review soon" reminder shows on its day.
 - [x] New cards show as one line per group and day, made of the introduced cards never answered and of the arrivals expected from the distillation.
-- [x] A paused distillation or group announces no arrival.
+- [x] A paused distillation, or any during the global pause, announces no arrival.
 - [x] The pause button starts the global pause; Home then offers to resume it.
 
 ## Test strategy
 
-- `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, suspended and pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, paused distillation and group, and "Review soon" reminders.
+- `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, suspended and pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, paused distillation and global pause, and "Review soon" reminders.
 - The arrivals of a distillation are tested on `DistillationRhythm`: batches until the queue is empty, today skipped once its pass ran.
 - The screen is covered by golden tests in light and dark theme, in English and during the global pause, on the sample data partly answered, with a reminder and a distilling group, and by a golden test of a distillation in progress.
 

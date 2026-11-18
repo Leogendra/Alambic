@@ -23,7 +23,9 @@ The tokens form a few steps of depth:
 - `surfaceRaised` for what stands out of a hollow: the selected segment, badges.
 - `accent` for filled elements, with `onAccent` for the text laid on them, and `accentText`, a lighter shade in dark mode, for accent-coloured text and outlines. Text and outlined buttons use `accentText`, because the filled accent does not keep 4.5:1 as text on the dark background.
 
-The tokens must keep WCAG contrast ratios: 7:1 for primary text on every background, 4.5:1 for secondary and accent text and for the text of a filled button, 3:1 for the filled accent on a surface, 1.15:1 between a surface and the page, 1.3:1 for a border on its surface and 1.4:1 for a selected segment on its track. The values of the tokens may move as long as these ratios hold.
+The tokens must keep WCAG contrast ratios: 7:1 for primary text on every background, 4.5:1 for secondary and accent text and for the text of a filled button, 3:1 for the filled accent on a surface, 1.15:1 between a surface and the page, 1.3:1 for a border on its surface and 1.4:1 for a selected segment on its track. The values of the tokens may move as long as these ratios hold. In the light theme, a white selected segment can only stand out from a grey track, so `well` is grey there, and input fields, which share it, are grey too. The neutrals of the dark theme are slightly blue, to move away from pure grey.
+
+Input fields sit on `well` with a `border` outline, which turns `accentText` when they have the focus. The progress bar of a session lies on the page background, where `well` would vanish, so its track is `border`.
 
 A selected state never rests on its fill alone. The two shared selection components show it twice:
 
@@ -60,7 +62,7 @@ The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_set
 - deleting a card deletes its history and its reminders;
 - deleting a group deletes its cards, with their history, and its distillation.
 
-The schema is at version 5 and has no migration: while the app has no users, its version is raised at every schema change, and a database file of another version is erased and created again at launch, with the shipped presets. Every table found in the file is dropped, including tables an older schema had and this one no longer declares. A backup of another version is refused at import ([Feature 9](9-backup.md)).
+The schema is at version 8 and has no migration: while the app has no users, its version is raised at every schema change, and a database file of another version is erased and created again at launch, with the shipped presets. Every table found in the file is dropped, including tables an older schema had and this one no longer declares. A backup of another version is refused at import ([Feature 9](9-backup.md)).
 
 The global preset lives in the database rather than in the preferences, because it is part of the review data: it must be readable from background tasks and travel with the export.
 
@@ -84,7 +86,7 @@ When the database is created, the Standard and Intensive presets are inserted an
 - Both ARB files are checked to hold the same texts and the same placeholders.
 
 - The contrast rules are computed with the WCAG formula on the tokens of both themes, so that a change of value that breaks one fails without looking at a screen.
-- The system bars are simulated as a 32 px status bar and a 48 px navigation bar (the three-button one, the tallest) around every tab, page, sheet and onboarding screen. No text or tappable element may overlap them; a list is checked at its top and at the end of its scroll, since it may legitimately pass under the bars in between.
+- The system bars are simulated as a 32 px status bar and a 48 px navigation bar (the three-button one, the tallest) around every tab, page, sheet and onboarding screen. No text or tappable element may overlap them; a list is checked at its top and at the end of its scroll, since it may legitimately pass under the bars in between. A screen or sheet added or redone joins this check. Dialogs do not: Flutter centres them clear of the bars.
 - The shell and the Settings tab (in English) are covered by golden tests, in light and dark theme, at the size of the mockup screens (390 × 844).
 - The schema is tested on a real, not mocked, in-memory SQLite database: initial content and cascading deletion rules.
 - Golden tests load the real fonts (DM Sans and the Material icons); otherwise text would render as blocks and the images would not show the typography.

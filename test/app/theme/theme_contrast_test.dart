@@ -15,7 +15,7 @@ double contrastRatio(Color first, Color second) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-/// One rule of SPECS.md "Thème et contraste": [foreground] laid on
+/// One contrast rule of docs/features/0-foundation.md: [foreground] laid on
 /// [background] keeps at least [minimum].
 typedef ContrastRule = ({
   String name,

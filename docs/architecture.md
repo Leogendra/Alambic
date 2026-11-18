@@ -2,7 +2,13 @@
 
 ## Role
 
-Alambic is an Android spaced-repetition app where the notification is the main interface. Each card lives in a [group](lexicon.md#group) and has a single progression; a [preset](lexicon.md#preset) decides when it comes back. A new card waits in the [queue](lexicon.md#queue) of its group until the group's [distillation](lexicon.md#distillation) introduces it, a few cards at a time. The reference product rules live in `SPECS.md` (not versioned); `docs/features/` describes what is implemented.
+Alambic is an Android spaced-repetition app where the notification is the main interface. Each card lives in a [group](lexicon.md#group) and has a single progression; a [preset](lexicon.md#preset) decides when it comes back. A new card waits in the [queue](lexicon.md#queue) of its group until the group's [distillation](lexicon.md#distillation) introduces it, a few cards at a time. `docs/features/` describes the product as it is built; `SPECS.md` (not versioned) only holds the work left before V1.0.
+
+It is not a classic flashcard app, and three principles follow from that:
+
+- No status is shown on a card and there is no "N to review" pile to empty: a card shows its next date, and most reviews happen from the notification. Reviewing a whole group at once stays possible, without being put forward.
+- Everything can be adjusted, but the defaults work without setting anything up.
+- The interface speaks French and English.
 
 ## Major pieces
 
@@ -33,6 +39,10 @@ Domain functions receive the current moment as a parameter instead of reading th
 ### A sequence step is clamped to the current sequence
 
 A card keeps its [step](lexicon.md#step) when its preset changes or when the sequence gets shorter. Rather than rewriting the affected cards at change time, the engine clamps the step to the last existing step at each computation. A preset change therefore needs no data migration.
+
+### Android first, iOS kept possible
+
+V1 targets Android only. Flutter was chosen so that iOS can follow without a rewrite, and the alarm and notification plugins are only imported behind the interfaces of [Feature 7](features/7-notifications.md#layers), so iOS would be a second implementation of them. Two iOS limits are already known: at most 64 notifications can be pending, which calls for a sliding planning window instead of the 48 wake-ups planned ahead; and chaining cards inside a notification needs a native extension written in Swift.
 
 ### The asked side is drawn at display time, never stored
 

@@ -572,6 +572,24 @@
   "homeTomorrow": "Demain",
   "homeTodayEmpty": "Rien de prévu aujourd'hui.",
   "homeLate": "en retard",
+  "homeDelayHours": "{count}H",
+  "@homeDelayHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeDelayDays": "{count}J",
+  "@homeDelayDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeComingMonth": "Mois à venir",
+  "homeComingYear": "Année à venir",
   "homeArrivals": "{group} : {count, plural, =1{1 nouvelle carte} other{{count} nouvelles cartes}}",
   "@homeArrivals": {
     "placeholders": {
@@ -740,7 +758,7 @@
   "distillMoreDays": "Plus de jours",
   "distillPrioritizeReviews": "Prioriser les révisions",
   "distillPrioritizeReviewsHint": "Un jour de lot, chaque carte du groupe à réviser prend la place d'une nouvelle carte.",
-  "distillEstimate": "{count, plural, =1{1 carte · arrivée le {date}} other{{count} cartes · dernière arrivée le {date}}}",
+  "distillEstimate": "{count, plural, =1{1 carte · arrivée vers le {date}} other{{count} cartes · dernière arrivée vers le {date}}}",
   "@distillEstimate": {
     "placeholders": {
       "count": {
@@ -792,7 +810,7 @@
       }
     }
   },
-  "distillationLastArrival": "dernière le {date}",
+  "distillationLastArrival": "dernière vers le {date}",
   "@distillationLastArrival": {
     "placeholders": {
       "date": {

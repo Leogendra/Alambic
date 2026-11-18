@@ -19,8 +19,9 @@ import '../cards/card_status_formatter_provider.dart';
 import '../groups/group_detail_screen.dart';
 
 /// Home's timeline: today outlined, with its late cards first, then the next
-/// days. Each day lists its reminders card by card with their label, then a
-/// line per group receiving new cards.
+/// days. Each day lists its reminders card by card with their label and the
+/// time left, then a line per group receiving new cards. The coming month
+/// and year close it, as two totals.
 class HomeTimelineView extends ConsumerWidget {
   const HomeTimelineView({required this.timeline, super.key});
 
@@ -48,6 +49,24 @@ class HomeTimelineView extends ConsumerWidget {
             formatter: formatter,
             groupNames: groupNames,
           ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 12,
+          children: [
+            Expanded(
+              child: _ComingBlock(
+                title: formatter.strings.homeComingMonth,
+                total: timeline.comingMonth,
+              ),
+            ),
+            Expanded(
+              child: _ComingBlock(
+                title: formatter.strings.homeComingYear,
+                total: timeline.comingYear,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -116,7 +135,7 @@ class _DaySection extends StatelessWidget {
 }
 
 /// A card reminder: its front, its group with "late" or the time of today's
-/// reminder, and "Review soon" for an extra reminder.
+/// reminder, "Review soon" for an extra reminder, and the time left.
 class _CardRow extends StatelessWidget {
   const _CardRow({
     required this.entry,
@@ -184,6 +203,17 @@ class _CardRow extends StatelessWidget {
                   color: colors.accentText,
                 ),
               ),
+            if (entry.delay case final delay?)
+              Text(
+                delay.inDays
+                    ? strings.homeDelayDays(delay.count)
+                    : strings.homeDelayHours(delay.count),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: colors.accentText,
+                ),
+              ),
           ],
         ),
       ),
@@ -229,6 +259,84 @@ class _ArrivalRow extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// "Coming month": the cards expected, as a total and a pile whose height
+/// follows it. Not touchable.
+class _ComingBlock extends StatelessWidget {
+  const _ComingBlock({required this.title, required this.total});
+
+  /// Most slices of a pile: what its height holds.
+  static const int _maxSlices = 7;
+
+  /// Small shifts of the slices, so that they look stacked by hand.
+  static const List<double> _shifts = [0, 3, 1, 4, 2, 0, 3];
+
+  final String title;
+  final int total;
+
+  /// One slice, then one more each time the total doubles.
+  int get _slices => total.bitLength.clamp(0, _maxSlices);
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    final colors = AlambicColors.of(context);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 4,
+        children: [
+          Text(
+            title.toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.8,
+              color: colors.textSecondary,
+            ),
+          ),
+          Text(
+            strings.cardCount(total),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+          ExcludeSemantics(
+            child: SizedBox(
+              height: 60,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 3,
+                children: [
+                  for (var slice = _slices - 1; slice >= 0; slice--)
+                    Container(
+                      width: 84,
+                      height: 6,
+                      margin: EdgeInsetsDirectional.only(start: _shifts[slice]),
+                      decoration: BoxDecoration(
+                        color: colors.accentTint,
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(
+                          color: colors.accent.withValues(alpha: 0.45),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

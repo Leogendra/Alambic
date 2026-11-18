@@ -101,4 +101,34 @@ void main() {
       matchesGoldenFile('goldens/home_paused.png'),
     );
   });
+
+  testWidgets('the coming month and year, at the end of the timeline', (
+    tester,
+  ) async {
+    await seed(tester);
+    await tester.runAsync(() async {
+      final samples = SampleServices(database, FixedClock(sampleNow));
+      final vocabulary = await samples.groups.create('Vocabulaire');
+      for (var word = 1; word <= 40; word++) {
+        await samples.card('mot $word', 'word $word', groupId: vocabulary);
+      }
+      await samples.distillations.activate(
+        vocabulary,
+        const DistillationSettings(cardsPerBatch: 2, everyDays: 7),
+      );
+    });
+    await pumpGolden(
+      tester,
+      const Scaffold(body: SafeArea(child: HomeScreen())),
+      overrides: screenOverrides(database, renderAt),
+    );
+    await tester.drag(find.byType(ListView), const Offset(0, -800));
+    await tester.pumpAndSettle();
+    expect(find.text('8 cartes'), findsOneWidget);
+    expect(find.text('30 cartes'), findsOneWidget);
+    await expectLater(
+      find.byType(HomeScreen),
+      matchesGoldenFile('goldens/home_coming.png'),
+    );
+  });
 }

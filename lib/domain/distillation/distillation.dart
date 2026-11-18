@@ -41,4 +41,16 @@ class Distillation {
     everyDays: everyDays,
     prioritizeReviews: prioritizeReviews,
   );
+
+  /// This distillation adjusted to [settings].
+  Distillation withSettings(DistillationSettings settings) => Distillation(
+    groupId: groupId,
+    cardsPerBatch: settings.cardsPerBatch,
+    everyDays: settings.everyDays,
+    prioritizeReviews: settings.prioritizeReviews,
+    pausedAt: pausedAt,
+    startedAt: startedAt,
+    lastBatchDay: lastBatchDay,
+    lastAdvancedDay: lastAdvancedDay,
+  );
 }

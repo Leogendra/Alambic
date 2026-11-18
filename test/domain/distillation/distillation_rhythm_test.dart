@@ -1,7 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:alambic/domain/cards/card_state.dart';
+import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/distillation/distillation.dart';
 import 'package:alambic/domain/distillation/distillation_rhythm.dart';
+import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
+
+import '../test_cards.dart';
 
 void main() {
   const rhythm = DistillationRhythm(SchedulingCalendar());
@@ -36,36 +41,19 @@ void main() {
 
   group('new cards of a batch', () {
     test('with "Prioritize reviews", each due card takes a place', () {
-      expect(rhythm.newCards(distillation(), dueCards: 0), 3);
-      expect(rhythm.newCards(distillation(), dueCards: 1), 2);
-      expect(rhythm.newCards(distillation(), dueCards: 5), 0);
+      const settings = DistillationSettings(cardsPerBatch: 3);
+      expect(rhythm.newCards(settings, dueCards: 0), 3);
+      expect(rhythm.newCards(settings, dueCards: 1), 2);
+      expect(rhythm.newCards(settings, dueCards: 5), 0);
     });
 
     test('without it, the N cards whatever is due', () {
-      final always = distillation(prioritizeReviews: false);
+      const always = DistillationSettings(
+        cardsPerBatch: 3,
+        prioritizeReviews: false,
+      );
       expect(rhythm.newCards(always, dueCards: 5), 3);
     });
-  });
-
-  test('the last arrival counts whole batches', () {
-    expect(
-      rhythm.lastArrival(
-        remaining: 7,
-        cardsPerBatch: 3,
-        everyDays: 2,
-        firstDay: DateTime(2026, 11, 10),
-      ),
-      DateTime(2026, 11, 14),
-    );
-    expect(
-      rhythm.lastArrival(
-        remaining: 0,
-        cardsPerBatch: 3,
-        everyDays: 2,
-        firstDay: DateTime(2026, 11, 10),
-      ),
-      isNull,
-    );
   });
 
   group('next introduction', () {
@@ -100,32 +88,104 @@ void main() {
     });
   });
 
-  test('arrivals follow the batches until the queue is empty', () {
-    expect(
-      rhythm.arrivals(
-        distillation(),
-        remaining: 7,
-        today: DateTime(2026, 11, 10),
-        dayCount: 7,
-      ),
-      {
+  group('forecast', () {
+    final now = DateTime(2026, 11, 10, 9);
+    final today = DateTime(2026, 11, 10);
+    final lastWeek = DateTime(2026, 11, 3, 12);
+    const settings = DistillationSettings(cardsPerBatch: 3, everyDays: 2);
+
+    List<Flashcard> queue(int count) => [
+      for (var id = 1; id <= count; id++)
+        testCard(id: id, state: CardState.pending, queuePosition: id),
+    ];
+
+    Flashcard review(int id, DateTime dueAt, {DateTime? lastReviewedAt}) =>
+        testCard(
+          id: id,
+          dueAt: dueAt,
+          lastReviewedAt: lastReviewedAt ?? lastWeek,
+        );
+
+    test('follows the batches until the queue is empty', () {
+      expect(rhythm.forecast(settings, queue(7), firstDay: today, now: now), {
         DateTime(2026, 11, 10): 3,
         DateTime(2026, 11, 12): 3,
         DateTime(2026, 11, 14): 1,
-      },
-    );
-  });
+      });
+    });
 
-  test('arrivals skip today once its pass ran', () {
-    final today = DateTime(2026, 11, 10);
-    expect(
-      rhythm.arrivals(
-        distillation(lastBatchDay: today, lastAdvancedDay: today),
-        remaining: 5,
-        today: today,
-        dayCount: 5,
-      ),
-      {DateTime(2026, 11, 12): 3, DateTime(2026, 11, 14): 2},
-    );
+    test('the reviews planned on a batch day take places, so the last '
+        'arrival slips', () {
+      final cards = [
+        ...queue(7),
+        review(11, DateTime(2026, 11, 12, 12)),
+        review(12, DateTime(2026, 11, 12, 18)),
+        review(13, DateTime(2026, 11, 13, 12)),
+      ];
+      expect(rhythm.forecast(settings, cards, firstDay: today, now: now), {
+        DateTime(2026, 11, 10): 3,
+        DateTime(2026, 11, 12): 1,
+        DateTime(2026, 11, 14): 3,
+      });
+      expect(
+        rhythm.forecast(
+          const DistillationSettings(
+            cardsPerBatch: 3,
+            everyDays: 2,
+            prioritizeReviews: false,
+          ),
+          cards,
+          firstDay: today,
+          now: now,
+        ),
+        {
+          DateTime(2026, 11, 10): 3,
+          DateTime(2026, 11, 12): 3,
+          DateTime(2026, 11, 14): 1,
+        },
+      );
+    });
+
+    test('today counts the cards due at the moment, late ones included', () {
+      final cards = [
+        ...queue(4),
+        review(11, DateTime(2026, 11, 8, 12)),
+        review(12, DateTime(2026, 11, 10, 12)),
+        review(
+          13,
+          DateTime(2026, 11, 10, 15),
+          lastReviewedAt: DateTime(2026, 11, 10, 8),
+        ),
+      ];
+      expect(rhythm.forecast(settings, cards, firstDay: today, now: now), {
+        DateTime(2026, 11, 10): 1,
+        DateTime(2026, 11, 12): 3,
+      });
+    });
+
+    test('a batch day taken by reviews brings nothing, and the next one '
+        'goes on', () {
+      final cards = [
+        ...queue(2),
+        for (var id = 11; id <= 13; id++)
+          review(id, DateTime(2026, 11, 10, 12)),
+      ];
+      expect(rhythm.forecast(settings, cards, firstDay: today, now: now), {
+        DateTime(2026, 11, 12): 2,
+      });
+    });
+
+    test('stops before the day given', () {
+      expect(
+        rhythm.forecast(
+          settings,
+          queue(30),
+          firstDay: today,
+          now: now,
+          until: DateTime(2026, 11, 14),
+        ),
+        {DateTime(2026, 11, 10): 3, DateTime(2026, 11, 12): 3},
+      );
+    });
   });
 }

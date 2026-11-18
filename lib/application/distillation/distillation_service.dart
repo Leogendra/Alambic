@@ -138,7 +138,7 @@ class DistillationService {
     if (batchCameOut) {
       final duePolicy = DuePolicy(_calendar);
       final count = _rhythm.newCards(
-        distillation,
+        distillation.settings,
         dueCards: cards
             .where((card) => duePolicy.isDueToday(card, now: now))
             .length,

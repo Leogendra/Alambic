@@ -14,38 +14,41 @@ class DistillationProgress {
 
   /// Counts the waiting cards of the group of [distillation] among
   /// [groupCards] and estimates the last arrival of its queue seen from
-  /// [today]; no arrival is planned while it or every distillation
+  /// [now]; no arrival is planned while it or every distillation
   /// ([globallyPaused]) is paused.
   factory DistillationProgress.of(
     Distillation distillation,
     List<Flashcard> groupCards,
     DistillationRhythm rhythm,
-    DateTime today, {
+    DateTime now, {
     required bool globallyPaused,
-  }) {
-    final remaining = DistillationQueue.remaining(groupCards);
-    return DistillationProgress(
-      distillation: distillation,
-      remaining: remaining,
-      lastArrival: !distillation.isPaused && !globallyPaused
-          ? rhythm.lastArrival(
-              remaining: remaining,
-              cardsPerBatch: distillation.cardsPerBatch,
-              everyDays: distillation.everyDays,
-              firstDay: rhythm.nextIntroductionDay(distillation, today),
-            )
-          : null,
-    );
-  }
+  }) => DistillationProgress(
+    distillation: distillation,
+    remaining: DistillationQueue.remaining(groupCards),
+    lastArrival: !distillation.isPaused && !globallyPaused
+        ? rhythm
+              .forecast(
+                distillation.settings,
+                groupCards,
+                firstDay: rhythm.nextIntroductionDay(
+                  distillation,
+                  rhythm.calendar.dayOf(now),
+                ),
+                now: now,
+              )
+              .keys
+              .lastOrNull
+        : null,
+  );
 
   final Distillation distillation;
 
   /// Cards still in the queue.
   final int remaining;
 
-  /// Day the last card of the queue should arrive if no reminder holds a
-  /// batch back; `null` while paused, during the global pause or when the
-  /// queue is empty.
+  /// Day the last card of the queue should arrive, the reviews already
+  /// planned taking their places; `null` while paused, during the global
+  /// pause or when the queue is empty.
   final DateTime? lastArrival;
 
   int get groupId => distillation.groupId;

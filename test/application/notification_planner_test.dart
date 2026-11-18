@@ -123,7 +123,10 @@ void main() {
     ];
     await harness
         .read(distillationServiceProvider)
-        .activate(groupId, const DistillationSettings(prioritizeReviews: false));
+        .activate(
+          groupId,
+          const DistillationSettings(prioritizeReviews: false),
+        );
     expect(scheduledMoments(), [
       DateTime(2026, 11, 10, 12),
       DateTime(2026, 11, 11, 4),
@@ -136,5 +139,38 @@ void main() {
     expect(second.dueAt, DateTime(2026, 11, 11, 12));
     expect(harness.presenter.prompts, isEmpty);
     expect(scheduledMoments(), contains(DateTime(2026, 11, 11, 12)));
+  });
+
+  test('a 4am wake-up missed with the phone off runs at restart: the batch '
+      'comes out and its cards are notified at once', () async {
+    final groupId = await SampleServices(
+      database,
+      harness.clock,
+    ).groups.create('Capitales');
+    final cards = harness.read(cardServiceProvider);
+    final cardIds = [
+      for (final country in ['Mongolie', 'Pérou'])
+        await cards.create(
+          CardDraft(frontText: country, backText: 'capitale', groupId: groupId),
+        ),
+    ];
+    await harness
+        .read(distillationServiceProvider)
+        .activate(
+          groupId,
+          const DistillationSettings(prioritizeReviews: false),
+        );
+    expect(scheduledMoments(), contains(DateTime(2026, 11, 11, 4)));
+
+    // Off from the evening to 15:00 the next day: the alarm restored at
+    // boot fires late.
+    harness.clock.now = DateTime(2026, 11, 11, 15);
+    await harness.read(notificationDispatcherProvider).dispatchDue();
+    final second = await CardRepository(database).getCard(cardIds[1]);
+    expect(second.dueAt, DateTime(2026, 11, 11, 12));
+    expect(
+      harness.presenter.prompts[ReviewNotificationKey(cardId: cardIds[1])],
+      isNotNull,
+    );
   });
 }

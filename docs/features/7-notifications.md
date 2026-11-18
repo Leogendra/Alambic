@@ -1,6 +1,6 @@
 # Feature 7 — Notifications
 
-Status: in progress (2026-11-17)
+Status: in progress (2026-11-18)
 
 ## Goal
 
@@ -60,11 +60,7 @@ The Garde-fous screen saves each change at once and plans the wake-ups again. Un
 
 ### Pauses
 
-A group is paused from its settings or its page, everything from Settings › Notifications or the pause button of Home. `PauseService` stores the start of the pause (`card_groups.paused_at`, `app_settings.paused_at`) and plans the wake-ups again.
-
-During a pause, the paused cards are no longer candidates for a notification, so no wake-up is planned for them, no grouped reminder counts them, Home's timeline announces no new card for their group and their "Review soon" reminders are dropped. The distillation of a paused group, and every distillation during the global pause, introduce nothing; on resume, the next daily pass introduces the batch due, without catching up the days missed. The cards stay reviewable in the app.
-
-On resume, `PauseShift`, in the domain, moves the due date of every scheduled card by the number of scheduling days the pause lasted, keeping its time: a card due on the 12th, in a pause from the 10th to the 14th, comes back on the 16th. A card answered during the pause keeps the due date chosen then, and a pause shorter than a day moves nothing. Resuming the global pause leaves alone the groups still paused on their own: their resume shifts them by their whole pause.
+A pause, of a distillation or global, only holds back new cards ([Feature 8](8-distillation.md#pause)): every introduced card keeps being notified, "Review soon" reminders included, and no due date moves. The global pause only removes the wake-ups planned for the distillations.
 
 ### Showing a card
 
@@ -125,7 +121,7 @@ What the reminder offers is set with the mode:
 
 Exact alarms need a permission that Android 14 refuses by default. Without it, wake-ups are scheduled as inexact alarms, which Android may deliver a few minutes late, and Settings shows a "Reminders at the exact time" panel with an "Allow" button opening the system page. Back in the app, the permission is read again and, when it changed, every wake-up is scheduled again with the new precision.
 
-Wake-ups survive a restart of the phone: the alarm plugin restores them at boot, and a wake-up whose moment passed while the phone was off fires right away, showing everything late. Every launch of the app also schedules all wake-ups again, since a force-stop loses them.
+Wake-ups survive a restart of the phone: the alarm plugin restores them at boot, and a wake-up whose moment passed while the phone was off fires right away, showing everything late. A missed 4am wake-up of a distillation fires the same way, so the day's batch comes out at restart ([Feature 8](8-distillation.md#rhythm)). Every launch of the app also schedules all wake-ups again, since a force-stop loses them.
 
 The notification permission of Android 13 and exact alarms are both asked on the second welcome screen ([Feature 10](10-onboarding.md)). A user who refused can still allow exact alarms from Settings, and notifications from the system settings of the app.
 
@@ -155,7 +151,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] Touching a notification opens a session: its card, or the due cards of its group, first, then every due card.
 - [x] The safeguards are set in Settings, with tomorrow's load shown against the cap.
 - [x] The schedule and the notification mode are set once in Settings and apply to every group; a new daily slot moves the due dates set at the old one.
-- [x] A paused group, or every card during the global pause, is not notified and its distillations wait; on resume, its due dates move by the length of the pause, except those of cards answered meanwhile.
+- [x] A pause, of a distillation or global, changes no notification and moves no due date.
 
 ## Test strategy
 
@@ -177,8 +173,6 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - `lib/notifications/android/` — Android implementations, wiring and background entry points.
 - `lib/features/settings/` — the exact alarm panel, the schedule, notification mode and safeguards screens.
 - `lib/data/repositories/notification_settings_repository.dart` — the schedule, the mode, the safeguards and the count of cards notified today.
-- `lib/domain/pauses/`, `lib/application/pauses/`, `lib/data/repositories/pause_repository.dart` — the pauses, their shift on resume, their service and storage.
-- `lib/features/pauses/paused_banner.dart` — "En pause depuis le …" with "Reprendre", on Home and on a group page.
 - `lib/app/shell/main_shell.dart` — opens the session of a touched notification.
 - `lib/main.dart` — initialisation and planning at launch.
 

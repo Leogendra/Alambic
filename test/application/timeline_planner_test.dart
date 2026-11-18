@@ -5,8 +5,6 @@ import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/distillation/distillation.dart';
 import 'package:alambic/domain/distillation/distillation_rhythm.dart';
-import 'package:alambic/domain/distillation/distillation_status.dart';
-import 'package:alambic/domain/pauses/pauses.dart';
 import 'package:alambic/domain/reviews/extra_reminder.dart';
 import 'package:alambic/domain/scheduling/due_policy.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
@@ -23,7 +21,7 @@ void main() {
   final lastWeek = DateTime(2026, 11, 3, 12);
 
   Distillation distillation({
-    DistillationStatus status = DistillationStatus.running,
+    DateTime? pausedAt,
     DateTime? lastBatchDay,
     DateTime? lastAdvancedDay,
   }) => Distillation(
@@ -31,7 +29,7 @@ void main() {
     cardsPerBatch: 1,
     everyDays: 2,
     prioritizeReviews: false,
-    status: status,
+    pausedAt: pausedAt,
     startedAt: DateTime(2026, 11, 1),
     lastBatchDay: lastBatchDay,
     lastAdvancedDay: lastAdvancedDay,
@@ -47,12 +45,12 @@ void main() {
     List<Flashcard> cards, {
     List<ExtraReminder> reminders = const [],
     List<Distillation> distillations = const [],
-    Pauses pauses = Pauses.none,
+    bool globallyPaused = false,
   }) => planner.build(
     cards: cards,
     reminders: reminders,
     distillations: distillations,
-    pauses: pauses,
+    globallyPaused: globallyPaused,
     now: now,
   );
 
@@ -120,11 +118,11 @@ void main() {
     expect(timeline.today.arrivals.single.count, 1);
   });
 
-  test('a paused distillation or group announces nothing', () {
+  test('a paused distillation, or the global pause, announces nothing', () {
     expect(
       build(
         [pending(1)],
-        distillations: [distillation(status: DistillationStatus.paused)],
+        distillations: [distillation(pausedAt: DateTime(2026, 11, 9))],
       ).days.single.isEmpty,
       isTrue,
     );
@@ -132,7 +130,7 @@ void main() {
       build(
         [pending(1)],
         distillations: [distillation()],
-        pauses: Pauses(groupsSince: {1: DateTime(2026, 11, 9)}),
+        globallyPaused: true,
       ).days.single.isEmpty,
       isTrue,
     );

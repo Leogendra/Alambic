@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_settings.dart';
-import '../../domain/distillation/distillation_status.dart';
 import '../database/alambic_database.dart';
 
 /// The distillations of the groups, one per group once activated.
@@ -23,7 +22,6 @@ class DistillationRepository {
           cardsPerBatch: settings.cardsPerBatch,
           everyDays: settings.everyDays,
           prioritizeReviews: settings.prioritizeReviews,
-          status: DistillationStatus.running,
           startedAt: startedAt,
         ),
       );
@@ -41,10 +39,12 @@ class DistillationRepository {
       _database.select(_database.distillations)
         ..orderBy([(row) => OrderingTerm.asc(row.groupId)]);
 
-  Future<void> setStatus(int groupId, DistillationStatus status) =>
+  /// Pauses the distillation of a group since [pausedAt], or resumes it
+  /// with `null`.
+  Future<void> setPausedAt(int groupId, DateTime? pausedAt) =>
       (_database.update(_database.distillations)
             ..where((row) => row.groupId.equals(groupId)))
-          .write(DistillationsCompanion(status: Value(status)));
+          .write(DistillationsCompanion(pausedAt: Value(pausedAt)));
 
   Future<void> saveSettings(int groupId, DistillationSettings settings) =>
       (_database.update(

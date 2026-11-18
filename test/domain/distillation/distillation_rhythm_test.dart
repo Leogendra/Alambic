@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/domain/distillation/distillation.dart';
 import 'package:alambic/domain/distillation/distillation_rhythm.dart';
-import 'package:alambic/domain/distillation/distillation_status.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 void main() {
@@ -18,7 +17,7 @@ void main() {
     cardsPerBatch: cardsPerBatch,
     everyDays: everyDays,
     prioritizeReviews: prioritizeReviews,
-    status: DistillationStatus.running,
+    pausedAt: null,
     startedAt: DateTime(2026, 11, 10, 9),
     lastBatchDay: lastBatchDay,
     lastAdvancedDay: lastAdvancedDay,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/formatting/preset_labels.dart';
 import '../../app/layout/scroll_padding.dart';
@@ -13,7 +12,6 @@ import '../../app/widgets/segmented_choice.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../app/widgets/text_input_dialog.dart';
 import '../../application/groups/group_providers.dart';
-import '../../application/pauses/pause_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../domain/groups/after_last_step.dart';
 import '../../domain/groups/card_group.dart';
@@ -22,7 +20,7 @@ import '../../domain/presets/preset_catalog.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../presets/preset_picker.dart';
 
-/// Name, preset, end of sequence, typed answer, back, pause and deletion of
+/// Name, preset, end of sequence, typed answer, back and deletion of
 /// a group.
 class GroupSettingsScreen extends ConsumerWidget {
   const GroupSettingsScreen({required this.groupId, super.key});
@@ -64,8 +62,6 @@ class GroupSettingsScreen extends ConsumerWidget {
                     _reverseRow(context, ref, group),
                   ],
                 ),
-                const SizedBox(height: 24),
-                SurfacePanel(children: [_pauseRow(context, ref, group)]),
                 const SizedBox(height: 24),
                 SurfacePanel(children: [_deleteRow(context, ref, group)]),
               ],
@@ -209,24 +205,6 @@ class GroupSettingsScreen extends ConsumerWidget {
         onChanged: (enabled) => ref
             .read(groupServiceProvider)
             .setReverseEnabled(group.id, enabled: enabled),
-      ),
-    );
-  }
-
-  Widget _pauseRow(BuildContext context, WidgetRef ref, CardGroup group) {
-    final strings = AppLocalizations.of(context);
-    final pausedAt = group.pausedAt;
-    return PanelRow(
-      title: strings.pauseGroup,
-      subtitle: pausedAt == null
-          ? strings.pauseGroupHint
-          : strings.pausedSince(strings.shortDate(pausedAt)),
-      trailing: Switch(
-        value: pausedAt != null,
-        onChanged: (paused) {
-          final service = ref.read(pauseServiceProvider);
-          paused ? service.pauseGroup(group.id) : service.resumeGroup(group.id);
-        },
       ),
     );
   }

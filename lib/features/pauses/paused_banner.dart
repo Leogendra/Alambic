@@ -6,7 +6,7 @@ import '../../app/widgets/surface_panel.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// "En pause depuis le 12 nov." with a "Reprendre" button, at the top of Home
-/// during the global pause and of a paused group's page.
+/// during the global pause.
 class PausedBanner extends StatelessWidget {
   const PausedBanner({required this.since, required this.onResume, super.key});
 

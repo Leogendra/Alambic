@@ -15,7 +15,6 @@ class CardGroup {
     required this.afterLastStep,
     required this.remanenceInterval,
     required this.typedAnswer,
-    this.pausedAt,
   });
 
   final int id;
@@ -38,11 +37,6 @@ class CardGroup {
   /// The cards whose answer face has text are answered by typing it, in a
   /// notification as in a session.
   final bool typedAnswer;
-
-  /// Start of the pause of the group, `null` when it is not paused.
-  final DateTime? pausedAt;
-
-  bool get isPaused => pausedAt != null;
 
   /// Whether [card], asking [askedSide], is answered by typing: with the
   /// typed answer option, unless its answer face has no text to compare

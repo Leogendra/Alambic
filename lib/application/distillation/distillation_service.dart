@@ -6,7 +6,6 @@ import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/distillation/distillation_settings.dart';
-import '../../domain/distillation/distillation_status.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/review_scheduler.dart';
@@ -14,12 +13,14 @@ import '../../domain/scheduling/scheduling_calendar.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
 
-/// Activates and adjusts the distillation of a group, and introduces its
-/// pending cards day after day.
+/// Activates, adjusts and pauses the distillation of a group, and introduces
+/// its pending cards day after day. Also holds the global pause, which holds
+/// back every distillation.
 ///
 /// The daily pass ([advance]) runs whenever the app or a wake-up starts, at
 /// most once per scheduling day and distillation: a new day is processed by
-/// the first pass that sees it.
+/// the first pass that sees it. A pause never touches the reminders: the
+/// cards already introduced keep their due dates and their notifications.
 class DistillationService {
   DistillationService({
     required this._distillations,
@@ -71,26 +72,42 @@ class DistillationService {
   /// No card leaves the queue until it resumes; the cards already introduced
   /// go on with their preset.
   Future<void> pause(int groupId) async {
-    await _distillations.setStatus(groupId, DistillationStatus.paused);
+    await _distillations.setPausedAt(groupId, _clock());
     await _scheduleChangeListener.onSchedulesChanged();
   }
 
-  /// Resumes a paused distillation; a day not processed yet is processed now.
+  /// Resumes a paused distillation: a day not processed yet is processed
+  /// now, with a single batch if the rhythm owes one.
   Future<void> resume(int groupId) async {
-    await _distillations.setStatus(groupId, DistillationStatus.running);
+    await _distillations.setPausedAt(groupId, null);
+    await _advanceAndReplan();
+  }
+
+  /// Holds back every distillation, leaving their own pause untouched.
+  Future<void> pauseAll() async {
+    if (await _pauses.loadGlobalPause() == null) {
+      await _pauses.setGlobalPausedAt(_clock());
+      await _scheduleChangeListener.onSchedulesChanged();
+    }
+  }
+
+  /// Ends the global pause; a distillation paused on its own stays paused.
+  Future<void> resumeAll() async {
+    await _pauses.setGlobalPausedAt(null);
     await _advanceAndReplan();
   }
 
   /// Runs the pass of the current day for every running distillation that
   /// has not had it yet: at most one batch comes out, when the rhythm owes
-  /// one. A distillation whose group is paused, or any during the global
-  /// pause, waits for the end of the pause.
+  /// one. Nothing runs during the global pause.
   /// Returns whether a schedule moved.
   Future<bool> advance() async {
+    if (await _pauses.loadGlobalPause() != null) {
+      return false;
+    }
     var changed = false;
-    final pauses = await _pauses.loadPauses();
     for (final distillation in await _distillations.getAll()) {
-      if (distillation.isRunning && !pauses.covers(distillation.groupId)) {
+      if (!distillation.isPaused) {
         changed = await _advanceOne(distillation.groupId) || changed;
       }
     }
@@ -108,7 +125,7 @@ class DistillationService {
     final distillation = (await _distillations.find(groupId))!;
     final now = _clock();
     final today = _calendar.dayOf(now);
-    if (!distillation.isRunning || distillation.lastAdvancedDay == today) {
+    if (distillation.isPaused || distillation.lastAdvancedDay == today) {
       return false;
     }
     final cards = await _cards.getCardsOfGroup(groupId);

@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
-import 'package:alambic/data/repositories/pause_repository.dart';
 import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/groups/after_last_step.dart';
@@ -85,11 +84,15 @@ void main() {
     );
   });
 
-  testWidgets('groups tab with a paused group', (tester) async {
+  testWidgets('groups tab with a paused distillation', (tester) async {
     await seed(tester);
-    await tester.runAsync(
-      () => PauseRepository(database).setGroupPausedAt(capitalsId, sampleNow),
-    );
+    await tester.runAsync(() async {
+      await samples.distillations.activate(
+        capitalsId,
+        const DistillationSettings(),
+      );
+      await samples.distillations.pause(capitalsId);
+    });
     await pumpGolden(
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),

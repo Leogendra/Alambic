@@ -116,8 +116,7 @@ void main() {
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
-    await tester.ensureVisible(find.text('Régler'));
-    await tester.tap(find.text('Régler'));
+    await tester.tap(find.byTooltip('Régler la distillation'));
     await tester.pumpAndSettle();
     expect(find.text('Régler la distillation'), findsOneWidget);
     expect(find.text('1'), findsOneWidget, reason: 'one card per batch');
@@ -142,5 +141,74 @@ void main() {
     );
     expect(distillation!.everyDays, 2);
     expect(find.text('1 carte tous les 2 jours'), findsOne);
+  });
+
+  /// Pauses the distillation of Japonais, at 9am on the sample day.
+  Future<void> pause(WidgetTester tester) => tester.runAsync(
+    () => SampleServices(
+      database,
+      FixedClock(sampleNow),
+    ).distillations.pause(japaneseId),
+  );
+
+  testWidgets('paused distillation on the group page', (tester) async {
+    await seed(tester);
+    await pause(tester);
+    await pumpGolden(
+      tester,
+      GroupDetailScreen(groupId: japaneseId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    expect(find.text('En pause depuis le 10 nov.'), findsOne);
+    expect(find.text('aucune arrivée prévue'), findsOne);
+    await expectLater(
+      find.byType(GroupDetailScreen),
+      matchesGoldenFile('goldens/group_distillation_paused.png'),
+    );
+  });
+
+  testWidgets('a paused distillation resumes from its screen, at once', (
+    tester,
+  ) async {
+    await seed(tester);
+    await pause(tester);
+    await pumpGolden(
+      tester,
+      DistillScreen(
+        groupId: japaneseId,
+        currentSettings: const DistillationSettings(),
+      ),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    expect(
+      find.text(
+        'En pause depuis le 10 novembre : aucune nouvelle carte ne sort, '
+        'les rappels continuent.',
+      ),
+      findsOne,
+    );
+    await expectLater(
+      find.byType(DistillScreen),
+      matchesGoldenFile('goldens/distill_adjust_paused.png'),
+    );
+    await tester.ensureVisible(find.text('Reprendre'));
+    await tester.tap(find.text('Reprendre'));
+    // The resume runs on the database, then the screen follows it.
+    for (
+      var wait = 0;
+      wait < 100 && find.text('Mettre en pause').evaluate().isEmpty;
+      wait++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump();
+    }
+    expect(find.text('Mettre en pause'), findsOne);
+    expect(find.byType(DistillScreen), findsOne);
+    final distillation = await tester.runAsync(
+      () => DistillationRepository(database).find(japaneseId),
+    );
+    expect(distillation!.pausedAt, isNull);
   });
 }

@@ -6,7 +6,8 @@ import '../../application/groups/group_summary.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// A row of the groups tab: name, number of cards, "distillation" once it
-/// is activated, and the due badge, or the pause of a paused group.
+/// is activated or "Paused" while it is paused, and the due badge, or a
+/// pause icon when a paused group has nothing due.
 class GroupSummaryTile extends StatelessWidget {
   const GroupSummaryTile({
     required this.summary,
@@ -23,7 +24,7 @@ class GroupSummaryTile extends StatelessWidget {
     final colors = AlambicColors.of(context);
     final cards = strings.cardCount(summary.cardCount);
     final group = summary.group;
-    final paused = group.isPaused;
+    final paused = summary.isDistillationPaused;
     return InkWell(
       onTap: onTap,
       child: ConstrainedBox(
@@ -60,10 +61,10 @@ class GroupSummaryTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (paused)
-                Icon(Icons.pause, color: colors.textSecondary)
-              else if (summary.dueCount > 0)
-                CountBadge(summary.dueCount),
+              if (summary.dueCount > 0)
+                CountBadge(summary.dueCount)
+              else if (paused)
+                Icon(Icons.pause, color: colors.textSecondary),
             ],
           ),
         ),

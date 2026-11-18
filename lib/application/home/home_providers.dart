@@ -5,7 +5,6 @@ import '../../domain/reviews/extra_reminder.dart';
 import '../cards/card_providers.dart';
 import '../clock.dart';
 import '../distillation/distillation_providers.dart';
-import '../pauses/pause_providers.dart';
 import '../scheduling/scheduling_providers.dart';
 import '../time/minute_ticker.dart';
 import 'home_timeline.dart';
@@ -29,12 +28,12 @@ final homeTimelineProvider = Provider<HomeTimeline?>((ref) {
   final cards = ref.watch(allCardsProvider).value;
   final reminders = ref.watch(upcomingExtraRemindersProvider).value;
   final distillations = ref.watch(distillationsProvider).value;
-  final pauses = ref.watch(pausesProvider).value;
+  final globalPause = ref.watch(globalPauseProvider);
   final now = ref.watch(currentMomentProvider).value;
   if (cards == null ||
       reminders == null ||
       distillations == null ||
-      pauses == null ||
+      !globalPause.hasValue ||
       now == null) {
     return null;
   } else {
@@ -46,7 +45,7 @@ final homeTimelineProvider = Provider<HomeTimeline?>((ref) {
       cards: cards,
       reminders: reminders,
       distillations: distillations,
-      pauses: pauses,
+      globallyPaused: globalPause.value != null,
       now: now,
     );
   }

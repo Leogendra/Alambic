@@ -591,15 +591,13 @@
       }
     }
   },
-  "pausedHint": "Aucune notif. À la reprise, les échéances sont décalées d'autant.",
+  "pausedHint": "Aucune nouvelle carte de distillation. Les rappels continuent.",
   "pauseResume": "Reprendre",
-  "pauseGroup": "Pause",
-  "pauseGroupHint": "Aucune notif du groupe ; à la reprise, ses échéances sont décalées d'autant",
   "pauseGlobal": "Pause globale",
-  "pauseGlobalHint": "Suspend tout, décale les échéances",
-  "pauseAllTooltip": "Tout mettre en pause",
-  "pauseAllConfirmTitle": "Tout mettre en pause ?",
-  "pauseAllConfirmBody": "Plus aucune notif ni nouvelle carte de distillation. Les cartes restent révisables dans l'app. À la reprise, les échéances sont décalées de la durée de la pause.",
+  "pauseGlobalHint": "Arrête les distillations, pas les rappels",
+  "pauseAllTooltip": "Mettre en pause les distillations",
+  "pauseAllConfirmTitle": "Mettre en pause les distillations ?",
+  "pauseAllConfirmBody": "Aucun groupe ne reçoit de nouvelle carte jusqu'à la reprise. Les rappels et leurs notifs continuent.",
   "pauseAllConfirm": "Mettre en pause",
   "groupLinePaused": "{cards} · En pause",
   "@groupLinePaused": {
@@ -758,11 +756,18 @@
   "groupDistillationSection": "Distillation",
   "groupDistillationNone": "Distiller fait arriver les cartes en attente au compte-gouttes, à ton rythme.",
   "groupDistillWaiting": "Ses cartes attendent. Distille le groupe pour les recevoir.",
-  "distillationRunning": "En cours",
-  "distillationPaused": "En pause",
-  "distillationPause": "Mettre la distillation en pause",
-  "distillationResume": "Reprendre la distillation",
-  "distillationAdjust": "Régler",
+  "distillPause": "Mettre en pause",
+  "distillPauseHint": "En pause, aucune nouvelle carte ne sort ; les rappels continuent.",
+  "distillPausedHint": "En pause depuis le {date} : aucune nouvelle carte ne sort, les rappels continuent.",
+  "@distillPausedHint": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "distillPausedTag": "en pause",
+  "distillationNoArrival": "aucune arrivée prévue",
   "distillationWaiting": "{count, plural, =0{Aucune carte en attente} =1{1 carte en attente} other{{count} cartes en attente}}",
   "@distillationWaiting": {
     "placeholders": {

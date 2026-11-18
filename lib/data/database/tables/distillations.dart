@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 
 import '../../../domain/distillation/distillation.dart';
-import '../../../domain/distillation/distillation_status.dart';
 import 'card_groups.dart';
 
 /// One row per group whose distillation was activated.
@@ -13,7 +12,7 @@ class Distillations extends Table {
   IntColumn get cardsPerBatch => integer()();
   IntColumn get everyDays => integer()();
   BoolColumn get prioritizeReviews => boolean()();
-  TextColumn get status => textEnum<DistillationStatus>()();
+  DateTimeColumn get pausedAt => dateTime().nullable()();
   DateTimeColumn get startedAt => dateTime()();
   DateTimeColumn get lastBatchDay => dateTime().nullable()();
   DateTimeColumn get lastAdvancedDay => dateTime().nullable()();

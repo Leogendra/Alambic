@@ -3,7 +3,6 @@ import 'dart:math';
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
-import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/asked_side_draw.dart';
 import '../../domain/cards/flashcard.dart';
@@ -28,7 +27,6 @@ class GroupedReminders {
     required this._groups,
     required this._presets,
     required this._settings,
-    required this._pauses,
     required this._presenter,
     required this._deliveryPlanner,
     required this._clock,
@@ -39,7 +37,6 @@ class GroupedReminders {
   final GroupRepository _groups;
   final PresetRepository _presets;
   final NotificationSettingsRepository _settings;
-  final PauseRepository _pauses;
   final NotificationPresenter _presenter;
   final DeliveryPlanner _deliveryPlanner;
   final Clock _clock;
@@ -113,7 +110,7 @@ class GroupedReminders {
     final cards = await _cards.getCardsOfGroup(key.groupId);
     final catalog = await _presets.loadCatalog();
     final deliveries = _deliveryPlanner.plan(
-      deliveryCandidates(cards, catalog, await _pauses.loadPauses()),
+      deliveryCandidates(cards, catalog),
       now: now,
       reminders: reminderSettings,
       guards: await _settings.loadGuards(),

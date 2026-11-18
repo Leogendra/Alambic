@@ -16,7 +16,7 @@ Each face needs a text, an image, or both. Text is stored without leading and tr
 
 ### Images
 
-Each face takes one image at most. "Image", next to the face label, opens the phone gallery; the picture is scaled down to 1600 px on its longest side. The editor shows a thumbnail with a button to remove it. Nothing is stored before "Create" or "Save": the card service then copies the picked picture into the image store, a folder of the app next to the database, and the card keeps the file name only.
+Each face takes one image at most. "Image", next to the face label, opens the phone gallery; the picture is scaled down to 1600 px on its longest side and compressed at quality 85, so that it stays light in storage, in notifications and in an export. The editor shows a thumbnail with a button to remove it. Nothing is stored before "Create" or "Save": the card service then copies the picked picture into the image store, a folder of the app next to the database, and the card keeps the file name only.
 
 An image replaced or removed, the images of a deleted card, and those of the cards of a deleted group leave the store with them.
 

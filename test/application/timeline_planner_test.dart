@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/home/home_timeline.dart';
+import 'package:alambic/application/home/timeline_card.dart';
 import 'package:alambic/application/home/timeline_planner.dart';
 import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/cards/flashcard.dart';
@@ -21,6 +22,7 @@ void main() {
   final lastWeek = DateTime(2026, 11, 3, 12);
 
   Distillation distillation({
+    bool prioritizeReviews = false,
     DateTime? pausedAt,
     DateTime? lastBatchDay,
     DateTime? lastAdvancedDay,
@@ -28,7 +30,7 @@ void main() {
     groupId: 1,
     cardsPerBatch: 1,
     everyDays: 2,
-    prioritizeReviews: false,
+    prioritizeReviews: prioritizeReviews,
     pausedAt: pausedAt,
     startedAt: DateTime(2026, 11, 1),
     lastBatchDay: lastBatchDay,
@@ -134,6 +136,89 @@ void main() {
       ).days.single.isEmpty,
       isTrue,
     );
+  });
+
+  test('the reviews planned on a batch day take the places of new '
+      'cards', () {
+    final timeline = build(
+      [answered(1, DateTime(2026, 11, 12, 12)), pending(2), pending(3)],
+      distillations: [
+        distillation(
+          prioritizeReviews: true,
+          lastBatchDay: DateTime(2026, 11, 10),
+          lastAdvancedDay: DateTime(2026, 11, 10),
+        ),
+      ],
+    );
+    expect(
+      timeline.days.map(
+        (day) => (day.day, day.cards.length, day.arrivals.firstOrNull?.count),
+      ),
+      [
+        (DateTime(2026, 11, 10), 0, null),
+        (DateTime(2026, 11, 12), 1, null),
+        (DateTime(2026, 11, 14), 0, 1),
+        (DateTime(2026, 11, 16), 0, 1),
+      ],
+    );
+  });
+
+  test('each reminder gives the time left: hours today, rounded up, days '
+      'afterwards, nothing once its moment has passed', () {
+    final timeline = build(
+      [
+        answered(1, DateTime(2026, 11, 10, 12)),
+        answered(2, DateTime(2026, 11, 10, 9, 20)),
+        answered(3, DateTime(2026, 11, 10, 8)),
+        answered(4, DateTime(2026, 11, 8, 12)),
+        answered(5, DateTime(2026, 11, 12, 12)),
+      ],
+      reminders: [
+        ExtraReminder(
+          id: 1,
+          cardId: 5,
+          remindAt: DateTime(2026, 11, 10, 18),
+          notifiedAt: null,
+        ),
+      ],
+    );
+    expect(
+      {
+        for (final entry in timeline.today.cards)
+          (entry.card.id, entry.isExtraReminder): entry.delay,
+      },
+      {
+        (4, false): null,
+        (3, false): null,
+        (2, false): const TimelineDelay.hours(1),
+        (1, false): const TimelineDelay.hours(3),
+        (5, true): const TimelineDelay.hours(9),
+      },
+    );
+    expect(timeline.days[1].cards.single.delay, const TimelineDelay.days(2));
+  });
+
+  test('the coming month and year count the reminders and the new cards '
+      'expected', () {
+    final timeline = build(
+      [
+        answered(1, DateTime(2026, 11, 16, 12)),
+        answered(2, DateTime(2026, 11, 17, 12)),
+        answered(3, DateTime(2026, 12, 9, 12)),
+        answered(4, DateTime(2026, 12, 10, 12)),
+        answered(5, DateTime(2027, 11, 10, 12)),
+        for (var id = 11; id <= 30; id++) pending(id),
+      ],
+      distillations: [
+        distillation(
+          lastBatchDay: DateTime(2026, 11, 10),
+          lastAdvancedDay: DateTime(2026, 11, 10),
+        ),
+      ],
+    );
+    expect(timeline.days.last.day, DateTime(2026, 11, 16));
+    expect(timeline.comingMonth, 2 + 11);
+    expect(timeline.comingYear, 1 + 6);
   });
 
   test('a "Review soon" reminder falls on its day', () {

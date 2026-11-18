@@ -52,10 +52,33 @@ void main() {
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(find.text('6 cartes · dernière arrivée le 15 novembre'), findsOne);
+    expect(
+      find.text('6 cartes · dernière arrivée vers le 15 novembre'),
+      findsOne,
+    );
     await expectLater(
       find.byType(DistillScreen),
       matchesGoldenFile('goldens/distill_activate.png'),
+    );
+  });
+
+  testWidgets('during the global pause, the waiting cards instead of an '
+      'estimate', (tester) async {
+    await seed(tester, activate: false);
+    await tester.runAsync(
+      () => SampleServices(
+        database,
+        FixedClock(sampleNow),
+      ).distillations.pauseAll(),
+    );
+    await pumpGolden(
+      tester,
+      DistillScreen(groupId: japaneseId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    expect(
+      find.text('6 cartes en attente · en pause', findRichText: true),
+      findsOne,
     );
   });
 
@@ -96,7 +119,10 @@ void main() {
     );
     await tester.tap(find.byTooltip('Plus de cartes'));
     await tester.pumpAndSettle();
-    expect(find.text('6 cartes · dernière arrivée le 12 novembre'), findsOne);
+    expect(
+      find.text('6 cartes · dernière arrivée vers le 12 novembre'),
+      findsOne,
+    );
     await tester.tap(find.text('Activer la distillation'));
     await tester.pumpAndSettle();
     final distillations = await tester.runAsync(

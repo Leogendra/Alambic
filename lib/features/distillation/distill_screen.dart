@@ -15,6 +15,8 @@ import '../../application/distillation/distillation_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/notifications/guard_providers.dart';
 import '../../application/time/minute_ticker.dart';
+import '../../domain/cards/flashcard.dart';
+import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -52,13 +54,10 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     final summary = ref.watch(groupSummaryProvider(widget.groupId));
     final reminders = ref.watch(reminderSettingsProvider).value;
     final cards = ref.watch(groupCardsProvider(widget.groupId)).value ?? [];
-    final remaining = DistillationQueue.remaining(cards);
-    final pausedAt = widget.isAdjusting
-        ? ref
-              .watch(groupDistillationProvider(widget.groupId))
-              ?.distillation
-              .pausedAt
+    final distillation = widget.isAdjusting
+        ? ref.watch(groupDistillationProvider(widget.groupId))?.distillation
         : null;
+    final pausedAt = distillation?.pausedAt;
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -107,7 +106,7 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
             _pauseButton(strings, colors, pausedAt),
           ],
           const SizedBox(height: 24),
-          _footer(strings, colors, remaining, pausedAt),
+          _footer(strings, colors, cards, distillation),
         ],
       ),
     );
@@ -184,22 +183,19 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     );
   }
 
+  /// The estimate of the last arrival with the settings picked, or the
+  /// waiting cards while paused on its own or globally.
   Widget _footer(
     AppLocalizations strings,
     AlambicColors colors,
-    int remaining,
-    DateTime? pausedAt,
+    List<Flashcard> cards,
+    Distillation? distillation,
   ) {
-    final now = ref.watch(currentMomentProvider).value;
-    final rhythm = ref.watch(distillationRhythmProvider);
-    final lastArrival = now == null
-        ? null
-        : rhythm.lastArrival(
-            remaining: remaining,
-            cardsPerBatch: _settings.cardsPerBatch,
-            everyDays: _settings.everyDays,
-            firstDay: rhythm.calendar.dayOf(now),
-          );
+    final remaining = DistillationQueue.remaining(cards);
+    final paused =
+        (distillation?.isPaused ?? false) ||
+        ref.watch(globalPauseProvider).value != null;
+    final lastArrival = paused ? null : _lastArrival(cards, distillation);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 12,
@@ -210,7 +206,7 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
             Icon(Icons.water_drop_outlined, size: 18, color: colors.accent),
             Expanded(
               child: Text.rich(
-                pausedAt != null
+                paused
                     ? TextSpan(
                         children: [
                           TextSpan(
@@ -244,6 +240,31 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
         ),
       ],
     );
+  }
+
+  /// The first batch comes out today on activation; once adjusted, X days
+  /// (the new X) after the last one.
+  DateTime? _lastArrival(List<Flashcard> cards, Distillation? distillation) {
+    final now = ref.watch(currentMomentProvider).value;
+    if (now == null) {
+      return null;
+    }
+    final rhythm = ref.watch(distillationRhythmProvider);
+    final today = rhythm.calendar.dayOf(now);
+    return rhythm
+        .forecast(
+          _settings,
+          cards,
+          firstDay: distillation == null
+              ? today
+              : rhythm.nextIntroductionDay(
+                  distillation.withSettings(_settings),
+                  today,
+                ),
+          now: now,
+        )
+        .keys
+        .lastOrNull;
   }
 
   Future<void> _save() async {

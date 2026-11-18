@@ -52,14 +52,13 @@ final distillationProgressesProvider = Provider<List<DistillationProgress>>((
     return const [];
   }
   final rhythm = ref.watch(distillationRhythmProvider);
-  final today = rhythm.calendar.dayOf(now);
   return [
     for (final distillation in distillations)
       DistillationProgress.of(
         distillation,
         cards.where((card) => card.groupId == distillation.groupId).toList(),
         rhythm,
-        today,
+        now,
         globallyPaused: globalPause.value != null,
       ),
   ];

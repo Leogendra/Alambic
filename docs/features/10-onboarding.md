@@ -12,7 +12,7 @@ On the first launch, explain the app in a sentence, get the permissions without 
 
 The three screens follow each other with a "Next" button at the bottom, under a row of dots that shows where the user is. At the top, "Back" returns to the previous screen (the system back does too), and "Skip" ends the onboarding from any screen, as on the last one. Each screen puts its illustration first, then its title and its text, centred in the height:
 
-1. **The principle**: "One piece of knowledge a day", and how the app works in a sentence.
+1. **The principle**: "Remember everything without thinking about it.", under "One card, multiple reminders": a line of dots for the start of a card and its reminders after 1 day, 2 days, 1 week and 1 month, not to scale, and "Each correct answer spaces out the next reminder."
 2. **Reminders**: one row to allow notifications (the Android 13 permission), one row to allow exact alarms (a system settings page, read again when the app comes back to the front), and the reminder time, 12:00 by default. A row shows "Allowed" once its permission is given. Both can be refused: the app still works, with Settings offering exact alarms again ([Feature 7](7-notifications.md#exact-alarms-restarts-and-permissions)). A time other than 12:00 becomes the fixed time of the app's [schedule](../lexicon.md#schedule).
 3. **A group to start with** (*Un groupe pour commencer*): the [sample group](#sample-group), with its number of cards and its first card ("A → Alpha").
 

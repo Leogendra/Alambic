@@ -178,7 +178,7 @@ void main() {
     expect(find.text('Tes rappels'), findsOneWidget);
 
     await tapAndSettle(tester, find.byTooltip('Retour'));
-    expect(find.text('Une connaissance par jour'), findsOneWidget);
+    expect(find.text('Retiens tout sans y penser.'), findsOneWidget);
     expect(find.byTooltip('Retour'), findsNothing);
   });
 

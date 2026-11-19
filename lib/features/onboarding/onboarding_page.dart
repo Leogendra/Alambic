@@ -102,7 +102,7 @@ class _PageDots extends StatelessWidget {
             width: index == current ? 24 : 8,
             height: 8,
             decoration: BoxDecoration(
-              color: index == current ? colors.accent : colors.well,
+              color: index == current ? colors.accent : colors.border,
               borderRadius: BorderRadius.circular(4),
             ),
           ),

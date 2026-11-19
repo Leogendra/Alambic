@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/alambic_colors.dart';
-import '../../app/widgets/panel_row.dart';
-import '../../app/widgets/surface_panel.dart';
 import '../../application/notifications/guard_providers.dart';
 import '../../application/notifications/notification_providers.dart';
 import '../../domain/notifications/reminder_settings.dart';
@@ -11,11 +9,14 @@ import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'onboarding_page.dart';
 
-/// Second screen: the right to post notifications, exact alarms, and the time
-/// of the reminders, written into the schedule of the app.
+/// Second screen: a card notification as it arrives, the time of the
+/// reminders, and the button asking for the right to post notifications,
+/// then for exact alarms.
 ///
-/// Exact alarms are allowed from a system settings page; the permission is
-/// read again when the app comes back to the front.
+/// Exact alarms are allowed from a system settings page, opened only while
+/// they are refused; the screen moves on without waiting for the user to
+/// come back from it. A time picked is written at once into the schedule of
+/// the app, so that "Skip" keeps it.
 class PermissionsPage extends ConsumerStatefulWidget {
   const PermissionsPage({required this.onNext, super.key});
 
@@ -26,87 +27,112 @@ class PermissionsPage extends ConsumerStatefulWidget {
 }
 
 class _PermissionsPageState extends ConsumerState<PermissionsPage> {
-  late final AppLifecycleListener _lifecycle;
-  bool _notificationsAllowed = false;
   ClockTime _time = ReminderSettings.defaults.fixedTime;
-
-  @override
-  void initState() {
-    super.initState();
-    _lifecycle = AppLifecycleListener(
-      onResume: () => ref.invalidate(exactAlarmsAllowedProvider),
-    );
-  }
-
-  @override
-  void dispose() {
-    _lifecycle.dispose();
-    super.dispose();
-  }
-
-  Future<void> _allowNotifications() async {
-    final allowed = await ref
-        .read(notificationPresenterProvider)
-        .requestPermission();
-    if (mounted) {
-      setState(() => _notificationsAllowed = allowed);
-    }
-  }
+  bool _isAsking = false;
 
   Future<void> _pickTime() async {
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay(hour: _time.hour, minute: _time.minute),
     );
-    if (picked != null) {
-      setState(() => _time = ClockTime(picked.hour, picked.minute));
+    if (picked == null) {
+      return;
     }
+    final time = ClockTime(picked.hour, picked.minute);
+    setState(() => _time = time);
+    await ref.read(notificationSettingsServiceProvider).setFixedTime(time);
   }
 
-  Future<void> _continue() async {
-    // A fresh database is already at the default time.
-    if (_time != ReminderSettings.defaults.fixedTime) {
-      await ref.read(notificationSettingsServiceProvider).setFixedTime(_time);
+  Future<void> _allow() async {
+    setState(() => _isAsking = true);
+    await ref.read(notificationPresenterProvider).requestPermission();
+    final alarms = ref.read(alarmSchedulerProvider);
+    if (!await alarms.canScheduleExact()) {
+      await alarms.requestExactPermission();
     }
-    widget.onNext();
+    if (mounted) {
+      widget.onNext();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final exactAllowed = ref.watch(exactAlarmsAllowedProvider).value ?? false;
     return OnboardingPage(
       step: 1,
       title: strings.onboardingPermissionsTitle,
       body: strings.onboardingPermissionsBody,
       action: FilledButton(
-        onPressed: _continue,
-        child: Text(strings.onboardingNext),
+        onPressed: _isAsking ? null : _allow,
+        child: Text(strings.onboardingAllowNotifications),
       ),
-      child: SurfacePanel(
+      illustration: const _NotificationPreview(),
+      child: _TimeRow(time: _time, onTap: _pickTime),
+    );
+  }
+}
+
+/// A card notification: the app and the group, the question, and the
+/// buttons that answer it.
+class _NotificationPreview extends StatelessWidget {
+  const _NotificationPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    final colors = AlambicColors.of(context);
+    final actionStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w700,
+      color: colors.accentText,
+    );
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: colors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10,
         children: [
-          PanelRow(
-            title: strings.onboardingNotifications,
-            subtitle: strings.onboardingNotificationsHint,
-            trailing: _PermissionButton(
-              allowed: _notificationsAllowed,
-              onPressed: _allowNotifications,
-            ),
+          Row(
+            spacing: 8,
+            children: [
+              Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: colors.accent,
+                ),
+                child: Center(
+                  child: CustomPaint(
+                    size: const Size.square(14),
+                    painter: _DropsPainter(colors.onAccent),
+                  ),
+                ),
+              ),
+              Text(
+                strings.onboardingNotificationSource,
+                style: TextStyle(fontSize: 12, color: colors.textSecondary),
+              ),
+            ],
           ),
-          PanelRow(
-            title: strings.onboardingExactAlarms,
-            subtitle: strings.onboardingExactAlarmsHint,
-            trailing: _PermissionButton(
-              allowed: exactAllowed,
-              onPressed: () =>
-                  ref.read(alarmSchedulerProvider).requestExactPermission(),
-            ),
+          Text(
+            strings.onboardingNotificationQuestion,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
           ),
-          PanelRow(
-            title: strings.onboardingTime,
-            subtitle: strings.onboardingTimeHint,
-            value: '$_time',
-            onTap: _pickTime,
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              spacing: 20,
+              children: [
+                Text(strings.reviewCorrect, style: actionStyle),
+                Text(strings.reviewAgain, style: actionStyle),
+              ],
+            ),
           ),
         ],
       ),
@@ -114,33 +140,97 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
   }
 }
 
-/// "Allow", or "Allowed" once the permission is given.
-class _PermissionButton extends StatelessWidget {
-  const _PermissionButton({required this.allowed, required this.onPressed});
+/// The mark of the app: four drops on a line, growing and darkening.
+class _DropsPainter extends CustomPainter {
+  const _DropsPainter(this.color);
 
-  final bool allowed;
-  final VoidCallback onPressed;
+  final Color color;
+
+  /// Centre, radius and opacity of each drop, on a 84 unit square.
+  static const _drops = [
+    (6.75, 4.5, 0.2),
+    (19.75, 6.5, 0.4),
+    (39.75, 9.0, 0.7),
+    (69.75, 12.0, 1.0),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final scale = size.width / 84;
+    for (final (x, radius, opacity) in _drops) {
+      canvas.drawCircle(
+        Offset(x * scale, size.height / 2),
+        radius * scale,
+        Paint()..color = color.withValues(alpha: opacity),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DropsPainter oldDelegate) => oldDelegate.color != color;
+}
+
+/// The time of the reminders, which opens a time picker.
+class _TimeRow extends StatelessWidget {
+  const _TimeRow({required this.time, required this.onTap});
+
+  final ClockTime time;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    if (allowed) {
-      return Text(
-        strings.onboardingAllowed,
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-          color: AlambicColors.of(context).textSecondary,
+    final colors = AlambicColors.of(context);
+    return Material(
+      color: colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colors.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            spacing: 14,
+            children: [
+              Icon(Icons.schedule, size: 22, color: colors.textTertiary),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strings.onboardingTime,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      strings.onboardingTimeHint,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                '$time',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: colors.accentText,
+                ),
+              ),
+            ],
+          ),
         ),
-      );
-    } else {
-      return FilledButton.tonal(
-        // The theme stretches buttons to the full width; this one sits at the
-        // end of a row.
-        style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
-        onPressed: onPressed,
-        child: Text(strings.onboardingAllow),
-      );
-    }
+      ),
+    );
   }
 }

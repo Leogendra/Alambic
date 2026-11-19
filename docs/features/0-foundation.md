@@ -8,7 +8,7 @@ Infrastructure with no functional requirement of its own: the Flutter project `f
 
 ## Implementation overview
 
-The app starts on `AlambicApp`, which applies the theme and the language chosen in Settings (see [Language and theme](#language-and-theme)). The root screen is a shell with three tabs (Home, Groups, Settings) and a floating "+" button that creates a card.
+The app starts on `AlambicApp`, which applies the theme and the language chosen in Settings (see [Language and theme](#language-and-theme)). The root screen is a shell with three tabs (Home, Groups, Settings) and a floating "+" button that creates a card. Its tab bar is drawn by the app (`AlambicTabBar`) rather than by Material's `NavigationBar`, whose theme cannot mark the active tab with a bar: the active tab is in accent under a 3 px bar across its top.
 
 The DM Sans font is bundled as static weights (400, 500, 600, 700) rather than as a variable font. Flutter does not apply the weight axis of a variable font by itself, whereas it picks the right static file from `fontWeight`.
 
@@ -93,7 +93,7 @@ When the database is created, the Standard and Intensive presets are inserted an
 
 ## File mapping
 
-- `lib/app/` — app shell, theme, and the language rule (`app_locale.dart`).
+- `lib/app/` — app shell and its tab bar (`shell/`), theme, and the language rule (`app_locale.dart`).
 - `lib/app/widgets/` — the shared components, among them the segmented control, the choice tile and the settings row.
 - `lib/app/layout/` — the margins that keep content clear of the system bars.
 - `lib/features/settings/display_panel.dart` — the Display section of Settings.

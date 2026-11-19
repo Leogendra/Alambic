@@ -41,7 +41,6 @@ abstract final class AlambicTheme {
     return base.copyWith(
       textTheme: _textTheme(base.textTheme, colors),
       appBarTheme: _appBarTheme(brightness, colors),
-      navigationBarTheme: _navigationBarTheme(colors),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: colors.accent,
         foregroundColor: colors.onAccent,
@@ -157,33 +156,6 @@ abstract final class AlambicTheme {
       color: colors.textPrimary,
     ),
   );
-
-  static NavigationBarThemeData _navigationBarTheme(AlambicColors colors) =>
-      NavigationBarThemeData(
-        backgroundColor: colors.surface,
-        indicatorColor: colors.accentTint,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: WidgetStateProperty.resolveWith(
-          (states) => IconThemeData(
-            color: states.contains(WidgetState.selected)
-                ? colors.accentText
-                : colors.textSecondary,
-          ),
-        ),
-        labelTextStyle: WidgetStateProperty.resolveWith(
-          (states) => TextStyle(
-            fontFamily: fontFamily,
-            fontSize: 12,
-            fontWeight: states.contains(WidgetState.selected)
-                ? FontWeight.w700
-                : FontWeight.w500,
-            color: states.contains(WidgetState.selected)
-                ? colors.textPrimary
-                : colors.textSecondary,
-          ),
-        ),
-      );
 
   static FilledButtonThemeData _filledButtonTheme(AlambicColors colors) =>
       FilledButtonThemeData(

@@ -76,11 +76,13 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
     final strings = AppLocalizations.of(context);
     final exactAllowed = ref.watch(exactAlarmsAllowedProvider).value ?? false;
     return OnboardingPage(
+      step: 1,
       title: strings.onboardingPermissionsTitle,
       body: strings.onboardingPermissionsBody,
-      actions: [
-        FilledButton(onPressed: _continue, child: Text(strings.onboardingNext)),
-      ],
+      action: FilledButton(
+        onPressed: _continue,
+        child: Text(strings.onboardingNext),
+      ),
       child: SurfacePanel(
         children: [
           PanelRow(

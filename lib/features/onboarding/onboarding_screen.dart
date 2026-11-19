@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/alambic_colors.dart';
+import '../../app/theme/alambic_theme.dart';
 import '../../application/onboarding/onboarding_providers.dart';
 import '../../application/preferences/interface_settings_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -11,8 +12,8 @@ import 'welcome_page.dart';
 
 /// The three welcome screens of the first launch: the principle, the
 /// notification permissions with the reminder time, and the sample group.
-/// Going through them, or skipping the last one, creates the sample group,
-/// named in the language of the app, and opens the app for good. The
+/// Going through them, or skipping them from any screen, creates the sample
+/// group, named in the language of the app, and opens the app for good. The
 /// onboarding being shown once, so is the group created.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -29,6 +30,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   void _next() => setState(() => _page++);
 
+  void _back() => setState(() => _page--);
+
   /// Creates the sample group, to be opened by the tabs when [openGroup].
   Future<void> _finish({required bool openGroup}) async {
     setState(() => _isFinishing = true);
@@ -42,55 +45,80 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    body: SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _PageDots(current: _page),
-          Expanded(
-            child: switch (_page) {
-              0 => WelcomePage(onNext: _next),
-              1 => PermissionsPage(onNext: _next),
-              _ => SampleGroupPage(
-                onStart: _isFinishing ? null : () => _finish(openGroup: true),
-                onSkip: _isFinishing ? null : () => _finish(openGroup: false),
-              ),
-            },
-          ),
-        ],
+  Widget build(BuildContext context) => PopScope(
+    // The system back goes to the previous screen, and leaves the app from
+    // the first one.
+    canPop: _page == 0,
+    onPopInvokedWithResult: (didPop, _) {
+      if (!didPop) {
+        _back();
+      }
+    },
+    child: Scaffold(
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _TopBar(
+              onBack: _page == 0 ? null : _back,
+              onSkip: _isFinishing ? null : () => _finish(openGroup: false),
+            ),
+            Expanded(
+              child: switch (_page) {
+                0 => WelcomePage(onNext: _next),
+                1 => PermissionsPage(onNext: _next),
+                _ => SampleGroupPage(
+                  onStart: _isFinishing ? null : () => _finish(openGroup: true),
+                ),
+              },
+            ),
+          ],
+        ),
       ),
     ),
   );
 }
 
-class _PageDots extends StatelessWidget {
-  const _PageDots({required this.current});
+/// "Back" to the previous screen, absent on the first one, and "Skip".
+class _TopBar extends StatelessWidget {
+  const _TopBar({required this.onBack, required this.onSkip});
 
-  final int current;
+  final VoidCallback? onBack;
+  final VoidCallback? onSkip;
 
   @override
   Widget build(BuildContext context) {
     final colors = AlambicColors.of(context);
     return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 6,
-        children: [
-          for (var index = 0; index < OnboardingScreen.pageCount; index++)
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: index == current ? 22 : 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: index == current
-                    ? colors.accent
-                    : colors.textSecondary.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(4),
+      padding: const EdgeInsets.fromLTRB(14, 24, 12, 0),
+      child: SizedBox(
+        height: 44,
+        child: Row(
+          children: [
+            if (onBack != null)
+              IconButton(
+                onPressed: onBack,
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                color: colors.textTertiary,
+                icon: const Icon(Icons.chevron_left),
               ),
+            const Spacer(),
+            TextButton(
+              onPressed: onSkip,
+              style: TextButton.styleFrom(
+                foregroundColor: colors.textSecondary,
+                minimumSize: const Size(0, 44),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                textStyle: const TextStyle(
+                  fontFamily: AlambicTheme.fontFamily,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              child: Text(AppLocalizations.of(context).onboardingSkip),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

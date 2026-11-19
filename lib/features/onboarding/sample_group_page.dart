@@ -8,30 +8,26 @@ import '../../l10n/generated/app_localizations.dart';
 import 'onboarding_page.dart';
 
 /// Third screen: the sample group the app creates when the onboarding ends,
-/// with its number of cards and its first card. "Start" then opens its page,
-/// "Skip" the tabs.
+/// with its number of cards and its first card. "Next" then opens its page;
+/// "Skip", at the top of the screen, the tabs.
 class SampleGroupPage extends ConsumerWidget {
-  const SampleGroupPage({
-    required this.onStart,
-    required this.onSkip,
-    super.key,
-  });
+  const SampleGroupPage({required this.onStart, super.key});
 
   final VoidCallback? onStart;
-  final VoidCallback? onSkip;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final cards = ref.watch(sampleCardsProvider).value;
     return OnboardingPage(
+      step: 2,
       title: strings.onboardingSampleTitle,
       body: strings.onboardingSampleBody,
-      actions: [
-        FilledButton(onPressed: onStart, child: Text(strings.onboardingStart)),
-        TextButton(onPressed: onSkip, child: Text(strings.onboardingSkip)),
-      ],
-      child: cards == null || cards.isEmpty
+      action: FilledButton(
+        onPressed: onStart,
+        child: Text(strings.onboardingNext),
+      ),
+      illustration: cards == null || cards.isEmpty
           ? null
           : _SampleGroupTile(name: strings.sampleGroupName, cards: cards),
     );

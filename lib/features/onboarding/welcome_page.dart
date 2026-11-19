@@ -13,18 +13,17 @@ class WelcomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     return OnboardingPage(
+      step: 0,
       title: strings.onboardingWelcomeTitle,
       body: strings.onboardingWelcomeBody,
-      actions: [
-        FilledButton(onPressed: onNext, child: Text(strings.onboardingStart)),
-      ],
-      child: Padding(
-        padding: const EdgeInsets.only(top: 32),
-        child: Icon(
-          Icons.water_drop_outlined,
-          size: 96,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+      action: FilledButton(
+        onPressed: onNext,
+        child: Text(strings.onboardingNext),
+      ),
+      illustration: Icon(
+        Icons.water_drop_outlined,
+        size: 96,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }

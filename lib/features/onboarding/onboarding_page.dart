@@ -1,63 +1,112 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/alambic_colors.dart';
+import 'onboarding_screen.dart';
 
-/// Layout shared by the welcome screens: a title, a short text, the content
-/// of the screen, and its buttons at the bottom.
+/// Layout shared by the welcome screens: an illustration, a title, a short
+/// text and the content of the screen, centred in the height, then the
+/// position of the screen and its button at the bottom.
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({
+    required this.step,
     required this.title,
     required this.body,
-    required this.actions,
+    required this.action,
+    this.illustration,
     this.child,
     super.key,
   });
 
+  /// Position of the screen among the welcome screens, from 0.
+  final int step;
   final String title;
   final String body;
+  final Widget? illustration;
   final Widget? child;
-  final List<Widget> actions;
+  final Widget action;
 
   @override
   Widget build(BuildContext context) {
     final colors = AlambicColors.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: ListView(
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                    height: 1.15,
+            child: LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 32,
+                    children: [
+                      ?illustration,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 12,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w700,
+                              height: 1.1,
+                              letterSpacing: -0.68,
+                            ),
+                          ),
+                          Text(
+                            body,
+                            style: TextStyle(
+                              fontSize: 17,
+                              height: 1.45,
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ?child,
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  body,
-                  style: TextStyle(
-                    fontSize: 16,
-                    height: 1.45,
-                    color: colors.textSecondary,
-                  ),
-                ),
-                if (child != null) ...[const SizedBox(height: 28), child!],
-              ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 8,
-            children: actions,
-          ),
+          _PageDots(current: step),
+          const SizedBox(height: 24),
+          action,
         ],
       ),
+    );
+  }
+}
+
+class _PageDots extends StatelessWidget {
+  const _PageDots({required this.current});
+
+  final int current;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AlambicColors.of(context);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 8,
+      children: [
+        for (var index = 0; index < OnboardingScreen.pageCount; index++)
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: index == current ? 24 : 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: index == current ? colors.accent : colors.well,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+      ],
     );
   }
 }

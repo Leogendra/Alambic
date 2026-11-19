@@ -83,8 +83,8 @@ void main() {
   });
 
   Future<void> reachSampleGroup(WidgetTester tester) async {
-    await tapAndSettle(tester, find.text('Commencer'));
-    await tapAndSettle(tester, find.text('Continuer'));
+    await tapAndSettle(tester, find.text('Suivant'));
+    await tapAndSettle(tester, find.text('Suivant'));
     // The sample cards are read from the assets.
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
@@ -114,13 +114,13 @@ void main() {
   testWidgets('going through the three screens asks the permissions, creates '
       'the sample group, then opens it', (tester) async {
     await pumpApp(tester);
-    await tapAndSettle(tester, find.text('Commencer'));
+    await tapAndSettle(tester, find.text('Suivant'));
 
     await tapAndSettle(tester, find.text('Autoriser').first);
     expect(presenter.notificationPermissionRequests, 1);
     await tapAndSettle(tester, find.text('Autoriser'));
     expect(alarms.permissionRequests, 1);
-    await tapAndSettle(tester, find.text('Continuer'));
+    await tapAndSettle(tester, find.text('Suivant'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
@@ -128,7 +128,7 @@ void main() {
 
     expect(find.text('Alphabet OTAN'), findsOneWidget);
     expect(find.text('26 cartes'), findsOneWidget);
-    await finishWith(tester, 'Commencer');
+    await finishWith(tester, 'Suivant');
 
     expect(await groupNames(tester), ['Alphabet OTAN']);
     final cards = await tester.runAsync(
@@ -157,12 +157,37 @@ void main() {
     expect(find.byType(GroupDetailScreen), findsNothing);
   });
 
+  testWidgets('"Skip" on the first screen ends the onboarding as well', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await finishWith(tester, 'Passer');
+
+    expect(await groupNames(tester), ['Alphabet OTAN']);
+    expect(store.saved.onboardingDone, isTrue);
+    expect(presenter.notificationPermissionRequests, 0);
+    expect(find.byType(MainShell), findsOneWidget);
+  });
+
+  testWidgets('"Back" returns to the previous screen, absent on the first', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    expect(find.byTooltip('Retour'), findsNothing);
+    await tapAndSettle(tester, find.text('Suivant'));
+    expect(find.text('Tes rappels'), findsOneWidget);
+
+    await tapAndSettle(tester, find.byTooltip('Retour'));
+    expect(find.text('Une connaissance par jour'), findsOneWidget);
+    expect(find.byTooltip('Retour'), findsNothing);
+  });
+
   testWidgets('in English, the sample group is the NATO alphabet', (
     tester,
   ) async {
     await pumpApp(tester, locale: const Locale('en'));
-    await tapAndSettle(tester, find.text('Get started'));
-    await tapAndSettle(tester, find.text('Continue'));
+    await tapAndSettle(tester, find.text('Next'));
+    await tapAndSettle(tester, find.text('Next'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
@@ -198,12 +223,12 @@ void main() {
       find.byType(OnboardingScreen),
       matchesGoldenFile('goldens/onboarding_welcome.png'),
     );
-    await tapAndSettle(tester, find.text('Commencer'));
+    await tapAndSettle(tester, find.text('Suivant'));
     await expectLater(
       find.byType(OnboardingScreen),
       matchesGoldenFile('goldens/onboarding_permissions.png'),
     );
-    await tapAndSettle(tester, find.text('Continuer'));
+    await tapAndSettle(tester, find.text('Suivant'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
@@ -221,7 +246,7 @@ void main() {
       locale: const Locale('en'),
       overrides: overrides(),
     );
-    await tapAndSettle(tester, find.text('Get started'));
+    await tapAndSettle(tester, find.text('Next'));
     await expectLater(
       find.byType(OnboardingScreen),
       matchesGoldenFile('goldens/onboarding_permissions_english.png'),

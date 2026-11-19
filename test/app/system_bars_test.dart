@@ -342,10 +342,10 @@ void main() {
 
     testWidgets('the three onboarding screens', (tester) async {
       await checkScreen(tester, const OnboardingScreen());
-      await tester.tap(find.text('Commencer'));
+      await tester.tap(find.text('Suivant'));
       await tester.pumpAndSettle();
       await expectClearOfSystemBars(tester);
-      await tapAndSettle(tester, find.text('Continuer'));
+      await tapAndSettle(tester, find.text('Autoriser les notifications'));
       await expectClearOfSystemBars(tester);
     });
   });

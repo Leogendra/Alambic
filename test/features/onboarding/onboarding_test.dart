@@ -84,7 +84,7 @@ void main() {
 
   Future<void> reachSampleGroup(WidgetTester tester) async {
     await tapAndSettle(tester, find.text('Suivant'));
-    await tapAndSettle(tester, find.text('Suivant'));
+    await tapAndSettle(tester, find.text('Autoriser les notifications'));
     // The sample cards are read from the assets.
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
@@ -116,11 +116,9 @@ void main() {
     await pumpApp(tester);
     await tapAndSettle(tester, find.text('Suivant'));
 
-    await tapAndSettle(tester, find.text('Autoriser').first);
+    await tapAndSettle(tester, find.text('Autoriser les notifications'));
     expect(presenter.notificationPermissionRequests, 1);
-    await tapAndSettle(tester, find.text('Autoriser'));
     expect(alarms.permissionRequests, 1);
-    await tapAndSettle(tester, find.text('Suivant'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
@@ -169,13 +167,26 @@ void main() {
     expect(find.byType(MainShell), findsOneWidget);
   });
 
+  testWidgets('exact alarms already allowed, the system page is not opened', (
+    tester,
+  ) async {
+    alarms.exactAllowed = true;
+    await pumpApp(tester);
+    await tapAndSettle(tester, find.text('Suivant'));
+    await tapAndSettle(tester, find.text('Autoriser les notifications'));
+
+    expect(presenter.notificationPermissionRequests, 1);
+    expect(alarms.permissionRequests, 0);
+    expect(find.text('Un groupe pour commencer'), findsOneWidget);
+  });
+
   testWidgets('"Back" returns to the previous screen, absent on the first', (
     tester,
   ) async {
     await pumpApp(tester);
     expect(find.byTooltip('Retour'), findsNothing);
     await tapAndSettle(tester, find.text('Suivant'));
-    expect(find.text('Tes rappels'), findsOneWidget);
+    expect(find.text('Tu révises depuis la notification.'), findsOneWidget);
 
     await tapAndSettle(tester, find.byTooltip('Retour'));
     expect(find.text('Retiens tout sans y penser.'), findsOneWidget);
@@ -187,7 +198,7 @@ void main() {
   ) async {
     await pumpApp(tester, locale: const Locale('en'));
     await tapAndSettle(tester, find.text('Next'));
-    await tapAndSettle(tester, find.text('Next'));
+    await tapAndSettle(tester, find.text('Allow notifications'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
@@ -228,7 +239,7 @@ void main() {
       find.byType(OnboardingScreen),
       matchesGoldenFile('goldens/onboarding_permissions.png'),
     );
-    await tapAndSettle(tester, find.text('Suivant'));
+    await tapAndSettle(tester, find.text('Autoriser les notifications'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );

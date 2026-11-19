@@ -4,7 +4,8 @@ publish_to: 'none'
 version: 0.2.0+2
 
 environment:
-  sdk: ^3.13.7
+  sdk: ^3.14.0
+  flutter: ">=3.50.0"
 
 dependencies:
   android_alarm_manager_plus: 5.1.2

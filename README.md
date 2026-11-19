@@ -2,6 +2,8 @@
 
 A notification-first spaced repetition app for Android: distilate your knowledge by introducing new cards a few at the time. Most reviews happen straight from the notification.
 
+> **Alpha:** under active development. Features may change or break, and data may be reset between versions.
+
 ## Installation
 
 Requirements: 

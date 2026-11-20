@@ -22,14 +22,14 @@ void main() {
   tearDown(() => database.close());
 
   /// Sample data answered in part at 12:05, a "Review soon" reminder at 18:00
-  /// and a "Japonais" group distilling one card a day.
+  /// and a "Japanese" group distilling one card a day.
   Future<void> seed(WidgetTester tester) async {
     await tester.runAsync(() async {
       final samples = SampleServices(database, FixedClock(sampleNow));
       final capitals = await seedSampleData(samples);
-      final japanese = await samples.groups.create('Japonais');
-      await samples.card('猫', 'chat', groupId: japanese);
-      await samples.card('犬', 'chien', groupId: japanese);
+      final japanese = await samples.groups.create('Japanese');
+      await samples.card('猫', 'cat', groupId: japanese);
+      await samples.card('犬', 'dog', groupId: japanese);
       await samples.distillations.activate(
         japanese,
         const DistillationSettings(),
@@ -59,11 +59,10 @@ void main() {
         const Scaffold(body: SafeArea(child: HomeScreen())),
         brightness: brightness,
         overrides: screenOverrides(database, renderAt),
-        locale: const Locale('fr'),
       );
-      expect(find.text('Japonais : 1 nouvelle carte'), findsNWidgets(2));
-      expect(find.text('Capitals : 2 nouvelles cartes'), findsOneWidget);
-      expect(find.text('DEMAIN'), findsOneWidget);
+      expect(find.text('Japanese: 1 new card'), findsNWidgets(2));
+      expect(find.text('Capitals: 2 new cards'), findsOneWidget);
+      expect(find.text('TOMORROW'), findsOneWidget);
       await expectLater(
         find.byType(HomeScreen),
         matchesGoldenFile('goldens/home_${brightness.name}.png'),
@@ -71,18 +70,18 @@ void main() {
     });
   }
 
-  testWidgets('home in English', (tester) async {
+  testWidgets('home in French', (tester) async {
     await seed(tester);
     await pumpGolden(
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
-      locale: const Locale('en'),
+      locale: const Locale('fr'),
       overrides: screenOverrides(database, renderAt),
     );
-    expect(find.text('TOMORROW'), findsOneWidget);
+    expect(find.text('DEMAIN'), findsOneWidget);
     await expectLater(
       find.byType(HomeScreen),
-      matchesGoldenFile('goldens/home_english.png'),
+      matchesGoldenFile('goldens/home_french.png'),
     );
   });
 
@@ -95,9 +94,8 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, renderAt),
-      locale: const Locale('fr'),
     );
-    expect(find.text('Reprendre'), findsOneWidget);
+    expect(find.text('Resume'), findsOneWidget);
     await expectLater(
       find.byType(HomeScreen),
       matchesGoldenFile('goldens/home_paused.png'),
@@ -110,9 +108,9 @@ void main() {
     await seed(tester);
     await tester.runAsync(() async {
       final samples = SampleServices(database, FixedClock(sampleNow));
-      final vocabulary = await samples.groups.create('Vocabulaire');
+      final vocabulary = await samples.groups.create('Vocabulary');
       for (var word = 1; word <= 40; word++) {
-        await samples.card('mot $word', 'word $word', groupId: vocabulary);
+        await samples.card('word $word', 'meaning $word', groupId: vocabulary);
       }
       await samples.distillations.activate(
         vocabulary,
@@ -123,12 +121,11 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, renderAt),
-      locale: const Locale('fr'),
     );
     await tester.drag(find.byType(ListView), const Offset(0, -800));
     await tester.pumpAndSettle();
-    expect(find.text('8 cartes'), findsOneWidget);
-    expect(find.text('30 cartes'), findsOneWidget);
+    expect(find.text('8 cards'), findsOneWidget);
+    expect(find.text('30 cards'), findsOneWidget);
     await expectLater(
       find.byType(HomeScreen),
       matchesGoldenFile('goldens/home_coming.png'),

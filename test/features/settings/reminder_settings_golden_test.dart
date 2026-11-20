@@ -32,14 +32,13 @@ void main() {
       const ReminderScheduleScreen(),
       brightness: Brightness.dark,
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
     await expectLater(
       find.byType(ReminderScheduleScreen),
       matchesGoldenFile('goldens/schedule_fixed_dark.png'),
     );
     await tester.runAsync(() async {
-      await tester.tap(find.text('Plage'));
+      await tester.tap(find.text(l10n.scheduleRange));
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
     await tester.pumpAndSettle();
@@ -66,10 +65,9 @@ void main() {
       tester,
       const ReminderScheduleScreen(),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
     Future<void> pickEnd(String hour) async {
-      await tester.tap(find.text('Fin'));
+      await tester.tap(find.text(l10n.scheduleRangeEnd));
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.keyboard_outlined));
       await tester.pumpAndSettle();
@@ -86,7 +84,7 @@ void main() {
     // the range sits in the morning.
     await pickEnd('8');
     expect(
-      find.text('La fin de la plage ne peut pas précéder son début.'),
+      find.text('The end of the range cannot come before its start.'),
       findsOneWidget,
     );
     expect((await stored(tester))!.rangeEnd, const ClockTime(10, 0));
@@ -103,16 +101,18 @@ void main() {
       const NotificationModeScreen(),
       brightness: Brightness.dark,
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    expect(find.text('Au tap sur le rappel'.toUpperCase()), findsNothing);
+    expect(
+      find.text('When the reminder is tapped'.toUpperCase()),
+      findsNothing,
+    );
     await tester.runAsync(() async {
-      await tester.tap(find.text('Rappel groupé'));
+      await tester.tap(find.text(l10n.notificationModeGrouped));
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
     await tester.pumpAndSettle();
     await tester.runAsync(() async {
-      await tester.tap(find.text('Enchaîner'));
+      await tester.tap(find.text(l10n.notificationModeChain));
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
     await tester.pumpAndSettle();

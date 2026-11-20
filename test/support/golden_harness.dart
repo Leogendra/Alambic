@@ -12,13 +12,16 @@ import 'package:alambic/l10n/generated/app_localizations.dart';
 /// Phone-sized surface matching the mockup artboards (390 x 844).
 const Size phoneSize = Size(390, 844);
 
+/// The English texts, the language of the screens under test by default.
+final AppLocalizations l10n = lookupAppLocalizations(const Locale('en'));
+
 /// Pumps [screen] inside the app theme and the localizations of [locale]
-/// (French by default), at phone size.
+/// (English by default), at phone size.
 Future<void> pumpGolden(
   WidgetTester tester,
   Widget screen, {
   Brightness brightness = Brightness.light,
-  Locale locale = const Locale('fr'),
+  Locale locale = const Locale('en'),
   List<Override> overrides = const [],
 }) async {
   tester.view.physicalSize = phoneSize;

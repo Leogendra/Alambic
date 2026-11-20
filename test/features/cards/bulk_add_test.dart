@@ -15,10 +15,10 @@ import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 
 const String pastedLines =
-    'Capitale du Chili ; Santiago\n'
-    'Capitale du Kenya ; Nairobi\n'
-    'Capitale du Maroc Rabat\n'
-    'Capitale du Vietnam ; Hanoï';
+    'Capital of Chile ; Santiago\n'
+    'Capital of Kenya ; Nairobi\n'
+    'Capital of Morocco Rabat\n'
+    'Capital of Vietnam ; Hanoi';
 
 void main() {
   late AlambicDatabase database;
@@ -36,9 +36,9 @@ void main() {
   }) async {
     await tester.runAsync(() async {
       final services = SampleServices(database, FixedClock(sampleNow));
-      groupId = await services.groups.create('Capitales');
+      groupId = await services.groups.create('Capitals');
       for (var index = 0; index < waiting; index++) {
-        await services.card('Capitale du Pérou', 'Lima', groupId: groupId);
+        await services.card('Capital of Peru', 'Lima', groupId: groupId);
       }
     });
     await pumpGolden(
@@ -67,10 +67,10 @@ void main() {
     tester,
   ) async {
     await pumpBulkAdd(tester, waiting: 2);
-    expect(find.text('3 cartes prêtes'.toUpperCase()), findsOneWidget);
-    expect(find.text('Ligne 3 ignorée : pas de « ; »'), findsOneWidget);
-    expect(find.text('Capitale du Chili → Santiago'), findsOneWidget);
-    expect(find.text('après les 2 cartes déjà en attente'), findsOneWidget);
+    expect(find.text('3 cards ready'.toUpperCase()), findsOneWidget);
+    expect(find.text('Line 3 skipped: no ";"'), findsOneWidget);
+    expect(find.text('Capital of Chile → Santiago'), findsOneWidget);
+    expect(find.text('after the 2 cards already waiting'), findsOneWidget);
     await expectLater(
       find.byType(BulkAddScreen),
       matchesGoldenFile('goldens/bulk_add.png'),
@@ -81,15 +81,15 @@ void main() {
     await pumpBulkAdd(tester);
     await tester.enterText(find.byType(TextField).first, ',');
     await tester.pumpAndSettle();
-    expect(find.text('Aucune carte prête'.toUpperCase()), findsOneWidget);
-    expect(find.text('EN PREMIER'), findsNothing);
+    expect(find.text('No card ready'.toUpperCase()), findsOneWidget);
+    expect(find.text(l10n.bulkFirst.toUpperCase()), findsNothing);
   });
 
   testWidgets('adds the valid lines at the end of the queue, in order', (
     tester,
   ) async {
     await pumpBulkAdd(tester, waiting: 1);
-    await tester.tap(find.text('Ajouter 3 cartes'));
+    await tester.tap(find.text(l10n.bulkAddButton(3)));
     await tester.pumpAndSettle();
     final cards = await tester.runAsync(
       () => CardRepository(database).getCardsOfGroup(groupId),
@@ -97,7 +97,7 @@ void main() {
     expect(cards!.map((card) => card.isPending), everyElement(isTrue));
     expect(
       [for (final card in cards..sort(byQueue)) card.backText],
-      ['Lima', 'Santiago', 'Nairobi', 'Hanoï'],
+      ['Lima', 'Santiago', 'Nairobi', 'Hanoi'],
     );
   });
 
@@ -106,22 +106,22 @@ void main() {
   ) async {
     const seed = 4;
     final draws = Random(seed);
-    final backs = ['Santiago', 'Nairobi', 'Hanoï'];
+    final backs = ['Santiago', 'Nairobi', 'Hanoi'];
     final fronts = {
-      'Santiago': 'Capitale du Chili',
-      'Nairobi': 'Capitale du Kenya',
-      'Hanoï': 'Capitale du Vietnam',
+      'Santiago': 'Capital of Chile',
+      'Nairobi': 'Capital of Kenya',
+      'Hanoi': 'Capital of Vietnam',
     };
     await pumpBulkAdd(tester, seed: seed);
-    await tester.tap(find.text('Mélanger'));
+    await tester.tap(find.text(l10n.bulkOrderShuffled));
     await tester.pumpAndSettle();
     final first = BulkOrder.shuffled(draws.nextInt(1 << 32)).apply(backs);
     expect(find.text('${fronts[first.first]} → ${first.first}'), findsOne);
-    await tester.tap(find.text('Mélanger'));
+    await tester.tap(find.text(l10n.bulkOrderShuffled));
     await tester.pumpAndSettle();
     final second = BulkOrder.shuffled(draws.nextInt(1 << 32)).apply(backs);
     expect(find.text('${fronts[second.first]} → ${second.first}'), findsOne);
-    await tester.tap(find.text('Ajouter 3 cartes'));
+    await tester.tap(find.text(l10n.bulkAddButton(3)));
     await tester.pumpAndSettle();
     expect(await storedBacks(tester), second);
   });

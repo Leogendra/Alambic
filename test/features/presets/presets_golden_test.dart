@@ -27,6 +27,7 @@ void main() {
         const PresetsScreen(),
         brightness: brightness,
         overrides: [databaseProvider.overrideWithValue(database)],
+        locale: const Locale('fr'),
       );
       expect(find.text('Par défaut'), findsNWidgets(2));
       expect(find.text("En cas d'échec : recule d'un cran"), findsNWidgets(2));
@@ -42,6 +43,7 @@ void main() {
       tester,
       const PresetsScreen(),
       overrides: [databaseProvider.overrideWithValue(database)],
+      locale: const Locale('fr'),
     );
     await tester.tap(find.widgetWithText(OutlinedButton, 'Par défaut'));
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
@@ -57,6 +59,7 @@ void main() {
       tester,
       const PresetsScreen(),
       overrides: [databaseProvider.overrideWithValue(database)],
+      locale: const Locale('fr'),
     );
     await tester.tap(find.byTooltip('Actions du preset Intensif'));
     await tester.pumpAndSettle();
@@ -93,6 +96,7 @@ void main() {
       tester,
       const PresetsScreen(),
       overrides: [databaseProvider.overrideWithValue(database)],
+      locale: const Locale('fr'),
     );
     await tester.tap(find.byTooltip('Actions du preset Standard'));
     await tester.pumpAndSettle();
@@ -139,6 +143,7 @@ void main() {
         PresetEditorScreen(initialPreset: standard!),
         brightness: brightness,
         overrides: [databaseProvider.overrideWithValue(database)],
+        locale: const Locale('fr'),
       );
       await expectLater(
         find.byType(PresetEditorScreen),
@@ -157,6 +162,7 @@ void main() {
       tester,
       PresetEditorScreen(initialPreset: standard!),
       overrides: [databaseProvider.overrideWithValue(database)],
+      locale: const Locale('fr'),
     );
     expect(
       find.text('Une carte ratée revient au cran précédent.'),

@@ -59,10 +59,10 @@ void main() {
         FixedClock(sampleNow),
         images: images,
       );
-      final flags = await services.groups.create('Drapeaux');
+      final flags = await services.groups.create('Flags');
       final cardId = await services.cards.create(
         CardDraft(
-          frontText: 'Quel pays a ce drapeau ?',
+          frontText: 'Which country has this flag?',
           backText: 'Peru',
           frontImage: const PickedImage('test/support/fixtures/flag.png'),
           groupId: flags,
@@ -87,7 +87,7 @@ void main() {
   });
 
   Future<void> answer(WidgetTester tester, String button) async {
-    await tester.tap(find.text('Afficher la réponse'));
+    await tester.tap(find.text(l10n.sessionShowAnswer));
     await tester.pumpAndSettle();
     await tester.runAsync(() async {
       await tester.tap(find.text(button));
@@ -112,14 +112,14 @@ void main() {
         tester.getRect(prompt),
         tester.widget<Text>(prompt).style,
       );
-      await tester.tap(find.text('Afficher la réponse'));
+      await tester.tap(find.text(l10n.sessionShowAnswer));
       await tester.pumpAndSettle();
       expect(find.text('Ulaanbaatar'), findsOneWidget);
       expect((
         tester.getRect(prompt),
         tester.widget<Text>(prompt).style,
       ), before);
-      expect(find.text('demain'), findsNWidgets(2));
+      expect(find.text('tomorrow'), findsNWidgets(2));
       await expectLater(
         find.byType(SessionScreen),
         matchesGoldenFile('goldens/session_back$suffix.png'),
@@ -159,16 +159,16 @@ void main() {
       );
       await pumpSession(tester);
       final card = tester.getRect(find.byType(SessionCardView));
-      expect(find.text('Toucher pour retourner'), findsNothing);
+      expect(find.text('Tap to flip'), findsNothing);
       expect(find.text('Ulaanbaatar'), findsNothing);
-      await tester.tap(find.text('Afficher la réponse'));
+      await tester.tap(find.text(l10n.sessionShowAnswer));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
       expect(answerOpacity(tester), inExclusiveRange(0, 1));
-      expect(find.text('Afficher la réponse'), findsOneWidget);
+      expect(find.text(l10n.sessionShowAnswer), findsOneWidget);
       await tester.pumpAndSettle();
       expect(answerOpacity(tester), 1);
-      expect(find.text('Afficher la réponse'), findsNothing);
+      expect(find.text(l10n.sessionShowAnswer), findsNothing);
       expect(tester.getRect(find.byType(SessionCardView)), card);
       expect(haptics, ['HapticFeedbackType.lightImpact']);
     });
@@ -182,10 +182,10 @@ void main() {
         tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
       );
       await pumpSession(tester);
-      await tester.tap(find.text('Afficher la réponse'));
+      await tester.tap(find.text(l10n.sessionShowAnswer));
       await tester.pump();
       expect(answerOpacity(tester), 1);
-      expect(find.text('Afficher la réponse'), findsNothing);
+      expect(find.text(l10n.sessionShowAnswer), findsNothing);
     });
 
     testWidgets('a tap on the card reveals too; the next card shows '
@@ -202,7 +202,7 @@ void main() {
       expect(find.text('Peru'), findsOneWidget);
       expect(find.text('Lima'), findsNothing);
       final show = find.ancestor(
-        of: find.text('Afficher la réponse'),
+        of: find.text(l10n.sessionShowAnswer),
         matching: find.byType(Opacity),
       );
       expect(tester.widget<Opacity>(show).opacity, 1);
@@ -224,11 +224,11 @@ void main() {
         SessionScreen(items: items, isBonus: true),
         overrides: screenOverrides(database, sampleNow),
       );
-      await tester.tap(find.text('Afficher la réponse'));
+      await tester.tap(find.text(l10n.sessionShowAnswer));
       await tester.pumpAndSettle();
       expect(find.text('Correct'), findsOneWidget);
-      expect(find.text('sans effet'), findsNothing);
-      expect(find.text('demain'), findsNothing);
+      expect(find.text('no effect'), findsNothing);
+      expect(find.text('tomorrow'), findsNothing);
     });
   });
 
@@ -257,7 +257,7 @@ void main() {
     Future<void> submit(WidgetTester tester, String typed) async {
       await tester.enterText(find.byType(TextField), typed);
       await tester.runAsync(() async {
-        await tester.tap(find.byTooltip('Valider la réponse'));
+        await tester.tap(find.byTooltip(l10n.sessionSubmitAnswer));
         await Future<void>.delayed(const Duration(milliseconds: 100));
       });
       await tester.pumpAndSettle();
@@ -273,23 +273,23 @@ void main() {
     testWidgets('a field takes the place of "Show answer", then the answer '
         'shows with its verdict, recorded at once', (tester) async {
       await pumpTyped(tester);
-      expect(find.text('Afficher la réponse'), findsNothing);
-      expect(find.text('Révéler'), findsOneWidget);
+      expect(find.text(l10n.sessionShowAnswer), findsNothing);
+      expect(find.text(l10n.sessionReveal), findsOneWidget);
       await expectLater(
         find.byType(SessionScreen),
         matchesGoldenFile('goldens/session_typed.png'),
       );
       await submit(tester, 'ulaanbatar');
       expect(find.text('Ulaanbaatar'), findsOneWidget);
-      expect(find.text('« ulaanbatar » accepté, 1 faute'), findsOneWidget);
-      expect(find.textContaining('prochain rappel'), findsOneWidget);
+      expect(find.text('"ulaanbatar" accepted, 1 typo'), findsOneWidget);
+      expect(find.textContaining('next reminder'), findsOneWidget);
       expect(find.text('Correct'), findsNothing);
       expect(await history(tester), [(ReviewOutcome.correct, false)]);
       await expectLater(
         find.byType(SessionScreen),
         matchesGoldenFile('goldens/session_typed_verdict.png'),
       );
-      await tester.tap(find.text('Suivant'));
+      await tester.tap(find.text(l10n.sessionNext));
       await tester.pumpAndSettle();
       expect(find.text('Peru'), findsOneWidget);
       expect(find.text('Lima'), findsNothing);
@@ -303,27 +303,27 @@ void main() {
     testWidgets('a refused answer counts as Again', (tester) async {
       await pumpTyped(tester);
       await submit(tester, 'Beijing');
-      expect(find.text('« Beijing » refusé'), findsOneWidget);
-      expect(find.textContaining('Compté raté'), findsOneWidget);
+      expect(find.text('"Beijing" refused'), findsOneWidget);
+      expect(find.textContaining('Counted as missed'), findsOneWidget);
       expect(await history(tester), [(ReviewOutcome.again, false)]);
-      await tester.tap(find.text('Suivant'));
+      await tester.tap(find.text(l10n.sessionNext));
       await tester.pumpAndSettle();
       await submit(tester, 'Lima');
-      await tester.tap(find.text('Suivant'));
+      await tester.tap(find.text(l10n.sessionNext));
       await tester.pumpAndSettle();
-      expect(find.text('Session terminée'), findsOneWidget);
-      expect(find.text('Revoir la ratée maintenant'), findsOneWidget);
+      expect(find.text(l10n.sessionFinished), findsOneWidget);
+      expect(find.text(l10n.sessionReviewMissed(1)), findsOneWidget);
     });
 
     testWidgets('"Reveal" shows the answer with "Again" and "Correct", '
         'recording nothing', (tester) async {
       await pumpTyped(tester);
-      await tester.tap(find.text('Révéler'));
+      await tester.tap(find.text(l10n.sessionReveal));
       await tester.pumpAndSettle();
       expect(find.text('Ulaanbaatar'), findsOneWidget);
       expect(find.text('Correct'), findsOneWidget);
-      expect(find.text('À revoir'), findsOneWidget);
-      expect(find.textContaining('accepté'), findsNothing);
+      expect(find.text(l10n.reviewAgain), findsOneWidget);
+      expect(find.textContaining('accepted'), findsNothing);
       expect(await history(tester), isEmpty);
     });
 
@@ -341,14 +341,14 @@ void main() {
   ) async {
     await pumpSession(tester);
     await answer(tester, 'Correct');
-    await answer(tester, 'À revoir');
-    expect(find.text('Session terminée'), findsOneWidget);
+    await answer(tester, l10n.reviewAgain);
+    expect(find.text(l10n.sessionFinished), findsOneWidget);
     await expectLater(
       find.byType(SessionScreen),
       matchesGoldenFile('goldens/session_end.png'),
     );
     await tester.runAsync(() async {
-      await tester.tap(find.text('Revoir la ratée maintenant'));
+      await tester.tap(find.text(l10n.sessionReviewMissed(1)));
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
     await tester.pumpAndSettle();
@@ -375,8 +375,8 @@ void main() {
       overrides: screenOverrides(database, sampleNow),
     );
     expect(find.text('Ulaanbaatar'), findsOneWidget);
-    expect(find.textContaining('verso → recto'), findsOneWidget);
-    await tester.tap(find.text('Afficher la réponse'));
+    expect(find.textContaining('back → front'), findsOneWidget);
+    await tester.tap(find.text(l10n.sessionShowAnswer));
     await tester.pumpAndSettle();
     expect(find.text('Mongolia'), findsOneWidget);
   });
@@ -390,7 +390,7 @@ void main() {
       capitals = await services.groups.create('Capitals');
       final ids = [
         for (final country in ['Kenya', 'Chile', 'Morocco'])
-          await services.card(country, 'capitale', groupId: capitals),
+          await services.card(country, 'capital', groupId: capitals),
       ];
       pendingItems = [
         for (final cardId in ids.reversed)
@@ -402,8 +402,8 @@ void main() {
       SessionScreen(items: pendingItems, raisesMissedPending: true),
       overrides: screenOverrides(database, sampleNow),
     );
-    await answer(tester, 'À revoir');
-    await tester.tap(find.byTooltip('Quitter la session'));
+    await answer(tester, l10n.reviewAgain);
+    await tester.tap(find.byTooltip(l10n.sessionQuit));
     await tester.pumpAndSettle();
     final cards = await tester.runAsync(
       () => CardRepository(database).getCardsOfGroup(capitals),

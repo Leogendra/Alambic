@@ -18,15 +18,15 @@ void main() {
   setUp(() => database = openTestDatabase());
   tearDown(() => database.close());
 
-  /// "Pérou" answered over three days, with a bonus review and a reminder.
+  /// "Peru" answered over three days, with a bonus review and a reminder.
   /// Returns its id.
   Future<int> seedReviewedCard(WidgetTester tester, DateTime renderAt) async {
     late int cardId;
     await tester.runAsync(() async {
       final clock = FixedClock(sampleNow);
       final samples = SampleServices(database, clock);
-      final capitals = await samples.groups.create('Capitales');
-      cardId = await samples.card('Pérou', 'Lima', groupId: capitals);
+      final capitals = await samples.groups.create('Capitals');
+      cardId = await samples.card('Peru', 'Lima', groupId: capitals);
       await samples.introduceAll(capitals);
       Future<void> answer(DateTime at, ReviewOutcome outcome) async {
         clock.now = at;
@@ -65,8 +65,8 @@ void main() {
         overrides: screenOverrides(database, renderAt),
       );
       // No reminder label; the remanence follows the last step of Standard.
-      expect(find.text('J2'), findsNothing);
-      expect(find.text('6 mois'), findsNWidgets(2));
+      expect(find.text('D2'), findsNothing);
+      expect(find.text('6 mo'), findsNWidgets(2));
       expect(find.text('bonus'), findsNWidgets(2));
       await expectLater(
         find.byType(CardSheetScreen),
@@ -82,7 +82,7 @@ void main() {
       cardId = await samples.card(
         'Laos',
         'Vientiane',
-        groupId: await samples.groups.create('Capitales'),
+        groupId: await samples.groups.create('Capitals'),
       );
     });
     await pumpGolden(
@@ -91,7 +91,7 @@ void main() {
       overrides: screenOverrides(database, sampleNow),
     );
     expect(
-      find.text('En attente : la distillation du groupe la fera sortir.'),
+      find.text('Waiting: the distillation of the group will bring it in.'),
       findsOneWidget,
     );
     final card = await tester.runAsync(

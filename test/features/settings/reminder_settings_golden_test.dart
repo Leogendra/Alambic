@@ -32,6 +32,7 @@ void main() {
       const ReminderScheduleScreen(),
       brightness: Brightness.dark,
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     await expectLater(
       find.byType(ReminderScheduleScreen),
@@ -65,6 +66,7 @@ void main() {
       tester,
       const ReminderScheduleScreen(),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     Future<void> pickEnd(String hour) async {
       await tester.tap(find.text('Fin'));
@@ -101,6 +103,7 @@ void main() {
       const NotificationModeScreen(),
       brightness: Brightness.dark,
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     expect(find.text('Au tap sur le rappel'.toUpperCase()), findsNothing);
     await tester.runAsync(() async {

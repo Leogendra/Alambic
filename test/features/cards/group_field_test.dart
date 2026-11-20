@@ -21,8 +21,8 @@ void main() {
       const CardEditorScreen(),
       overrides: screenOverrides(database, sampleNow),
     );
-    await tester.enterText(find.byType(TextField).first, 'Mongolie');
-    await tester.enterText(find.byType(TextField).last, 'Oulan-Bator');
+    await tester.enterText(find.byType(TextField).first, 'Mongolia');
+    await tester.enterText(find.byType(TextField).last, 'Ulaanbaatar');
   }
 
   Future<void> nameGroup(WidgetTester tester, String name) async {
@@ -37,7 +37,7 @@ void main() {
 
   Future<void> create(WidgetTester tester) async {
     await tester.runAsync(() async {
-      await tester.tap(find.text('Créer'));
+      await tester.tap(find.text(l10n.cardEditorCreate));
       await Future<void>.delayed(const Duration(milliseconds: 200));
     });
     await tester.pumpAndSettle();
@@ -46,7 +46,7 @@ void main() {
   testWidgets('a card without group is not created', (tester) async {
     await pumpEditor(tester);
     await create(tester);
-    expect(find.text('Choisis un groupe pour cette carte.'), findsOneWidget);
+    expect(find.text('Choose a group for this card.'), findsOneWidget);
     final cards = await tester.runAsync(
       () => CardRepository(database).getAll(),
     );
@@ -55,9 +55,9 @@ void main() {
 
   testWidgets('"+" creates a group and puts the card in it', (tester) async {
     await pumpEditor(tester);
-    await tester.tap(find.byTooltip('Nouveau groupe'));
-    await nameGroup(tester, 'Capitales');
-    expect(find.text('Capitales'), findsOneWidget);
+    await tester.tap(find.byTooltip(l10n.newGroupTitle));
+    await nameGroup(tester, 'Capitals');
+    expect(find.text('Capitals'), findsOneWidget);
     await create(tester);
     final groups = await tester.runAsync(
       () => GroupRepository(database).watchAll().first,
@@ -65,7 +65,7 @@ void main() {
     final card = (await tester.runAsync(
       () => CardRepository(database).getAll(),
     ))!.single;
-    expect(groups!.single.name, 'Capitales');
+    expect(groups!.single.name, 'Capitals');
     expect(card.groupId, groups.single.id);
   });
 
@@ -73,8 +73,8 @@ void main() {
     tester,
   ) async {
     await pumpEditor(tester);
-    await tester.tap(find.text('Choisir'));
-    await nameGroup(tester, 'Espagnol');
-    expect(find.text('Espagnol'), findsOneWidget);
+    await tester.tap(find.text(l10n.cardGroupNone));
+    await nameGroup(tester, 'Spanish');
+    expect(find.text('Spanish'), findsOneWidget);
   });
 }

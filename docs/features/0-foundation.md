@@ -1,6 +1,6 @@
 # Feature 0 — Technical foundation
 
-Status: in progress (2026-11-17)
+Status: in progress (2026-11-20)
 
 ## Goal
 
@@ -84,6 +84,7 @@ When the database is created, the Standard and Intensive presets are inserted an
 
 - The language rule is tested on its own (phone language, unsupported language, choice in Settings), and switching the language and the theme from Settings is driven on the real app widget, including going back to the phone language.
 - Both ARB files are checked to hold the same texts and the same placeholders.
+- Screen tests and golden tests show the English interface, the base language. A test that depends on the French translation asks for French explicitly. A test that only goes through a screen reads the labels it taps from the English texts, so that rewording one does not break it.
 
 - The contrast rules are computed with the WCAG formula on the tokens of both themes, so that a change of value that breaks one fails without looking at a screen.
 - The system bars are simulated as a 32 px status bar and a 48 px navigation bar (the three-button one, the tallest) around every tab, page, sheet and onboarding screen. No text or tappable element may overlap them; a list is checked at its top and at the end of its scroll, since it may legitimately pass under the bars in between. A screen or sheet added or redone joins this check. Dialogs do not: Flutter centres them clear of the bars.

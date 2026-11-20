@@ -48,7 +48,7 @@ void main() {
   Future<void> pumpApp(
     WidgetTester tester, {
     bool onboardingDone = false,
-    Locale locale = const Locale('fr'),
+    Locale locale = const Locale('en'),
   }) async {
     tester.view.physicalSize = phoneSize;
     tester.view.devicePixelRatio = 1;
@@ -83,8 +83,8 @@ void main() {
   });
 
   Future<void> reachSampleGroup(WidgetTester tester) async {
-    await tapAndSettle(tester, find.text('Suivant'));
-    await tapAndSettle(tester, find.text('Autoriser les notifications'));
+    await tapAndSettle(tester, find.text(l10n.onboardingNext));
+    await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
     // The sample cards are read from the assets.
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
@@ -114,9 +114,9 @@ void main() {
   testWidgets('going through the three screens asks the permissions, creates '
       'the sample group, then opens it', (tester) async {
     await pumpApp(tester);
-    await tapAndSettle(tester, find.text('Suivant'));
+    await tapAndSettle(tester, find.text(l10n.onboardingNext));
 
-    await tapAndSettle(tester, find.text('Autoriser les notifications'));
+    await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
     expect(presenter.notificationPermissionRequests, 1);
     expect(alarms.permissionRequests, 1);
     await tester.runAsync(
@@ -124,11 +124,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Alphabet NATO'), findsOneWidget);
-    expect(find.text('26 cartes'), findsOneWidget);
-    await finishWith(tester, 'Suivant');
+    expect(find.text('NATO alphabet'), findsOneWidget);
+    expect(find.text('26 cards'), findsOneWidget);
+    await finishWith(tester, l10n.onboardingNext);
 
-    expect(await groupNames(tester), ['Alphabet NATO']);
+    expect(await groupNames(tester), ['NATO alphabet']);
     final cards = await tester.runAsync(
       () => CardRepository(database).getAll(),
     );
@@ -136,10 +136,7 @@ void main() {
     expect(cards!.every((card) => card.isPending), isTrue);
     expect(store.saved.onboardingDone, isTrue);
     expect(find.byType(GroupDetailScreen), findsOneWidget);
-    expect(
-      find.text('Ses cartes attendent. Distille le groupe pour les recevoir.'),
-      findsOneWidget,
-    );
+    expect(find.text(l10n.groupDistillWaiting), findsOneWidget);
   });
 
   testWidgets('"Skip" opens the tabs, the sample group created all the same', (
@@ -147,9 +144,9 @@ void main() {
   ) async {
     await pumpApp(tester);
     await reachSampleGroup(tester);
-    await finishWith(tester, 'Passer');
+    await finishWith(tester, l10n.onboardingSkip);
 
-    expect(await groupNames(tester), ['Alphabet NATO']);
+    expect(await groupNames(tester), ['NATO alphabet']);
     expect(store.saved.onboardingDone, isTrue);
     expect(find.byType(MainShell), findsOneWidget);
     expect(find.byType(GroupDetailScreen), findsNothing);
@@ -159,9 +156,9 @@ void main() {
     tester,
   ) async {
     await pumpApp(tester);
-    await finishWith(tester, 'Passer');
+    await finishWith(tester, l10n.onboardingSkip);
 
-    expect(await groupNames(tester), ['Alphabet NATO']);
+    expect(await groupNames(tester), ['NATO alphabet']);
     expect(store.saved.onboardingDone, isTrue);
     expect(presenter.notificationPermissionRequests, 0);
     expect(find.byType(MainShell), findsOneWidget);
@@ -172,47 +169,45 @@ void main() {
   ) async {
     alarms.exactAllowed = true;
     await pumpApp(tester);
-    await tapAndSettle(tester, find.text('Suivant'));
-    await tapAndSettle(tester, find.text('Autoriser les notifications'));
+    await tapAndSettle(tester, find.text(l10n.onboardingNext));
+    await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
 
     expect(presenter.notificationPermissionRequests, 1);
     expect(alarms.permissionRequests, 0);
-    expect(find.text('Un groupe pour commencer'), findsOneWidget);
+    expect(find.text(l10n.onboardingSampleTitle), findsOneWidget);
   });
 
   testWidgets('"Back" returns to the previous screen, absent on the first', (
     tester,
   ) async {
     await pumpApp(tester);
-    expect(find.byTooltip('Retour'), findsNothing);
-    await tapAndSettle(tester, find.text('Suivant'));
-    expect(find.text('Tu révises depuis la notification.'), findsOneWidget);
+    expect(find.byTooltip('Back'), findsNothing);
+    await tapAndSettle(tester, find.text(l10n.onboardingNext));
+    expect(find.text(l10n.onboardingPermissionsTitle), findsOneWidget);
 
-    await tapAndSettle(tester, find.byTooltip('Retour'));
-    expect(find.text('Retiens tout sans y penser.'), findsOneWidget);
-    expect(find.byTooltip('Retour'), findsNothing);
+    await tapAndSettle(tester, find.byTooltip('Back'));
+    expect(find.text(l10n.onboardingWelcomeTitle), findsOneWidget);
+    expect(find.byTooltip('Back'), findsNothing);
   });
 
-  testWidgets('in English, the sample group is the NATO alphabet', (
-    tester,
-  ) async {
-    await pumpApp(tester, locale: const Locale('en'));
-    await tapAndSettle(tester, find.text('Next'));
-    await tapAndSettle(tester, find.text('Allow notifications'));
+  testWidgets('in French, the sample group is named in French', (tester) async {
+    await pumpApp(tester, locale: const Locale('fr'));
+    await tapAndSettle(tester, find.text('Suivant'));
+    await tapAndSettle(tester, find.text('Autoriser les notifications'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
     await tester.pumpAndSettle();
-    await finishWith(tester, 'Skip');
+    await finishWith(tester, 'Passer');
 
-    expect(await groupNames(tester), ['NATO alphabet']);
+    expect(await groupNames(tester), ['Alphabet NATO']);
   });
 
   testWidgets('the sample group is created once: a later launch, even after '
       'its deletion, does not create it again', (tester) async {
     await pumpApp(tester);
     await reachSampleGroup(tester);
-    await finishWith(tester, 'Passer');
+    await finishWith(tester, l10n.onboardingSkip);
     final groupId = (await tester.runAsync(
       () => GroupRepository(database).watchAll().first,
     ))!.single.id;
@@ -234,12 +229,12 @@ void main() {
       find.byType(OnboardingScreen),
       matchesGoldenFile('goldens/onboarding_welcome.png'),
     );
-    await tapAndSettle(tester, find.text('Suivant'));
+    await tapAndSettle(tester, find.text(l10n.onboardingNext));
     await expectLater(
       find.byType(OnboardingScreen),
       matchesGoldenFile('goldens/onboarding_permissions.png'),
     );
-    await tapAndSettle(tester, find.text('Autoriser les notifications'));
+    await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
@@ -250,17 +245,17 @@ void main() {
     );
   });
 
-  testWidgets('the reminders screen in English', (tester) async {
+  testWidgets('the reminders screen in French', (tester) async {
     await pumpGolden(
       tester,
       const OnboardingScreen(),
-      locale: const Locale('en'),
+      locale: const Locale('fr'),
       overrides: overrides(),
     );
-    await tapAndSettle(tester, find.text('Next'));
+    await tapAndSettle(tester, find.text('Suivant'));
     await expectLater(
       find.byType(OnboardingScreen),
-      matchesGoldenFile('goldens/onboarding_permissions_english.png'),
+      matchesGoldenFile('goldens/onboarding_permissions_french.png'),
     );
   });
 

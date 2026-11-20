@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
@@ -33,6 +34,7 @@ void main() {
       tester,
       const NotificationGuardsScreen(),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     await expectLater(
       find.byType(NotificationGuardsScreen),

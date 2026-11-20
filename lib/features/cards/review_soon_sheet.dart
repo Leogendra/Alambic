@@ -96,21 +96,20 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
                     color: colors.textSecondary,
                   ),
                 ),
-                GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                  childAspectRatio: 2.5,
+                Column(
+                  spacing: 8,
                   children: [
-                    _dayChoice(strings.reviewSoonTomorrow, _days.tomorrow),
-                    _dayChoice(
-                      strings.reviewSoonDayAfter,
-                      _days.dayAfterTomorrow,
+                    _dayRow(
+                      _dayChoice(strings.reviewSoonTomorrow, _days.tomorrow),
+                      _dayChoice(
+                        strings.reviewSoonDayAfter,
+                        _days.dayAfterTomorrow,
+                      ),
                     ),
-                    _dayChoice(strings.reviewSoonWeekend, _days.weekend),
-                    _otherDayChoice(strings),
+                    _dayRow(
+                      _dayChoice(strings.reviewSoonWeekend, _days.weekend),
+                      _otherDayChoice(strings),
+                    ),
                   ],
                 ),
               ],
@@ -127,6 +126,20 @@ class _ReviewSoonSheetState extends ConsumerState<_ReviewSoonSheet> {
       ),
     );
   }
+
+  /// Two day choices side by side, both as tall as the taller one: a label
+  /// that wraps, such as "Day after tomorrow", grows its row instead of being
+  /// cut.
+  Widget _dayRow(Widget first, Widget second) => IntrinsicHeight(
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 8,
+      children: [
+        Expanded(child: first),
+        Expanded(child: second),
+      ],
+    ),
+  );
 
   Widget _dayChoice(String label, DateTime day) => ChoiceTile(
     label: label,

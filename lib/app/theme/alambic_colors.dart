@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Colour tokens of the "flat hybrid" theme, beyond what [ColorScheme]
 /// carries. Depth comes from steps of colour and 1 px borders, never from

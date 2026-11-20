@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:alambic/app/shell/main_shell.dart';
 import 'package:alambic/application/notifications/notification_providers.dart';
 import 'package:alambic/application/preferences/interface_settings_providers.dart';

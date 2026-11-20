@@ -1,35 +1,35 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/theme/alambic_colors.dart';
-import '../../application/onboarding/onboarding_providers.dart';
 import '../../domain/cards/bulk/bulk_card_draft.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'onboarding_page.dart';
 
-/// Third screen: the sample group the app creates when the onboarding ends,
-/// with its number of cards and its first card. "Next" then opens its page;
-/// "Skip", at the top of the screen, the tabs.
-class SampleGroupPage extends ConsumerWidget {
-  const SampleGroupPage({required this.onStart, super.key});
+/// Last screen: the sample group the app creates when the onboarding ends,
+/// with its number of cards and its first card. "Get started" then opens
+/// its page; "Skip", at the top of the screen, the tabs.
+class SampleGroupPage extends StatelessWidget {
+  const SampleGroupPage({
+    required this.cards,
+    required this.onStart,
+    super.key,
+  });
 
+  /// `null` while they are being read.
+  final List<BulkCardDraft>? cards;
   final VoidCallback? onStart;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final cards = ref
-        .watch(
-          sampleCardsProvider(Localizations.localeOf(context).languageCode),
-        )
-        .value;
+    final cards = this.cards;
     return OnboardingPage(
-      step: 2,
+      step: 3,
       title: strings.onboardingSampleTitle,
-      body: strings.onboardingSampleBody,
+      body: cards == null ? null : strings.onboardingSampleBody(cards.length),
       action: FilledButton(
         onPressed: onStart,
-        child: Text(strings.onboardingNext),
+        child: Text(strings.onboardingGetStarted),
       ),
       illustration: cards == null || cards.isEmpty
           ? null
@@ -67,7 +67,14 @@ class _SampleGroupTile extends StatelessWidget {
             child: Row(
               spacing: 14,
               children: [
-                Icon(Icons.layers_outlined, color: colors.textSecondary),
+                SizedBox.square(
+                  dimension: 44,
+                  child: Icon(
+                    Icons.layers_outlined,
+                    size: 22,
+                    color: colors.textTertiary,
+                  ),
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

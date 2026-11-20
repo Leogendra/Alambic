@@ -62,6 +62,9 @@ class FakePresenter implements NotificationPresenter {
   final Map<GroupReminderKey, GroupReminder> groupReminders = {};
   NotificationDigest? digest;
 
+  /// The test notification of the onboarding, once shown.
+  ({String groupName, String question})? testPrompt;
+
   /// What the user answers when asked for notifications.
   bool notificationsAllowed = true;
   int notificationPermissionRequests = 0;
@@ -89,6 +92,12 @@ class FakePresenter implements NotificationPresenter {
     _clearSlotOf(confirmation.key);
     confirmations[confirmation.key] = confirmation;
   }
+
+  @override
+  Future<void> showTestPrompt({
+    required String groupName,
+    required String question,
+  }) async => testPrompt = (groupName: groupName, question: question);
 
   @override
   Future<void> dismiss(ReviewNotificationKey key) async => _clearSlotOf(key);

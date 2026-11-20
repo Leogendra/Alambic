@@ -36,6 +36,10 @@ abstract final class NotificationPayload {
   static String encodeDigest(NotificationDigest digest) =>
       jsonEncode({'digest': true, 'count': digest.count});
 
+  /// The test notification, tied to no card nor group: every decoder
+  /// ignores it, so its buttons and a touch on it change nothing.
+  static String encodeTest() => jsonEncode({'test': true});
+
   /// The count shown by the digest, `null` for any other notification.
   static int? decodeDigestCount(String? payload) {
     final fields = _fields(payload);

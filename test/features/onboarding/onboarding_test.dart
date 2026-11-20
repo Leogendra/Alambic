@@ -82,14 +82,23 @@ void main() {
     expect(find.byType(MainShell), findsOneWidget);
   });
 
-  Future<void> reachSampleGroup(WidgetTester tester) async {
-    await tapAndSettle(tester, find.text(l10n.onboardingNext));
-    await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
-    // The sample cards are read from the assets.
+  /// The sample cards are read from the assets.
+  Future<void> waitForSampleCards(WidgetTester tester) async {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
     await tester.pumpAndSettle();
+  }
+
+  Future<void> reachPermissions(WidgetTester tester) async {
+    await tapAndSettle(tester, find.text(l10n.onboardingNext));
+    await waitForSampleCards(tester);
+    await tapAndSettle(tester, find.text(l10n.onboardingNext));
+  }
+
+  Future<void> reachSampleGroup(WidgetTester tester) async {
+    await reachPermissions(tester);
+    await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
   }
 
   /// Ends the onboarding with [button], once the group is stored.
@@ -111,22 +120,23 @@ void main() {
     return [for (final group in groups!) group.name];
   }
 
-  testWidgets('going through the three screens asks the permissions, creates '
+  testWidgets('going through the four screens asks the permissions, creates '
       'the sample group, then opens it', (tester) async {
     await pumpApp(tester);
+    await tapAndSettle(tester, find.text(l10n.onboardingNext));
+    await waitForSampleCards(tester);
+    expect(find.text(l10n.onboardingDistillTitle), findsOneWidget);
+    expect(find.text('197 CARDS, ONE A DAY'), findsOneWidget);
     await tapAndSettle(tester, find.text(l10n.onboardingNext));
 
     await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
     expect(presenter.notificationPermissionRequests, 1);
     expect(alarms.permissionRequests, 1);
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 100)),
-    );
-    await tester.pumpAndSettle();
 
     expect(find.text('Capitals'), findsOneWidget);
     expect(find.text('197 cards'), findsOneWidget);
-    await finishWith(tester, l10n.onboardingNext);
+    expect(find.text(l10n.onboardingSampleBody(197)), findsOneWidget);
+    await finishWith(tester, l10n.onboardingGetStarted);
 
     expect(await groupNames(tester), ['Capitals']);
     final cards = await tester.runAsync(
@@ -169,7 +179,7 @@ void main() {
   ) async {
     alarms.exactAllowed = true;
     await pumpApp(tester);
-    await tapAndSettle(tester, find.text(l10n.onboardingNext));
+    await reachPermissions(tester);
     await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
 
     expect(presenter.notificationPermissionRequests, 1);
@@ -182,22 +192,48 @@ void main() {
   ) async {
     await pumpApp(tester);
     expect(find.byTooltip('Back'), findsNothing);
-    await tapAndSettle(tester, find.text(l10n.onboardingNext));
+    await reachPermissions(tester);
     expect(find.text(l10n.onboardingPermissionsTitle), findsOneWidget);
 
+    await tapAndSettle(tester, find.byTooltip('Back'));
+    expect(find.text(l10n.onboardingDistillTitle), findsOneWidget);
     await tapAndSettle(tester, find.byTooltip('Back'));
     expect(find.text(l10n.onboardingWelcomeTitle), findsOneWidget);
     expect(find.byTooltip('Back'), findsNothing);
   });
 
+  testWidgets('"Test notification" shows a card notification at once, after '
+      'asking for notifications', (tester) async {
+    await pumpApp(tester);
+    await reachPermissions(tester);
+    await tapAndSettle(tester, find.text(l10n.onboardingTestNotification));
+
+    expect(presenter.notificationPermissionRequests, 1);
+    expect(presenter.testPrompt, (
+      groupName: 'Capitals',
+      question: 'What is the capital of Peru?',
+    ));
+    expect(presenter.prompts, isEmpty);
+    expect(find.text(l10n.onboardingPermissionsTitle), findsOneWidget);
+  });
+
+  testWidgets('notifications refused, "Test notification" shows nothing', (
+    tester,
+  ) async {
+    presenter.notificationsAllowed = false;
+    await pumpApp(tester);
+    await reachPermissions(tester);
+    await tapAndSettle(tester, find.text(l10n.onboardingTestNotification));
+
+    expect(presenter.testPrompt, isNull);
+  });
+
   testWidgets('in French, the sample group is named in French', (tester) async {
     await pumpApp(tester, locale: const Locale('fr'));
     await tapAndSettle(tester, find.text('Suivant'));
+    await waitForSampleCards(tester);
+    await tapAndSettle(tester, find.text('Suivant'));
     await tapAndSettle(tester, find.text('Autoriser les notifications'));
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 100)),
-    );
-    await tester.pumpAndSettle();
     await finishWith(tester, 'Passer');
 
     expect(await groupNames(tester), ['Capitales']);
@@ -234,15 +270,17 @@ void main() {
       matchesGoldenFile('goldens/onboarding_welcome.png'),
     );
     await tapAndSettle(tester, find.text(l10n.onboardingNext));
+    await waitForSampleCards(tester);
+    await expectLater(
+      find.byType(OnboardingScreen),
+      matchesGoldenFile('goldens/onboarding_distillation.png'),
+    );
+    await tapAndSettle(tester, find.text(l10n.onboardingNext));
     await expectLater(
       find.byType(OnboardingScreen),
       matchesGoldenFile('goldens/onboarding_permissions.png'),
     );
     await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 100)),
-    );
-    await tester.pumpAndSettle();
     await expectLater(
       find.byType(OnboardingScreen),
       matchesGoldenFile('goldens/onboarding_sample_group.png'),
@@ -256,6 +294,8 @@ void main() {
       locale: const Locale('fr'),
       overrides: overrides(),
     );
+    await tapAndSettle(tester, find.text('Suivant'));
+    await waitForSampleCards(tester);
     await tapAndSettle(tester, find.text('Suivant'));
     await expectLater(
       find.byType(OnboardingScreen),

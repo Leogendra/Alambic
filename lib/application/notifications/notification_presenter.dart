@@ -28,6 +28,13 @@ abstract interface class NotificationPresenter {
   /// seconds.
   Future<void> showConfirmation(AnswerConfirmation confirmation);
 
+  /// Shows at once a card notification asking [question] in [groupName],
+  /// tied to no card: its "Correct" and "Again" buttons only close it.
+  Future<void> showTestPrompt({
+    required String groupName,
+    required String question,
+  });
+
   Future<void> dismiss(ReviewNotificationKey key);
 
   /// Keys of the card notifications currently shown and not answered yet,

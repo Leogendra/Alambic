@@ -32,6 +32,9 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   /// The digest is a single notification, above any extra reminder.
   static const int _digestId = 2000000000;
 
+  /// The test notification of the onboarding is a single one too.
+  static const int _testId = 2000000001;
+
   /// Long enough to be read, short enough not to pile up in the shade.
   static const Duration _confirmationLifetime = Duration(seconds: 4);
 
@@ -164,6 +167,33 @@ class AndroidNotificationPresenter implements NotificationPresenter {
           actions: const [],
         ),
       );
+
+  @override
+  Future<void> showTestPrompt({
+    required String groupName,
+    required String question,
+  }) {
+    final strings = _texts.strings;
+    return _plugin.show(
+      id: _testId,
+      title: question,
+      payload: NotificationPayload.encodeTest(),
+      notificationDetails: _details(
+        header: groupName,
+        // Answering records nothing: both buttons close the notification.
+        actions: [
+          AndroidNotificationAction(
+            NotificationAction.correct.name,
+            strings.reviewCorrect,
+          ),
+          AndroidNotificationAction(
+            NotificationAction.again.name,
+            strings.reviewAgain,
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Future<void> dismiss(ReviewNotificationKey key) =>

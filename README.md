@@ -28,7 +28,7 @@ The release build is signed with the debug key, so it installs over a debug buil
 
 ## Usage example: learning capitals
 
-1. In the Groups tab, tap "New" and name the group "Capitals".
+1. You can either use the default onboarding group, or create the group yourself: in the Groups tab, tap "New" and name the group "Capitals".
 2. In the group, tap "Bulk add" in the toolbar and paste one card per line, front and back separated by `;`:
 
    ```text

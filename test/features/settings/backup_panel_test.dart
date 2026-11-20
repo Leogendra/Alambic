@@ -31,7 +31,6 @@ void main() {
       ...screenOverrides(database, sampleNow),
       backupFilesProvider.overrideWithValue(files),
     ],
-    locale: const Locale('fr'),
   );
 
   Uint8List backupOf(int cards, int groups) => const BackupArchive().encode(
@@ -50,24 +49,21 @@ void main() {
   testWidgets('says when the file is not a backup of Alambic', (tester) async {
     files.picked = Uint8List.fromList([1, 2, 3]);
     await pumpPanel(tester);
-    await tester.tap(find.text('Importer des données'));
+    await tester.tap(find.text(l10n.backupImport));
     await tester.pumpAndSettle();
-    expect(
-      find.text("Ce fichier n'est pas une sauvegarde d'Alambic."),
-      findsOneWidget,
-    );
+    expect(find.text('This file is not an Alambic backup.'), findsOneWidget);
     expect(find.byType(AlertDialog), findsNothing);
   });
 
   testWidgets('asks for confirmation with what the file holds', (tester) async {
     files.picked = backupOf(1, 2);
     await pumpPanel(tester);
-    await tester.tap(find.text('Importer des données'));
+    await tester.tap(find.text(l10n.backupImport));
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.textContaining('1 carte dans 2 groupes'), findsOneWidget);
-    await tester.tap(find.text('Annuler'));
+    expect(find.textContaining('1 card in 2 groups'), findsOneWidget);
+    await tester.tap(find.text(l10n.commonCancel));
     await tester.pumpAndSettle();
-    expect(find.text('Données importées'), findsNothing);
+    expect(find.text('Data imported'), findsNothing);
   });
 }

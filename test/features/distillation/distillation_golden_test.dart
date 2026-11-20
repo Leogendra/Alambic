@@ -19,20 +19,20 @@ void main() {
   setUp(() => database = openTestDatabase());
   tearDown(() => database.close());
 
-  /// Sample data, and a "Japonais" group of six cards distilled one card a
+  /// Sample data, and a "Japanese" group of six cards distilled one card a
   /// day, activated at 9am unless [activate] is false.
   Future<void> seed(WidgetTester tester, {bool activate = true}) async {
     await tester.runAsync(() async {
       final samples = SampleServices(database, FixedClock(sampleNow));
       await seedSampleData(samples);
-      japaneseId = await samples.groups.create('Japonais');
+      japaneseId = await samples.groups.create('Japanese');
       for (final (word, meaning) in [
-        ('neko', 'chat'),
-        ('inu', 'chien'),
-        ('tori', 'oiseau'),
-        ('sakana', 'poisson'),
-        ('uma', 'cheval'),
-        ('ushi', 'vache'),
+        ('neko', 'cat'),
+        ('inu', 'dog'),
+        ('tori', 'bird'),
+        ('sakana', 'fish'),
+        ('uma', 'horse'),
+        ('ushi', 'cow'),
       ]) {
         await samples.card(word, meaning, groupId: japaneseId);
       }
@@ -51,10 +51,9 @@ void main() {
       tester,
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
     expect(
-      find.text('6 cartes · dernière arrivée vers le 15 novembre'),
+      find.text('6 cards · last one arrives around November 15'),
       findsOne,
     );
     await expectLater(
@@ -76,12 +75,8 @@ void main() {
       tester,
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    expect(
-      find.text('6 cartes en attente · en pause', findRichText: true),
-      findsOne,
-    );
+    expect(find.text('6 cards waiting · paused', findRichText: true), findsOne);
   });
 
   testWidgets('distillation followed on the group page', (tester) async {
@@ -90,9 +85,8 @@ void main() {
       tester,
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    expect(find.text('5 cartes en attente'), findsOneWidget);
+    expect(find.text('5 cards waiting'), findsOneWidget);
     await expectLater(
       find.byType(GroupDetailScreen),
       matchesGoldenFile('goldens/group_distillation.png'),
@@ -105,9 +99,8 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    expect(find.text('Japonais : 1 nouvelle carte'), findsNWidgets(6));
+    expect(find.text('Japanese: 1 new card'), findsNWidgets(6));
     await expectLater(
       find.byType(HomeScreen),
       matchesGoldenFile('goldens/home_distillation.png'),
@@ -120,15 +113,14 @@ void main() {
       tester,
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    await tester.tap(find.byTooltip('Plus de cartes'));
+    await tester.tap(find.byTooltip(l10n.distillMoreCards));
     await tester.pumpAndSettle();
     expect(
-      find.text('6 cartes · dernière arrivée vers le 12 novembre'),
+      find.text('6 cards · last one arrives around November 12'),
       findsOne,
     );
-    await tester.tap(find.text('Activer la distillation'));
+    await tester.tap(find.text(l10n.distillActivate));
     await tester.pumpAndSettle();
     final distillations = await tester.runAsync(
       () => DistillationRepository(database).getAll(),
@@ -146,16 +138,15 @@ void main() {
       tester,
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    await tester.tap(find.byTooltip('Régler la distillation'));
+    await tester.tap(find.byTooltip(l10n.distillAdjustTitle));
     await tester.pumpAndSettle();
-    expect(find.text('Régler la distillation'), findsOneWidget);
+    expect(find.text('Adjust the distillation'), findsOneWidget);
     expect(find.text('1'), findsOneWidget, reason: 'one card per batch');
-    await tester.tap(find.byTooltip('Plus de jours'));
+    await tester.tap(find.byTooltip(l10n.distillMoreDays));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Enregistrer'));
-    await tester.tap(find.text('Enregistrer'));
+    await tester.ensureVisible(find.text(l10n.commonSave));
+    await tester.tap(find.text(l10n.commonSave));
     // The save runs on the database, then the screen closes.
     for (
       var wait = 0;
@@ -172,10 +163,10 @@ void main() {
       () => DistillationRepository(database).find(japaneseId),
     );
     expect(distillation!.everyDays, 2);
-    expect(find.text('1 carte tous les 2 jours'), findsOne);
+    expect(find.text('1 card every 2 days'), findsOne);
   });
 
-  /// Pauses the distillation of Japonais, at 9am on the sample day.
+  /// Pauses the distillation of Japanese, at 9am on the sample day.
   Future<void> pause(WidgetTester tester) => tester.runAsync(
     () => SampleServices(
       database,
@@ -190,10 +181,9 @@ void main() {
       tester,
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    expect(find.text('En pause depuis le 10 nov.'), findsOne);
-    expect(find.text('aucune arrivée prévue'), findsOne);
+    expect(find.text('Paused since Nov 10'), findsOne);
+    expect(find.text('no arrival planned'), findsOne);
     await expectLater(
       find.byType(GroupDetailScreen),
       matchesGoldenFile('goldens/group_distillation_paused.png'),
@@ -212,12 +202,10 @@ void main() {
         currentSettings: const DistillationSettings(),
       ),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
     expect(
       find.text(
-        'En pause depuis le 10 novembre : aucune nouvelle carte ne sort, '
-        'les rappels continuent.',
+        'Paused since November 10: no new card comes out, reminders go on.',
       ),
       findsOne,
     );
@@ -225,12 +213,12 @@ void main() {
       find.byType(DistillScreen),
       matchesGoldenFile('goldens/distill_adjust_paused.png'),
     );
-    await tester.ensureVisible(find.text('Reprendre'));
-    await tester.tap(find.text('Reprendre'));
+    await tester.ensureVisible(find.text(l10n.pauseResume));
+    await tester.tap(find.text(l10n.pauseResume));
     // The resume runs on the database, then the screen follows it.
     for (
       var wait = 0;
-      wait < 100 && find.text('Mettre en pause').evaluate().isEmpty;
+      wait < 100 && find.text('Pause').evaluate().isEmpty;
       wait++
     ) {
       await tester.runAsync(
@@ -238,7 +226,7 @@ void main() {
       );
       await tester.pump();
     }
-    expect(find.text('Mettre en pause'), findsOne);
+    expect(find.text('Pause'), findsOne);
     expect(find.byType(DistillScreen), findsOne);
     final distillation = await tester.runAsync(
       () => DistillationRepository(database).find(japaneseId),

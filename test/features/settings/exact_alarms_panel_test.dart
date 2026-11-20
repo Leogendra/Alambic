@@ -28,7 +28,6 @@ void main() {
       ...screenOverrides(database, sampleNow),
       alarmSchedulerProvider.overrideWithValue(alarms),
     ],
-    locale: const Locale('fr'),
   );
 
   testWidgets('offers to allow exact alarms when they are refused', (
@@ -40,7 +39,7 @@ void main() {
       find.byType(SettingsScreen),
       matchesGoldenFile('goldens/settings_exact_alarms_off.png'),
     );
-    await tester.tap(find.text('Autoriser'));
+    await tester.tap(find.text(l10n.settingsExactAlarmsAllow));
     expect(alarms.permissionRequests, 1);
   });
 
@@ -48,13 +47,11 @@ void main() {
     (Brightness.light, ''),
     (Brightness.dark, '_dark'),
   ]) {
-    testWidgets('settings in English, ${brightness.name} theme', (
-      tester,
-    ) async {
+    testWidgets('settings in French, ${brightness.name} theme', (tester) async {
       await pumpGolden(
         tester,
         const Scaffold(body: SafeArea(child: SettingsScreen())),
-        locale: const Locale('en'),
+        locale: const Locale('fr'),
         brightness: brightness,
         overrides: [
           ...screenOverrides(database, sampleNow),
@@ -64,7 +61,7 @@ void main() {
       expect(find.text('Presets'), findsOneWidget);
       await expectLater(
         find.byType(SettingsScreen),
-        matchesGoldenFile('goldens/settings_english$suffix.png'),
+        matchesGoldenFile('goldens/settings_french$suffix.png'),
       );
     });
   }
@@ -74,7 +71,7 @@ void main() {
   ) async {
     await pumpSettings(tester);
     expect(find.byType(ExactAlarmsPanel), findsOneWidget);
-    expect(find.text('Activés'), findsOneWidget);
-    expect(find.text('Autoriser'), findsNothing);
+    expect(find.text('On'), findsOneWidget);
+    expect(find.text('Allow'), findsNothing);
   });
 }

@@ -27,10 +27,10 @@ void main() {
         const PresetsScreen(),
         brightness: brightness,
         overrides: [databaseProvider.overrideWithValue(database)],
-        locale: const Locale('fr'),
       );
-      expect(find.text('Par défaut'), findsNWidgets(2));
-      expect(find.text("En cas d'échec : recule d'un cran"), findsNWidgets(2));
+      expect(find.text('Default'), findsOneWidget);
+      expect(find.text('Make default'), findsOneWidget);
+      expect(find.text('On failure: one step back'), findsNWidgets(2));
       await expectLater(
         find.byType(PresetsScreen),
         matchesGoldenFile('goldens/presets_list$suffix.png'),
@@ -38,14 +38,15 @@ void main() {
     });
   }
 
-  testWidgets('"Par défaut" makes a preset the global one', (tester) async {
+  testWidgets('"Make default" makes a preset the global one', (tester) async {
     await pumpGolden(
       tester,
       const PresetsScreen(),
       overrides: [databaseProvider.overrideWithValue(database)],
-      locale: const Locale('fr'),
     );
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Par défaut'));
+    await tester.tap(
+      find.widgetWithText(OutlinedButton, l10n.presetMakeDefault),
+    );
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await tester.pumpAndSettle();
     final catalog = await tester.runAsync(
@@ -59,11 +60,10 @@ void main() {
       tester,
       const PresetsScreen(),
       overrides: [databaseProvider.overrideWithValue(database)],
-      locale: const Locale('fr'),
     );
-    await tester.tap(find.byTooltip('Actions du preset Intensif'));
+    await tester.tap(find.byTooltip('Actions for Intensive'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Dupliquer'));
+    await tester.tap(find.text(l10n.presetDuplicate));
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await tester.pumpAndSettle();
     final presets = await tester.runAsync(
@@ -72,7 +72,7 @@ void main() {
     expect(presets!.map((preset) => preset.name), [
       'Standard',
       'Intensive',
-      'Intensif (copie)',
+      'Intensive (copy)',
     ]);
   });
 
@@ -87,7 +87,7 @@ void main() {
             (preset) => preset.builtInKey == BuiltInPresetKey.intensive,
           )
           .id;
-      for (final name in ['Capitales', 'Espagnol']) {
+      for (final name in ['Capitals', 'Spanish']) {
         final groupId = await groups.create(name, DateTime(2026, 11, 10));
         await groups.setPreset(groupId, intensiveId);
       }
@@ -96,29 +96,28 @@ void main() {
       tester,
       const PresetsScreen(),
       overrides: [databaseProvider.overrideWithValue(database)],
-      locale: const Locale('fr'),
     );
-    await tester.tap(find.byTooltip('Actions du preset Standard'));
+    await tester.tap(find.byTooltip('Actions for Standard'));
     await tester.pumpAndSettle();
-    expect(find.text('Dupliquer'), findsOneWidget);
-    expect(find.text('Supprimer'), findsNothing);
+    expect(find.text('Duplicate'), findsOneWidget);
+    expect(find.text('Delete'), findsNothing);
     await tester.tapAt(Offset.zero);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Actions du preset Intensif'));
+    await tester.tap(find.byTooltip('Actions for Intensive'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Supprimer'));
+    await tester.tap(find.text(l10n.commonDelete));
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await tester.pumpAndSettle();
-    expect(find.text('Supprimer « Intensif » ?'), findsOneWidget);
+    expect(find.text('Delete "Intensive"?'), findsOneWidget);
     expect(
       find.text(
-        "2 groupes l'utilisent : ils passeront sur le preset par défaut, "
-        'Standard, en gardant leurs crans et leurs échéances.',
+        '2 groups use it: they will move to the default preset, Standard, '
+        'keeping their steps and due dates.',
       ),
       findsOneWidget,
     );
-    await tester.tap(find.widgetWithText(TextButton, 'Supprimer'));
+    await tester.tap(find.widgetWithText(TextButton, l10n.commonDelete));
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await tester.pumpAndSettle();
     final presets = await tester.runAsync(
@@ -143,7 +142,6 @@ void main() {
         PresetEditorScreen(initialPreset: standard!),
         brightness: brightness,
         overrides: [databaseProvider.overrideWithValue(database)],
-        locale: const Locale('fr'),
       );
       await expectLater(
         find.byType(PresetEditorScreen),
@@ -162,25 +160,25 @@ void main() {
       tester,
       PresetEditorScreen(initialPreset: standard!),
       overrides: [databaseProvider.overrideWithValue(database)],
-      locale: const Locale('fr'),
     );
     expect(
-      find.text('Une carte ratée revient au cran précédent.'),
+      find.text('A missed card goes back to the previous step.'),
       findsOneWidget,
     );
-    await tester.tap(find.text('Retour au début'));
+    await tester.tap(find.text(l10n.presetFailureRestart));
     await tester.pump();
     expect(
       find.text(
-        'Une carte ratée repart du premier cran, sans retourner dans la file.',
+        'A missed card starts again from the first step, without going back '
+        'to the queue.',
       ),
       findsOneWidget,
     );
-    await tester.tap(find.text('Reste'));
+    await tester.tap(find.text(l10n.presetFailureStay));
     await tester.pump();
     expect(
       find.text(
-        'Une carte ratée garde son cran et revient après le même intervalle.',
+        'A missed card keeps its step and comes back after the same interval.',
       ),
       findsOneWidget,
     );

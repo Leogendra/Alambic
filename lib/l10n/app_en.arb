@@ -12,7 +12,7 @@
   "commonNew": "New",
   "commonClose": "Close",
   "commonOk": "OK",
-  "intervalMinutes": "{amount} min",
+  "intervalMinutes": "{amount}\u00a0min",
   "@intervalMinutes": {
     "placeholders": {
       "amount": {
@@ -20,7 +20,7 @@
       }
     }
   },
-  "intervalHours": "{amount} h",
+  "intervalHours": "{amount}\u00a0h",
   "@intervalHours": {
     "placeholders": {
       "amount": {
@@ -28,7 +28,7 @@
       }
     }
   },
-  "intervalDays": "{amount} d",
+  "intervalDays": "{amount}\u00a0d",
   "@intervalDays": {
     "placeholders": {
       "amount": {
@@ -36,7 +36,7 @@
       }
     }
   },
-  "intervalWeeks": "{amount} wk",
+  "intervalWeeks": "{amount}\u00a0wk",
   "@intervalWeeks": {
     "placeholders": {
       "amount": {
@@ -44,7 +44,7 @@
       }
     }
   },
-  "intervalMonths": "{amount} mo",
+  "intervalMonths": "{amount}\u00a0mo",
   "@intervalMonths": {
     "placeholders": {
       "amount": {
@@ -52,7 +52,7 @@
       }
     }
   },
-  "intervalYears": "{amount} yr",
+  "intervalYears": "{amount}\u00a0yr",
   "@intervalYears": {
     "placeholders": {
       "amount": {

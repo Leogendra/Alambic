@@ -54,7 +54,7 @@ void main() {
   /// suspends Myanmar, in progress.
   Future<void> seedWaiting(WidgetTester tester) => tester.runAsync(() async {
     final kenya = await samples.card('Kenya', 'Nairobi', groupId: capitalsId);
-    await samples.card('Maroc', 'Rabat', groupId: capitalsId);
+    await samples.card('Morocco', 'Rabat', groupId: capitalsId);
     await samples.cards.setSuspended(kenya, suspended: true);
     final myanmar = (await CardRepository(database).getCardsOfGroup(capitalsId))
         .firstWhere((card) => card.frontText == 'Myanmar');
@@ -75,10 +75,9 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    expect(find.text('4 cartes · distillation'), findsOneWidget);
-    expect(find.text('2 cartes'), findsOneWidget);
+    expect(find.text('4 cards · distillation'), findsOneWidget);
+    expect(find.text('2 cards'), findsOneWidget);
     await expectLater(
       find.byType(GroupsScreen),
       matchesGoldenFile('goldens/groups_tab.png'),
@@ -98,7 +97,6 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
     await expectLater(
       find.byType(GroupsScreen),
@@ -112,7 +110,6 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
     await tester.enterText(find.byType(TextField), 'an');
     await tester.pumpAndSettle();
@@ -135,7 +132,6 @@ void main() {
         GroupDetailScreen(groupId: capitalsId),
         brightness: brightness,
         overrides: screenOverrides(database, sampleNow),
-        locale: const Locale('fr'),
       );
       await expectLater(
         find.byType(GroupDetailScreen),
@@ -153,23 +149,22 @@ void main() {
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    final acquired = find.text('Acquises · 1');
+    final acquired = find.text('Learned · 1');
     await tester.scrollUntilVisible(acquired, 200);
-    expect(find.text('En cours · 4'), findsOneWidget);
-    expect(find.text('En attente · 2'), findsOneWidget);
-    expect(find.text('prochaine'), findsOneWidget);
-    final maroc = find.ancestor(
-      of: find.text('Maroc'),
+    expect(find.text('In progress · 4'), findsOneWidget);
+    expect(find.text('Waiting · 2'), findsOneWidget);
+    expect(find.text('next'), findsOneWidget);
+    final morocco = find.ancestor(
+      of: find.text('Morocco'),
       matching: find.byType(CardListTile),
     );
     expect(
-      find.descendant(of: maroc, matching: find.text('prochaine')),
+      find.descendant(of: morocco, matching: find.text('next')),
       findsOneWidget,
     );
-    expect(find.text('Dues'), findsNothing);
-    expect(find.textContaining('Réviser les'), findsNothing);
+    expect(find.text('Active'), findsNothing);
+    expect(find.textContaining('Review the'), findsNothing);
   });
 
   testWidgets('the acquired cards are apart, folded until touched', (
@@ -181,9 +176,8 @@ void main() {
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    final title = find.text('Acquises · 1');
+    final title = find.text('Learned · 1');
     await tester.scrollUntilVisible(title, 200);
     expect(find.text('Chile'), findsNothing);
     await tester.tap(title);
@@ -205,11 +199,10 @@ void main() {
         GroupSettingsScreen(groupId: capitalsId),
         brightness: brightness,
         overrides: screenOverrides(database, sampleNow),
-        locale: const Locale('fr'),
       );
       expect(
         find.text(
-          'La carte reste dans le cycle et revient toujours au bout de 6 mois.',
+          'The card stays in the cycle and always comes back after 6\u00A0mo.',
         ),
         findsOneWidget,
       );
@@ -227,7 +220,6 @@ void main() {
       tester,
       GroupSettingsScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
     Future<CardGroup> tapThenRead(Finder finder) async {
       await tester.runAsync(() async {
@@ -240,23 +232,23 @@ void main() {
       ))!;
     }
 
-    var group = await tapThenRead(find.text('1 an'));
+    var group = await tapThenRead(find.text(l10n.intervalYears(1)));
     expect(group.remanenceInterval, RemanenceInterval.oneYear);
     expect(
       find.text(
-        'La carte reste dans le cycle et revient toujours au bout de 1 an.',
+        'The card stays in the cycle and always comes back after 1\u00A0yr.',
       ),
       findsOneWidget,
     );
     group = await tapThenRead(find.byType(Switch).first);
     expect(group.typedAnswer, isTrue);
-    group = await tapThenRead(find.text('Acquise'));
+    group = await tapThenRead(find.text(l10n.groupAcquired));
     expect(group.afterLastStep, AfterLastStep.acquired);
-    expect(find.text('Revient tous les'), findsNothing);
+    expect(find.text('Comes back every'), findsNothing);
     expect(
       find.text(
-        'Une fois le dernier cran réussi, la carte est acquise : elle ne '
-        'revient plus.',
+        'Once the last step is passed, the card is learned: it never comes '
+        'back.',
       ),
       findsOneWidget,
     );
@@ -270,10 +262,9 @@ void main() {
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
     await tester.runAsync(() async {
-      await tester.tap(find.text('Activer le verso'));
+      await tester.tap(find.text(l10n.groupReverseEnable));
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
     await tester.pumpAndSettle();
@@ -281,7 +272,7 @@ void main() {
       () => GroupRepository(database).find(capitalsId),
     );
     expect(group!.reverseEnabled, isTrue);
-    expect(find.text('Désactiver le verso'), findsOneWidget);
+    expect(find.text('Disable the back'), findsOneWidget);
   });
 
   testWidgets('"Distill" opens the activation of the distillation', (
@@ -292,11 +283,10 @@ void main() {
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Distiller'));
+    await tester.tap(find.widgetWithText(FilledButton, l10n.distillTitle));
     await tester.pumpAndSettle();
-    expect(find.text('Activer la distillation'), findsOneWidget);
+    expect(find.text('Start distilling'), findsOneWidget);
     expect(find.byType(DistillScreen), findsOneWidget);
   });
 
@@ -322,11 +312,10 @@ void main() {
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
-      locale: const Locale('fr'),
     );
-    await tester.ensureVisible(find.text('Tout réviser'));
+    await tester.ensureVisible(find.text(l10n.groupReviewAll));
     await tester.runAsync(() async {
-      await tester.tap(find.text('Tout réviser'));
+      await tester.tap(find.text(l10n.groupReviewAll));
       await Future<void>.delayed(const Duration(milliseconds: 200));
     });
     await tester.pumpAndSettle();

@@ -22,8 +22,8 @@ class ReviewTexts {
       prompt.isEmpty ? strings.notificationImagePrompt : prompt;
 
   /// Line under the asked face: its group, and the cards left when the card
-  /// is chained in a grouped reminder ("Capitales · 3 à réviser"); preceded
-  /// by "verso → recto" when the back is asked, and by the bonus mention of
+  /// is chained in a grouped reminder ("Capitals · 3 to review"); preceded
+  /// by "back → front" when the back is asked, and by the bonus mention of
   /// an extra reminder.
   String promptDetail(ReviewPrompt prompt) {
     final remaining = prompt.chainRemaining;
@@ -37,33 +37,33 @@ class ReviewTexts {
     ].join(' · ');
   }
 
-  /// "Capitales : 5 cartes à réviser".
+  /// "Capitals: 5 cards to review".
   String groupReminderTitle(GroupReminder reminder) =>
       strings.notificationGroupTitle(reminder.groupName, reminder.count);
 
-  /// "Environ 3 min".
+  /// "About 3 min".
   String groupReminderDetail(GroupReminder reminder) =>
       strings.reviewDuration(reminder.count);
 
-  /// "12 cartes à réviser".
+  /// "12 cards to review".
   String digestTitle(NotificationDigest digest) =>
       strings.notificationDigestTitle(digest.count);
 
-  /// "Capitales, Espagnol · Environ 6 min".
+  /// "Capitals, Spanish · About 6 min".
   String digestDetail(NotificationDigest digest) {
     final groups = digest.groupNames.join(', ');
     return '$groups · ${strings.reviewDuration(digest.count)}';
   }
 
-  /// "Réponse : Lima", or a mention of the image for an answer face that
+  /// "Answer: Lima", or a mention of the image for an answer face that
   /// has no text.
   String answerLine(String answer) => answer.isEmpty
       ? strings.notificationAnswerImage
       : strings.notificationAnswer(answer);
 
-  /// How the typed answer compared, then what the answer did: "« canbera »
-  /// accepté, 1 faute · prochain rappel demain", "« Quito » refusé · Compté
-  /// raté · revue demain", or the bonus mention.
+  /// How the typed answer compared, then what the answer did: "\"canbera\"
+  /// accepted, 1 typo · next reminder tomorrow", "\"Quito\" refused · Counted
+  /// as missed · review tomorrow", or the bonus mention.
   String verdict(TypedAnswerVerdict verdict) {
     final typedPart = strings.typedAnswerVerdict(verdict.typed, verdict.match);
     final effect = strings.typedAnswerEffect(

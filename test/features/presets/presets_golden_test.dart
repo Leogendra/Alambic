@@ -68,7 +68,7 @@ void main() {
     );
     expect(presets!.map((preset) => preset.name), [
       'Standard',
-      'Intensif',
+      'Intensive',
       'Intensif (copie)',
     ]);
   });

@@ -2,7 +2,7 @@ import '../../domain/presets/interval_unit.dart';
 import '../../domain/presets/preset_interval.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Short labels of intervals: "10 min", "1 j", "3 mois".
+/// Short labels of intervals: "10 min", "1 d", "3 mo".
 extension IntervalLabels on AppLocalizations {
   String intervalLabel(PresetInterval interval) =>
       intervalAmount(interval.amount, interval.unit);

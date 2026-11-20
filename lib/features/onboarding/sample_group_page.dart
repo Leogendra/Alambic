@@ -29,7 +29,10 @@ class SampleGroupPage extends ConsumerWidget {
       ),
       illustration: cards == null || cards.isEmpty
           ? null
-          : _SampleGroupTile(name: strings.sampleGroupName, cards: cards),
+          : _SampleGroupTile(
+              name: strings.onboardingSampleGroupName,
+              cards: cards,
+            ),
     );
   }
 }

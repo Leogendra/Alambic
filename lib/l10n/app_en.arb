@@ -13,11 +13,53 @@
   "commonClose": "Close",
   "commonOk": "OK",
   "intervalMinutes": "{amount} min",
+  "@intervalMinutes": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "intervalHours": "{amount} h",
+  "@intervalHours": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "intervalDays": "{amount} d",
+  "@intervalDays": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "intervalWeeks": "{amount} wk",
+  "@intervalWeeks": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "intervalMonths": "{amount} mo",
+  "@intervalMonths": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "intervalYears": "{amount} yr",
+  "@intervalYears": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
   "unitMinutes": "minutes",
   "unitHours": "hours",
   "unitDays": "days",
@@ -30,15 +72,52 @@
   "settingsNotificationsSection": "Notifications",
   "settingsGuards": "Safeguards",
   "settingsGuardsSummary": "{cap} a day max · quiet {start} to {end}",
+  "@settingsGuardsSummary": {
+    "placeholders": {
+      "cap": {
+        "type": "int"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
   "settingsGuardsSummaryNoQuiet": "{cap} a day max",
+  "@settingsGuardsSummaryNoQuiet": {
+    "placeholders": {
+      "cap": {
+        "type": "int"
+      }
+    }
+  },
   "guardsTitle": "Safeguards",
   "guardsDailyCap": "Daily cap",
   "guardsDailyCapHint": "Card notifications, all groups",
   "guardsDecrease": "Decrease",
   "guardsIncrease": "Increase",
   "guardsTomorrow": "{count, plural, =0{Tomorrow: no card due} =1{Tomorrow: 1 card due} other{Tomorrow: {count} cards due}}",
+  "@guardsTomorrow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "guardsTomorrowAllSent": "All notified.",
   "guardsTomorrowSplit": "{sent} notified. {postponed} moved to the next day: the longest intervals go last.",
+  "@guardsTomorrowSplit": {
+    "placeholders": {
+      "sent": {
+        "type": "int"
+      },
+      "postponed": {
+        "type": "int"
+      }
+    }
+  },
   "guardsQuietHours": "Do not disturb",
   "guardsQuietHoursHint": "Notifications moved to the end of the range",
   "guardsQuietFrom": "From",
@@ -51,18 +130,73 @@
   "presetEdit": "Edit",
   "presetMakeDefault": "Make default",
   "presetActions": "Actions for {name}",
+  "@presetActions": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "presetFailureSummary": "On failure: {behavior}",
+  "@presetFailureSummary": {
+    "placeholders": {
+      "behavior": {
+        "type": "String"
+      }
+    }
+  },
   "presetFailureStepBackShort": "one step back",
   "presetFailureRestartShort": "back to start",
   "presetFailureStayShort": "stays on the same step",
   "presetDeleteConfirmTitle": "Delete \"{name}\"?",
+  "@presetDeleteConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "presetDeleteConfirmBody": "{count, plural, =0{No group uses it.} =1{One group uses it: it will move to the default preset, {defaultName}, keeping its steps and due dates.} other{{count} groups use it: they will move to the default preset, {defaultName}, keeping their steps and due dates.}}",
+  "@presetDeleteConfirmBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "defaultName": {
+        "type": "String"
+      }
+    }
+  },
   "presetGlobalBadge": "Default",
   "scheduleRangeValue": "{start} to {end}",
+  "@scheduleRangeValue": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
   "presetNewName": "New preset",
   "presetCopyName": "{name} (copy)",
+  "@presetCopyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "presetDuplicate": "Duplicate",
   "presetDuplicated": "Copy created: {name}",
+  "@presetDuplicated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "presetEditorName": "Name",
   "presetEditorSteps": "Steps",
   "presetEditorAddStep": "Step",
@@ -98,6 +232,13 @@
   "presetEditorStepUnit": "Unit",
   "presetPickerTitle": "Choose a preset",
   "presetPickerInherit": "Inherit: {name}",
+  "@presetPickerInherit": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "cardEditorNewTitle": "New card",
   "cardEditorEditTitle": "Edit card",
   "cardEditorCreate": "Create",
@@ -109,6 +250,13 @@
   "cardGroupNone": "Choose",
   "cardPreset": "Preset",
   "cardPresetInheritedGlobal": "Global preset: {name}",
+  "@cardPresetInheritedGlobal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "cardIncomplete": "The front and the back each need a text or an image.",
   "cardGroupMissing": "Choose a group for this card.",
   "groupPickerTitle": "Put in a group",
@@ -116,15 +264,50 @@
   "groupsSearchHint": "Search the cards",
   "groupsNoResult": "No card found",
   "cardCount": "{count, plural, =0{no card} =1{1 card} other{{count} cards}}",
+  "@cardCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "groupLineDistilling": "{cards} · distillation",
+  "@groupLineDistilling": {
+    "placeholders": {
+      "cards": {
+        "type": "String"
+      }
+    }
+  },
   "newGroupTitle": "New group",
   "groupNameLabel": "Name",
+  "groupCardsSection": "Cards",
   "groupOngoingSection": "In progress · {count}",
+  "@groupOngoingSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "groupWaitingSection": "Waiting · {count}",
+  "@groupWaitingSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "groupNextCard": "next",
   "groupAcquiredSection": "Learned · {count}",
+  "@groupAcquiredSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "groupReviewAll": "Review all",
-  "groupCardsSection": "Cards",
   "groupEmpty": "No card yet. Add some with the + button or with bulk add.",
   "groupSettingsTitle": "Group settings",
   "groupSettingsRepetition": "Repetition",
@@ -141,10 +324,31 @@
   "groupAcquired": "Learned",
   "groupRemanenceEvery": "Comes back every",
   "groupRemanenceEffect": "The card stays in the cycle and always comes back after {interval}.",
+  "@groupRemanenceEffect": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
   "groupAcquiredEffect": "Once the last step is passed, the card is learned: it never comes back.",
   "groupDelete": "Delete the group",
   "groupDeleteConfirmTitle": "Delete \"{name}\"?",
+  "@groupDeleteConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "groupDeleteConfirmBody": "{count, plural, =0{The group is empty.} =1{Its card and its history will be deleted.} other{Its {count} cards and their history will be deleted.}}",
+  "@groupDeleteConfirmBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "groupSettingsTooltip": "Group settings",
   "cardImageOnly": "Image",
   "cardAddImage": "Image",
@@ -154,23 +358,82 @@
   "cardStatusAcquired": "learned",
   "dueNow": "Due",
   "dueAtTime": "at {time}",
+  "@dueAtTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "dueTomorrow": "tomorrow",
   "dueInDays": "in {days} d",
+  "@dueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "bulkTitle": "Bulk add",
   "bulkSeparator": "Separator",
   "bulkSeparatorHint": "Between front and back, on each line",
   "bulkTextHint": "One card per line:\nfront ; back",
   "bulkReady": "{count, plural, =0{No card ready} =1{1 card ready} other{{count} cards ready}}",
+  "@bulkReady": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bulkErrorMissingSeparator": "Line {line} skipped: no \"{separator}\"",
+  "@bulkErrorMissingSeparator": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      },
+      "separator": {
+        "type": "String"
+      }
+    }
+  },
   "bulkErrorEmptyFace": "Line {line} skipped: empty front or back",
+  "@bulkErrorEmptyFace": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      }
+    }
+  },
   "bulkAddButton": "{count, plural, =0{Add} =1{Add 1 card} other{Add {count} cards}}",
+  "@bulkAddButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bulkAdded": "{count, plural, =1{1 card added} other{{count} cards added}}",
+  "@bulkAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bulkTooltip": "Bulk add",
   "bulkOrder": "Order",
   "bulkOrderListed": "In order",
   "bulkOrderShuffled": "Shuffle",
   "bulkFirst": "First",
   "bulkAfterPending": "{count, plural, =1{after the card already waiting} other{after the {count} cards already waiting}}",
+  "@bulkAfterPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "reviewCorrect": "Correct",
   "reviewAgain": "Again",
   "sessionQuit": "Quit the session",
@@ -179,20 +442,64 @@
   "sessionNext": "Next",
   "sessionSubmitAnswer": "Check the answer",
   "sessionProgress": "{position} / {total}",
+  "@sessionProgress": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "sessionReverseBadge": "back → front",
-  "answerAcquired": "learned",
-  "answerNoEffect": "no effect",
+  "reviewAcquired": "learned",
+  "reviewNoEffect": "no effect",
   "sessionFinished": "Session finished",
   "sessionSummary": "{count, plural, =1{1 card in {duration}} other{{count} cards in {duration}}}",
+  "@sessionSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
   "sessionCorrectLabel": "correct",
   "sessionAgainLabel": "again",
   "sessionNextReminder": "Next reminder",
   "sessionBackHome": "Back to Home",
   "sessionReviewMissed": "{count, plural, =1{Review the missed card now} other{Review the {count} missed cards now}}",
+  "@sessionReviewMissed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "sessionBonusHint": "Bonus review: the due dates do not move.",
   "sessionBonusBadge": "Bonus",
   "durationMinutesSeconds": "{minutes} min {seconds}",
+  "@durationMinutesSeconds": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
   "durationSeconds": "{seconds} s",
+  "@durationSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "cardSheetTapToReview": "Tap the card to review it now.",
   "cardSheetNextReview": "Next review",
   "cardSheetDueNow": "Due now",
@@ -211,11 +518,39 @@
   "cardSheetDelete": "Delete the card",
   "cardSheetDeleteConfirm": "Delete this card and its history?",
   "cardSheetReminder": "Reminder planned {date}",
+  "@cardSheetReminder": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "cardSheetReminderRemove": "Remove the reminder",
-  "historyBonus": "bonus",
-  "historyTo": "→ {interval}",
-  "historyBackTo": "back to {interval}",
+  "cardSheetHistoryBonus": "bonus",
+  "cardSheetHistoryTo": "→ {interval}",
+  "@cardSheetHistoryTo": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "cardSheetHistoryBackTo": "back to {interval}",
+  "@cardSheetHistoryBackTo": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
   "reviewSoonBody": "One more reminder for \"{front}\". The answer is kept in the history but does not change the schedule.",
+  "@reviewSoonBody": {
+    "placeholders": {
+      "front": {
+        "type": "String"
+      }
+    }
+  },
   "reviewSoonDay": "Day",
   "reviewSoonTomorrow": "Tomorrow",
   "reviewSoonDayAfter": "Day after tomorrow",
@@ -224,6 +559,13 @@
   "reviewSoonTime": "Time",
   "reviewSoonAdd": "Add the reminder",
   "reviewSoonAdded": "Reminder added: {date}",
+  "@reviewSoonAdded": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "reviewSoonPast": "This moment has already passed.",
   "homeTitle": "Coming up",
   "homeToday": "Today",
@@ -231,11 +573,42 @@
   "homeTodayEmpty": "Nothing planned today.",
   "homeLate": "late",
   "homeDelayHours": "{count}H",
+  "@homeDelayHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "homeDelayDays": "{count}D",
+  "@homeDelayDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "homeComingMonth": "Next month",
   "homeComingYear": "Next year",
   "homeArrivals": "{group}: {count, plural, =1{1 new card} other{{count} new cards}}",
+  "@homeArrivals": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "pausedSince": "Paused since {date}",
+  "@pausedSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "pausedHint": "No new distillation card. Reminders go on.",
   "pauseResume": "Resume",
   "pauseGlobal": "Global pause",
@@ -245,25 +618,108 @@
   "pauseAllConfirmBody": "No group receives a new card until you resume. Reminders and their notifications go on.",
   "pauseAllConfirm": "Pause",
   "groupLinePaused": "{cards} · Paused",
+  "@groupLinePaused": {
+    "placeholders": {
+      "cards": {
+        "type": "String"
+      }
+    }
+  },
   "homeDuration": "About {minutes} min",
+  "@homeDuration": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "notificationChannelName": "Reviews",
   "notificationChannelDescription": "The cards to review, with their answer buttons.",
   "notificationImagePrompt": "What does this image show?",
   "notificationAnswerImage": "Answer in the image",
   "notificationExtra": "Review soon · no effect on the schedule",
   "notificationAnswer": "Answer: {answer}",
+  "@notificationAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
   "typedAnswerBonus": "Bonus review · no effect",
   "notificationAnswerButton": "Answer",
   "typedAnswerField": "Your answer",
   "typedAnswerAccepted": "\"{typed}\" accepted",
+  "@typedAnswerAccepted": {
+    "placeholders": {
+      "typed": {
+        "type": "String"
+      }
+    }
+  },
   "typedAnswerAcceptedTypo": "\"{typed}\" accepted, 1 typo",
+  "@typedAnswerAcceptedTypo": {
+    "placeholders": {
+      "typed": {
+        "type": "String"
+      }
+    }
+  },
   "typedAnswerRefused": "\"{typed}\" refused",
+  "@typedAnswerRefused": {
+    "placeholders": {
+      "typed": {
+        "type": "String"
+      }
+    }
+  },
   "typedAnswerNextReview": "next reminder {when}",
+  "@typedAnswerNextReview": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
   "typedAnswerFailed": "Counted as missed · review {when}",
+  "@typedAnswerFailed": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
   "typedAnswerAcquired": "card learned",
   "notificationGroupTitle": "{group}: {count, plural, =1{1 card to review} other{{count} cards to review}}",
+  "@notificationGroupTitle": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notificationChainRemaining": "{group} · {count} to review",
+  "@notificationChainRemaining": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notificationDigestTitle": "{count, plural, =1{1 card to review} other{{count} cards to review}}",
+  "@notificationDigestTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notificationStartHere": "Start here",
   "notificationOpenApp": "Open the app",
   "notificationReveal": "Reveal",
@@ -275,10 +731,27 @@
   "distillTitle": "Distill",
   "distillAdjustTitle": "Adjust the distillation",
   "distillIntro": "The waiting cards of the group arrive a few at a time, at the reminder time ({time}). Each then follows the {preset} preset.",
+  "@distillIntro": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "preset": {
+        "type": "String"
+      }
+    }
+  },
   "distillRhythm": "Rhythm",
   "distillCards": "Cards",
   "distillEvery": "Every",
   "distillDays": "{count} d",
+  "@distillDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "distillFewerCards": "Fewer cards",
   "distillMoreCards": "More cards",
   "distillFewerDays": "Fewer days",
@@ -286,6 +759,16 @@
   "distillPrioritizeReviews": "Prioritize reviews",
   "distillPrioritizeReviewsHint": "On a batch day, each card of the group due for review takes the place of a new card.",
   "distillEstimate": "{count, plural, =1{1 card · arrives around {date}} other{{count} cards · last one arrives around {date}}}",
+  "@distillEstimate": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "distillNothing": "No card waiting. Cards added to the group will arrive at this rhythm.",
   "distillActivate": "Start distilling",
   "groupDistillationSection": "Distillation",
@@ -294,12 +777,47 @@
   "distillPause": "Pause",
   "distillPauseHint": "While paused, no new card comes out; reminders go on.",
   "distillPausedHint": "Paused since {date}: no new card comes out, reminders go on.",
+  "@distillPausedHint": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "distillPausedTag": "paused",
   "distillationNoArrival": "no arrival planned",
   "distillationWaiting": "{count, plural, =0{No card waiting} =1{1 card waiting} other{{count} cards waiting}}",
+  "@distillationWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "distillationCardsPer": "{count, plural, =1{1 card} other{{count} cards}}",
+  "@distillationCardsPer": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "distillationEveryDays": "{count, plural, =1{a day} other{every {count} days}}",
+  "@distillationEveryDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "distillationLastArrival": "last around {date}",
+  "@distillationLastArrival": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "settingsDataSection": "Data",
   "backupExport": "Export data",
   "backupExportHint": "A .zip file with the cards, the history, the settings and the images",
@@ -308,6 +826,16 @@
   "backupImportHint": "Replaces all the current data with the data of a .zip file",
   "backupImportConfirmTitle": "Replace all the data?",
   "backupImportConfirmBody": "This file holds {cards, plural, =1{1 card} other{{cards} cards}} in {groups, plural, =1{1 group} other{{groups} groups}}. All the current data (cards, history, presets, settings) will be replaced, with no way back.",
+  "@backupImportConfirmBody": {
+    "placeholders": {
+      "cards": {
+        "type": "int"
+      },
+      "groups": {
+        "type": "int"
+      }
+    }
+  },
   "backupImportConfirm": "Replace",
   "backupImportDone": "Data imported",
   "backupNotABackup": "This file is not an Alambic backup.",
@@ -332,7 +860,7 @@
   "onboardingSampleTitle": "A group to start with",
   "onboardingSampleBody": "Its cards are waiting. Distill it, and they will arrive as notifications, one a day.",
   "onboardingSampleFirstCard": "First card",
-  "sampleGroupName": "NATO alphabet",
+  "onboardingSampleGroupName": "NATO alphabet",
   "onboardingSkip": "Skip",
   "presetNameStandard": "Standard",
   "presetNameIntensive": "Intensive",

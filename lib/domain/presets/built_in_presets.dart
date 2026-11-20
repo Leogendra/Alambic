@@ -23,7 +23,7 @@ abstract final class BuiltInPresets {
 
   static const Preset intensive = Preset(
     id: 0,
-    name: 'Intensif',
+    name: 'Intensive',
     builtInKey: BuiltInPresetKey.intensive,
     intervals: [
       PresetInterval(10, IntervalUnit.minute),

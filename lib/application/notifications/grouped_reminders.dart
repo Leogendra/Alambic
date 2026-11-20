@@ -18,7 +18,7 @@ import 'review_notification_key.dart';
 import 'review_prompt.dart';
 
 /// The grouped reminders: in this notification mode, a single notification
-/// per group for its due cards ("Capitales : 5 cartes à réviser"). It opens the
+/// per group for its due cards ("Capitals: 5 cards to review"). It opens the
 /// app on the group, or chains the cards inside the notification, each answer
 /// replacing the card with the next one.
 class GroupedReminders {

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'alambic_colors.dart';
 
-/// Material 3 themes built on the "hybride à plat" tokens: DM Sans, flat
+/// Material 3 themes built on the "flat hybrid" tokens: DM Sans, flat
 /// surfaces with 1 px borders, no shadow.
 abstract final class AlambicTheme {
   static const String fontFamily = 'DM Sans';

@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Dates as the mockup writes them: "2 nov.", "ven. 13 nov.",
-/// "ven. 13 nov., 12:00", "23 décembre".
+/// Dates as the mockup writes them: "Nov 2", "Fri, Nov 13",
+/// "Fri, Nov 13, 12:00", "December 23".
 extension DateLabels on AppLocalizations {
   String shortDate(DateTime moment) =>
       DateFormat.MMMd(localeName).format(moment);

@@ -67,7 +67,7 @@ class AnswerButtons extends ConsumerWidget {
     CardSchedule? schedule,
   ) {
     if (schedule?.state == CardState.acquired) {
-      return strings.answerAcquired;
+      return strings.reviewAcquired;
     } else if (schedule?.dueAt == null || formatter == null) {
       return null;
     } else {

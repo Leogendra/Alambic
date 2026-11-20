@@ -37,7 +37,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     setState(() => _isFinishing = true);
     final groupId = await ref
         .read(sampleGroupServiceProvider)
-        .create(AppLocalizations.of(context).sampleGroupName);
+        .create(AppLocalizations.of(context).onboardingSampleGroupName);
     if (openGroup) {
       ref.read(firstGroupProvider.notifier).remember(groupId);
     }

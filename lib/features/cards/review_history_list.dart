@@ -14,7 +14,7 @@ import '../../domain/reviews/review_record.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// Answers given to one card, most recent first, with their effect:
-/// "→ 1 mois", "recule à 2 j", "acquise", or "sans effet" for a bonus.
+/// "→ 1 mo", "back to 2 d", "learned", or "no effect" for a bonus.
 class ReviewHistoryList extends ConsumerWidget {
   const ReviewHistoryList({
     required this.cardId,
@@ -100,7 +100,7 @@ class ReviewHistoryList extends ConsumerWidget {
       borderRadius: BorderRadius.circular(6),
     ),
     child: Text(
-      strings.historyBonus,
+      strings.cardSheetHistoryBonus,
       style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
@@ -120,14 +120,14 @@ class ReviewHistoryList extends ConsumerWidget {
       },
     };
     if (record.isBonus) {
-      return strings.answerNoEffect;
+      return strings.reviewNoEffect;
     } else if (reached == null) {
-      return strings.answerAcquired;
+      return strings.reviewAcquired;
     } else {
       final interval = strings.intervalLabel(reached);
       return record.outcome == ReviewOutcome.correct
-          ? strings.historyTo(interval)
-          : strings.historyBackTo(interval);
+          ? strings.cardSheetHistoryTo(interval)
+          : strings.cardSheetHistoryBackTo(interval);
     }
   }
 }

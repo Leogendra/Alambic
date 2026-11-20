@@ -225,7 +225,7 @@ class _CardRow extends StatelessWidget {
       strings.dueAtTime(ClockTime(entry.at.hour, entry.at.minute).toString());
 }
 
-/// "Capitales: 2 new cards", opening the group.
+/// "Capitals: 2 new cards", opening the group.
 class _ArrivalRow extends StatelessWidget {
   const _ArrivalRow({required this.arrival, required this.groupName});
 

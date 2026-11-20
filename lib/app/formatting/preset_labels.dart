@@ -23,19 +23,19 @@ extension PresetLabels on AppLocalizations {
     BuiltInPresetKey.intensive => presetNameIntensive,
   };
 
-  /// The steps of the sequence: "1 j · 2 j · 1 sem".
+  /// The steps of the sequence: "1 d · 2 d · 1 wk".
   String presetStepsSummary(Preset preset) =>
       preset.intervals.map(intervalLabel).join(' · ');
 
-  /// The failure behaviour in a few words, for a preset tile: "recule d'un
-  /// cran".
+  /// The failure behaviour in a few words, for a preset tile: "one step
+  /// back".
   String failureSummary(FailureBehavior behavior) => switch (behavior) {
     FailureBehavior.stepBack => presetFailureStepBackShort,
     FailureBehavior.restart => presetFailureRestartShort,
     FailureBehavior.stay => presetFailureStayShort,
   };
 
-  /// What a missed card does: "Une carte ratée revient au cran précédent."
+  /// What a missed card does: "A missed card goes back to the previous step."
   String failureEffect(FailureBehavior behavior) => switch (behavior) {
     FailureBehavior.stepBack => presetFailureStepBackEffect,
     FailureBehavior.restart => presetFailureRestartEffect,

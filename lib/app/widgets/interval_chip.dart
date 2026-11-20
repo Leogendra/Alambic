@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/alambic_colors.dart';
 
-/// A step of a sequence ("1 sem"), highlighted when it is the current step.
+/// A step of a sequence ("1 wk"), highlighted when it is the current step.
 class IntervalChip extends StatelessWidget {
   const IntervalChip({
     required this.label,

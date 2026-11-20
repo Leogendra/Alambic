@@ -1,6 +1,6 @@
 import 'group_reminder_key.dart';
 
-/// Content of a grouped reminder: "Capitales : 5 cartes à réviser".
+/// Content of a grouped reminder: "Capitals: 5 cards to review".
 class GroupReminder {
   const GroupReminder({
     required this.key,

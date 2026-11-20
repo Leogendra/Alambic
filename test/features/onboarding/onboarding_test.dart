@@ -19,6 +19,7 @@ import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
@@ -33,7 +34,7 @@ void main() {
     store = FakeInterfaceSettingsStore();
   });
 
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   List<Override> overrides({bool onboardingDone = false}) => [
     ...screenOverrides(database, sampleNow),
@@ -69,15 +70,13 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('the first launch opens on the welcome screens', (tester) async {
+  testScreen('the first launch opens on the welcome screens', (tester) async {
     await pumpApp(tester);
     expect(find.byType(OnboardingScreen), findsOneWidget);
     expect(find.byType(MainShell), findsNothing);
   });
 
-  testWidgets('a launch after the onboarding opens on the tabs', (
-    tester,
-  ) async {
+  testScreen('a launch after the onboarding opens on the tabs', (tester) async {
     await pumpApp(tester, onboardingDone: true);
     expect(find.byType(MainShell), findsOneWidget);
   });
@@ -120,7 +119,7 @@ void main() {
     return [for (final group in groups!) group.name];
   }
 
-  testWidgets('going through the four screens asks the permissions, creates '
+  testScreen('going through the four screens asks the permissions, creates '
       'the sample group, then opens it', (tester) async {
     await pumpApp(tester);
     await tapAndSettle(tester, find.text(l10n.onboardingNext));
@@ -149,7 +148,7 @@ void main() {
     expect(find.text(l10n.groupDistillWaiting), findsOneWidget);
   });
 
-  testWidgets('"Skip" opens the tabs, the sample group created all the same', (
+  testScreen('"Skip" opens the tabs, the sample group created all the same', (
     tester,
   ) async {
     await pumpApp(tester);
@@ -162,7 +161,7 @@ void main() {
     expect(find.byType(GroupDetailScreen), findsNothing);
   });
 
-  testWidgets('"Skip" on the first screen ends the onboarding as well', (
+  testScreen('"Skip" on the first screen ends the onboarding as well', (
     tester,
   ) async {
     await pumpApp(tester);
@@ -174,7 +173,7 @@ void main() {
     expect(find.byType(MainShell), findsOneWidget);
   });
 
-  testWidgets('exact alarms already allowed, the system page is not opened', (
+  testScreen('exact alarms already allowed, the system page is not opened', (
     tester,
   ) async {
     alarms.exactAllowed = true;
@@ -187,7 +186,7 @@ void main() {
     expect(find.text(l10n.onboardingSampleTitle), findsOneWidget);
   });
 
-  testWidgets('"Back" returns to the previous screen, absent on the first', (
+  testScreen('"Back" returns to the previous screen, absent on the first', (
     tester,
   ) async {
     await pumpApp(tester);
@@ -202,7 +201,7 @@ void main() {
     expect(find.byTooltip('Back'), findsNothing);
   });
 
-  testWidgets('"Test notification" shows a card notification at once, after '
+  testScreen('"Test notification" shows a card notification at once, after '
       'asking for notifications', (tester) async {
     await pumpApp(tester);
     await reachPermissions(tester);
@@ -214,7 +213,7 @@ void main() {
     expect(find.text(l10n.onboardingPermissionsTitle), findsOneWidget);
   });
 
-  testWidgets('notifications refused, "Test notification" shows nothing', (
+  testScreen('notifications refused, "Test notification" shows nothing', (
     tester,
   ) async {
     presenter.notificationsAllowed = false;
@@ -225,7 +224,7 @@ void main() {
     expect(presenter.testPrompt, isNull);
   });
 
-  testWidgets('in French, the sample group is named in French', (tester) async {
+  testScreen('in French, the sample group is named in French', (tester) async {
     await pumpApp(tester, locale: const Locale('fr'));
     await tapAndSettle(tester, find.text('Suivant'));
     await waitForSampleCards(tester);
@@ -240,7 +239,7 @@ void main() {
     expect(cards!.map((card) => card.backText), contains('Kaboul'));
   });
 
-  testWidgets('the sample group is created once: a later launch, even after '
+  testScreen('the sample group is created once: a later launch, even after '
       'its deletion, does not create it again', (tester) async {
     await pumpApp(tester);
     await reachSampleGroup(tester);
@@ -260,7 +259,7 @@ void main() {
     expect(await groupNames(tester), isEmpty);
   });
 
-  testWidgets('the welcome screens', (tester) async {
+  testScreen('the welcome screens', (tester) async {
     await pumpGolden(tester, const OnboardingScreen(), overrides: overrides());
     await expectLater(
       find.byType(OnboardingScreen),
@@ -284,7 +283,7 @@ void main() {
     );
   });
 
-  testWidgets('the reminders screen in French', (tester) async {
+  testScreen('the reminders screen in French', (tester) async {
     await pumpGolden(
       tester,
       const OnboardingScreen(),
@@ -300,7 +299,7 @@ void main() {
     );
   });
 
-  testWidgets('the welcome screen in dark theme', (tester) async {
+  testScreen('the welcome screen in dark theme', (tester) async {
     await pumpGolden(
       tester,
       const OnboardingScreen(),

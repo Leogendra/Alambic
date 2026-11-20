@@ -8,12 +8,13 @@ import 'package:alambic/features/cards/card_editor_screen.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
 
   setUp(() => database = openTestDatabase());
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   Future<void> pumpEditor(WidgetTester tester) async {
     await pumpGolden(
@@ -43,7 +44,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('a card without group is not created', (tester) async {
+  testScreen('a card without group is not created', (tester) async {
     await pumpEditor(tester);
     await create(tester);
     expect(find.text('Choose a group for this card.'), findsOneWidget);
@@ -53,7 +54,7 @@ void main() {
     expect(cards, isEmpty);
   });
 
-  testWidgets('"+" creates a group and puts the card in it', (tester) async {
+  testScreen('"+" creates a group and puts the card in it', (tester) async {
     await pumpEditor(tester);
     await tester.tap(find.byTooltip(l10n.newGroupTitle));
     await nameGroup(tester, 'Capitals');
@@ -69,7 +70,7 @@ void main() {
     expect(card.groupId, groups.single.id);
   });
 
-  testWidgets('with no group yet, the group row asks for a name', (
+  testScreen('with no group yet, the group row asks for a name', (
     tester,
   ) async {
     await pumpEditor(tester);

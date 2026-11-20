@@ -11,13 +11,14 @@ import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
   late int japaneseId;
 
   setUp(() => database = openTestDatabase());
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   /// Sample data, and a "Japanese" group of six cards distilled one card a
   /// day, activated at 9am unless [activate] is false.
@@ -45,7 +46,7 @@ void main() {
     });
   }
 
-  testWidgets('activating a distillation', (tester) async {
+  testScreen('activating a distillation', (tester) async {
     await seed(tester, activate: false);
     await pumpGolden(
       tester,
@@ -62,7 +63,7 @@ void main() {
     );
   });
 
-  testWidgets('during the global pause, the waiting cards instead of an '
+  testScreen('during the global pause, the waiting cards instead of an '
       'estimate', (tester) async {
     await seed(tester, activate: false);
     await tester.runAsync(
@@ -79,7 +80,7 @@ void main() {
     expect(find.text('6 cards waiting · paused', findRichText: true), findsOne);
   });
 
-  testWidgets('distillation followed on the group page', (tester) async {
+  testScreen('distillation followed on the group page', (tester) async {
     await seed(tester);
     await pumpGolden(
       tester,
@@ -93,7 +94,7 @@ void main() {
     );
   });
 
-  testWidgets('new cards on the home timeline', (tester) async {
+  testScreen('new cards on the home timeline', (tester) async {
     await seed(tester);
     await pumpGolden(
       tester,
@@ -107,7 +108,7 @@ void main() {
     );
   });
 
-  testWidgets('activates the distillation from the screen', (tester) async {
+  testScreen('activates the distillation from the screen', (tester) async {
     await seed(tester, activate: false);
     await pumpGolden(
       tester,
@@ -130,7 +131,7 @@ void main() {
     expect(find.byType(DistillScreen), findsNothing);
   });
 
-  testWidgets('"Adjust" opens the current settings and saves new ones', (
+  testScreen('"Adjust" opens the current settings and saves new ones', (
     tester,
   ) async {
     await seed(tester);
@@ -174,7 +175,7 @@ void main() {
     ).distillations.pause(japaneseId),
   );
 
-  testWidgets('paused distillation on the group page', (tester) async {
+  testScreen('paused distillation on the group page', (tester) async {
     await seed(tester);
     await pause(tester);
     await pumpGolden(
@@ -190,7 +191,7 @@ void main() {
     );
   });
 
-  testWidgets('a paused distillation resumes from its screen, at once', (
+  testScreen('a paused distillation resumes from its screen, at once', (
     tester,
   ) async {
     await seed(tester);

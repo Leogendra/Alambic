@@ -11,12 +11,13 @@ import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
 
   setUp(() => database = openTestDatabase());
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   /// "Peru" answered over three days, with a bonus review and a reminder.
   /// Returns its id.
@@ -55,7 +56,7 @@ void main() {
     (Brightness.light, ''),
     (Brightness.dark, '_dark'),
   ]) {
-    testWidgets('card sheet, ${brightness.name} theme', (tester) async {
+    testScreen('card sheet, ${brightness.name} theme', (tester) async {
       final renderAt = DateTime(2026, 11, 12, 9);
       final cardId = await seedReviewedCard(tester, renderAt);
       await pumpGolden(
@@ -75,7 +76,7 @@ void main() {
     });
   }
 
-  testWidgets('a pending card waits for its distillation', (tester) async {
+  testScreen('a pending card waits for its distillation', (tester) async {
     late int cardId;
     await tester.runAsync(() async {
       final samples = SampleServices(database, FixedClock(sampleNow));

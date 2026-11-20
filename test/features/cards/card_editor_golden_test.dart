@@ -12,6 +12,7 @@ import 'package:alambic/features/cards/image_picking.dart';
 import '../../support/golden_harness.dart';
 import '../../support/test_database.dart';
 import '../../support/test_images.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
@@ -22,9 +23,9 @@ void main() {
     groupId = await GroupRepository(database)
         .create('Capitals', DateTime(2026, 11, 10));
   });
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
-  testWidgets('new card with both faces, in a group', (tester) async {
+  testScreen('new card with both faces, in a group', (tester) async {
     await pumpGolden(
       tester,
       CardEditorScreen(initialGroupId: groupId),
@@ -39,7 +40,7 @@ void main() {
     );
   });
 
-  testWidgets('a front image is picked, shown, then stored with the card', (
+  testScreen('a front image is picked, shown, then stored with the card', (
     tester,
   ) async {
     final images = openTestImageStore();

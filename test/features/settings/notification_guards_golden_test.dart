@@ -8,6 +8,7 @@ import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
@@ -17,9 +18,9 @@ void main() {
     await seedSampleData(SampleServices(database, FixedClock(sampleNow)));
   });
 
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
-  testWidgets('shows the cap against tomorrow, quiet hours and grouping', (
+  testScreen('shows the cap against tomorrow, quiet hours and grouping', (
     tester,
   ) async {
     // The reverse of "Peru" is due tomorrow: a cap of one card shows it

@@ -9,6 +9,7 @@ import '../../support/fake_notifications.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
@@ -19,7 +20,7 @@ void main() {
     alarms = FakeAlarmScheduler();
   });
 
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   Future<void> pumpSettings(WidgetTester tester) => pumpGolden(
     tester,
@@ -30,7 +31,7 @@ void main() {
     ],
   );
 
-  testWidgets('offers to allow exact alarms when they are refused', (
+  testScreen('offers to allow exact alarms when they are refused', (
     tester,
   ) async {
     alarms.exactAllowed = false;
@@ -47,7 +48,7 @@ void main() {
     (Brightness.light, ''),
     (Brightness.dark, '_dark'),
   ]) {
-    testWidgets('settings in French, ${brightness.name} theme', (tester) async {
+    testScreen('settings in French, ${brightness.name} theme', (tester) async {
       await pumpGolden(
         tester,
         const Scaffold(body: SafeArea(child: SettingsScreen())),
@@ -66,7 +67,7 @@ void main() {
     });
   }
 
-  testWidgets('says reminders are on time when exact alarms are allowed', (
+  testScreen('says reminders are on time when exact alarms are allowed', (
     tester,
   ) async {
     await pumpSettings(tester);

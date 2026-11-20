@@ -13,18 +13,19 @@ import 'package:alambic/features/settings/reminder_schedule_screen.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
 
   setUp(() => database = openTestDatabase());
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   Future<ReminderSettings?> stored(WidgetTester tester) => tester.runAsync(
     () => NotificationSettingsRepository(database).loadReminderSettings(),
   );
 
-  testWidgets('the schedule switches to a time range, dark theme', (
+  testScreen('the schedule switches to a time range, dark theme', (
     tester,
   ) async {
     await pumpGolden(
@@ -49,9 +50,7 @@ void main() {
     );
   });
 
-  testWidgets('an end before the start of the range is refused', (
-    tester,
-  ) async {
+  testScreen('an end before the start of the range is refused', (tester) async {
     await tester.runAsync(
       () => NotificationSettingsRepository(database).saveReminderSettings(
         ReminderSettings.defaults.copyWith(
@@ -93,7 +92,7 @@ void main() {
     expect((await stored(tester))!.rangeEnd, const ClockTime(11, 0));
   });
 
-  testWidgets('the grouped reminder offers to open the app or chain', (
+  testScreen('the grouped reminder offers to open the app or chain', (
     tester,
   ) async {
     await pumpGolden(

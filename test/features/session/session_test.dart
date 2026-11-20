@@ -17,13 +17,14 @@ import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_images.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
   late List<SessionItem> items;
 
   setUp(() => database = openTestDatabase());
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   Future<void> pumpSession(
     WidgetTester tester, {
@@ -49,7 +50,7 @@ void main() {
     );
   }
 
-  testWidgets('shows the image of a face above its text', (tester) async {
+  testScreen('shows the image of a face above its text', (tester) async {
     final images = openTestImageStore();
     late List<SessionItem> flagItems;
     late String flagPath;
@@ -114,7 +115,7 @@ void main() {
     ('sentence', sentence),
     ('long_text', longText),
   ]) {
-    testWidgets('caps the size of a face text: $name', (tester) async {
+    testScreen('caps the size of a face text: $name', (tester) async {
       await pumpCard(tester, front, 'Answer');
       expect(
         tester.widget<Text>(find.text(front)).style!.fontSize,
@@ -127,7 +128,7 @@ void main() {
     });
   }
 
-  testWidgets('keeps a face text narrow on a wide screen', (tester) async {
+  testScreen('keeps a face text narrow on a wide screen', (tester) async {
     await pumpCard(tester, longText, 'Westphalia');
     tester.view.physicalSize = const Size(1200, 844);
     await tester.pumpAndSettle();
@@ -151,7 +152,7 @@ void main() {
     (Brightness.light, ''),
     (Brightness.dark, '_dark'),
   ]) {
-    testWidgets('shows the prompt, then the answer and the next intervals, '
+    testScreen('shows the prompt, then the answer and the next intervals, '
         '${brightness.name} theme', (tester) async {
       await pumpSession(tester, brightness: brightness);
       await expectLater(
@@ -190,7 +191,7 @@ void main() {
         )
         .opacity;
 
-    testWidgets('fades the answer in over 250 ms with a light haptic tap, '
+    testScreen('fades the answer in over 250 ms with a light haptic tap, '
         'the card in place of the buttons', (tester) async {
       final haptics = <Object?>[];
       addTearDown(
@@ -224,7 +225,7 @@ void main() {
       expect(haptics, ['HapticFeedbackType.lightImpact']);
     });
 
-    testWidgets('shows the answer at once when the system reduces motion', (
+    testScreen('shows the answer at once when the system reduces motion', (
       tester,
     ) async {
       tester.platformDispatcher.accessibilityFeaturesTestValue =
@@ -239,7 +240,7 @@ void main() {
       expect(find.text(l10n.sessionShowAnswer), findsNothing);
     });
 
-    testWidgets('a tap on the card reveals too; the next card shows '
+    testScreen('a tap on the card reveals too; the next card shows '
         'unrevealed', (tester) async {
       await pumpSession(tester);
       await tester.tap(find.byType(SessionCardView));
@@ -259,7 +260,7 @@ void main() {
       expect(tester.widget<Opacity>(show).opacity, 1);
     });
 
-    testWidgets('a bonus review shows the answer buttons without effect', (
+    testScreen('a bonus review shows the answer buttons without effect', (
       tester,
     ) async {
       await tester.runAsync(() async {
@@ -321,7 +322,7 @@ void main() {
       return [for (final record in records!) (record.outcome, record.isBonus)];
     }
 
-    testWidgets('a field takes the place of "Show answer", then the answer '
+    testScreen('a field takes the place of "Show answer", then the answer '
         'shows with its verdict, recorded at once', (tester) async {
       await pumpTyped(tester);
       expect(find.text(l10n.sessionShowAnswer), findsNothing);
@@ -351,7 +352,7 @@ void main() {
       );
     });
 
-    testWidgets('a refused answer counts as Again', (tester) async {
+    testScreen('a refused answer counts as Again', (tester) async {
       await pumpTyped(tester);
       await submit(tester, 'Beijing');
       expect(find.text('"Beijing" refused'), findsOneWidget);
@@ -366,7 +367,7 @@ void main() {
       expect(find.text(l10n.sessionReviewMissed(1)), findsOneWidget);
     });
 
-    testWidgets('"Reveal" shows the answer with "Again" and "Correct", '
+    testScreen('"Reveal" shows the answer with "Again" and "Correct", '
         'recording nothing', (tester) async {
       await pumpTyped(tester);
       await tester.tap(find.text(l10n.sessionReveal));
@@ -378,7 +379,7 @@ void main() {
       expect(await history(tester), isEmpty);
     });
 
-    testWidgets('a blank answer is not submitted', (tester) async {
+    testScreen('a blank answer is not submitted', (tester) async {
       await pumpTyped(tester);
       await submit(tester, '   ');
       expect(find.text('Ulaanbaatar'), findsNothing);
@@ -387,7 +388,7 @@ void main() {
     });
   });
 
-  testWidgets('ends on a summary and reviews the missed card as a bonus', (
+  testScreen('ends on a summary and reviews the missed card as a bonus', (
     tester,
   ) async {
     await pumpSession(tester);
@@ -410,7 +411,7 @@ void main() {
     expect(history!.map((review) => review.isBonus), [true, false]);
   });
 
-  testWidgets('a card drawn on its back asks the back', (tester) async {
+  testScreen('a card drawn on its back asks the back', (tester) async {
     late List<SessionItem> backItems;
     await tester.runAsync(() async {
       final capitals = await seedSampleData(
@@ -432,7 +433,7 @@ void main() {
     expect(find.text('Mongolia'), findsOneWidget);
   });
 
-  testWidgets('"Review all" raises a missed pending card at once, even when '
+  testScreen('"Review all" raises a missed pending card at once, even when '
       'the session is left', (tester) async {
     late int capitals;
     late List<SessionItem> pendingItems;

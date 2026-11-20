@@ -41,16 +41,16 @@ void main() {
     });
   }
 
-  /// Adds to Capitales a card acquired at the end of its sequence.
+  /// Adds to Capitals a card acquired at the end of its sequence.
   Future<void> seedAcquired(WidgetTester tester) => tester.runAsync(() async {
-    final cardId = await samples.card('Chili', 'Santiago', groupId: capitalsId);
+    final cardId = await samples.card('Chile', 'Santiago', groupId: capitalsId);
     await CardRepository(database).applySchedule(
       cardId,
       const CardSchedule(state: CardState.acquired, step: null, dueAt: null),
     );
   });
 
-  /// Adds to Capitales a queue of two cards, the first one suspended, and
+  /// Adds to Capitals a queue of two cards, the first one suspended, and
   /// suspends Myanmar, in progress.
   Future<void> seedWaiting(WidgetTester tester) => tester.runAsync(() async {
     final kenya = await samples.card('Kenya', 'Nairobi', groupId: capitalsId);
@@ -179,13 +179,13 @@ void main() {
     );
     final title = find.text('Acquises · 1');
     await tester.scrollUntilVisible(title, 200);
-    expect(find.text('Chili'), findsNothing);
+    expect(find.text('Chile'), findsNothing);
     await tester.tap(title);
     await tester.pumpAndSettle();
-    expect(find.text('Chili'), findsOneWidget);
+    expect(find.text('Chile'), findsOneWidget);
     await tester.tap(title);
     await tester.pumpAndSettle();
-    expect(find.text('Chili'), findsNothing);
+    expect(find.text('Chile'), findsNothing);
   });
 
   for (final (brightness, suffix) in [
@@ -301,7 +301,7 @@ void main() {
         source: ReviewSource.session,
       );
       final chile = await samples.card(
-        'Chili',
+        'Chile',
         'Santiago',
         groupId: capitalsId,
       );

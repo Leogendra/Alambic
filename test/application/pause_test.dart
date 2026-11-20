@@ -25,8 +25,8 @@ void main() {
     harness = NotificationHarness(database, FixedClock(sampleNow));
     final services = SampleServices(database, harness.clock);
     await seedSampleData(services);
-    verbs = await services.groups.create('Verbes');
-    for (final verb in ['être', 'avoir', 'aller', 'faire']) {
+    verbs = await services.groups.create('Verbs');
+    for (final verb in ['be', 'have', 'go', 'do']) {
       await services.card(verb, verb, groupId: verbs);
     }
     await NotificationSettingsRepository(
@@ -46,7 +46,7 @@ void main() {
     await harness.read(notificationDispatcherProvider).dispatchDue();
   }
 
-  /// Distills Verbes, one card every [everyDays] days: "être" comes out today.
+  /// Distills Verbs, one card every [everyDays] days: "be" comes out today.
   Future<void> activate({int everyDays = 1}) => harness
       .read(distillationServiceProvider)
       .activate(
@@ -74,12 +74,12 @@ void main() {
       await dispatchAt(DateTime(2026, 11, 10, 12));
       expect(
         harness.presenter.prompts.values.map((prompt) => prompt.prompt),
-        containsAll(['être', 'Mongolie']),
+        containsAll(['be', 'Mongolia']),
       );
       await moveTo(DateTime(2026, 11, 14, 9));
       await harness.read(distillationServiceProvider).resume(verbs);
       final after = await dueDates();
-      expect(after['être'], before['être']);
+      expect(after['be'], before['be']);
       expect(after['Laos'], DateTime(2026, 11, 10, 12));
     });
 
@@ -89,22 +89,22 @@ void main() {
       await harness.read(distillationServiceProvider).pause(verbs);
       await moveTo(DateTime(2026, 11, 17, 9));
       await advance();
-      expect(await introduced(), ['être']);
+      expect(await introduced(), ['be']);
       await harness.read(distillationServiceProvider).resume(verbs);
-      expect(await introduced(), ['être', 'avoir']);
+      expect(await introduced(), ['be', 'have']);
       await moveTo(DateTime(2026, 11, 18, 9));
       await advance();
-      expect(await introduced(), ['être', 'avoir']);
+      expect(await introduced(), ['be', 'have']);
       await moveTo(DateTime(2026, 11, 19, 9));
       await advance();
-      expect(await introduced(), ['être', 'avoir', 'aller']);
+      expect(await introduced(), ['be', 'have', 'go']);
     });
 
     test('resumed on a day already processed waits for the next', () async {
       await activate();
       await harness.read(distillationServiceProvider).pause(verbs);
       await harness.read(distillationServiceProvider).resume(verbs);
-      expect(await introduced(), ['être']);
+      expect(await introduced(), ['be']);
     });
   });
 
@@ -116,7 +116,7 @@ void main() {
       expect(harness.presenter.prompts, hasLength(8));
       await moveTo(DateTime(2026, 11, 11, 9));
       await advance();
-      expect(await introduced(), ['être']);
+      expect(await introduced(), ['be']);
       expect(
         harness.alarms.scheduled.values.where((wakeUp) => wakeUp.hour == 4),
         isEmpty,
@@ -124,7 +124,7 @@ void main() {
       );
       await moveTo(DateTime(2026, 11, 13, 9));
       await harness.read(distillationServiceProvider).resumeAll();
-      expect(await introduced(), ['être', 'avoir']);
+      expect(await introduced(), ['be', 'have']);
       expect((await dueDates())['Laos'], DateTime(2026, 11, 10, 12));
     });
 
@@ -134,7 +134,7 @@ void main() {
       await harness.read(distillationServiceProvider).pauseAll();
       await moveTo(DateTime(2026, 11, 12, 9));
       await harness.read(distillationServiceProvider).resumeAll();
-      expect(await introduced(), ['être']);
+      expect(await introduced(), ['be']);
       expect(
         (await DistillationRepository(database).find(verbs))!.pausedAt,
         sampleNow,

@@ -63,7 +63,7 @@ void main() {
       final cardId = await services.cards.create(
         CardDraft(
           frontText: 'Quel pays a ce drapeau ?',
-          backText: 'Pérou',
+          backText: 'Peru',
           frontImage: const PickedImage('test/support/fixtures/flag.png'),
           groupId: flags,
         ),
@@ -107,14 +107,14 @@ void main() {
         find.byType(SessionScreen),
         matchesGoldenFile('goldens/session_front$suffix.png'),
       );
-      final prompt = find.text('Mongolie');
+      final prompt = find.text('Mongolia');
       final before = (
         tester.getRect(prompt),
         tester.widget<Text>(prompt).style,
       );
       await tester.tap(find.text('Afficher la réponse'));
       await tester.pumpAndSettle();
-      expect(find.text('Oulan-Bator'), findsOneWidget);
+      expect(find.text('Ulaanbaatar'), findsOneWidget);
       expect((
         tester.getRect(prompt),
         tester.widget<Text>(prompt).style,
@@ -132,7 +132,7 @@ void main() {
         .widget<Opacity>(
           find
               .ancestor(
-                of: find.text('Oulan-Bator'),
+                of: find.text('Ulaanbaatar'),
                 matching: find.byType(Opacity),
               )
               .first,
@@ -160,7 +160,7 @@ void main() {
       await pumpSession(tester);
       final card = tester.getRect(find.byType(SessionCardView));
       expect(find.text('Toucher pour retourner'), findsNothing);
-      expect(find.text('Oulan-Bator'), findsNothing);
+      expect(find.text('Ulaanbaatar'), findsNothing);
       await tester.tap(find.text('Afficher la réponse'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
@@ -193,13 +193,13 @@ void main() {
       await pumpSession(tester);
       await tester.tap(find.byType(SessionCardView));
       await tester.pumpAndSettle();
-      expect(find.text('Oulan-Bator'), findsOneWidget);
+      expect(find.text('Ulaanbaatar'), findsOneWidget);
       await tester.runAsync(() async {
         await tester.tap(find.text('Correct'));
         await Future<void>.delayed(const Duration(milliseconds: 100));
       });
       await tester.pumpAndSettle();
-      expect(find.text('Pérou'), findsOneWidget);
+      expect(find.text('Peru'), findsOneWidget);
       expect(find.text('Lima'), findsNothing);
       final show = find.ancestor(
         of: find.text('Afficher la réponse'),
@@ -233,7 +233,7 @@ void main() {
   });
 
   group('typed answer', () {
-    /// A session on Mongolie, then Pérou, in a group with the typed answer.
+    /// A session on Mongolia, then Peru, in a group with the typed answer.
     Future<void> pumpTyped(WidgetTester tester) async {
       await tester.runAsync(() async {
         final services = SampleServices(database, FixedClock(sampleNow));
@@ -279,9 +279,9 @@ void main() {
         find.byType(SessionScreen),
         matchesGoldenFile('goldens/session_typed.png'),
       );
-      await submit(tester, 'oulan batr');
-      expect(find.text('Oulan-Bator'), findsOneWidget);
-      expect(find.text('« oulan batr » accepté, 1 faute'), findsOneWidget);
+      await submit(tester, 'ulaanbatar');
+      expect(find.text('Ulaanbaatar'), findsOneWidget);
+      expect(find.text('« ulaanbatar » accepté, 1 faute'), findsOneWidget);
       expect(find.textContaining('prochain rappel'), findsOneWidget);
       expect(find.text('Correct'), findsNothing);
       expect(await history(tester), [(ReviewOutcome.correct, false)]);
@@ -291,7 +291,7 @@ void main() {
       );
       await tester.tap(find.text('Suivant'));
       await tester.pumpAndSettle();
-      expect(find.text('Pérou'), findsOneWidget);
+      expect(find.text('Peru'), findsOneWidget);
       expect(find.text('Lima'), findsNothing);
       expect(find.text('2 / 2'), findsOneWidget);
       expect(
@@ -302,8 +302,8 @@ void main() {
 
     testWidgets('a refused answer counts as Again', (tester) async {
       await pumpTyped(tester);
-      await submit(tester, 'Ulaanbaatar');
-      expect(find.text('« Ulaanbaatar » refusé'), findsOneWidget);
+      await submit(tester, 'Beijing');
+      expect(find.text('« Beijing » refusé'), findsOneWidget);
       expect(find.textContaining('Compté raté'), findsOneWidget);
       expect(await history(tester), [(ReviewOutcome.again, false)]);
       await tester.tap(find.text('Suivant'));
@@ -320,7 +320,7 @@ void main() {
       await pumpTyped(tester);
       await tester.tap(find.text('Révéler'));
       await tester.pumpAndSettle();
-      expect(find.text('Oulan-Bator'), findsOneWidget);
+      expect(find.text('Ulaanbaatar'), findsOneWidget);
       expect(find.text('Correct'), findsOneWidget);
       expect(find.text('À revoir'), findsOneWidget);
       expect(find.textContaining('accepté'), findsNothing);
@@ -330,7 +330,7 @@ void main() {
     testWidgets('a blank answer is not submitted', (tester) async {
       await pumpTyped(tester);
       await submit(tester, '   ');
-      expect(find.text('Oulan-Bator'), findsNothing);
+      expect(find.text('Ulaanbaatar'), findsNothing);
       expect(find.byType(TextField), findsOneWidget);
       expect(await history(tester), isEmpty);
     });
@@ -374,11 +374,11 @@ void main() {
       SessionScreen(items: backItems),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(find.text('Oulan-Bator'), findsOneWidget);
+    expect(find.text('Ulaanbaatar'), findsOneWidget);
     expect(find.textContaining('verso → recto'), findsOneWidget);
     await tester.tap(find.text('Afficher la réponse'));
     await tester.pumpAndSettle();
-    expect(find.text('Mongolie'), findsOneWidget);
+    expect(find.text('Mongolia'), findsOneWidget);
   });
 
   testWidgets('"Review all" raises a missed pending card at once, even when '
@@ -387,9 +387,9 @@ void main() {
     late List<SessionItem> pendingItems;
     await tester.runAsync(() async {
       final services = SampleServices(database, FixedClock(sampleNow));
-      capitals = await services.groups.create('Capitales');
+      capitals = await services.groups.create('Capitals');
       final ids = [
-        for (final country in ['Kenya', 'Chili', 'Maroc'])
+        for (final country in ['Kenya', 'Chile', 'Morocco'])
           await services.card(country, 'capitale', groupId: capitals),
       ];
       pendingItems = [
@@ -413,6 +413,6 @@ void main() {
         (first, second) =>
             first.queuePosition!.compareTo(second.queuePosition!),
       );
-    expect(queue.map((card) => card.frontText), ['Maroc', 'Kenya', 'Chili']);
+    expect(queue.map((card) => card.frontText), ['Morocco', 'Kenya', 'Chile']);
   });
 }

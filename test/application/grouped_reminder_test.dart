@@ -59,7 +59,7 @@ void main() {
     await groupReminders(GroupedReminderAction.openApp);
     await dispatchAt(DateTime(2026, 11, 10, 12));
     final reminder = harness.presenter.groupReminders[capitals]!;
-    expect(reminder.groupName, 'Capitales');
+    expect(reminder.groupName, 'Capitals');
     expect(reminder.count, 4);
     expect(reminder.chain, isFalse);
     expect(reminder.alert, isTrue);
@@ -101,11 +101,11 @@ void main() {
       await handler().start(capitals);
       expect(harness.presenter.groupReminders, isNot(contains(capitals)));
       final first = handler().chained(capitals);
-      expect(first.prompt, 'Mongolie');
+      expect(first.prompt, 'Mongolia');
       expect(first.chainRemaining, 4);
       await handler().answer(first.key, NotificationAction.correct);
       final second = handler().chained(capitals);
-      expect(second.prompt, 'Pérou');
+      expect(second.prompt, 'Peru');
       expect(second.chainRemaining, 3);
       // "Reveal" keeps the card and its count, then its answer moves on.
       await handler().answer(second.key, NotificationAction.reveal);
@@ -141,7 +141,7 @@ void main() {
             ReviewOutcome.correct,
             source: ReviewSource.session,
           );
-      expect(handler().chained(capitals).prompt, 'Pérou');
+      expect(handler().chained(capitals).prompt, 'Peru');
     });
   });
 }

@@ -64,8 +64,8 @@ void main() {
       final mongolia = harness
           .presenter
           .prompts[ReviewNotificationKey(cardId: await mongoliaId())]!;
-      expect(mongolia.prompt, 'Mongolie');
-      expect(mongolia.groupName, 'Capitales');
+      expect(mongolia.prompt, 'Mongolia');
+      expect(mongolia.groupName, 'Capitals');
       expect(mongolia.image, isNull);
       harness.presenter.prompts.clear();
       await dispatchAt(DateTime(2026, 11, 10, 12, 1));
@@ -188,9 +188,9 @@ void main() {
       await press(NotificationAction.reveal);
       final revealed = harness.presenter.prompts[key]!;
       expect(revealed.isRevealed, isTrue);
-      expect(revealed.prompt, 'Mongolie');
-      expect(revealed.answer, 'Oulan-Bator');
-      expect(revealed.groupName, 'Capitales');
+      expect(revealed.prompt, 'Mongolia');
+      expect(revealed.answer, 'Ulaanbaatar');
+      expect(revealed.groupName, 'Capitals');
       expect(await history(), isEmpty);
       // Still on screen, the revealed card is withdrawn like any other once
       // answered in the app.
@@ -232,7 +232,7 @@ void main() {
           for (final prompt in prompts.where((p) => p.typedAnswer))
             prompt.groupName,
         },
-        {'Capitales'},
+        {'Capitals'},
       );
       expect(prompts.where((prompt) => !prompt.typedAnswer), isNotEmpty);
     });
@@ -240,10 +240,10 @@ void main() {
     test('an answer with one typo counts as correct', () async {
       await harness
           .read(notificationActionHandlerProvider)
-          .handle(key, NotificationAction.answer, input: 'oulan bater');
+          .handle(key, NotificationAction.answer, input: 'ulaanbatar');
       final verdict = harness.presenter.verdicts[key]!;
       expect(verdict.match, TypedAnswerMatch.oneTypo);
-      expect(verdict.answer, 'Oulan-Bator');
+      expect(verdict.answer, 'Ulaanbaatar');
       final history = await ReviewRepository(database)
           .watchHistory(key.cardId)
           .first;
@@ -259,7 +259,7 @@ void main() {
     test('a wrong answer counts as a failure', () async {
       await harness
           .read(notificationActionHandlerProvider)
-          .handle(key, NotificationAction.answer, input: 'Pékin');
+          .handle(key, NotificationAction.answer, input: 'Beijing');
       expect(harness.presenter.verdicts[key]!.match, TypedAnswerMatch.wrong);
       final history = await ReviewRepository(database)
           .watchHistory(key.cardId)
@@ -304,12 +304,12 @@ void main() {
       await dispatchAt(DateTime(2026, 11, 10, 12));
       final prompt = harness.presenter.prompts[key]!;
       expect(prompt.askedSide, CardSide.back);
-      expect(prompt.prompt, 'Oulan-Bator');
+      expect(prompt.prompt, 'Ulaanbaatar');
       await harness
           .read(notificationActionHandlerProvider)
           .handle(key, NotificationAction.reveal, askedSide: CardSide.back);
       final revealed = harness.presenter.prompts[key]!;
-      expect(revealed.answer, 'Mongolie');
+      expect(revealed.answer, 'Mongolia');
       expect(revealed.askedSide, CardSide.back);
     });
 
@@ -322,7 +322,7 @@ void main() {
           .handle(
             key,
             NotificationAction.answer,
-            input: 'mongolie',
+            input: 'mongolia',
             askedSide: CardSide.back,
           );
       expect(harness.presenter.verdicts[key]!.match, TypedAnswerMatch.exact);
@@ -350,8 +350,8 @@ void main() {
         rangeEnd: const ClockTime(17, 0),
       ),
     );
-    final verbs = await services.groups.create('Verbes');
-    for (final verb in ['être', 'avoir', 'aller', 'faire']) {
+    final verbs = await services.groups.create('Verbs');
+    for (final verb in ['be', 'have', 'go', 'do']) {
       await services.card(verb, verb, groupId: verbs);
     }
     harness.clock.now = DateTime(2026, 11, 10, 8);
@@ -372,9 +372,9 @@ void main() {
     await dispatchAt(DateTime(2026, 11, 10, 11));
     expect(
       harness.presenter.prompts.values
-          .where((prompt) => prompt.groupName == 'Verbes')
+          .where((prompt) => prompt.groupName == 'Verbs')
           .map((prompt) => prompt.prompt),
-      ['être', 'avoir'],
+      ['be', 'have'],
     );
   });
 
@@ -390,7 +390,7 @@ void main() {
         expect(harness.presenter.prompts, isEmpty);
         final digest = harness.presenter.digest!;
         expect(digest.count, 7);
-        expect(digest.groupNames, ['Capitales', 'Espagnol', 'Biologie']);
+        expect(digest.groupNames, ['Capitals', 'Spanish', 'Biology']);
         // Answered in the app, the cards leave the digest.
         await harness
             .read(reviewServiceProvider)

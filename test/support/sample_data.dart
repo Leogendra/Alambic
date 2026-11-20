@@ -118,21 +118,21 @@ class SampleServices {
   }
 }
 
-/// A "Capitales" group of four cards, a "Espagnol" group of two and a
-/// "Biologie" group of one, all introduced. Returns the id of "Capitales".
+/// A "Capitals" group of four cards, a "Spanish" group of two and a
+/// "Biology" group of one, all introduced. Returns the id of "Capitals".
 Future<int> seedSampleData(SampleServices services) async {
-  final capitals = await services.groups.create('Capitales');
-  final spanish = await services.groups.create('Espagnol');
-  final biology = await services.groups.create('Biologie');
-  await services.card('Mongolie', 'Oulan-Bator', groupId: capitals);
-  await services.card('Pérou', 'Lima', groupId: capitals);
+  final capitals = await services.groups.create('Capitals');
+  final spanish = await services.groups.create('Spanish');
+  final biology = await services.groups.create('Biology');
+  await services.card('Mongolia', 'Ulaanbaatar', groupId: capitals);
+  await services.card('Peru', 'Lima', groupId: capitals);
   await services.card('Laos', 'Vientiane', groupId: capitals);
   await services.card('Myanmar', 'Naypyidaw', groupId: capitals);
-  await services.card('manger', 'comer', groupId: spanish);
-  await services.card('boire', 'beber', groupId: spanish);
+  await services.card('eat', 'comer', groupId: spanish);
+  await services.card('drink', 'beber', groupId: spanish);
   await services.card(
-    'Mitochondrie',
-    'Centrale énergétique de la cellule',
+    'Mitochondrion',
+    'Powerhouse of the cell',
     groupId: biology,
   );
   for (final groupId in [capitals, spanish, biology]) {

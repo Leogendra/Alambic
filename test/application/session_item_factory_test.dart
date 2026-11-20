@@ -30,26 +30,26 @@ void main() {
   tearDown(() => database.close());
 
   test('asks the front of the cards of a group without the back', () async {
-    final groupId = await samples.groups.create('Capitales');
-    final cardId = await samples.card('Pérou', 'Lima', groupId: groupId);
+    final groupId = await samples.groups.create('Capitals');
+    final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
     final items = await factory.itemsFor([cardId]);
     expect(items.single.askedSide, CardSide.front);
   });
 
   test('draws the asked face of a group with the back, each time', () async {
-    final groupId = await samples.groups.create('Capitales');
+    final groupId = await samples.groups.create('Capitals');
     await samples.groups.setReverseEnabled(groupId, enabled: true);
-    final cardId = await samples.card('Pérou', 'Lima', groupId: groupId);
+    final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
     expect((await factory.itemsFor([cardId])).single.askedSide, CardSide.back);
     random.coin = false;
     expect((await factory.itemsFor([cardId])).single.askedSide, CardSide.front);
   });
 
   test('keeps the order of the cards and leaves out deleted ones', () async {
-    final groupId = await samples.groups.create('Capitales');
-    final first = await samples.card('Pérou', 'Lima', groupId: groupId);
+    final groupId = await samples.groups.create('Capitals');
+    final first = await samples.card('Peru', 'Lima', groupId: groupId);
     final second = await samples.card('Laos', 'Vientiane', groupId: groupId);
-    final deleted = await samples.card('Chili', 'Santiago', groupId: groupId);
+    final deleted = await samples.card('Chile', 'Santiago', groupId: groupId);
     await samples.cards.delete(deleted);
     final items = await factory.itemsFor([second, deleted, first]);
     expect(items.map((item) => item.cardId), [second, first]);

@@ -47,7 +47,7 @@ void main() {
       schemaVersion: 1,
       tables: {
         'flashcards': [
-          {'id': 1, 'front_text': 'Pérou', 'back_text': null, 'weight': 1.5},
+          {'id': 1, 'front_text': 'Peru', 'back_text': null, 'weight': 1.5},
         ],
         'card_groups': [],
       },

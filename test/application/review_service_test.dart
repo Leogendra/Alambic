@@ -48,9 +48,9 @@ void main() {
   Future<Flashcard> front(int cardId) => cards.getCard(cardId);
 
   Future<int> pendingCard() async => samples.card(
-    'Mongolie',
-    'Oulan-Bator',
-    groupId: await samples.groups.create('Capitales'),
+    'Mongolia',
+    'Ulaanbaatar',
+    groupId: await samples.groups.create('Capitals'),
   );
 
   Future<int> dueCard() async {

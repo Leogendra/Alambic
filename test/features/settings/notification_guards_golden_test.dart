@@ -22,7 +22,7 @@ void main() {
   testWidgets('shows the cap against tomorrow, quiet hours and grouping', (
     tester,
   ) async {
-    // The reverse of "Pérou" is due tomorrow: a cap of one card shows it
+    // The reverse of "Peru" is due tomorrow: a cap of one card shows it
     // sent, and lowering nothing else keeps the defaults on screen.
     await tester.runAsync(
       () =>

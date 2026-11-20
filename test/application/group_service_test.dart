@@ -23,10 +23,10 @@ void main() {
   tearDown(() => database.close());
 
   test('creates and renames a group, trimming its name', () async {
-    final id = await services.groups.create('  Capitales ');
-    await services.groups.rename(id, 'Capitales du monde');
+    final id = await services.groups.create('  Capitals ');
+    await services.groups.rename(id, 'World capitals');
     final group = await GroupRepository(database).watchById(id).first;
-    expect(group!.name, 'Capitales du monde');
+    expect(group!.name, 'World capitals');
   });
 
   test('refuses an empty name', () {
@@ -47,7 +47,7 @@ void main() {
     final cardId = await services.cards.create(
       CardDraft(
         frontText: '',
-        backText: 'Pérou',
+        backText: 'Peru',
         frontImage: const PickedImage('test/support/fixtures/flag.png'),
         groupId: other,
       ),
@@ -57,7 +57,7 @@ void main() {
       cardId,
       CardDraft(
         frontText: '',
-        backText: 'Pérou',
+        backText: 'Peru',
         frontImage: StoredImage(card.frontImagePath!),
         groupId: flags,
       ),

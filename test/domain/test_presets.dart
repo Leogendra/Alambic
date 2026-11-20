@@ -9,7 +9,7 @@ final Preset standardPreset = BuiltInPresets.standard.copyWith(id: 1);
 
 final Preset intensivePreset = BuiltInPresets.intensive.copyWith(id: 2);
 
-/// Short sequence "1 j, 2 j, 4 j" to reach the end quickly.
+/// Short sequence "1 d, 2 d, 4 d" to reach the end quickly.
 Preset shortSequence({
   FailureBehavior failureBehavior = FailureBehavior.stepBack,
 }) => standardPreset.copyWith(

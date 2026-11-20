@@ -20,7 +20,7 @@ const SequenceEnd acquiredEnd = SequenceEnd(
 /// A group as stored, with the options of a new group by default.
 CardGroup testGroup({
   int id = 1,
-  String name = 'Capitales',
+  String name = 'Capitals',
   bool reverseEnabled = false,
   AfterLastStep afterLastStep = AfterLastStep.remanence,
   RemanenceInterval remanenceInterval = RemanenceInterval.sixMonths,

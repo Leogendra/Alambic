@@ -20,7 +20,7 @@ import 'package:alambic/notifications/review_texts.dart';
 
 void main() {
   final texts = ReviewTexts(
-    lookupAppLocalizations(const Locale('fr')),
+    lookupAppLocalizations(const Locale('en')),
     const SchedulingCalendar(),
   );
   const key = ReviewNotificationKey(cardId: 7);
@@ -32,11 +32,11 @@ void main() {
   }) => ReviewPrompt(
     key: key,
     askedSide: askedSide,
-    prompt: 'Pérou',
+    prompt: 'Peru',
     image: null,
     answer: 'Lima',
     answerImage: null,
-    groupName: 'Capitales',
+    groupName: 'Capitals',
     typedAnswer: false,
     chainRemaining: chainRemaining,
   );
@@ -49,7 +49,7 @@ void main() {
   }) => TypedAnswerVerdict(
     key: key,
     askedSide: CardSide.front,
-    prompt: 'Pérou',
+    prompt: 'Peru',
     answer: 'Lima',
     answerImage: null,
     typed: typed,
@@ -69,24 +69,24 @@ void main() {
   );
 
   test('names the group of the asked card, and nothing of its step', () {
-    expect(texts.promptDetail(prompt()), 'Capitales');
+    expect(texts.promptDetail(prompt()), 'Capitals');
     expect(
       texts.promptDetail(prompt(askedSide: CardSide.back)),
-      'verso → recto · Capitales',
+      'back → front · Capitals',
     );
     expect(
       texts.promptDetail(
         prompt(key: const ReviewNotificationKey(cardId: 7, extraReminderId: 1)),
       ),
-      'Réviser bientôt · sans effet sur le planning · Capitales',
+      'Review soon · no effect on the schedule · Capitals',
     );
   });
 
   test('a face that is an image alone is named as such', () {
-    expect(texts.promptTitle('Pérou'), 'Pérou');
-    expect(texts.promptTitle(''), 'Que montre cette image ?');
-    expect(texts.answerLine('Lima'), 'Réponse : Lima');
-    expect(texts.answerLine(''), 'Réponse en image');
+    expect(texts.promptTitle('Peru'), 'Peru');
+    expect(texts.promptTitle(''), 'What does this image show?');
+    expect(texts.answerLine('Lima'), 'Answer: Lima');
+    expect(texts.answerLine(''), 'Answer in the image');
   });
 
   test('tells how a typed answer compared, then what it did', () {
@@ -104,7 +104,7 @@ void main() {
           schedule: next,
         ),
       ),
-      '« lma » accepté, 1 faute · prochain rappel dans 3 j',
+      '"lma" accepted, 1 typo · next reminder in 3 d',
     );
     expect(
       texts.verdict(
@@ -119,19 +119,53 @@ void main() {
           ),
         ),
       ),
-      '« Lima » accepté · carte acquise',
+      '"Lima" accepted · card learned',
     );
     expect(
       texts.verdict(
         verdict(isBonus: false, typed: 'Quito', match: TypedAnswerMatch.wrong),
       ),
-      '« Quito » refusé · Compté raté · revue demain',
+      '"Quito" refused · Counted as missed · review tomorrow',
     );
     expect(
       texts.verdict(
         verdict(isBonus: true, typed: 'Lima', match: TypedAnswerMatch.exact),
       ),
-      '« Lima » accepté · Révision bonus · sans effet',
+      '"Lima" accepted · Bonus review · no effect',
+    );
+  });
+
+  test('reads in French when the interface is French', () {
+    final french = ReviewTexts(
+      lookupAppLocalizations(const Locale('fr')),
+      const SchedulingCalendar(),
+    );
+    expect(
+      french.verdict(
+        verdict(
+          isBonus: false,
+          typed: 'lma',
+          match: TypedAnswerMatch.oneTypo,
+          schedule: CardSchedule(
+            state: CardState.active,
+            step: 2,
+            dueAt: DateTime(2026, 11, 13, 12),
+          ),
+        ),
+      ),
+      '« lma » accepté, 1 faute · prochain rappel dans 3 j',
+    );
+    expect(
+      french.groupReminderTitle(
+        const GroupReminder(
+          key: GroupReminderKey(4),
+          groupName: 'Capitals',
+          count: 5,
+          chain: false,
+          alert: true,
+        ),
+      ),
+      'Capitals : 5 cartes à réviser',
     );
   });
 
@@ -169,7 +203,7 @@ void main() {
     final summary = NotificationPayload.encodeGroup(
       const GroupReminder(
         key: GroupReminderKey(5),
-        groupName: 'Espagnol',
+        groupName: 'Spanish',
         count: 5,
         chain: true,
         alert: true,
@@ -223,7 +257,7 @@ void main() {
         NotificationPayload.encodeGroup(
           const GroupReminder(
             key: GroupReminderKey(4),
-            groupName: 'Capitales',
+            groupName: 'Capitals',
             count: 5,
             chain: false,
             alert: true,
@@ -257,16 +291,13 @@ void main() {
   test('a grouped reminder tells its count and the cards left', () {
     const reminder = GroupReminder(
       key: GroupReminderKey(4),
-      groupName: 'Capitales',
+      groupName: 'Capitals',
       count: 5,
       chain: false,
       alert: true,
     );
-    expect(
-      texts.groupReminderTitle(reminder),
-      'Capitales : 5 cartes à réviser',
-    );
-    expect(texts.groupReminderDetail(reminder), 'Environ 3 min');
+    expect(texts.groupReminderTitle(reminder), 'Capitals: 5 cards to review');
+    expect(texts.groupReminderDetail(reminder), 'About 3 min');
     expect(
       texts.promptDetail(
         prompt(
@@ -277,7 +308,7 @@ void main() {
           chainRemaining: 3,
         ),
       ),
-      'Capitales · 3 à réviser',
+      'Capitals · 3 to review',
     );
   });
 }

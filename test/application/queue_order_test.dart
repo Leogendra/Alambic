@@ -26,9 +26,9 @@ void main() {
     clock = FixedClock(sampleNow);
     services = SampleServices(database, clock);
     cards = CardRepository(database);
-    groupId = await services.groups.create('Capitales');
+    groupId = await services.groups.create('Capitals');
     ids = {
-      for (final country in ['Mongolie', 'Pérou', 'Laos', 'Chili'])
+      for (final country in ['Mongolia', 'Peru', 'Laos', 'Chile'])
         country: await services.card(country, 'capitale', groupId: groupId),
     };
   });
@@ -59,29 +59,29 @@ void main() {
 
   group('ways in', () {
     test('created cards join the end, in creation order', () async {
-      expect(await queue(), ['Mongolie', 'Pérou', 'Laos', 'Chili']);
+      expect(await queue(), ['Mongolia', 'Peru', 'Laos', 'Chile']);
     });
 
     test('a bulk add joins the end as a batch, in its order', () async {
       await services.cards.createAll([
-        for (final country in ['Kenya', 'Maroc'])
+        for (final country in ['Kenya', 'Morocco'])
           CardDraft(frontText: country, backText: 'capitale', groupId: groupId),
       ]);
       expect(await queue(), [
-        'Mongolie',
-        'Pérou',
+        'Mongolia',
+        'Peru',
         'Laos',
-        'Chili',
+        'Chile',
         'Kenya',
-        'Maroc',
+        'Morocco',
       ]);
     });
 
     test('a reset card joins the end', () async {
       await services.introduceAll(groupId);
       await services.card('Kenya', 'capitale', groupId: groupId);
-      await services.cards.resetProgress(ids['Pérou']!);
-      expect(await queue(), ['Kenya', 'Pérou']);
+      await services.cards.resetProgress(ids['Peru']!);
+      expect(await queue(), ['Kenya', 'Peru']);
     });
 
     test('a pending card moved in joins the end', () async {
@@ -91,14 +91,14 @@ void main() {
         kenya,
         CardDraft(frontText: 'Kenya', backText: 'capitale', groupId: groupId),
       );
-      expect(await queue(), ['Mongolie', 'Pérou', 'Laos', 'Chili', 'Kenya']);
+      expect(await queue(), ['Mongolia', 'Peru', 'Laos', 'Chile', 'Kenya']);
     });
   });
 
   group('"Review all" raises a missed pending card', () {
     test('to the head of the queue, still pending, as a bonus', () async {
       await answer('Laos', ReviewOutcome.again);
-      expect(await queue(), ['Laos', 'Mongolie', 'Pérou', 'Chili']);
+      expect(await queue(), ['Laos', 'Mongolia', 'Peru', 'Chile']);
       final laos = await cards.getCard(ids['Laos']!);
       expect(laos.isPending, isTrue);
       final history = await ReviewRepository(database)
@@ -108,23 +108,23 @@ void main() {
     });
 
     test('the last one missed comes out first', () async {
-      await answer('Mongolie', ReviewOutcome.correct);
-      await answer('Pérou', ReviewOutcome.again);
+      await answer('Mongolia', ReviewOutcome.correct);
+      await answer('Peru', ReviewOutcome.again);
       await answer('Laos', ReviewOutcome.correct);
-      await answer('Chili', ReviewOutcome.again);
-      expect(await queue(), ['Chili', 'Pérou', 'Mongolie', 'Laos']);
+      await answer('Chile', ReviewOutcome.again);
+      expect(await queue(), ['Chile', 'Peru', 'Mongolia', 'Laos']);
     });
 
     test('a later card joins the end, behind the raised ones', () async {
-      await answer('Chili', ReviewOutcome.again);
+      await answer('Chile', ReviewOutcome.again);
       await services.card('Kenya', 'capitale', groupId: groupId);
-      expect(await queue(), ['Chili', 'Mongolie', 'Pérou', 'Laos', 'Kenya']);
+      expect(await queue(), ['Chile', 'Mongolia', 'Peru', 'Laos', 'Kenya']);
     });
 
     test('nowhere else: a forced bonus or another session', () async {
       await answer('Laos', ReviewOutcome.again, forceBonus: true);
-      await answer('Chili', ReviewOutcome.again, raises: false);
-      expect(await queue(), ['Mongolie', 'Pérou', 'Laos', 'Chili']);
+      await answer('Chile', ReviewOutcome.again, raises: false);
+      expect(await queue(), ['Mongolia', 'Peru', 'Laos', 'Chile']);
     });
 
     test('the distillation introduces it next', () async {
@@ -133,19 +133,19 @@ void main() {
         groupId,
         const DistillationSettings(prioritizeReviews: false),
       );
-      expect(await queue(), ['Mongolie', 'Pérou', 'Chili']);
+      expect(await queue(), ['Mongolia', 'Peru', 'Chile']);
     });
   });
 
   test(
     'the distillation skips a suspended head, which keeps its place',
     () async {
-      await services.cards.setSuspended(ids['Mongolie']!, suspended: true);
+      await services.cards.setSuspended(ids['Mongolia']!, suspended: true);
       await services.distillations.activate(
         groupId,
         const DistillationSettings(prioritizeReviews: false),
       );
-      expect(await queue(), ['Mongolie', 'Laos', 'Chili']);
+      expect(await queue(), ['Mongolia', 'Laos', 'Chile']);
     },
   );
 }

@@ -39,15 +39,15 @@ void main() {
       scheduleChangeListener: listener,
     );
     final groups = GroupRepository(database);
-    groupId = await groups.create('Capitales', clock());
-    otherGroupId = await groups.create('Géographie', clock());
+    groupId = await groups.create('Capitals', clock());
+    otherGroupId = await groups.create('Geography', clock());
   });
 
   tearDown(() => database.close());
 
-  CardDraft draft({String front = ' Mongolie ', int? inGroup}) => CardDraft(
+  CardDraft draft({String front = ' Mongolia ', int? inGroup}) => CardDraft(
     frontText: front,
-    backText: 'Oulan-Bator',
+    backText: 'Ulaanbaatar',
     groupId: inGroup ?? groupId,
   );
 
@@ -69,7 +69,7 @@ void main() {
     expect(card.state, CardState.pending);
     expect(card.dueAt, isNull);
     expect(card.step, isNull);
-    expect((await cards.getCard(first)).frontText, 'Mongolie');
+    expect((await cards.getCard(first)).frontText, 'Mongolia');
     expect((await cards.getCard(first)).queuePosition, 0);
     expect(card.queuePosition, 1);
     expect(listener.changeCount, 2);
@@ -77,7 +77,7 @@ void main() {
 
   test('a bulk add joins the queue in its order', () async {
     await service.create(draft());
-    await service.createAll([draft(front: 'Laos'), draft(front: 'Pérou')]);
+    await service.createAll([draft(front: 'Laos'), draft(front: 'Peru')]);
     final positions = [
       for (final card in await cards.getCardsOfGroup(groupId))
         card.queuePosition,
@@ -109,7 +109,7 @@ void main() {
 
   test('a card without back cannot be stored', () async {
     final incomplete = CardDraft(
-      frontText: 'Mongolie',
+      frontText: 'Mongolia',
       backText: '  ',
       groupId: groupId,
     );
@@ -122,7 +122,7 @@ void main() {
     CardDraft imageCard({DraftImage? front, String frontText = ''}) =>
         CardDraft(
           frontText: frontText,
-          backText: 'Pérou',
+          backText: 'Peru',
           frontImage: front,
           groupId: groupId,
         );

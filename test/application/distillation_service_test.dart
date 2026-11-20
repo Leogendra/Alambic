@@ -25,9 +25,9 @@ void main() {
     services = SampleServices(database, clock);
     cards = CardRepository(database);
     distillations = DistillationRepository(database);
-    groupId = await services.groups.create('Capitales');
+    groupId = await services.groups.create('Capitals');
     cardIds = [
-      for (final country in ['Mongolie', 'Pérou', 'Laos', 'Chili'])
+      for (final country in ['Mongolia', 'Peru', 'Laos', 'Chile'])
         await services.card(country, 'capitale', groupId: groupId),
     ];
   });
@@ -301,7 +301,7 @@ void main() {
     final otherGroup = await services.groups.create('Autres');
     await services.cards.update(
       cardIds[1],
-      CardDraft(frontText: 'Pérou', backText: 'capitale', groupId: otherGroup),
+      CardDraft(frontText: 'Peru', backText: 'capital', groupId: otherGroup),
     );
     moveTo(DateTime(2026, 11, 11, 9));
     await services.distillations.advance();

@@ -27,16 +27,16 @@ void main() {
     intensiveId = catalog.presetsById.values
         .firstWhere((preset) => preset.builtInKey == BuiltInPresetKey.intensive)
         .id;
-    groupId = await groups.create('Capitales', DateTime(2026, 11, 10));
+    groupId = await groups.create('Capitals', DateTime(2026, 11, 10));
   });
 
   tearDown(() => database.close());
 
   Future<int> createCard() => cards.insertCard(
     groupId: groupId,
-    frontText: 'Mongolie',
+    frontText: 'Mongolia',
     frontImagePath: null,
-    backText: 'Oulan-Bator',
+    backText: 'Ulaanbaatar',
     backImagePath: null,
     createdAt: DateTime(2026, 11, 10),
     queuePosition: 0,

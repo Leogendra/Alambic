@@ -7,7 +7,7 @@ A notification-first spaced repetition app for Android: distilate your knowledge
 ## Installation
 
 Requirements: 
-- Flutter 3.47
+- Flutter 3.50
 - Android SDK with platform 37
 
 1. Pair & connect device:

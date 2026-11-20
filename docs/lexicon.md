@@ -1,6 +1,6 @@
 # Lexicon — Alambic
 
-The only place where terms are defined. Specs link here instead of redefining them. The name used in the code is given in parentheses; the French interface word follows when it differs.
+The only place where terms are defined. Specs link here instead of redefining them. The name used in the code is given in parentheses, then the English interface word in quotes when it differs from the term, then the French one in italics when it differs from the English.
 
 ## Terms
 
@@ -10,7 +10,7 @@ A front / back flashcard (`Flashcard`; *carte*). Each face holds plain text and/
 
 ### Pending
 
-State of a card never introduced (`CardState.pending`; *en attente*). Every new card starts there, at the end of the [queue](#queue) of its group, with no due date. Only the [distillation](#distillation) of its group introduces it; resetting a card sends it back there.
+State of a card never introduced (`CardState.pending`; "waiting", *en attente*). Every new card starts there, at the end of the [queue](#queue) of its group, with no due date. Only the [distillation](#distillation) of its group introduces it; resetting a card sends it back there.
 
 ### Queue
 
@@ -18,7 +18,7 @@ The pending cards of a group, in a fixed order that is the only one (`queuePosit
 
 ### Distillation
 
-A permanent setting of a group that introduces its [pending](#pending) cards a few at a time, "N cards every X days" (`Distillation`; *distillation*). A group has at most one; it does not exist until the user activates it, and afterwards is only adjusted, paused or resumed. It never stops nor ends: a card added later joins the [queue](#queue) and arrives at the same rhythm.
+A permanent setting of a group that introduces its [pending](#pending) cards a few at a time, "N cards every X days" (`Distillation`). A group has at most one; it does not exist until the user activates it, and afterwards is only adjusted, paused or resumed. It never stops nor ends: a card added later joins the [queue](#queue) and arrives at the same rhythm.
 
 ### Asked side
 
@@ -26,7 +26,7 @@ The face shown as the question of a display (`CardSide`; *face posée*). It is t
 
 ### Back option
 
-Option of a group (`CardGroup.reverseEnabled`; *verso*) that makes each display of its cards ask the front or the back, one chance in two.
+Option of a group (`CardGroup.reverseEnabled`; "Back", *verso*) that makes each display of its cards ask the front or the back, one chance in two.
 
 ### Group
 
@@ -46,7 +46,7 @@ End of sequence of a group (`AfterLastStep.remanence`, `CardState.remanent`; *r�
 
 ### Acquired
 
-The other end of sequence of a group (`AfterLastStep.acquired`, `CardState.acquired`; *acquise*): past the last [step](#step), the card has no due date any more.
+The other end of sequence of a group (`AfterLastStep.acquired`, `CardState.acquired`; "Learned", *acquise*): past the last [step](#step), the card has no due date any more.
 
 ### Typed answer
 
@@ -78,7 +78,7 @@ A one-off reminder added to a card with "Review soon" (`ExtraReminder`; *rappel 
 
 ### Pause
 
-A period during which a [distillation](#distillation) introduces no card (`Distillation.pausedAt`; *pause*): the pause of one distillation, or the global pause, which holds back every distillation. A pause never stops the notifications nor moves a [due date](#due-date); a group has no pause of its own.
+A period during which a [distillation](#distillation) introduces no card (`Distillation.pausedAt`): the pause of one distillation, or the global pause, which holds back every distillation. A pause never stops the notifications nor moves a [due date](#due-date); a group has no pause of its own.
 
 ### Notification moment
 

@@ -8,7 +8,7 @@ It is not a classic flashcard app, and three principles follow from that:
 
 - No status is shown on a card and there is no "N to review" pile to empty: a card shows its next date, and most reviews happen from the notification. Reviewing a whole group at once stays possible, without being put forward.
 - Everything can be adjusted, but the defaults work without setting anything up.
-- The interface speaks French and English.
+- The interface speaks English and French.
 
 ## Major pieces
 

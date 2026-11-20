@@ -46,7 +46,7 @@ The app draws edge to edge, under transparent status and navigation bars whose i
 
 Settings has a "Display" section with two choices, applied at once:
 
-- **Language**: the language of the phone (default), French or English. Following the phone means French on a French phone and English for any other language, including the ones the app does not have. The notifications speak the same language as the screens, background tasks included: both go through the same rule.
+- **Language**: the language of the phone (default), English or French. Following the phone means French on a French phone and English for any other language, including the ones the app does not have. The notifications speak the same language as the screens, background tasks included: both go through the same rule. English is the base language: every text is written in English first, and French translates all of them.
 - **Theme**: the setting of the phone (default), light or dark.
 
 These choices are [interface preferences](10-onboarding.md#interface-preferences): they stay on the phone and out of the export. They are read before the first frame, so that the app never opens in the wrong language or theme.
@@ -75,7 +75,8 @@ When the database is created, the Standard and Intensive presets are inserted an
 - [x] The app follows the light or dark theme of the phone, or the one chosen in Settings, in DM Sans.
 - [x] Both themes keep the contrast ratios of [Theme and contrast](#theme-and-contrast); no component has a shadow.
 - [x] No text or button shows under the status bar or the navigation bar; a list can always bring its last element above the navigation bar, and the main button of a page stays above the keyboard.
-- [x] The app and its notifications speak French or English, from the phone language or the choice in Settings.
+- [x] The app and its notifications speak English or French, from the phone language or the choice in Settings.
+- [x] English is the base language: its texts are the template, and French translates every one of them.
 - [x] The main navigation shows three tabs and a "+" button.
 - [x] A fresh database contains the Standard and Intensive presets, Standard being the global preset.
 - [x] Deleting a group deletes its cards and its distillation; deleting a card deletes its history and its reminders.

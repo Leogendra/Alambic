@@ -25,7 +25,7 @@ Late cards come first, then the others by moment. A card already answered today 
 
 ### New cards
 
-New cards are never named. Each group gets one line per day, "Capitales: 2 new cards", which opens the group. It counts:
+New cards are never named. Each group gets one line per day, "Capitals: 2 new cards", which opens the group. It counts:
 
 - the introduced cards never answered, on the day they are due (today when late);
 - the cards the group's [distillation](8-distillation.md) should introduce that day, following its rhythm from its last batch; with "Prioritize reviews", the reviews already planned on a batch day take the places of new cards ([Estimates](8-distillation.md#estimates)), so an announced arrival may slip.
@@ -36,11 +36,11 @@ A paused distillation announces no future arrival, and neither does any distilla
 
 ### Coming month and year
 
-After the detailed days, two blocks side by side: "Mois à venir", from the 8th to the 30th day, and "Année à venir", from the 31st to the 365th. Each gives its total ("12 cartes"): the reminders planned then (one per card, at its due date, and the "Review soon" reminders) and the new cards expected, introduced cards never answered and distillation arrivals alike. A pile of card slices under it grows with the total: one slice, then one more each time the total doubles (2, 4, 8…), up to seven. The blocks do not react to touch.
+After the detailed days, two blocks side by side: "Next month", from the 8th to the 30th day, and "Next year", from the 31st to the 365th. Each gives its total ("12 cards"): the reminders planned then (one per card, at its due date, and the "Review soon" reminders) and the new cards expected, introduced cards never answered and distillation arrivals alike. A pile of card slices under it grows with the total: one slice, then one more each time the total doubles (2, 4, 8…), up to seven. The blocks do not react to touch.
 
 ### Header
 
-The title "Coming up" sits over today's date. A pause button next to it starts the global pause, after a confirmation ([Feature 8](8-distillation.md#pause)). During the pause, Home starts with "En pause depuis le …", a line saying that no new card arrives and that the reminders go on, and a "Reprendre" button.
+The title "Coming up" sits over today's date. A pause button next to it starts the global pause, after a confirmation ([Feature 8](8-distillation.md#pause)). During the pause, Home starts with "Paused since …", a line saying that no new card arrives and that the reminders go on, and a "Resume" button.
 
 There is no count of due cards and no "Review all" on Home: reviewing happens from the notifications, a group page or a card sheet.
 

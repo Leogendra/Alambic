@@ -40,7 +40,7 @@ Reading the lines is a domain rule (`BulkCardParser`), rerun at each keystroke:
 
 The screen announces the number of ready cards and lists the skipped lines before adding.
 
-Under them, the order of the batch: "In order" (by default), the top line first, or "Shuffle". Shuffling draws an order when it is chosen, and choosing it again draws a new one; it only mixes the batch, never the cards already waiting. A "First" box shows the card of the batch that will come out first ("Capital of Chile → Santiago"), with "after the 2 cards already waiting" when the queue of the group is not empty. It follows every keystroke, separator and order change, and is hidden while no line is valid.
+Under them, the order of the batch: "In order" (by default), the top line first, or "Shuffle". Shuffling draws an order when it is chosen, and choosing it again draws a new one; it only mixes the batch, never the cards already waiting. The draw mixes places in the batch, not texts: a line edited after the draw keeps its place and every other card keeps its own. A valid line added or removed, a line that becomes valid or invalid included, changes the size of the batch and mixes the whole batch again with the same draw, so the "First" box may change. A "First" box shows the card of the batch that will come out first ("Capital of Chile → Santiago"), with "after the 2 cards already waiting" when the queue of the group is not empty. It follows every keystroke, separator and order change, and is hidden while no line is valid.
 
 Cards are created in a single transaction, in the order shown, at the end of the group's queue; they follow their group's preset.
 
@@ -80,7 +80,7 @@ Every operation that touches due dates or reminders notifies the notification pl
 - [x] A new card is not due: it is pending at the end of its group's queue.
 - [x] Editing a card changes its text, its group and its preset; a pending card moved to another group joins the end of its queue, an introduced one keeps its progression.
 - [x] Bulk add creates one card per valid line and reports the skipped lines by number.
-- [x] The batch joins the end of the queue in the order of the list, or in a shuffled order drawn when "Shuffle" is chosen and drawn again at each touch; the "First" box shows its first card and the cards already waiting.
+- [x] The batch joins the end of the queue in the order of the list, or in a shuffled order drawn when "Shuffle" is chosen and drawn again at each touch; a line edited after the draw keeps its place. The "First" box shows its first card and the cards already waiting.
 - [x] The bulk-add separator is editable; changing it rereads every line.
 - [x] Resetting sends the card back to the end of its group's queue, keeping the history.
 - [x] Lists show the next date only, or "waiting", "suspended", "learned": no status and no step.
@@ -93,7 +93,7 @@ Every operation that touches due dates or reminders notifies the notification pl
 - The service is tested on an in-memory database with a fixed clock: state, queue position and due date after creation, group change, editing and reset, read back from the database.
 - Each test also checks that the notification planning was notified, through a listener that counts calls.
 - Parsing the pasted lines is tested as pure logic: spaces, empty lines, missing separator, empty face, multi-character separator.
-- The order of a batch is tested as pure logic: listed, shuffled within the batch, the same draw giving the same order.
+- The order of a batch is tested as pure logic: listed, shuffled within the batch, the same draw giving the same order, an edited line keeping every place.
 - The bulk-add screen is tested end to end on an in-memory database with a seeded random generator: report and "First" box before adding, separator change, cards created pending at the end of the queue of the group, in the order listed or drawn.
 - The group row is tested on the editor: a card without group is refused, "+" creates a group and puts the card in it, and with no group the row asks for a name.
 - The days offered by "Review soon" are tested as pure logic, Saturday and Sunday included; the reminder service is tested on an in-memory database (added, refused in the past, removed).

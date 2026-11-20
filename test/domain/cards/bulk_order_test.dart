@@ -25,4 +25,13 @@ void main() {
       isNot(const BulkOrder.shuffled(7).apply(batch)),
     );
   });
+
+  test('an edited line keeps its place, and every other line its own', () {
+    final edited = [...batch]..[4] = 50;
+    final before = const BulkOrder.shuffled(7).apply(batch);
+    expect(
+      const BulkOrder.shuffled(7).apply(edited),
+      [for (final line in before) line == 5 ? 50 : line],
+    );
+  });
 }

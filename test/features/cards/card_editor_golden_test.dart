@@ -20,7 +20,7 @@ void main() {
   setUp(() async {
     database = openTestDatabase();
     groupId = await GroupRepository(database)
-        .create('Capitales', DateTime(2026, 11, 10));
+        .create('Capitals', DateTime(2026, 11, 10));
   });
   tearDown(() => database.close());
 
@@ -30,8 +30,8 @@ void main() {
       CardEditorScreen(initialGroupId: groupId),
       overrides: [databaseProvider.overrideWithValue(database)],
     );
-    await tester.enterText(find.byType(TextField).first, 'Mongolie');
-    await tester.enterText(find.byType(TextField).last, 'Oulan-Bator');
+    await tester.enterText(find.byType(TextField).first, 'Mongolia');
+    await tester.enterText(find.byType(TextField).last, 'Ulaanbaatar');
     await tester.pumpAndSettle();
     await expectLater(
       find.byType(CardEditorScreen),
@@ -56,9 +56,9 @@ void main() {
     );
     await tester.enterText(
       find.byType(TextField).first,
-      'Quel pays a ce drapeau ?',
+      'Which country has this flag?',
     );
-    await tester.enterText(find.byType(TextField).last, 'Pérou');
+    await tester.enterText(find.byType(TextField).last, 'Peru');
     await precacheImageFile(tester, 'test/support/fixtures/flag.png');
     await tester.tap(find.text('Image').first);
     await tester.pumpAndSettle();
@@ -68,13 +68,13 @@ void main() {
       matchesGoldenFile('goldens/card_editor_image.png'),
     );
     await tester.runAsync(() async {
-      await tester.tap(find.text('Créer'));
+      await tester.tap(find.text(l10n.cardEditorCreate));
       await Future<void>.delayed(const Duration(milliseconds: 200));
     });
     final card = (await tester.runAsync(
       () => CardRepository(database).getAll(),
     ))!.single;
-    expect(card.frontText, 'Quel pays a ce drapeau ?');
+    expect(card.frontText, 'Which country has this flag?');
     expect(File(images.pathOf(card.frontImagePath!)).existsSync(), isTrue);
   });
 }

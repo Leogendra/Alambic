@@ -164,7 +164,11 @@ void main() {
     samples = SampleServices(database, FixedClock(sampleNow));
     capitalsId = await seedSampleData(samples);
     for (var index = 1; index <= 16; index++) {
-      await samples.card('Pays $index', 'Capitale $index', groupId: capitalsId);
+      await samples.card(
+        'Country $index',
+        'Capital $index',
+        groupId: capitalsId,
+      );
     }
     firstCardId = (await CardRepository(database).getCardsOfGroup(capitalsId))
         .first
@@ -198,7 +202,7 @@ void main() {
   }
 
   group('every tab', () {
-    for (final tab in ['Accueil', 'Groupes', 'Réglages']) {
+    for (final tab in [l10n.tabHome, l10n.tabGroups, l10n.tabSettings]) {
       testWidgets(tab, (tester) async {
         await seed(tester);
         await pumpUnderSystemBars(
@@ -332,20 +336,20 @@ void main() {
         overrides: overrides(),
       );
       await expectClearOfSystemBars(tester);
-      await tester.tap(find.text('Afficher la réponse'));
+      await tester.tap(find.text(l10n.sessionShowAnswer));
       await tester.pumpAndSettle();
       await expectClearOfSystemBars(tester);
       await tapAndSettle(tester, find.text('Correct'));
-      expect(find.text('Session terminée'), findsOneWidget);
+      expect(find.text(l10n.sessionFinished), findsOneWidget);
       await expectClearOfSystemBars(tester);
     });
 
     testWidgets('the three onboarding screens', (tester) async {
       await checkScreen(tester, const OnboardingScreen());
-      await tester.tap(find.text('Suivant'));
+      await tester.tap(find.text(l10n.onboardingNext));
       await tester.pumpAndSettle();
       await expectClearOfSystemBars(tester);
-      await tapAndSettle(tester, find.text('Autoriser les notifications'));
+      await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
       await expectClearOfSystemBars(tester);
     });
   });
@@ -364,14 +368,14 @@ void main() {
             builder: (context) => Center(
               child: FilledButton(
                 onPressed: () => open(context),
-                child: const Text('Ouvrir'),
+                child: const Text('Open'),
               ),
             ),
           ),
         ),
         overrides: overrides(),
       );
-      await tapAndSettle(tester, find.text('Ouvrir'));
+      await tapAndSettle(tester, find.text('Open'));
     }
 
     testWidgets('preset picker', (tester) async {

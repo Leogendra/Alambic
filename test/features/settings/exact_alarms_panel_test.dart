@@ -28,6 +28,7 @@ void main() {
       ...screenOverrides(database, sampleNow),
       alarmSchedulerProvider.overrideWithValue(alarms),
     ],
+    locale: const Locale('fr'),
   );
 
   testWidgets('offers to allow exact alarms when they are refused', (

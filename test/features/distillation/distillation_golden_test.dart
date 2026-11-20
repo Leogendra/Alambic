@@ -51,6 +51,7 @@ void main() {
       tester,
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     expect(
       find.text('6 cartes · dernière arrivée vers le 15 novembre'),
@@ -75,6 +76,7 @@ void main() {
       tester,
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     expect(
       find.text('6 cartes en attente · en pause', findRichText: true),
@@ -88,6 +90,7 @@ void main() {
       tester,
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     expect(find.text('5 cartes en attente'), findsOneWidget);
     await expectLater(
@@ -102,6 +105,7 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     expect(find.text('Japonais : 1 nouvelle carte'), findsNWidgets(6));
     await expectLater(
@@ -116,6 +120,7 @@ void main() {
       tester,
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     await tester.tap(find.byTooltip('Plus de cartes'));
     await tester.pumpAndSettle();
@@ -141,6 +146,7 @@ void main() {
       tester,
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     await tester.tap(find.byTooltip('Régler la distillation'));
     await tester.pumpAndSettle();
@@ -184,6 +190,7 @@ void main() {
       tester,
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     expect(find.text('En pause depuis le 10 nov.'), findsOne);
     expect(find.text('aucune arrivée prévue'), findsOne);
@@ -205,6 +212,7 @@ void main() {
         currentSettings: const DistillationSettings(),
       ),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     expect(
       find.text(

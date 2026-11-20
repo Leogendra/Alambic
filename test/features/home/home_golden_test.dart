@@ -59,6 +59,7 @@ void main() {
         const Scaffold(body: SafeArea(child: HomeScreen())),
         brightness: brightness,
         overrides: screenOverrides(database, renderAt),
+        locale: const Locale('fr'),
       );
       expect(find.text('Japonais : 1 nouvelle carte'), findsNWidgets(2));
       expect(find.text('Capitals : 2 nouvelles cartes'), findsOneWidget);
@@ -94,6 +95,7 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, renderAt),
+      locale: const Locale('fr'),
     );
     expect(find.text('Reprendre'), findsOneWidget);
     await expectLater(
@@ -121,6 +123,7 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, renderAt),
+      locale: const Locale('fr'),
     );
     await tester.drag(find.byType(ListView), const Offset(0, -800));
     await tester.pumpAndSettle();

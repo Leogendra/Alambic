@@ -75,6 +75,7 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     expect(find.text('4 cartes · distillation'), findsOneWidget);
     expect(find.text('2 cartes'), findsOneWidget);
@@ -97,6 +98,7 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     await expectLater(
       find.byType(GroupsScreen),
@@ -110,6 +112,7 @@ void main() {
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     await tester.enterText(find.byType(TextField), 'an');
     await tester.pumpAndSettle();
@@ -132,6 +135,7 @@ void main() {
         GroupDetailScreen(groupId: capitalsId),
         brightness: brightness,
         overrides: screenOverrides(database, sampleNow),
+        locale: const Locale('fr'),
       );
       await expectLater(
         find.byType(GroupDetailScreen),
@@ -149,6 +153,7 @@ void main() {
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     final acquired = find.text('Acquises · 1');
     await tester.scrollUntilVisible(acquired, 200);
@@ -176,6 +181,7 @@ void main() {
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     final title = find.text('Acquises · 1');
     await tester.scrollUntilVisible(title, 200);
@@ -199,6 +205,7 @@ void main() {
         GroupSettingsScreen(groupId: capitalsId),
         brightness: brightness,
         overrides: screenOverrides(database, sampleNow),
+        locale: const Locale('fr'),
       );
       expect(
         find.text(
@@ -220,6 +227,7 @@ void main() {
       tester,
       GroupSettingsScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     Future<CardGroup> tapThenRead(Finder finder) async {
       await tester.runAsync(() async {
@@ -262,6 +270,7 @@ void main() {
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     await tester.runAsync(() async {
       await tester.tap(find.text('Activer le verso'));
@@ -283,6 +292,7 @@ void main() {
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Distiller'));
     await tester.pumpAndSettle();
@@ -312,6 +322,7 @@ void main() {
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
+      locale: const Locale('fr'),
     );
     await tester.ensureVisible(find.text('Tout réviser'));
     await tester.runAsync(() async {

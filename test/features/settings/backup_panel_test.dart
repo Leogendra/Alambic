@@ -31,6 +31,7 @@ void main() {
       ...screenOverrides(database, sampleNow),
       backupFilesProvider.overrideWithValue(files),
     ],
+    locale: const Locale('fr'),
   );
 
   Uint8List backupOf(int cards, int groups) => const BackupArchive().encode(

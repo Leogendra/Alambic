@@ -2,8 +2,8 @@
 
 ## Languages and environments
 
-- Dart 3.13 and Flutter 3.47 (stable channel). The V1 target is Android only: the project contains only the `android/` folder.
-- Android: AGP 9.1, Kotlin 2.4, `compileSdk` 37, Java 17 with core library desugaring (`coreLibraryDesugaring`).
+- Dart 3.14 and Flutter 3.50 (stable channel). The V1 target is Android only: the project contains only the `android/` folder.
+- Android: AGP 9.3, Gradle 9.5, Kotlin 2.4, `compileSdk` 37, Java 17 with core library desugaring (`coreLibraryDesugaring`).
 
 ## Key libraries
 

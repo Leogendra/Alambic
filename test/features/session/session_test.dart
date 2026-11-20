@@ -86,6 +86,57 @@ void main() {
     );
   });
 
+  /// A session on a single card of [front] and [back], in a new group.
+  Future<void> pumpCard(WidgetTester tester, String front, String back) async {
+    late List<SessionItem> cardItems;
+    await tester.runAsync(() async {
+      final services = SampleServices(database, FixedClock(sampleNow));
+      final groupId = await services.groups.create('Notes');
+      final cardId = await services.cards.create(
+        CardDraft(frontText: front, backText: back, groupId: groupId),
+      );
+      await services.introduceAll(groupId);
+      cardItems = [SessionItem(cardId: cardId, askedSide: CardSide.front)];
+    });
+    await pumpGolden(
+      tester,
+      SessionScreen(items: cardItems),
+      overrides: screenOverrides(database, sampleNow),
+    );
+  }
+
+  const sentence = 'Which river flows through Budapest?';
+  const longText =
+      'Which treaty, signed in 1648, ended the Thirty Years War and is often '
+      'cited as the origin of the modern system of sovereign states?';
+
+  for (final (name, front) in [
+    ('sentence', sentence),
+    ('long_text', longText),
+  ]) {
+    testWidgets('caps the size of a face text: $name', (tester) async {
+      await pumpCard(tester, front, 'Answer');
+      expect(
+        tester.widget<Text>(find.text(front)).style!.fontSize,
+        lessThanOrEqualTo(SessionCardView.maxFontSize),
+      );
+      await expectLater(
+        find.byType(SessionScreen),
+        matchesGoldenFile('goldens/session_$name.png'),
+      );
+    });
+  }
+
+  testWidgets('keeps a face text narrow on a wide screen', (tester) async {
+    await pumpCard(tester, longText, 'Westphalia');
+    tester.view.physicalSize = const Size(1200, 844);
+    await tester.pumpAndSettle();
+    expect(
+      tester.getSize(find.text(longText)).width,
+      lessThanOrEqualTo(SessionCardView.maxTextWidth),
+    );
+  });
+
   Future<void> answer(WidgetTester tester, String button) async {
     await tester.tap(find.text(l10n.sessionShowAnswer));
     await tester.pumpAndSettle();

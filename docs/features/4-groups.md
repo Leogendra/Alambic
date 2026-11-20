@@ -23,7 +23,7 @@ The page of a group is titled with its name; from top to bottom:
 - the large "Distill" button while the group does not distill, with a line explaining it, then, once activated, the tracking of its distillation in its place ([Feature 8](8-distillation.md#screens));
 - the "Enable the back" / "Disable the back" button, with a line saying how cards are asked;
 - the cards, under a "Cards" title with a small "Review all" button at its right, shown while the group has cards in progress or waiting. They come in three sections, each under a small title with its number of cards ("In progress · 4"), left out when empty. Each card shows where it stands ([Feature 3](3-cards.md#where-a-card-stands)):
-  - "In progress · N": the introduced cards, active or [remanent](../lexicon.md#remanence), soonest due first; the suspended ones stay there, marked "suspended", at the end;
+  - "In progress · N": the introduced cards that have a due date, in their sequence or in [remanence](../lexicon.md#remanence), soonest due first; the suspended ones stay there, marked "suspended", at the end;
   - "Waiting · N": the [queue](../lexicon.md#queue), in its order, suspended cards in their place. The first card that is not suspended, the next one the distillation introduces, reads "next" in accent instead of "waiting";
   - "Learned · N": the [acquired](../lexicon.md#acquired) cards, folded by default; touching its title unfolds or folds it.
 
@@ -52,7 +52,7 @@ A group carries two more options, set in its settings:
 
 A group's settings are, from top to bottom: its name; its preset, picked from the preset list or inherited from the global preset; what comes after the last step; the typed answer and the back option, as two switches; its deletion. A group has no pause of its own: only its distillation is paused ([Feature 8](8-distillation.md#pause)). The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
 
-"After the last step" is a segmented control, "Remanence" / "Learned". With remanence, a second one picks its interval (3 months, 6 months, 1 year). A line under them says what the choice does: the interval the cards will actually come back at, which is the last step of the preset when it is longer than the one chosen, or that an acquired card never comes back. Every change is saved at once; switching to remanence sends the acquired cards of the group back into it.
+"After the last step" is a segmented control, "Remanence" / "Learned". With remanence, a second one picks its interval (3 months, 6 months, 1 year). A line under them says what the choice does: the interval the cards will actually come back at, which is the last step of the preset when it is longer than the one chosen, or that an acquired card never comes back. Every change is saved at once, and switching applies at once to the cards past their last step ([Feature 1](1-scheduling.md#after-the-last-step)).
 
 Deleting a group asks for confirmation, announcing how many cards go with it, then deletes the group with its cards, their history and its distillation.
 
@@ -82,11 +82,11 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 
 ## Test strategy
 
-- The split into sections is tested as pure logic: the order of each section, remanent and suspended cards, the next card behind a suspended head.
+- The split into sections is tested as pure logic: the order of each section, cards in remanence and suspended cards, the next card behind a suspended head.
 - Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the [daily slot](../lexicon.md#daily-slot), with a suspended card.
 - The order of "Review all" is tested as pure logic (due, introduced, pending, suspended, acquired), then on the group page, down to the session it opens.
 - Raising a missed pending card is tested on an in-memory database with the queue as the distillation reads it: one card, several, a correct answer, a forced bonus, a card added afterwards, the next introduction; and through a session left after one answer.
-- The group service is tested for creation, renaming, refusal of an empty name, the back option, the end of sequence (the acquired cards sent back into remanence) and deletion with its cards.
+- The group service is tested for creation, renaming, refusal of an empty name, the back option, the end of sequence (the cards past their last step, switched in both directions) and deletion with its cards.
 - The tab (list with a distilled group, with a paused distillation, and search), the group page and its settings are covered by golden tests on a sample data set, with a fixed clock; the group page (all three sections, a suspended card in progress and at the head of the queue) and its settings in light and dark theme. The section titles and the "next" mark are checked on the page, and the acquired section is unfolded and folded again by touch. The settings screen is driven to change the remanence interval, the typed answer and the end of sequence, read back from the database.
 
 ## File mapping

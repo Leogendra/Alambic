@@ -45,7 +45,7 @@ void main() {
 
   test('a card in remanence stays in remanence whatever the sequence', () {
     final card = testCard(
-      state: CardState.remanent,
+      state: CardState.completed,
       dueAt: DateTime(2027, 5, 9, 12),
     );
     for (final preset in [shortSequence(), standardPreset, intensivePreset]) {

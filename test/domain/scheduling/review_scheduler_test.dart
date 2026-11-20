@@ -3,6 +3,7 @@ import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/groups/remanence_interval.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
+import 'package:alambic/domain/scheduling/card_schedule.dart';
 import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/domain/scheduling/review_scheduler.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
@@ -81,12 +82,12 @@ void main() {
       answeredAt: DateTime(2026, 11, 10, 12),
       dailySlot: noon,
     );
-    expect(schedule.state, CardState.acquired);
+    expect(schedule.state, CardState.completed);
     expect(schedule.dueAt, isNull);
   });
 
   group('remanence', () {
-    test('a card past its last step is remanent, without step, due at the '
+    test('a card past its last step is completed, without step, due at the '
         'remanence interval on the daily slot', () {
       final schedule = scheduler.afterAnswer(
         card: answered(step: 2),
@@ -96,7 +97,7 @@ void main() {
         answeredAt: DateTime(2026, 11, 10, 21),
         dailySlot: noon,
       );
-      expect(schedule.state, CardState.remanent);
+      expect(schedule.state, CardState.completed);
       expect(schedule.step, isNull);
       expect(schedule.dueAt, DateTime(2027, 5, 9, 12));
     });
@@ -104,7 +105,7 @@ void main() {
     test('a failure stepping back leaves the remanence', () {
       final schedule = scheduler.afterAnswer(
         card: testCard(
-          state: CardState.remanent,
+          state: CardState.completed,
           dueAt: DateTime(2026, 11, 10, 12),
         ),
         outcome: ReviewOutcome.again,
@@ -118,17 +119,37 @@ void main() {
       expect(schedule.dueAt, DateTime(2026, 11, 14, 12));
     });
 
-    test('an acquired card switched back to remanence is due one remanence '
-        'interval from today', () {
-      final schedule = scheduler.backToRemanence(
-        preset: shortSequence(),
-        end: remanence(RemanenceInterval.threeMonths),
-        now: DateTime(2026, 11, 10, 9),
-        dailySlot: noon,
-      );
-      expect(schedule.state, CardState.remanent);
-      expect(schedule.step, isNull);
-      expect(schedule.dueAt, DateTime(2027, 2, 8, 12));
+    group('an acquired card switched back to remanence', () {
+      CardSchedule backToRemanence(DateTime lastReviewedAt) =>
+          scheduler.backToRemanence(
+            lastReviewedAt: lastReviewedAt,
+            preset: shortSequence(),
+            end: remanence(RemanenceInterval.threeMonths),
+            now: DateTime(2026, 11, 10, 9),
+            dailySlot: noon,
+          );
+
+      test('is due one remanence interval after its last review', () {
+        final schedule = backToRemanence(DateTime(2026, 9, 20, 21));
+        expect(schedule.state, CardState.completed);
+        expect(schedule.step, isNull);
+        expect(schedule.dueAt, DateTime(2026, 12, 19, 12));
+      });
+
+      test('stays due today when that day is today', () {
+        expect(
+          backToRemanence(DateTime(2026, 8, 12, 9)).dueAt,
+          DateTime(2026, 11, 10, 12),
+        );
+      });
+
+      test('is due one remanence interval from today when that day has '
+          'passed', () {
+        expect(
+          backToRemanence(DateTime(2026, 8, 11, 9)).dueAt,
+          DateTime(2027, 2, 8, 12),
+        );
+      });
     });
   });
 

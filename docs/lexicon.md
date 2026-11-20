@@ -6,7 +6,7 @@ The only place where terms are defined. Specs link here instead of redefining th
 
 ### Card
 
-A front / back flashcard (`Flashcard`; *carte*). Each face holds plain text and/or an image. A card always belongs to one [group](#group) and has a single progression: its state, [step](#step), [due date](#due-date) and history. Its states are [pending](#pending), active (walking its sequence), in [remanence](#remanence) and [acquired](#acquired) (`CardState`).
+A front / back flashcard (`Flashcard`; *carte*). Each face holds plain text and/or an image. A card always belongs to one [group](#group) and has a single progression: its state, [step](#step), [due date](#due-date) and history. Its states are [pending](#pending), active (walking its sequence) and completed (past its last [step](#step)) (`CardState`). Whether a completed card comes back is not a state of the card: its group says it, through its [remanence](#remanence) or [acquired](#acquired) option.
 
 ### Pending
 
@@ -42,11 +42,11 @@ Position of a card in its preset's sequence (`step`; *cran*): the index of the i
 
 ### Remanence
 
-End of sequence of a group (`AfterLastStep.remanence`, `CardState.remanent`; *rémanence*): past the last [step](#step) of its preset, a card comes back forever at a fixed interval of the group (`RemanenceInterval`: 3 months, 6 months or 1 year), or at its last step when that is longer. It counts as one more step after the last one.
+End of sequence of a group (`AfterLastStep.remanence`; *rémanence*): past the last [step](#step) of its preset, a card comes back forever at a fixed interval of the group (`RemanenceInterval`: 3 months, 6 months or 1 year), or at its last step when that is longer. It counts as one more step after the last one.
 
 ### Acquired
 
-The other end of sequence of a group (`AfterLastStep.acquired`, `CardState.acquired`; "Learned", *acquise*): past the last [step](#step), the card has no due date any more.
+The other end of sequence of a group (`AfterLastStep.acquired`; "Learned", *acquise*): past the last [step](#step), the card has no due date any more.
 
 ### Typed answer
 

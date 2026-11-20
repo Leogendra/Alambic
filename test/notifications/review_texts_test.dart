@@ -112,11 +112,7 @@ void main() {
           isBonus: false,
           typed: 'Lima',
           match: TypedAnswerMatch.exact,
-          schedule: const CardSchedule(
-            state: CardState.acquired,
-            step: null,
-            dueAt: null,
-          ),
+          schedule: CardSchedule.acquired,
         ),
       ),
       '"Lima" accepted · card learned',

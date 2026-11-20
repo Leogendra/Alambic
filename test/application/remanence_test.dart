@@ -50,7 +50,7 @@ void main() {
 
   Future<int> remanentCard({DateTime? dueAt}) => cardWith(
     CardSchedule(
-      state: CardState.remanent,
+      state: CardState.completed,
       step: null,
       dueAt: dueAt ?? dueToday,
     ),
@@ -85,18 +85,18 @@ void main() {
       );
       final cardId = await cardAtLastStep();
       final card = await answer(cardId, ReviewOutcome.correct);
-      expect(card.state, CardState.remanent);
+      expect(card.state, CardState.completed);
       expect(card.step, isNull);
       expect(card.dueAt, DateTime(2027, 11, 10, 12), reason: '365 days');
       final history = await ReviewRepository(database)
           .watchHistory(cardId)
           .first;
-      expect(history.single.stateAfter, CardState.remanent);
+      expect(history.single.stateAfter, CardState.completed);
     });
 
     test('a success in remanence stays in remanence', () async {
       final card = await answer(await remanentCard(), ReviewOutcome.correct);
-      expect(card.state, CardState.remanent);
+      expect(card.state, CardState.completed);
       expect(card.dueAt, DateTime(2027, 5, 9, 12), reason: '180 days');
     });
 
@@ -123,7 +123,7 @@ void main() {
         RemanenceInterval.threeMonths,
       );
       final card = await answer(await remanentCard(), ReviewOutcome.again);
-      expect(card.state, CardState.remanent);
+      expect(card.state, CardState.completed);
       expect(
         card.dueAt,
         DateTime(2027, 5, 9, 12),
@@ -148,29 +148,44 @@ void main() {
     test('a success at the last step acquires the card', () async {
       await samples.groups.setAfterLastStep(groupId, AfterLastStep.acquired);
       final card = await answer(await cardAtLastStep(), ReviewOutcome.correct);
-      expect(card.state, CardState.acquired);
+      expect(card.state, CardState.completed);
+      expect(card.isAcquired, isTrue);
       expect(card.dueAt, isNull);
     });
 
-    test('a card already in remanence keeps its due date, then is acquired '
-        'at its next success', () async {
-      final cardId = await remanentCard();
+    test('a card in remanence loses its due date at once, the cards still in '
+        'their sequence keep theirs', () async {
+      final remanentId = await remanentCard();
+      final activeId = await cardAtLastStep();
       await samples.groups.setAfterLastStep(groupId, AfterLastStep.acquired);
-      var card = await cards.getCard(cardId);
-      expect(card.state, CardState.remanent);
-      expect(card.dueAt, dueToday);
-      card = await answer(cardId, ReviewOutcome.correct);
-      expect(card.state, CardState.acquired);
+      final acquired = await cards.getCard(remanentId);
+      expect(acquired.state, CardState.completed);
+      expect(acquired.dueAt, isNull);
+      final active = await cards.getCard(activeId);
+      expect(active.step, 5);
+      expect(active.dueAt, dueToday);
     });
   });
 
-  test(
-    'switched back to remanence, the acquired cards of the group come '
-    'back one remanence interval from today, the others are untouched',
-    () async {
-      await samples.groups.setAfterLastStep(groupId, AfterLastStep.acquired);
-      final acquiredId = await cardWith(
-        const CardSchedule(state: CardState.acquired, step: null, dueAt: null),
+  group('switched back to remanence', () {
+    Future<int> acquiredCard({required DateTime lastReviewedAt}) async {
+      final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
+      await cards.applySchedule(
+        cardId,
+        CardSchedule.acquired,
+        reviewedAt: lastReviewedAt,
+      );
+      return cardId;
+    }
+
+    setUp(
+      () => samples.groups.setAfterLastStep(groupId, AfterLastStep.acquired),
+    );
+
+    test('an acquired card is due one remanence interval after its last '
+        'review, the others are untouched', () async {
+      final acquiredId = await acquiredCard(
+        lastReviewedAt: DateTime(2026, 8, 12, 9),
       );
       final activeId = await cardWith(
         CardSchedule(state: CardState.active, step: 2, dueAt: dueToday),
@@ -181,25 +196,43 @@ void main() {
         'beber',
         groupId: otherGroup,
       );
-      await cards.applySchedule(
-        elsewhereId,
-        const CardSchedule(state: CardState.acquired, step: null, dueAt: null),
-      );
+      await cards.applySchedule(elsewhereId, CardSchedule.acquired);
 
       await samples.groups.setAfterLastStep(groupId, AfterLastStep.remanence);
 
       final revived = await cards.getCard(acquiredId);
-      expect(revived.state, CardState.remanent);
+      expect(revived.state, CardState.completed);
       expect(
         revived.dueAt,
-        DateTime(2027, 5, 9, 12),
-        reason: 'none due at once',
+        DateTime(2027, 2, 8, 12),
+        reason: '180 days after 12 August, at the daily slot',
       );
       final active = await cards.getCard(activeId);
       expect(active.state, CardState.active);
       expect(active.step, 2);
       expect(active.dueAt, dueToday);
-      expect((await cards.getCard(elsewhereId)).state, CardState.acquired);
-    },
-  );
+      expect((await cards.getCard(elsewhereId)).isAcquired, isTrue);
+    });
+
+    test('a card whose last review is older than the interval is due one '
+        'interval after the switch', () async {
+      final cardId = await acquiredCard(
+        lastReviewedAt: DateTime(2026, 3, 10, 9),
+      );
+      await samples.groups.setAfterLastStep(groupId, AfterLastStep.remanence);
+      expect(
+        (await cards.getCard(cardId)).dueAt,
+        DateTime(2027, 5, 9, 12),
+        reason: '180 days after 10 November, not on 6 September',
+      );
+    });
+
+    test('choosing the end already in force moves no due date', () async {
+      await samples.groups.setAfterLastStep(groupId, AfterLastStep.remanence);
+      final dueAt = DateTime(2027, 2, 1, 12);
+      final cardId = await remanentCard(dueAt: dueAt);
+      await samples.groups.setAfterLastStep(groupId, AfterLastStep.remanence);
+      expect((await cards.getCard(cardId)).dueAt, dueAt);
+    });
+  });
 }

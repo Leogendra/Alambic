@@ -3,7 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/theme/alambic_colors.dart';
-import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/groups/after_last_step.dart';
 import '../../domain/groups/sequence_end.dart';
@@ -48,21 +47,23 @@ class CardProgressPanel extends StatelessWidget {
 
   List<Widget> _content(BuildContext context, AlambicColors colors) {
     final strings = AppLocalizations.of(context);
-    return switch (card.state) {
-      CardState.pending => [_message(strings.cardSheetPending, colors)],
-      CardState.acquired => [
+    if (card.isPending) {
+      return [_message(strings.cardSheetPending, colors)];
+    } else if (card.isAcquired) {
+      return [
         _sequence(strings, colors, preset.lastStep),
         _message(strings.cardSheetAcquired, colors),
-      ],
-      CardState.active || CardState.remanent => [
+      ];
+    } else {
+      return [
         _sequence(strings, colors, switch (CardProgress.of(card, preset, end)) {
           NewProgress() => null,
           SequenceProgress(:final step) => step,
           RemanenceProgress(:final sequenceLength) => sequenceLength,
         }),
         _nextReview(context, colors, card.dueAt!),
-      ],
-    };
+      ];
+    }
   }
 
   /// The steps of the preset, then the remanence when the group has one,

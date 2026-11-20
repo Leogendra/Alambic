@@ -9,11 +9,11 @@ sealed class CardProgress {
   const CardProgress();
 
   /// The step is read against the current sequence: a step kept from a longer
-  /// one counts as the last step. A card in remanence stays in remanence
-  /// whatever the length of the sequence, and waits the remanence interval
-  /// its group gives after [preset].
+  /// one counts as the last step. A completed card stays past the sequence
+  /// whatever its length, and waits the remanence interval its group gives
+  /// after [preset].
   factory CardProgress.of(Flashcard card, Preset preset, SequenceEnd end) {
-    if (card.state == CardState.remanent) {
+    if (card.state == CardState.completed) {
       return RemanenceProgress(
         sequenceLength: preset.sequenceLength,
         interval: end.remanenceAfter(preset),

@@ -38,7 +38,7 @@ void main() {
 
   test('acquired cards are left out', () {
     final cards = [
-      testCard(id: 1, state: CardState.acquired),
+      testCard(id: 1, state: CardState.completed),
       testCard(id: 2, dueAt: DateTime(2026, 12, 1, 12)),
     ];
     expect(review.cardIds(cards, now), [2]);

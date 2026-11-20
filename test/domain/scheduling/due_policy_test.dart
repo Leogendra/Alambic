@@ -48,7 +48,7 @@ void main() {
   test('suspended, acquired or pending cards are never due', () {
     final past = DateTime(2026, 11, 8);
     expect(isDue(card(dueAt: past, suspended: true)), isFalse);
-    expect(isDue(card(dueAt: past, state: CardState.acquired)), isFalse);
+    expect(isDue(card(state: CardState.completed)), isFalse);
     expect(isDue(card(dueAt: past, state: CardState.pending)), isFalse);
   });
 }

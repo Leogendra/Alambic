@@ -1,4 +1,3 @@
-import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation_queue.dart';
 
@@ -9,15 +8,14 @@ class GroupSections {
   factory GroupSections.of(Iterable<Flashcard> groupCards) {
     final ongoing = [
       for (final card in groupCards)
-        if (card.state == CardState.active || card.state == CardState.remanent)
-          card,
+        if (card.isScheduled) card,
     ]..sort(_bySoonest);
     return GroupSections._(
       ongoing: ongoing,
       waiting: DistillationQueue.inOrder(groupCards),
       acquired: [
         for (final card in groupCards)
-          if (card.state == CardState.acquired) card,
+          if (card.isAcquired) card,
       ],
     );
   }

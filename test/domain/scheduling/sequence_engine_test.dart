@@ -30,7 +30,7 @@ void main() {
     final sequence = preset ?? shortSequence(failureBehavior: failureBehavior);
     final sequenceEnd = end ?? remanence();
     final card = testCard(
-      state: remanent ? CardState.remanent : CardState.active,
+      state: remanent ? CardState.completed : CardState.active,
       step: remanent ? null : step,
       dueAt: DateTime(2026, 11, 10, 12),
     );
@@ -113,14 +113,6 @@ void main() {
         isA<AcquiredReached>(),
       );
     });
-
-    test('a card in remanence of an acquired group is acquired at its '
-        'next success', () {
-      expect(
-        answer(null, ReviewOutcome.correct, remanent: true, end: acquiredEnd),
-        isA<AcquiredReached>(),
-      );
-    });
   });
 
   group('failure', () {
@@ -169,13 +161,6 @@ void main() {
       expect(
         (fail(FailureBehavior.stay) as RemanenceReached).interval,
         sixMonths,
-      );
-    });
-
-    test('stay keeps the remanence even in an acquired group', () {
-      expect(
-        fail(FailureBehavior.stay, end: acquiredEnd),
-        isA<RemanenceReached>(),
       );
     });
   });

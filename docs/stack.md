@@ -9,6 +9,7 @@
 
 Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so that a build on another machine produces the same app. A version bump is an explicit change of both files.
 
+- `material_ui`: the Material widgets and their localizations, which replace `package:flutter/material.dart`, deprecated since Flutter 3.47.
 - `flutter_riverpod`: state and dependency injection.
 - `drift` and `drift_flutter`: local SQLite database (groups, cards, distillations, reviews, presets). `drift_dev` and `build_runner` generate code during development.
 - `shared_preferences`: interface preferences.
@@ -45,5 +46,5 @@ Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so
 - `android_alarm_manager_plus` does not fall back to an inexact alarm without the exact alarm permission: it logs an error and drops the alarm. Ask for an exact alarm only when `canScheduleExactNotifications` allows it.
 - Notification buttons without user interface are always delivered to the background handler of `flutter_local_notifications`, even when the app is open.
 - When a golden comparison fails, the next tests of the same file that use the database can hang until the 10-minute timeout instead of failing. A run that suddenly takes minutes is a golden mismatch: rerun the file alone to see the first failure.
-- Golden images depend on the rendering of the platform that generated them (Windows here). Regenerating them on another platform produces differences of a few pixels. They also depend on the Flutter version: the `environment` of `pubspec.yaml` sets the minimum one, so that an older SDK refuses `pub get` instead of rewriting `pubspec.lock` and failing every golden on the glyphs.
+- Golden images depend on the rendering of the platform that generated them (Windows here). Regenerating them on another platform produces differences of a few pixels. They also depend on the Flutter version: the `environment` of `pubspec.yaml` sets the minimum one, so that an older SDK refuses `pub get` instead of rewriting `pubspec.lock` and failing every golden on the glyphs. The pinned version of `material_ui` matters too: Material is no longer part of the SDK, so its bug fixes arrive through a bump of `pubspec.yaml` and can change a golden.
 - In widget tests, a Future created in the fake time of one test never completes in the next one. `rootBundle.loadString` caches the Future of each asset, so a second test reading the same asset waits forever: an asset read from a screen under test is loaded with `cache: false`. Work done on the database from a button (drift runs on real time) is awaited by alternating `tester.runAsync` with a short delay and `tester.pump()` until its effect shows, instead of a single fixed delay.

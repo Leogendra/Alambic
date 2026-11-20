@@ -152,12 +152,32 @@ class _NotificationPreview extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Row(
-              spacing: 20,
-              children: [
-                Text(strings.reviewCorrect, style: actionStyle),
-                Text(strings.reviewAgain, style: actionStyle),
-              ],
+            child: IntrinsicHeight(
+              child: Row(
+                children: [
+                  for (final (index, label) in [
+                    strings.reviewAgain,
+                    strings.notificationReveal,
+                    strings.reviewCorrect,
+                  ].indexed) ...[
+                    if (index > 0)
+                      VerticalDivider(
+                        width: 1,
+                        thickness: 1,
+                        indent: 2,
+                        endIndent: 2,
+                        color: colors.divider,
+                      ),
+                    Expanded(
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: actionStyle,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ],

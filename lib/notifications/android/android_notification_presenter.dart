@@ -82,9 +82,9 @@ class AndroidNotificationPresenter implements NotificationPresenter {
     );
   }
 
-  /// "Again", "Correct", "Reveal"; "Again", "Answer", "Reveal" for a typed
-  /// answer; "Again", "Correct", "Hide" once revealed. Again and the third
-  /// button keep their place.
+  /// "Again", "Reveal", "Correct"; "Again", "Reveal", "Answer" for a typed
+  /// answer; "Again", "Hide", "Correct" once revealed. Each button keeps its
+  /// place.
   List<AndroidNotificationAction> _cardActions({
     required bool isRevealed,
     required bool typedAnswer,
@@ -107,8 +107,8 @@ class AndroidNotificationPresenter implements NotificationPresenter {
     if (isRevealed) {
       return [
         again,
-        correct,
         action(NotificationAction.hide, strings.notificationHide),
+        correct,
       ];
     }
     final reveal = action(
@@ -118,6 +118,7 @@ class AndroidNotificationPresenter implements NotificationPresenter {
     if (typedAnswer) {
       return [
         again,
+        reveal,
         action(
           NotificationAction.answer,
           strings.notificationAnswerButton,
@@ -125,10 +126,9 @@ class AndroidNotificationPresenter implements NotificationPresenter {
             AndroidNotificationActionInput(label: strings.typedAnswerField),
           ],
         ),
-        reveal,
       ];
     } else {
-      return [again, correct, reveal];
+      return [again, reveal, correct];
     }
   }
 

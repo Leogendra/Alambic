@@ -1,20 +1,20 @@
 # Lexicon — Alambic
 
-The only place where terms are defined. Specs link here instead of redefining them. The name used in the code is given in parentheses, then the English interface word in quotes when it differs from the term, then the French one in italics when it differs from the English.
+The only place where terms are defined. Specs link here instead of redefining them. The name used in the code is given in parentheses, then the English interface word in quotes when it differs from the term. The French interface words live in `lib/l10n/app_fr.arb`, not here.
 
 ## Terms
 
 ### Card
 
-A front / back flashcard (`Flashcard`; *carte*). Each face holds plain text and/or an image. A card always belongs to one [group](#group) and has a single progression: its state, [step](#step), [due date](#due-date) and history. Its states are [pending](#pending), active (walking its sequence) and completed (past its last [step](#step)) (`CardState`). Whether a completed card comes back is not a state of the card: its group says it, through its [remanence](#remanence) or [acquired](#acquired) option.
+A front / back flashcard (`Flashcard`). Each face holds plain text and/or an image. A card always belongs to one [group](#group) and has a single progression: its state, [step](#step), [due date](#due-date) and history. Its states are [pending](#pending), active (walking its sequence) and completed (past its last [step](#step)) (`CardState`). Whether a completed card comes back is not a state of the card: its group says it, through its [remanence](#remanence) or [acquired](#acquired) option.
 
 ### Pending
 
-State of a card never introduced (`CardState.pending`; "waiting", *en attente*). Every new card starts there, at the end of the [queue](#queue) of its group, with no due date. Only the [distillation](#distillation) of its group introduces it; resetting a card sends it back there.
+State of a card never introduced (`CardState.pending`; "waiting"). Every new card starts there, at the end of the [queue](#queue) of its group, with no due date. Only the [distillation](#distillation) of its group introduces it; resetting a card sends it back there.
 
 ### Queue
 
-The pending cards of a group, in a fixed order that is the only one (`queuePosition`; *file*): the [distillation](#distillation) takes its head. A card created in the group, moved into it while pending, or reset, joins its end, and so does a bulk add, as a whole batch. A pending card missed in "Review all" goes to its head.
+The pending cards of a group, in a fixed order that is the only one (`queuePosition`): the [distillation](#distillation) takes its head. A card created in the group, moved into it while pending, or reset, joins its end, and so does a bulk add, as a whole batch. A pending card missed in "Review all" goes to its head.
 
 ### Distillation
 
@@ -22,15 +22,15 @@ A permanent setting of a group that introduces its [pending](#pending) cards a f
 
 ### Asked side
 
-The face shown as the question of a display (`CardSide`; *face posée*). It is the front, unless the group has [the back](#back-option) enabled, in which case every display draws front or back at random. It changes nothing to the progression of the card.
+The face shown as the question of a display (`CardSide`). It is the front, unless the group has [the back](#back-option) enabled, in which case every display draws front or back at random. It changes nothing to the progression of the card.
 
 ### Back option
 
-Option of a group (`CardGroup.reverseEnabled`; "Back", *verso*) that makes each display of its cards ask the front or the back, one chance in two.
+Option of a group (`CardGroup.reverseEnabled`; "Back") that makes each display of its cards ask the front or the back, one chance in two.
 
 ### Group
 
-A flat list of cards sharing a [preset](#preset) (`CardGroup`; *groupe*), with its [distillation](#distillation), its [back option](#back-option), its end of sequence ([remanence](#remanence) or [acquired](#acquired)) and its [typed answer](#typed-answer) option. Every card is in a group.
+A flat list of cards sharing a [preset](#preset) (`CardGroup`), with its [distillation](#distillation), its [back option](#back-option), its end of sequence ([remanence](#remanence) or [acquired](#acquired)) and its [typed answer](#typed-answer) option. Every card is in a group.
 
 ### Preset
 
@@ -38,27 +38,27 @@ The rhythm of the reviews (`Preset`): interval sequence and behaviour on failure
 
 ### Step
 
-Position of a card in its preset's sequence (`step`; *cran*): the index of the interval currently waited. A card never answered has no step.
+Position of a card in its preset's sequence (`step`): the index of the interval currently waited. A card never answered has no step.
 
 ### Remanence
 
-End of sequence of a group (`AfterLastStep.remanence`; *rémanence*): past the last [step](#step) of its preset, a card comes back forever at a fixed interval of the group (`RemanenceInterval`: 3 months, 6 months or 1 year), or at its last step when that is longer. It counts as one more step after the last one.
+End of sequence of a group (`AfterLastStep.remanence`): past the last [step](#step) of its preset, a card comes back forever at a fixed interval of the group (`RemanenceInterval`: 3 months, 6 months or 1 year), or at its last step when that is longer. It counts as one more step after the last one.
 
 ### Acquired
 
-The other end of sequence of a group (`AfterLastStep.acquired`; "Learned", *acquise*): past the last [step](#step), the card has no due date any more.
+The other end of sequence of a group (`AfterLastStep.acquired`; "Learned"): past the last [step](#step), the card has no due date any more.
 
 ### Typed answer
 
-Option of a group (`CardGroup.typedAnswer`; *réponse tapée*): its cards whose answer face has text are answered by typing that text, compared leniently, instead of saying "Correct".
+Option of a group (`CardGroup.typedAnswer`): its cards whose answer face has text are answered by typing that text, compared leniently, instead of saying "Correct".
 
 ### Due date
 
-Moment when a card becomes [due](#due) again (`dueAt`; *échéance*). For an interval of a day or more, it is the [daily slot](#daily-slot) on the target day; for a shorter interval, the answer moment plus the interval.
+Moment when a card becomes [due](#due) again (`dueAt`). For an interval of a day or more, it is the [daily slot](#daily-slot) on the target day; for a shorter interval, the answer moment plus the interval.
 
 ### Schedule
 
-When the reviews are notified (`ReminderSettings`; *horaire*): a fixed time (12:00 by default) or a time range. One for the whole app, set in Settings with the notification mode (one notification per card, or one grouped reminder per group).
+When the reviews are notified (`ReminderSettings`): a fixed time (12:00 by default) or a time range. One for the whole app, set in Settings with the notification mode (one notification per card, or one grouped reminder per group).
 
 ### Daily slot
 
@@ -66,15 +66,15 @@ Time of day at which the due dates of a day or more fall (`ReminderSettings.dail
 
 ### Day
 
-Scheduling day, which starts at 4am rather than midnight (`SchedulingCalendar`; *journée*). Every "same day" and "today" rule uses it.
+Scheduling day, which starts at 4am rather than midnight (`SchedulingCalendar`). Every "same day" and "today" rule uses it.
 
 ### Due
 
-A card is due today (*à réviser*) when its due date has passed, or when it falls today and the card has not already been reviewed today (`DuePolicy`). A suspended card is never due.
+A card is due today when its due date has passed, or when it falls today and the card has not already been reviewed today (`DuePolicy`). A suspended card is never due.
 
 ### Extra reminder
 
-A one-off reminder added to a card with "Review soon" (`ExtraReminder`; *rappel ponctuel*). Answering it is a [bonus review](#bonus-review).
+A one-off reminder added to a card with "Review soon" (`ExtraReminder`). Answering it is a [bonus review](#bonus-review).
 
 ### Pause
 
@@ -86,8 +86,8 @@ Moment at which a scheduled card is notified (`DeliveryPlanner`). It is usually 
 
 ### Wake-up
 
-A moment at which the app is woken up by an alarm to show what is due (*réveil*). Wake-ups are planned from the [notification moments](#notification-moment); the notifications themselves are built when the wake-up fires.
+A moment at which the app is woken up by an alarm to show what is due. Wake-ups are planned from the [notification moments](#notification-moment); the notifications themselves are built when the wake-up fires.
 
 ### Bonus review
 
-An answer to a card that is not due (*révision bonus*), pending cards included. It is written to the history but changes neither the step nor the due date, and a pending card stays pending (missed in "Review all", it still goes to the head of its [queue](#queue)).
+An answer to a card that is not due, pending cards included. It is written to the history but changes neither the step nor the due date, and a pending card stays pending (missed in "Review all", it still goes to the head of its [queue](#queue)).

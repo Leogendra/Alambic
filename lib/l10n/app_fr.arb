@@ -87,7 +87,7 @@
   "scheduleRangeUnordered": "La fin de la plage ne peut pas précéder son début.",
   "notificationModePerCard": "Une par carte",
   "notificationModeGrouped": "Rappel groupé",
-  "notificationModePerCardHint": "Chaque carte due arrive seule, avec À revoir / Correct / Révéler.",
+  "notificationModePerCardHint": "Chaque carte due arrive seule, avec À revoir / Révéler / Correct.",
   "notificationModeGroupedHint": "Une seule notif par groupe, par exemple « Capitales : 5 à réviser ».",
   "notificationModeGroupedTap": "Au tap sur le rappel",
   "notificationModeOpenApp": "Ouvrir l'app",

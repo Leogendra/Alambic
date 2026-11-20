@@ -14,9 +14,9 @@ abstract interface class NotificationPresenter {
   /// returns whether the app may post them.
   Future<bool> requestPermission();
 
-  /// Shows a card with its "Again", "Correct" and "Reveal" buttons, or
-  /// "Again", "Answer" and "Reveal" for a typed answer. A revealed card shows
-  /// the answer with "Again", "Correct" and "Hide".
+  /// Shows a card with its "Again", "Reveal" and "Correct" buttons, or
+  /// "Again", "Reveal" and "Answer" for a typed answer. A revealed card shows
+  /// the answer with "Again", "Hide" and "Correct".
   Future<void> showPrompt(ReviewPrompt prompt);
 
   /// Replaces the notification of [verdict]'s key, silently, with the

@@ -63,15 +63,15 @@ class ReviewPrompt {
   final String? answerImage;
   final String groupName;
 
-  /// Asks for a typed answer ("Again", "Answer" and "Reveal") instead of
-  /// "Again", "Correct" and "Reveal".
+  /// Asks for a typed answer ("Again", "Reveal" and "Answer") instead of
+  /// "Again", "Reveal" and "Correct".
   final bool typedAnswer;
 
   /// Cards left in the grouped reminder, this one included, when the cards
   /// are chained in the notification.
   final int? chainRemaining;
 
-  /// Shows the answer face, with "Again", "Correct" and "Hide"; nothing is
+  /// Shows the answer face, with "Again", "Hide" and "Correct"; nothing is
   /// recorded until "Again" or "Correct" is pressed.
   final bool isRevealed;
 

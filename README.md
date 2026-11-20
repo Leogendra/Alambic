@@ -1,6 +1,16 @@
 # Alambic
 
+<div align="center">
+    <img src="assets/branding/icon.svg" alt="Logo" width="100" />
+</div>
+
 A notification-first spaced repetition app for Android: distill your knowledge by introducing new cards a few at a time. Most reviews happen straight from the notification.
+
+<div align="center">
+    <img src="test\features\onboarding\goldens\onboarding_welcome_dark.png" alt="Home screen" width="30%" />
+    <img src="test\features\session\goldens\session_back_dark.png" alt="Review card" width="30%" />
+    <img src="test\features\groups\goldens\group_detail_dark.png" alt="Group detail" width="30%" />
+</div>
 
 > **Alpha:** under active development. Features may change or break, and data may be reset between versions.
 

@@ -17,20 +17,22 @@ class SampleGroupService {
   final GroupService _groups;
   final CardService _cards;
 
-  /// The text of the sample cards, one `front;back` line per card.
-  final Future<String> Function() _loadCards;
+  /// The text of the sample cards in a language, one `front;back` line per
+  /// card.
+  final Future<String> Function(String languageCode) _loadCards;
 
-  /// The cards of the group, in their queue order.
-  Future<List<BulkCardDraft>> cards() async => BulkCardParser.parse(
-    await _loadCards(),
-    BulkCardParser.defaultSeparator,
-  ).drafts;
+  /// The cards of the group in [languageCode], in their queue order.
+  Future<List<BulkCardDraft>> cards(String languageCode) async =>
+      BulkCardParser.parse(
+        await _loadCards(languageCode),
+        BulkCardParser.defaultSeparator,
+      ).drafts;
 
-  /// Creates the group named [name] with its cards, pending in their order;
-  /// it follows the global preset, without the back nor a distillation.
-  /// Returns the id of the group.
-  Future<int> create(String name) async {
-    final drafts = await cards();
+  /// Creates the group named [name] with its cards in [languageCode], pending
+  /// in their order; it follows the global preset, without the back nor a
+  /// distillation. Returns the id of the group.
+  Future<int> create(String name, String languageCode) async {
+    final drafts = await cards(languageCode);
     final groupId = await _groups.create(name);
     await _cards.createAll([
       for (final draft in drafts)

@@ -37,7 +37,8 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-    - assets/samples/nato_alphabet.txt
+    - assets/samples/capitals_en.txt
+    - assets/samples/capitals_fr.txt
   fonts:
     - family: DM Sans
       fonts:

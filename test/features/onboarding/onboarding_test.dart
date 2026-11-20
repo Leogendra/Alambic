@@ -124,15 +124,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('NATO alphabet'), findsOneWidget);
-    expect(find.text('26 cards'), findsOneWidget);
+    expect(find.text('Capitals'), findsOneWidget);
+    expect(find.text('197 cards'), findsOneWidget);
     await finishWith(tester, l10n.onboardingNext);
 
-    expect(await groupNames(tester), ['NATO alphabet']);
+    expect(await groupNames(tester), ['Capitals']);
     final cards = await tester.runAsync(
       () => CardRepository(database).getAll(),
     );
-    expect(cards, hasLength(26));
+    expect(cards, hasLength(197));
     expect(cards!.every((card) => card.isPending), isTrue);
     expect(store.saved.onboardingDone, isTrue);
     expect(find.byType(GroupDetailScreen), findsOneWidget);
@@ -146,7 +146,7 @@ void main() {
     await reachSampleGroup(tester);
     await finishWith(tester, l10n.onboardingSkip);
 
-    expect(await groupNames(tester), ['NATO alphabet']);
+    expect(await groupNames(tester), ['Capitals']);
     expect(store.saved.onboardingDone, isTrue);
     expect(find.byType(MainShell), findsOneWidget);
     expect(find.byType(GroupDetailScreen), findsNothing);
@@ -158,7 +158,7 @@ void main() {
     await pumpApp(tester);
     await finishWith(tester, l10n.onboardingSkip);
 
-    expect(await groupNames(tester), ['NATO alphabet']);
+    expect(await groupNames(tester), ['Capitals']);
     expect(store.saved.onboardingDone, isTrue);
     expect(presenter.notificationPermissionRequests, 0);
     expect(find.byType(MainShell), findsOneWidget);
@@ -200,7 +200,11 @@ void main() {
     await tester.pumpAndSettle();
     await finishWith(tester, 'Passer');
 
-    expect(await groupNames(tester), ['Alphabet NATO']);
+    expect(await groupNames(tester), ['Capitales']);
+    final cards = await tester.runAsync(
+      () => CardRepository(database).getAll(),
+    );
+    expect(cards!.map((card) => card.backText), contains('Kaboul'));
   });
 
   testWidgets('the sample group is created once: a later launch, even after '

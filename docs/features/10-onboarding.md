@@ -14,17 +14,17 @@ The three screens follow each other with a "Next" button at the bottom, under a 
 
 1. **The principle**: "Remember everything without thinking about it.", under "One card, multiple reminders": a line of dots for the start of a card and its reminders after 1 day, 2 days, 1 week and 1 month, not to scale, and "Each correct answer spaces out the next reminder."
 2. **Reminders**: "You review straight from the notification.", under a card notification with its Correct and Again buttons, then the reminder time, 12:00 by default, "for all groups". The button of the screen, "Allow notifications", asks for the notification permission (the Android 13 dialog), then opens the system page of exact alarms when they are refused, and moves on to the next screen without waiting for the user to come back from it. Both can be refused: the app still works, with Settings offering exact alarms again ([Feature 7](7-notifications.md#exact-alarms-restarts-and-permissions)). A time picked becomes at once the fixed time of the app's [schedule](../lexicon.md#schedule), so that "Skip" keeps it.
-3. **A group to start with**: the [sample group](#sample-group), with its number of cards and its first card ("A → Alpha").
+3. **A group to start with**: the [sample group](#sample-group), with its number of cards and its first card ("Afghanistan → Kabul").
 
 "Next" on the last screen, or "Skip" on any screen, creates the sample group, marks the onboarding as done and opens the tabs. "Skip" leaves the user on Home, without asking the permissions when they were not reached. "Next" opens the page of the group above the tabs, with "Distill" pointed out by a line: "Its cards are waiting. Distill the group to receive them." Activating the distillation introduces its first card the same day, at the [daily slot](../lexicon.md#daily-slot) or right away when the slot has passed ([Feature 8](8-distillation.md)). The group to open is handed to the tabs by a notifier (`firstGroupProvider`), which forgets it once opened.
 
 ### Sample group
 
-The sample group is the NATO alphabet: 26 cards, "A" → "Alpha" to "Z" → "Zulu", all [pending](../lexicon.md#pending) in that order. It is named "Alphabet NATO", or "NATO alphabet" when the app is in English at that moment; the name does not follow a later change of language. It inherits the global preset, its back is off and it does not distill.
+The sample group is the capitals of the world: 197 cards, the country on the front and its capital on the back ("Afghanistan" → "Kabul"), all [pending](../lexicon.md#pending) in alphabetical order of the country. Its name and its cards are in the language of the app at that moment: "Capitals" with English country names, "Capitales" with French ones. They do not follow a later change of language. It inherits the global preset, its back is off and it does not distill.
 
 It is created when the onboarding ends, and so once per installation: never again after it is deleted, nor after an import. It is then an ordinary group, which can be renamed or deleted.
 
-Its cards are a text file in the app's assets, `assets/samples/nato_alphabet.txt`, in the format of the bulk add (`front;back`, one card per line), read by the bulk add's parser ([Feature 3](3-cards.md)). The file is read without the asset cache: it is only needed during the onboarding.
+Its cards are a text file in the app's assets, `assets/samples/capitals_en.txt` and `assets/samples/capitals_fr.txt`, one per language of the app, in the format of the bulk add (`front;back`, one card per line), read by the bulk add's parser ([Feature 3](3-cards.md)). The file of the language is read without the asset cache: it is only needed during the onboarding.
 
 ### Interface preferences
 
@@ -34,7 +34,7 @@ The preferences of the interface on this phone (whether the onboarding was done,
 
 - [x] The first launch opens on the three welcome screens; later launches open on the tabs.
 - [x] The second screen asks for notifications, then for exact alarms only while they are refused, with a single button, and sets the fixed time of the app's schedule.
-- [x] The third screen shows the sample group; "Next" creates it, with its 26 cards pending in order, named in the language of the app, and opens the group page with "Distill" pointed out. "Skip", from any screen, creates it too and opens Home.
+- [x] The third screen shows the sample group; "Next" creates it, with its 197 cards pending in order, named and written in the language of the app, and opens the group page with "Distill" pointed out. "Skip", from any screen, creates it too and opens Home.
 - [x] "Back" returns to the previous screen, from the second one on.
 - [x] The sample group is created once: a later launch does not create it again, even after its deletion.
 - [x] The notification permission is not asked at launch anymore.

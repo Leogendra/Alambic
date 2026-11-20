@@ -22,35 +22,47 @@ void main() {
     samples = SampleGroupService(
       groups: services.groups,
       cards: services.cards,
-      loadCards: () => File(BundledSampleCards.asset).readAsString(),
+      loadCards: (language) =>
+          File(BundledSampleCards.assetFor(language)).readAsString(),
     );
   });
 
   tearDown(() => database.close());
 
-  test('reads the 26 letters of the NATO alphabet, in order', () async {
-    final cards = await samples.cards();
-    expect(cards, hasLength(26));
-    expect((cards.first.front, cards.first.back), ('A', 'Alpha'));
-    expect((cards.last.front, cards.last.back), ('Z', 'Zulu'));
+  test('reads the capitals of the language, in order', () async {
+    final english = await samples.cards('en');
+    expect(english, hasLength(197));
+    expect((english.first.front, english.first.back), ('Afghanistan', 'Kabul'));
+    expect((english.last.front, english.last.back), ('Zimbabwe', 'Harare'));
+
+    final french = await samples.cards('fr');
+    expect(french, hasLength(197));
+    expect((french.first.front, french.first.back), ('Afghanistan', 'Kaboul'));
+    expect((french.last.front, french.last.back), ('Zimbabwé', 'Hararé'));
   });
 
   test('creates the group with its cards pending in order, on the global '
       'preset, without the back nor a distillation', () async {
-    final groupId = await samples.create('NATO alphabet');
+    final groupId = await samples.create('Capitals', 'en');
     final group = await GroupRepository(database).watchById(groupId).first;
-    expect(group!.name, 'NATO alphabet');
+    expect(group!.name, 'Capitals');
     expect(group.presetId, isNull);
     expect(group.reverseEnabled, isFalse);
     expect(await DistillationRepository(database).getAll(), isEmpty);
     final cards = await CardRepository(database).getCardsOfGroup(groupId)
       ..sort((a, b) => a.queuePosition!.compareTo(b.queuePosition!));
-    expect(cards, hasLength(26));
+    expect(cards, hasLength(197));
     expect(cards.every((card) => card.isPending), isTrue);
-    expect(
-      cards.map((card) => card.frontText).join(),
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    );
-    expect(cards[9].backText, 'Juliett');
+    expect(cards.first.frontText, 'Afghanistan');
+    expect(cards.last.frontText, 'Zimbabwe');
+  });
+
+  test('creates the cards in French for the French app', () async {
+    final groupId = await samples.create('Capitales', 'fr');
+    final cards = await CardRepository(database).getCardsOfGroup(groupId);
+    final france = cards.singleWhere((card) => card.frontText == 'France');
+    expect(france.backText, 'Paris');
+    final germany = cards.singleWhere((card) => card.frontText == 'Allemagne');
+    expect(germany.backText, 'Berlin');
   });
 }

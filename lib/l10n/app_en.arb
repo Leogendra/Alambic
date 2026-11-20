@@ -221,7 +221,7 @@
   "scheduleRangeUnordered": "The end of the range cannot come before its start.",
   "notificationModePerCard": "One per card",
   "notificationModeGrouped": "Grouped reminder",
-  "notificationModePerCardHint": "Each due card arrives on its own, with Again / Correct / Reveal.",
+  "notificationModePerCardHint": "Each due card arrives on its own, with Again / Reveal / Correct.",
   "notificationModeGroupedHint": "A single notification per group, for example \"Capitals: 5 to review\".",
   "notificationModeGroupedTap": "When the reminder is tapped",
   "notificationModeOpenApp": "Open the app",

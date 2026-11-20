@@ -39,8 +39,8 @@ void main() {
 
   /// A card at [step], due today at 12:00.
   Future<int> cardDueAtStep(int step) async {
-    final groupId = await samples.groups.create('Capitales');
-    final cardId = await samples.card('Pérou', 'Lima', groupId: groupId);
+    final groupId = await samples.groups.create('Capitals');
+    final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
     await samples.introduceAll(groupId);
     await cards.applySchedule(
       cardId,

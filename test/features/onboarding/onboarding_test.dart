@@ -124,11 +124,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Alphabet OTAN'), findsOneWidget);
+    expect(find.text('Alphabet NATO'), findsOneWidget);
     expect(find.text('26 cartes'), findsOneWidget);
     await finishWith(tester, 'Suivant');
 
-    expect(await groupNames(tester), ['Alphabet OTAN']);
+    expect(await groupNames(tester), ['Alphabet NATO']);
     final cards = await tester.runAsync(
       () => CardRepository(database).getAll(),
     );
@@ -149,7 +149,7 @@ void main() {
     await reachSampleGroup(tester);
     await finishWith(tester, 'Passer');
 
-    expect(await groupNames(tester), ['Alphabet OTAN']);
+    expect(await groupNames(tester), ['Alphabet NATO']);
     expect(store.saved.onboardingDone, isTrue);
     expect(find.byType(MainShell), findsOneWidget);
     expect(find.byType(GroupDetailScreen), findsNothing);
@@ -161,7 +161,7 @@ void main() {
     await pumpApp(tester);
     await finishWith(tester, 'Passer');
 
-    expect(await groupNames(tester), ['Alphabet OTAN']);
+    expect(await groupNames(tester), ['Alphabet NATO']);
     expect(store.saved.onboardingDone, isTrue);
     expect(presenter.notificationPermissionRequests, 0);
     expect(find.byType(MainShell), findsOneWidget);

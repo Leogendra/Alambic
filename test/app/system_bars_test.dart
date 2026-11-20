@@ -158,7 +158,7 @@ void main() {
   setUp(() => database = openTestDatabase());
   tearDown(() => database.close());
 
-  /// The sample groups, with enough cards in "Capitales" for every list to
+  /// The sample groups, with enough cards in "Capitals" for every list to
   /// scroll.
   Future<void> seed(WidgetTester tester) => tester.runAsync(() async {
     samples = SampleServices(database, FixedClock(sampleNow));
@@ -409,7 +409,7 @@ void main() {
         (context) => showReviewSoonSheet(
           context,
           cardId: firstCardId,
-          front: 'Mongolie',
+          front: 'Mongolia',
           defaultTime: const ClockTime(18, 0),
         ),
       );

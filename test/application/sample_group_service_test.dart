@@ -37,9 +37,9 @@ void main() {
 
   test('creates the group with its cards pending in order, on the global '
       'preset, without the back nor a distillation', () async {
-    final groupId = await samples.create('Alphabet OTAN');
+    final groupId = await samples.create('NATO alphabet');
     final group = await GroupRepository(database).watchById(groupId).first;
-    expect(group!.name, 'Alphabet OTAN');
+    expect(group!.name, 'NATO alphabet');
     expect(group.presetId, isNull);
     expect(group.reverseEnabled, isFalse);
     expect(await DistillationRepository(database).getAll(), isEmpty);

@@ -61,8 +61,8 @@ void main() {
   test('every group takes the schedule of the app', () async {
     final samples = SampleServices(database, clock);
     await service.setFixedTime(const ClockTime(18, 0));
-    final capitals = await samples.groups.create('Capitales');
-    final cardId = await samples.card('Pérou', 'Lima', groupId: capitals);
+    final capitals = await samples.groups.create('Capitals');
+    final cardId = await samples.card('Peru', 'Lima', groupId: capitals);
     await samples.introduceAll(capitals);
     expect(
       (await CardRepository(database).getCard(cardId)).dueAt,
@@ -81,8 +81,8 @@ void main() {
 
   test('a new slot moves the due dates set at the old one', () async {
     final samples = SampleServices(database, clock);
-    final capitals = await samples.groups.create('Capitales');
-    final cardId = await samples.card('Pérou', 'Lima', groupId: capitals);
+    final capitals = await samples.groups.create('Capitals');
+    final cardId = await samples.card('Peru', 'Lima', groupId: capitals);
     await samples.introduceAll(capitals);
     await service.saveReminderSettings(
       ReminderSettings.defaults.copyWith(

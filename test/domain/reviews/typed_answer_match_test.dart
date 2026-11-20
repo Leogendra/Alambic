@@ -12,10 +12,10 @@ void main() {
       TypedAnswerMatch.exact,
     );
     expect(compare('Bogota', 'Bogotá'), TypedAnswerMatch.exact);
-    expect(compare('oulan bator', 'Oulan Bator'), TypedAnswerMatch.exact);
-    expect(compare('OulanBator', 'Oulan Bator'), TypedAnswerMatch.exact);
+    expect(compare('ulan bator', 'Ulan Bator'), TypedAnswerMatch.exact);
+    expect(compare('UlanBator', 'Ulan Bator'), TypedAnswerMatch.exact);
     expect(compare('coeur', 'cœur'), TypedAnswerMatch.exact);
-    expect(compare('lAustralie', "l'Australie"), TypedAnswerMatch.exact);
+    expect(compare('hawaii', "Hawai'i"), TypedAnswerMatch.exact);
   });
 
   test('forgives one typo', () {
@@ -41,7 +41,7 @@ void main() {
     expect(compare('1788', '1789'), TypedAnswerMatch.wrong);
     expect(compare('1798', '1789'), TypedAnswerMatch.wrong);
     expect(compare('178', '1789'), TypedAnswerMatch.wrong);
-    expect(compare('en 1789', 'En 1789'), TypedAnswerMatch.exact);
-    expect(compare('an 1789', 'En 1789'), TypedAnswerMatch.oneTypo);
+    expect(compare('in 1789', 'In 1789'), TypedAnswerMatch.exact);
+    expect(compare('on 1789', 'In 1789'), TypedAnswerMatch.oneTypo);
   });
 }

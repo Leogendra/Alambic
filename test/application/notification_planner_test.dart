@@ -34,10 +34,10 @@ void main() {
   /// An introduced card, due today at 12:00.
   Future<int> startedCard() async {
     final services = SampleServices(database, harness.clock);
-    final groupId = await services.groups.create('Capitales');
+    final groupId = await services.groups.create('Capitals');
     final cardId = await services.card(
-      'Mongolie',
-      'Oulan-Bator',
+      'Mongolia',
+      'Ulaanbaatar',
       groupId: groupId,
     );
     await services.introduceAll(groupId);
@@ -113,10 +113,10 @@ void main() {
     final groupId = await SampleServices(
       database,
       harness.clock,
-    ).groups.create('Capitales');
+    ).groups.create('Capitals');
     final cards = harness.read(cardServiceProvider);
     final cardIds = [
-      for (final country in ['Mongolie', 'Pérou'])
+      for (final country in ['Mongolia', 'Peru'])
         await cards.create(
           CardDraft(frontText: country, backText: 'capitale', groupId: groupId),
         ),
@@ -146,10 +146,10 @@ void main() {
     final groupId = await SampleServices(
       database,
       harness.clock,
-    ).groups.create('Capitales');
+    ).groups.create('Capitals');
     final cards = harness.read(cardServiceProvider);
     final cardIds = [
-      for (final country in ['Mongolie', 'Pérou'])
+      for (final country in ['Mongolia', 'Peru'])
         await cards.create(
           CardDraft(frontText: country, backText: 'capitale', groupId: groupId),
         ),

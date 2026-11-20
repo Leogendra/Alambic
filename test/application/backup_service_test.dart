@@ -71,7 +71,7 @@ void main() {
     await source.services.cards.create(
       CardDraft(
         frontText: '',
-        backText: 'Pérou',
+        backText: 'Peru',
         frontImage: const PickedImage('test/support/fixtures/flag.png'),
         groupId: capitals,
       ),
@@ -134,9 +134,9 @@ void main() {
     expect((await target.images.readAll()).keys, isNot(contains('old.jpg')));
     final groups = (await target.tables())['card_groups']!;
     expect(groups.map((row) => row['name']), [
-      'Capitales',
-      'Espagnol',
-      'Biologie',
+      'Capitals',
+      'Spanish',
+      'Biology',
     ]);
   });
 

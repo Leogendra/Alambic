@@ -46,9 +46,9 @@ void main() {
       now: sampleNow,
     );
     expect(summaries.map((summary) => summary.group.name), [
-      'Biologie',
-      'Capitales',
-      'Espagnol',
+      'Biology',
+      'Capitals',
+      'Spanish',
     ]);
     expect(summaries.map((summary) => summary.cardCount), [1, 4, 2]);
   });
@@ -75,12 +75,12 @@ void main() {
         for (final summary in summaries)
           summary.group.name: summary.isDistilling,
       },
-      {'Biologie': false, 'Capitales': true, 'Espagnol': false},
+      {'Biology': false, 'Capitals': true, 'Spanish': false},
     );
   });
 
   test('counts a pending card, never due', () async {
-    final groupId = await services.groups.create('Capitales');
+    final groupId = await services.groups.create('Capitals');
     await services.card('Laos', 'Vientiane', groupId: groupId);
     final summary = overview.summarizeOne(
       (await GroupRepository(database).find(groupId))!,

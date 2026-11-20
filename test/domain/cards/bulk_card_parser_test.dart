@@ -5,19 +5,19 @@ import 'package:alambic/domain/cards/bulk/bulk_line_error_kind.dart';
 void main() {
   test('reads one card per line and trims both faces', () {
     final result = BulkCardParser.parse(
-      'Capitale du Chili ; Santiago\nCapitale du Kenya;Nairobi',
+      'Capital of Chile ; Santiago\nCapital of Kenya;Nairobi',
       ';',
     );
     expect(result.drafts.map((draft) => draft.front), [
-      'Capitale du Chili',
-      'Capitale du Kenya',
+      'Capital of Chile',
+      'Capital of Kenya',
     ]);
     expect(result.drafts.map((draft) => draft.back), ['Santiago', 'Nairobi']);
     expect(result.errors, isEmpty);
   });
 
   test('reports and ignores a line without separator', () {
-    final result = BulkCardParser.parse('a ; b\nCapitale du Maroc Rabat', ';');
+    final result = BulkCardParser.parse('a ; b\nCapital of Morocco Rabat', ';');
     expect(result.drafts, hasLength(1));
     expect(result.errors.single.lineNumber, 2);
     expect(result.errors.single.kind, BulkLineErrorKind.missingSeparator);
@@ -35,8 +35,8 @@ void main() {
   });
 
   test('accepts a custom multi-character separator', () {
-    final result = BulkCardParser.parse('ls -la => liste ; détaillée', '=>');
+    final result = BulkCardParser.parse('ls -la => list ; detailed', '=>');
     expect(result.drafts.single.front, 'ls -la');
-    expect(result.drafts.single.back, 'liste ; détaillée');
+    expect(result.drafts.single.back, 'list ; detailed');
   });
 }

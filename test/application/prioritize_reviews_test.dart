@@ -26,7 +26,7 @@ void main() {
     clock = FixedClock(DateTime(2026, 11, 10, 9));
     services = SampleServices(database, clock);
     cards = CardRepository(database);
-    groupId = await services.groups.create('Capitales');
+    groupId = await services.groups.create('Capitals');
     cardIds = [
       for (var index = 0; index < 8; index++)
         await services.card('Pays $index', 'Capitale $index', groupId: groupId),

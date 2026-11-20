@@ -5,7 +5,7 @@ import 'package:alambic/domain/cards/flashcard.dart';
 Flashcard testCard({
   int id = 1,
   int groupId = 1,
-  String? frontText = 'Pérou',
+  String? frontText = 'Peru',
   String? frontImagePath,
   String? backText = 'Lima',
   String? backImagePath,

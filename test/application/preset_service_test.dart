@@ -23,9 +23,9 @@ void main() {
   tearDown(() => database.close());
 
   test('a new preset starts from Standard and is not a shipped one', () async {
-    final id = await service.save(service.newDraft('Révision du soir'));
+    final id = await service.save(service.newDraft('Evening review'));
     final stored = await presets.getById(id);
-    expect(stored.name, 'Révision du soir');
+    expect(stored.name, 'Evening review');
     expect(stored.builtInKey, isNull);
     expect(stored.intervals, hasLength(6));
   });
@@ -42,10 +42,10 @@ void main() {
 
   test('duplicating keeps every rule under a new name', () async {
     final standard = (await presets.loadCatalog()).globalPreset;
-    final copyId = await service.duplicate(standard, 'Standard (copie)');
+    final copyId = await service.duplicate(standard, 'Standard (copy)');
     final copy = await presets.getById(copyId);
     expect(copy.id, isNot(standard.id));
-    expect(copy.name, 'Standard (copie)');
+    expect(copy.name, 'Standard (copy)');
     expect(copy.builtInKey, isNull);
     expect(copy.intervals, standard.intervals);
     expect(copy.failureBehavior, standard.failureBehavior);

@@ -31,9 +31,9 @@ void main() {
       scheduleChangeListener: listener,
     );
     cardId = await samples.card(
-      'Mongolie',
-      'Oulan-Bator',
-      groupId: await samples.groups.create('Capitales'),
+      'Mongolia',
+      'Ulaanbaatar',
+      groupId: await samples.groups.create('Capitals'),
     );
   });
 

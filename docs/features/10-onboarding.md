@@ -20,7 +20,7 @@ The three screens follow each other with a "Next" button at the bottom, under a 
 
 ### Sample group
 
-The sample group is the NATO alphabet: 26 cards, "A" → "Alpha" to "Z" → "Zulu", all [pending](../lexicon.md#pending) in that order. It is named "Alphabet OTAN", or "NATO alphabet" when the app is in English at that moment; the name does not follow a later change of language. It inherits the global preset, its back is off and it does not distill.
+The sample group is the NATO alphabet: 26 cards, "A" → "Alpha" to "Z" → "Zulu", all [pending](../lexicon.md#pending) in that order. It is named "Alphabet NATO", or "NATO alphabet" when the app is in English at that moment; the name does not follow a later change of language. It inherits the global preset, its back is off and it does not distill.
 
 It is created when the onboarding ends, and so once per installation: never again after it is deleted, nor after an import. It is then an ordinary group, which can be renamed or deleted.
 

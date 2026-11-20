@@ -6,12 +6,12 @@ import 'package:alambic/data/preferences/language_choice.dart';
 void main() {
   test('the phone language is followed when the app has it', () {
     expect(
-      AppLocale.resolve(LanguageChoice.system, const Locale('fr', 'BE')),
-      const Locale('fr'),
-    );
-    expect(
       AppLocale.resolve(LanguageChoice.system, const Locale('en', 'GB')),
       const Locale('en'),
+    );
+    expect(
+      AppLocale.resolve(LanguageChoice.system, const Locale('fr', 'BE')),
+      const Locale('fr'),
     );
   });
 

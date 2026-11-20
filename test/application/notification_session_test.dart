@@ -66,13 +66,13 @@ void main() {
     // Today is 10/11 at 9:00. Santiago is not due; the others are, earliest
     // first: comer, lima, beber, vientiane.
     setUp(() async {
-      capitals = await samples.groups.create('Capitales');
-      final spanish = await samples.groups.create('Espagnol');
-      lima = await cardDueAt('Pérou', capitals, DateTime(2026, 11, 9, 12));
+      capitals = await samples.groups.create('Capitals');
+      final spanish = await samples.groups.create('Spanish');
+      lima = await cardDueAt('Peru', capitals, DateTime(2026, 11, 9, 12));
       vientiane = await cardDueAt('Laos', capitals, DateTime(2026, 11, 10, 12));
-      santiago = await cardDueAt('Chili', capitals, DateTime(2026, 11, 12));
-      comer = await cardDueAt('manger', spanish, DateTime(2026, 11, 8, 12));
-      beber = await cardDueAt('boire', spanish, DateTime(2026, 11, 10, 8));
+      santiago = await cardDueAt('Chile', capitals, DateTime(2026, 11, 12));
+      comer = await cardDueAt('eat', spanish, DateTime(2026, 11, 8, 12));
+      beber = await cardDueAt('drink', spanish, DateTime(2026, 11, 10, 8));
     });
 
     test('the digest: every due card, earliest due first', () async {
@@ -117,8 +117,8 @@ void main() {
   });
 
   test('nothing left to review: an empty session', () async {
-    capitals = await samples.groups.create('Capitales');
-    await cardDueAt('Chili', capitals, DateTime(2026, 11, 12));
+    capitals = await samples.groups.create('Capitals');
+    await cardDueAt('Chile', capitals, DateTime(2026, 11, 12));
     expect(await session.itemsFor(const NotificationTarget.allDue()), isEmpty);
   });
 }

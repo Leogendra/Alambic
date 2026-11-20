@@ -17,7 +17,7 @@ void main() {
   setUp(() async {
     database = openTestDatabase();
     distillations = DistillationRepository(database);
-    groupId = await GroupRepository(database).create('Capitales', now);
+    groupId = await GroupRepository(database).create('Capitals', now);
   });
 
   tearDown(() => database.close());

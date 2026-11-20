@@ -61,7 +61,7 @@ void main() {
         overrides: screenOverrides(database, renderAt),
       );
       expect(find.text('Japonais : 1 nouvelle carte'), findsNWidgets(2));
-      expect(find.text('Capitales : 2 nouvelles cartes'), findsOneWidget);
+      expect(find.text('Capitals : 2 nouvelles cartes'), findsOneWidget);
       expect(find.text('DEMAIN'), findsOneWidget);
       await expectLater(
         find.byType(HomeScreen),

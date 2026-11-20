@@ -43,11 +43,11 @@ void main() {
 
   test('the groups that chose a deleted preset go back to the default one, '
       'their cards keeping their steps and due dates', () async {
-    final capitals = await samples.groups.create('Capitales');
-    final spanish = await samples.groups.create('Espagnol');
+    final capitals = await samples.groups.create('Capitals');
+    final spanish = await samples.groups.create('Spanish');
     await samples.groups.setPreset(capitals, intensiveId);
     await samples.groups.setPreset(spanish, intensiveId);
-    final cardId = await samples.card('Pérou', 'Lima', groupId: capitals);
+    final cardId = await samples.card('Peru', 'Lima', groupId: capitals);
     final dueAt = DateTime(2026, 11, 20, 12);
     await cards.applySchedule(
       cardId,
@@ -73,8 +73,8 @@ void main() {
       (await presets.loadCatalog()).presetsById[intensiveId]!,
       'Examen',
     );
-    final capitals = await samples.groups.create('Capitales');
-    final biology = await samples.groups.create('Biologie');
+    final capitals = await samples.groups.create('Capitals');
+    final biology = await samples.groups.create('Biology');
     await samples.groups.setPreset(capitals, copyId);
 
     await service.delete(intensiveId);
@@ -84,7 +84,7 @@ void main() {
   });
 
   test('the default preset cannot be deleted', () async {
-    final capitals = await samples.groups.create('Capitales');
+    final capitals = await samples.groups.create('Capitals');
     await samples.groups.setPreset(capitals, standardId);
 
     await expectLater(service.delete(standardId), throwsStateError);

@@ -35,7 +35,7 @@ void main() {
       .into(database.cardGroups)
       .insert(
         CardGroupsCompanion.insert(
-          name: 'Capitales',
+          name: 'Capitals',
           createdAt: DateTime(2026, 11, 10),
         ),
       );
@@ -45,8 +45,8 @@ void main() {
       .insert(
         FlashcardsCompanion.insert(
           groupId: groupId,
-          frontText: const Value('Mongolie'),
-          backText: const Value('Oulan-Bator'),
+          frontText: const Value('Mongolia'),
+          backText: const Value('Ulaanbaatar'),
           createdAt: DateTime(2026, 11, 10),
           state: CardState.pending,
         ),

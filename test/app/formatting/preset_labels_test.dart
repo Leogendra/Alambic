@@ -14,15 +14,15 @@ void main() {
   });
 
   test('a renamed shipped preset keeps the name it was given', () {
-    final renamed = BuiltInPresets.intensive.copyWith(name: 'Examen');
-    expect(english.presetName(renamed), 'Examen');
+    final renamed = BuiltInPresets.intensive.copyWith(name: 'Exam');
+    expect(english.presetName(renamed), 'Exam');
   });
 
   test('a preset made by the user keeps its name', () {
     final own = BuiltInPresets.standard.copyWith(
-      name: 'Révision du soir',
+      name: 'Evening review',
       builtInKey: () => null,
     );
-    expect(english.presetName(own), 'Révision du soir');
+    expect(english.presetName(own), 'Evening review');
   });
 }

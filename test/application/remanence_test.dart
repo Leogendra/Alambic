@@ -34,13 +34,13 @@ void main() {
     clock = FixedClock(sampleNow);
     samples = SampleServices(database, clock);
     cards = CardRepository(database);
-    groupId = await samples.groups.create('Capitales');
+    groupId = await samples.groups.create('Capitals');
   });
 
   tearDown(() => database.close());
 
   Future<int> cardWith(CardSchedule schedule) async {
-    final cardId = await samples.card('Pérou', 'Lima', groupId: groupId);
+    final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
     await cards.applySchedule(cardId, schedule);
     return cardId;
   }
@@ -175,9 +175,9 @@ void main() {
       final activeId = await cardWith(
         CardSchedule(state: CardState.active, step: 2, dueAt: dueToday),
       );
-      final otherGroup = await samples.groups.create('Espagnol');
+      final otherGroup = await samples.groups.create('Spanish');
       final elsewhereId = await samples.card(
-        'boire',
+        'drink',
         'beber',
         groupId: otherGroup,
       );

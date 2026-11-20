@@ -39,7 +39,7 @@ void main() {
     cards = CardRepository(database);
     presets = PresetRepository(database);
     presetService = PresetService(presets, GroupRepository(database));
-    groupId = await samples.groups.create('Capitales');
+    groupId = await samples.groups.create('Capitals');
   });
 
   tearDown(() => database.close());
@@ -52,7 +52,7 @@ void main() {
   /// A card of the group at [step] of Standard (3 mo for step 4), due on
   /// [dueAt].
   Future<int> cardAtStep(int step) async {
-    final cardId = await samples.card('Pérou', 'Lima', groupId: groupId);
+    final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
     await cards.applySchedule(
       cardId,
       CardSchedule(state: CardState.active, step: step, dueAt: dueAt),
@@ -143,7 +143,7 @@ void main() {
 
   test('a card in remanence stays in remanence, with its due date, on a '
       'shorter or a longer sequence', () async {
-    final cardId = await samples.card('Pérou', 'Lima', groupId: groupId);
+    final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
     final remanenceDue = DateTime(2027, 5, 9, 12);
     await cards.applySchedule(
       cardId,
@@ -163,7 +163,7 @@ void main() {
   });
 
   test('an acquired card stays acquired', () async {
-    final cardId = await samples.card('Pérou', 'Lima', groupId: groupId);
+    final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
     await cards.applySchedule(
       cardId,
       const CardSchedule(state: CardState.acquired, step: null, dueAt: null),

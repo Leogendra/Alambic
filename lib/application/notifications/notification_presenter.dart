@@ -1,3 +1,4 @@
+import 'answer_confirmation.dart';
 import 'group_reminder.dart';
 import 'group_reminder_key.dart';
 import 'notification_digest.dart';
@@ -21,6 +22,11 @@ abstract interface class NotificationPresenter {
   /// Replaces the notification of [verdict]'s key with the verdict of a
   /// typed answer, the expected answer and an "OK" button.
   Future<void> showVerdict(TypedAnswerVerdict verdict);
+
+  /// Replaces the notification of [confirmation]'s key, silently, with what
+  /// the answer did ("Next in 3 d"). It closes by itself after a few
+  /// seconds.
+  Future<void> showConfirmation(AnswerConfirmation confirmation);
 
   Future<void> dismiss(ReviewNotificationKey key);
 

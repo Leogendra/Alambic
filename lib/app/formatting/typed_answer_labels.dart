@@ -14,22 +14,13 @@ extension TypedAnswerLabels on AppLocalizations {
         TypedAnswerMatch.wrong => typedAnswerRefused(typed),
       };
 
-  /// What the answer did to the schedule: "next reminder tomorrow",
-  /// "Counted as missed · review tomorrow"; [schedule] is `null` for a bonus review.
+  /// What the answer did to the schedule, accepted or not: "Next tomorrow";
+  /// [schedule] is `null` for a bonus review.
   String typedAnswerEffect(
     CardSchedule? schedule, {
-    required bool accepted,
     required DateTime answeredAt,
     required SchedulingCalendar calendar,
-  }) {
-    final dueAt = schedule?.dueAt;
-    if (schedule == null) {
-      return typedAnswerBonus;
-    } else if (dueAt == null) {
-      return typedAnswerAcquired;
-    } else {
-      final when = dueDateLabel(dueAt, now: answeredAt, calendar: calendar);
-      return accepted ? typedAnswerNextReview(when) : typedAnswerFailed(when);
-    }
-  }
+  }) => schedule == null
+      ? typedAnswerBonus
+      : nextReviewLabel(schedule, answeredAt: answeredAt, calendar: calendar);
 }

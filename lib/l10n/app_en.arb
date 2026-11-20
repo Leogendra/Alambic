@@ -637,15 +637,6 @@
   "notificationChannelDescription": "The cards to review, with their answer buttons.",
   "notificationImagePrompt": "What does this image show?",
   "notificationAnswerImage": "Answer in the image",
-  "notificationExtra": "Review soon · no effect on the schedule",
-  "notificationAnswer": "Answer: {answer}",
-  "@notificationAnswer": {
-    "placeholders": {
-      "answer": {
-        "type": "String"
-      }
-    }
-  },
   "typedAnswerBonus": "Bonus review · no effect",
   "notificationAnswerButton": "Answer",
   "typedAnswerField": "Your answer",
@@ -673,23 +664,15 @@
       }
     }
   },
-  "typedAnswerNextReview": "next reminder {when}",
-  "@typedAnswerNextReview": {
+  "nextReview": "Next {when}",
+  "@nextReview": {
     "placeholders": {
       "when": {
         "type": "String"
       }
     }
   },
-  "typedAnswerFailed": "Counted as missed · review {when}",
-  "@typedAnswerFailed": {
-    "placeholders": {
-      "when": {
-        "type": "String"
-      }
-    }
-  },
-  "typedAnswerAcquired": "card learned",
+  "nextReviewLearned": "Card learned",
   "notificationGroupTitle": "{group}: {count, plural, =1{1 card to review} other{{count} cards to review}}",
   "@notificationGroupTitle": {
     "placeholders": {

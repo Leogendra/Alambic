@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:alambic/application/clock.dart';
+import 'package:alambic/application/notifications/answer_confirmation.dart';
 import 'package:alambic/application/notifications/alarm_scheduler.dart';
 import 'package:alambic/application/notifications/group_reminder.dart';
 import 'package:alambic/application/notifications/group_reminder_key.dart';
@@ -55,6 +56,9 @@ class FakePresenter implements NotificationPresenter {
   /// Cards asked, revealed or not.
   final Map<ReviewNotificationKey, ReviewPrompt> prompts = {};
   final Map<ReviewNotificationKey, TypedAnswerVerdict> verdicts = {};
+
+  /// What an answer did, until the notification closes by itself.
+  final Map<ReviewNotificationKey, AnswerConfirmation> confirmations = {};
   final Map<GroupReminderKey, GroupReminder> groupReminders = {};
   NotificationDigest? digest;
 
@@ -78,6 +82,12 @@ class FakePresenter implements NotificationPresenter {
   Future<void> showVerdict(TypedAnswerVerdict verdict) async {
     _clearSlotOf(verdict.key);
     verdicts[verdict.key] = verdict;
+  }
+
+  @override
+  Future<void> showConfirmation(AnswerConfirmation confirmation) async {
+    _clearSlotOf(confirmation.key);
+    confirmations[confirmation.key] = confirmation;
   }
 
   @override
@@ -124,6 +134,7 @@ class FakePresenter implements NotificationPresenter {
     } else {
       prompts.remove(key);
       verdicts.remove(key);
+      confirmations.remove(key);
     }
   }
 }

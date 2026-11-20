@@ -282,7 +282,7 @@ void main() {
       await submit(tester, 'ulaanbatar');
       expect(find.text('Ulaanbaatar'), findsOneWidget);
       expect(find.text('"ulaanbatar" accepted, 1 typo'), findsOneWidget);
-      expect(find.textContaining('next reminder'), findsOneWidget);
+      expect(find.textContaining('Next tomorrow'), findsOneWidget);
       expect(find.text('Correct'), findsNothing);
       expect(await history(tester), [(ReviewOutcome.correct, false)]);
       await expectLater(
@@ -304,7 +304,7 @@ void main() {
       await pumpTyped(tester);
       await submit(tester, 'Beijing');
       expect(find.text('"Beijing" refused'), findsOneWidget);
-      expect(find.textContaining('Counted as missed'), findsOneWidget);
+      expect(find.textContaining('Next tomorrow'), findsOneWidget);
       expect(await history(tester), [(ReviewOutcome.again, false)]);
       await tester.tap(find.text(l10n.sessionNext));
       await tester.pumpAndSettle();

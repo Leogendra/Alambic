@@ -66,21 +66,21 @@ A pause, of a distillation or global, only holds back new cards ([Feature 8](8-d
 
 When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per card whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A notification that could not be shown at its moment, the phone being off or the alarm held back, is shown as soon as the app wakes up, whatever the delay. During the quiet hours it waits for their end; when that end falls on the next day, the card comes back at the slot of that day, like an ignored one.
 
-The notification shows the asked face as its title ("What does this image show?" for a face that is an image alone), the name of the group as its text, and nothing of the step, with "back → front" before it when the back is asked, and three buttons, "Correct", "Again" and "Reveal". An extra reminder shows the same card with a "no effect on the schedule" mention before the group. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
+The notification shows the name of the group in its header, beside the name of the app, the asked face as its title ("What does this image show?" for a face that is an image alone), and three buttons, "Correct", "Again" and "Reveal". It shows nothing else: neither the step, nor the asked side, nor whether it is an extra reminder. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
 
 With the [back option](../lexicon.md#back-option) of the group, the asked face is drawn when the notification is shown, one chance in two, and each chained card of a grouped reminder draws its own. The face drawn travels in the payload, so that the answer revealed and the typed answer are read against the other face.
 
 ### Showing a card's image
 
-When the asked face has an image, the expanded notification shows it in the Android *BigPicture* style, with the face and its group above; the collapsed notification shows the text only. Once revealed, or after a typed answer, an answer face with an image shows it the same way, under the answer ("Answer in the image" when it has no text). The presenter reads the file from the image store; a file gone shows the text alone.
+When the asked face has an image, the expanded notification shows it in the Android *BigPicture* style, with the face above; the collapsed notification shows the text only. Once revealed, or after a typed answer, an answer face with an image shows it the same way, under the answer ("Answer in the image" when it has no text). The presenter reads the file from the image store; a file gone shows the text alone.
 
 ### Answering from the notification
 
 The buttons are handled in a background isolate, app open or not, by `NotificationActionHandler`. The answer goes through `ReviewService`, exactly like an in-app session ([Feature 5](5-session.md#answer)), with the notification as its source:
 
-- "Correct" and "Again" record the answer and close the notification, with nothing shown afterwards;
-- "Reveal" replaces the notification in place, without sound or vibration, with the answer face (its text, "Answer: Lima", and its image) under the asked face, and two buttons, "Correct" and "Again", which then behave as above. Nothing is recorded until one of them is pressed: a revealed notification swiped away is an ignored one, and the card stays due;
-- answering an extra reminder is always a [bonus review](../lexicon.md#bonus-review);
+- "Correct" and "Again" record the answer and replace the notification in place, silently, with what the answer did, written from the delay it gave: "Next in 3 d", "Next at 15:17", or "Card learned". This line is the whole notification, and it closes by itself after 4 seconds. A chained card gives way to the next one instead;
+- "Reveal" replaces the notification in place, without sound or vibration, with the answer face (its text alone, "Lima", and its image) under the asked face, and two buttons, "Correct" and "Again", which then behave as above. Nothing is recorded until one of them is pressed: a revealed notification swiped away is an ignored one, and the card stays due;
+- answering an extra reminder is always a [bonus review](../lexicon.md#bonus-review), which only closes the notification;
 - a card deleted meanwhile only closes the notification.
 
 ### Touching a notification
@@ -90,7 +90,7 @@ Touching the body of a notification opens a session in the app ([Feature 5](5-se
 - A card notification: that card, asking the same face as the notification, then every due card of the app.
 - A card chained in a grouped reminder: that card, then the due cards of its group, then the others.
 - A grouped reminder, or its "Open the app": the due cards of the group, then the others.
-- The digest, or its "Open the app", and the verdict of a typed answer, whose card is already answered: every due card.
+- The digest, or its "Open the app", the verdict of a typed answer and the line left by an answer, whose card is already answered: every due card.
 
 The due cards are the ones a session counts as [due](../lexicon.md#due) today, earliest due first, each asked face drawn at the opening; the touched card is not asked twice. A card that is not due, such as the card of a "Review soon" reminder, is answered as a bonus review. The session opens above the root screen, closing the screens opened on it; when nothing is left to review, the app opens where it was, without a session.
 
@@ -104,7 +104,7 @@ The typed answer is compared with the answer face by `TypedAnswerMatch`, in the 
 - one typo is forgiven: a letter missing, added or replaced, or two neighbouring letters swapped;
 - no typo is forgiven on an answer of fewer than 4 characters, nor on a digit, so that "Lia" is not "Lim" and "1788" is not "1789".
 
-An accepted answer is recorded as "Correct", a refused one as "Again". In both cases the notification is replaced by the expected answer, how the typed answer compared and what the answer did (`"canbera" accepted, 1 typo · next reminder tomorrow`, `"Quito" refused · Counted as missed · review tomorrow`), with "OK" to close it. It is the only notification that shows something after an answer: the user has to know whether the typed answer was accepted.
+An accepted answer is recorded as "Correct", a refused one as "Again". In both cases the notification is replaced by the expected answer, how the typed answer compared and what the answer did (`"canbera" accepted, 1 typo · Next tomorrow`, `"Quito" refused · Next tomorrow`), with "OK" to close it; a bonus review shows the comparison alone. Unlike the line left by "Correct" and "Again", it stays until "OK": the user has to know whether the typed answer was accepted.
 
 ### Grouped reminder
 
@@ -115,7 +115,7 @@ The count is the number of cards of the group whose due moment has passed. When 
 What the reminder offers is set with the mode:
 
 - open the app (default): touching the notification or "Open the app" opens a session on the due cards of the group, then the others;
-- chain the cards: "Start here" replaces the reminder with the first card, the earliest due. Each answer replaces it with the next card, with "Capitals · 3 to review" as its text and the same buttons as a card notification, "Reveal" included; there is no room left for a button opening the app. The "OK" of a typed answer's verdict moves on. The notification closes after the last card. A chained card answered in the app gives way to the next one.
+- chain the cards: "Start here" replaces the reminder with the first card, the earliest due. Each answer replaces it with the next card, with "Capitals · 3 to review" as its header and the same buttons as a card notification, "Reveal" included; there is no room left for a button opening the app. The "OK" of a typed answer's verdict moves on. The notification closes after the last card. A chained card answered in the app gives way to the next one.
 
 ### Exact alarms, restarts and permissions
 
@@ -128,10 +128,10 @@ The notification permission of Android 13 and exact alarms are both asked on the
 ## Acceptance criteria
 
 - [x] An introduced card is notified at the [daily slot](../lexicon.md#daily-slot), without the app being open.
-- [x] The notification shows the asked face and the name of the group only, with "Correct", "Again" and "Reveal".
+- [x] The notification shows the name of the group in its header and the asked face, nothing else, with "Correct", "Again" and "Reveal".
 - [x] A face with an image shows it in the expanded notification, text only when collapsed; so does an answer face with an image once revealed.
-- [x] "Correct" and "Again" record the answer from the notification and close it, without any result notification, revealed or not.
-- [x] "Reveal" shows the answer in place, silently, with "Correct" and "Again", and records nothing.
+- [x] "Correct" and "Again" record the answer from the notification, revealed or not, and replace it with the next review ("Next in 3 d"), which closes by itself; a bonus review only closes it.
+- [x] "Reveal" shows the answer alone in place, silently, with "Correct" and "Again", and records nothing.
 - [x] A card reviewed in the app before its slot is not notified, and a notification already shown is withdrawn.
 - [x] A suspended card is never notified.
 - [x] A notification that could not be shown at its moment is shown when the phone is back on, whatever the delay, outside the quiet hours.
@@ -157,7 +157,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 
 - The timing rules (shown once, however late, wake-ups rounded and capped), the notification moments and the typed answer comparison are tested as pure domain logic.
 - The planner, the dispatcher and the action handler are tested together on an in-memory database, through the same providers as the app, with in-memory fakes of the three platform interfaces that behave like an alarm manager and a notification shade.
-- Each button is tested through the action handler: "Correct" and "Again" record and close; "Reveal" shows the answer and records nothing, then its "Correct" or "Again"; the typed answer with its verdict, "Again" and "Reveal"; "Reveal" and "Again" on a chained card.
+- Each button is tested through the action handler: "Correct" and "Again" record and leave the next review, a bonus review closes; "Reveal" shows the answer and records nothing, then its "Correct" or "Again"; the typed answer with its verdict, "Again" and "Reveal"; "Reveal" and "Again" on a chained card.
 - The notification texts and the payload carried by a notification, including what a touched notification opens, are tested without a device.
 - The content of the session opened by each kind of notification is tested on an in-memory database with a fixed clock: its card or group first, then every due card, earliest first, without repeating the touched card.
 - The exact alarm panel is tested on screen, with a golden test of the refused state; the safeguards, schedule and notification mode screens have golden tests too, and their changes are checked in the database.
@@ -182,7 +182,7 @@ The alarm id of a wake-up is its minute since the epoch, so two plannings agree 
 
 "Open the app" and touching a grouped reminder launch the app instead of a background isolate: the plugin hands the response to the running app, or to the launch details when the notification started it. `notificationTargetsProvider` turns both into a stream of `NotificationTarget`, read from the payload, which the main shell follows; `NotificationSession` turns a target into the items of the session. The due cards are read from the database, not from the screens' providers, which are still loading when a notification launches the app.
 
-The "Reveal" and "Answer" buttons, and every button of a chained card, do not let the plugin close the notification, so that the answer, the verdict or the next card replaces it in place. The revealed notification is silent and alerts only once; it stays a prompt in its payload, so that the planner withdraws it like any other once its card is answered in the app. The text typed in the field reaches the background isolate in the `input` of the notification response.
+No answer button lets the plugin close the notification, so that the answer, the verdict, the next review or the next card replaces it in place. The next review carries a payload that is not a prompt, so the planner never withdraws it; Android removes it after its timeout (`timeoutAfter`). The revealed notification is silent and alerts only once; it stays a prompt in its payload, so that the planner withdraws it like any other once its card is answered in the app. The text typed in the field reaches the background isolate in the `input` of the notification response.
 
 `android_alarm_manager_plus` drops an exact alarm without the permission instead of falling back by itself: the scheduler asks for an exact alarm only when `canScheduleExactNotifications` says it is allowed.
 

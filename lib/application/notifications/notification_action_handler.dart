@@ -4,8 +4,10 @@ import '../../domain/cards/card_side.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_source.dart';
+import '../../domain/scheduling/card_schedule.dart';
 import '../clock.dart';
 import '../reviews/review_service.dart';
+import 'answer_confirmation.dart';
 import 'group_reminder_key.dart';
 import 'grouped_reminders.dart';
 import 'notification_action.dart';
@@ -33,8 +35,9 @@ class NotificationActionHandler {
   final NotificationPresenter _presenter;
   final Clock _clock;
 
-  /// "Correct" and "Again" record the answer and close the notification,
-  /// revealed or not. "Reveal" shows the answer, the face opposite
+  /// "Correct" and "Again" record the answer, revealed or not, and replace
+  /// the notification with what the answer did. "Reveal" shows the answer,
+  /// the face opposite
   /// [askedSide], in its place and records nothing. A typed answer counts
   /// as "Correct" when it matches the expected one and as "Again"
   /// otherwise, then shows its verdict with an "OK" button. Answering an
@@ -57,7 +60,7 @@ class NotificationActionHandler {
     } else if (action == NotificationAction.answer) {
       await _answerTyped(key, card, input ?? '', askedSide);
     } else {
-      await _reviews.answer(
+      final result = await _reviews.answer(
         key.cardId,
         action == NotificationAction.correct
             ? ReviewOutcome.correct
@@ -65,7 +68,7 @@ class NotificationActionHandler {
         source: ReviewSource.notification,
         forceBonus: key.isExtraReminder,
       );
-      await _close(key);
+      await _confirm(key, result.schedule);
     }
   }
 
@@ -121,6 +124,7 @@ class NotificationActionHandler {
       TypedAnswerVerdict(
         key: key,
         askedSide: askedSide,
+        groupName: (await _groups.find(card.groupId))?.name ?? '',
         prompt: card.promptFor(askedSide).text ?? '',
         answer: card.answerFor(askedSide).text ?? '',
         answerImage: card.answerFor(askedSide).imagePath,
@@ -130,6 +134,21 @@ class NotificationActionHandler {
         answeredAt: _clock(),
       ),
     );
+  }
+
+  /// A bonus answer changed nothing worth telling, and a chained card gives
+  /// way to the next one.
+  Future<void> _confirm(
+    ReviewNotificationKey key,
+    CardSchedule? schedule,
+  ) async {
+    if (schedule == null || key.chain != null) {
+      await _close(key);
+    } else {
+      await _presenter.showConfirmation(
+        AnswerConfirmation(key: key, schedule: schedule, answeredAt: _clock()),
+      );
+    }
   }
 
   Future<void> _close(ReviewNotificationKey key) async {

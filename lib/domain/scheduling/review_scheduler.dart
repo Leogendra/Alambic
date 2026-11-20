@@ -42,30 +42,35 @@ class ReviewScheduler {
       dueAt: _dueAfter(interval, answeredAt, dailySlot),
     ),
     RemanenceReached(:final interval) => CardSchedule(
-      state: CardState.remanent,
+      state: CardState.completed,
       step: null,
       dueAt: _dueAfter(interval, answeredAt, dailySlot),
     ),
-    AcquiredReached() => const CardSchedule(
-      state: CardState.acquired,
-      step: null,
-      dueAt: null,
-    ),
+    AcquiredReached() => CardSchedule.acquired,
   };
 
   /// Schedule of an acquired card whose group switches back to remanence:
-  /// in remanence, due one remanence interval after [now], so that no card
-  /// becomes due at once.
+  /// due one remanence interval after its last review. When that day has
+  /// already passed, one remanence interval after [now] instead, so that the
+  /// cards acquired long ago do not all become due at once.
   CardSchedule backToRemanence({
+    required DateTime lastReviewedAt,
     required Preset preset,
     required SequenceEnd end,
     required DateTime now,
     required ClockTime dailySlot,
-  }) => CardSchedule(
-    state: CardState.remanent,
-    step: null,
-    dueAt: _dueAfter(end.remanenceAfter(preset), now, dailySlot),
-  );
+  }) {
+    final interval = end.remanenceAfter(preset);
+    final afterLastReview = _dueAfter(interval, lastReviewedAt, dailySlot);
+    final overdue = calendar
+        .dayOf(afterLastReview)
+        .isBefore(calendar.dayOf(now));
+    return CardSchedule(
+      state: CardState.completed,
+      step: null,
+      dueAt: overdue ? _dueAfter(interval, now, dailySlot) : afterLastReview,
+    );
+  }
 
   /// Schedule of a card introduced by its distillation: due today at the
   /// daily slot, so it is due right away even when the slot has already

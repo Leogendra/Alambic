@@ -3,7 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
-import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/groups/after_last_step.dart';
 import 'package:alambic/domain/groups/card_group.dart';
@@ -44,10 +43,7 @@ void main() {
   /// Adds to Capitals a card acquired at the end of its sequence.
   Future<void> seedAcquired(WidgetTester tester) => tester.runAsync(() async {
     final cardId = await samples.card('Chile', 'Santiago', groupId: capitalsId);
-    await CardRepository(database).applySchedule(
-      cardId,
-      const CardSchedule(state: CardState.acquired, step: null, dueAt: null),
-    );
+    await CardRepository(database).applySchedule(cardId, CardSchedule.acquired);
   });
 
   /// Adds to Capitals a queue of two cards, the first one suspended, and

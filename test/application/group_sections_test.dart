@@ -8,14 +8,14 @@ import '../domain/test_cards.dart';
 void main() {
   List<int> ids(List<Flashcard> cards) => [for (final card in cards) card.id];
 
-  test('in progress: soonest first, remanent ones included, suspended ones '
+  test('in progress: soonest first, the ones in remanence included, suspended ones '
       'at the end', () {
     final sections = GroupSections.of([
       testCard(id: 1, dueAt: DateTime(2026, 11, 14, 12)),
       testCard(id: 2, dueAt: DateTime(2026, 11, 9, 12), suspended: true),
       testCard(
         id: 3,
-        state: CardState.remanent,
+        state: CardState.completed,
         dueAt: DateTime(2027, 5, 10, 12),
       ),
       testCard(id: 4, dueAt: DateTime(2026, 11, 10, 12)),
@@ -55,8 +55,8 @@ void main() {
 
   test('learned cards apart; no section, no next card', () {
     final sections = GroupSections.of([
-      testCard(id: 1, state: CardState.acquired),
-      testCard(id: 2, state: CardState.acquired, suspended: true),
+      testCard(id: 1, state: CardState.completed),
+      testCard(id: 2, state: CardState.completed, suspended: true),
     ]);
     expect(ids(sections.acquired), [1, 2]);
     expect(sections.ongoing, isEmpty);

@@ -125,7 +125,7 @@ void main() {
         source: ReviewSource.session,
       );
       var card = await cards.getCard(cardId);
-      expect(card.state, CardState.remanent, reason: 'past the last step');
+      expect(card.state, CardState.completed, reason: 'past the last step');
       expect(card.dueAt, DateTime(2027, 5, 19, 12));
 
       clock.now = DateTime(2027, 5, 19, 12, 5);
@@ -147,7 +147,7 @@ void main() {
     final remanenceDue = DateTime(2027, 5, 9, 12);
     await cards.applySchedule(
       cardId,
-      CardSchedule(state: CardState.remanent, step: null, dueAt: remanenceDue),
+      CardSchedule(state: CardState.completed, step: null, dueAt: remanenceDue),
     );
     final standard = await shipped(BuiltInPresetKey.standard);
     for (final intervals in [
@@ -156,7 +156,7 @@ void main() {
     ]) {
       await presetService.save(standard.copyWith(intervals: intervals));
       final card = await cards.getCard(cardId);
-      expect(card.state, CardState.remanent);
+      expect(card.state, CardState.completed);
       expect(card.dueAt, remanenceDue);
       expect(await progressOf(card), isA<RemanenceProgress>());
     }
@@ -164,16 +164,12 @@ void main() {
 
   test('an acquired card stays acquired', () async {
     final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
-    await cards.applySchedule(
-      cardId,
-      const CardSchedule(state: CardState.acquired, step: null, dueAt: null),
-    );
+    await cards.applySchedule(cardId, CardSchedule.acquired);
     await samples.groups.setPreset(
       groupId,
       (await shipped(BuiltInPresetKey.intensive)).id,
     );
     final card = await cards.getCard(cardId);
-    expect(card.state, CardState.acquired);
-    expect(card.dueAt, isNull);
+    expect(card.isAcquired, isTrue);
   });
 }

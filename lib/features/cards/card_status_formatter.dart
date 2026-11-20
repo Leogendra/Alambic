@@ -1,5 +1,4 @@
 import '../../app/formatting/due_labels.dart';
-import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
@@ -25,13 +24,12 @@ class CardStatusFormatter {
   String standing(Flashcard card) {
     if (card.suspended) {
       return strings.cardStatusSuspended;
+    } else if (card.isPending) {
+      return strings.cardStatusPending;
+    } else if (card.isAcquired) {
+      return strings.cardStatusAcquired;
     } else {
-      return switch (card.state) {
-        CardState.pending => strings.cardStatusPending,
-        CardState.acquired => strings.cardStatusAcquired,
-        CardState.active || CardState.remanent =>
-          isDue(card) ? strings.dueNow : dueDateLabel(card.dueAt!),
-      };
+      return isDue(card) ? strings.dueNow : dueDateLabel(card.dueAt!);
     }
   }
 

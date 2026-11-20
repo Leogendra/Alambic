@@ -61,7 +61,7 @@ class AlambicDatabase extends _$AlambicDatabase {
   /// Raised at every schema change. There is no migration: a database of
   /// another version is erased and created again.
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

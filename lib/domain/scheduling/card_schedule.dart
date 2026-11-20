@@ -8,6 +8,13 @@ class CardSchedule {
     required this.dueAt,
   });
 
+  /// Past the last step, in a group whose cards are then acquired.
+  static const CardSchedule acquired = CardSchedule(
+    state: CardState.completed,
+    step: null,
+    dueAt: null,
+  );
+
   final CardState state;
   final int? step;
   final DateTime? dueAt;

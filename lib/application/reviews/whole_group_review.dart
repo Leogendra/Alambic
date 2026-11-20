@@ -1,4 +1,3 @@
-import '../../domain/cards/card_state.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/scheduling/due_policy.dart';
 
@@ -34,7 +33,7 @@ class WholeGroupReview {
   }
 
   static bool _isReviewed(Flashcard card) =>
-      !card.suspended && card.state != CardState.acquired;
+      !card.suspended && !card.isAcquired;
 
   /// Cards due at the same moment keep their creation order.
   static int _byDueAt(Flashcard first, Flashcard second) {

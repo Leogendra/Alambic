@@ -3,7 +3,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/theme/alambic_colors.dart';
 import '../../application/reviews/review_providers.dart';
-import '../../domain/cards/card_state.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/scheduling/card_schedule.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -66,12 +65,14 @@ class AnswerButtons extends ConsumerWidget {
     CardStatusFormatter? formatter,
     CardSchedule? schedule,
   ) {
-    if (schedule?.state == CardState.acquired) {
+    if (schedule == null) {
+      return null;
+    } else if (schedule.dueAt == null) {
       return strings.reviewAcquired;
-    } else if (schedule?.dueAt == null || formatter == null) {
+    } else if (formatter == null) {
       return null;
     } else {
-      return formatter.dueDateLabel(schedule!.dueAt!);
+      return formatter.dueDateLabel(schedule.dueAt!);
     }
   }
 

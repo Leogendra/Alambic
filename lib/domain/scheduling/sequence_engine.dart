@@ -44,8 +44,7 @@ abstract final class SequenceEngine {
     SequenceProgress() || RemanenceProgress() => _afterLastStep(preset, end),
   };
 
-  /// Read at the answer: a card in remanence of a group switched to
-  /// "acquired" becomes acquired at its next success.
+  /// Read at the answer, from the group in force at that moment.
   static SequenceStep _afterLastStep(Preset preset, SequenceEnd end) =>
       switch (end.afterLastStep) {
         AfterLastStep.remanence => RemanenceReached(end.remanenceAfter(preset)),

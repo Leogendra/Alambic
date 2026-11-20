@@ -26,8 +26,8 @@ class ReviewRecord {
   final bool isBonus;
   final int? stepBefore;
 
-  /// Step reached after the answer; `null` outside the sequence (remanent or
-  /// acquired) and for a bonus review.
+  /// Step reached after the answer; `null` once past the sequence and for a
+  /// bonus review.
   final int? stepAfter;
 
   /// State the answer gave the card; `null` for a bonus review.

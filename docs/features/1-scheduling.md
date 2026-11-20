@@ -1,6 +1,6 @@
 # Feature 1 — Review scheduling
 
-Status: implemented (2026-11-17)
+Status: implemented (2026-11-20)
 
 ## Goal
 
@@ -31,16 +31,21 @@ If the sequence was shortened, or the card moved to a shorter preset, the engine
 
 ### After the last step
 
-A success at the last step applies the end of sequence of the group. It is an option of the group rather than of the preset, read at the answer:
+A success at the last step puts the card past its sequence. What follows is the end of sequence of the group, an option of the group rather than of the preset:
 
 - **remanence** (the default) brings the card back forever at a fixed interval: 3 months, 6 months (the default) or 1 year, chosen by the group. When the last step of the preset is longer, the last step is waited instead, so that a preset with long steps never comes back sooner in remanence than in its sequence. A short preset does not shorten the remanence: Intensive (last step 1 week) comes back after 6 months.
 - **acquired** stops the reminders: the card has no due date any more.
 
 The remanence is one more step after the last one of the preset: a success in remanence stays in remanence, and a failure follows the failure behaviour like any other step ([On failure](#on-failure)).
 
-It is stored as a state of the card (`CardState.remanent`, without step) rather than as a step number past the sequence. Steps are clamped to the current sequence at each computation, so a step number would be read as an ordinary step once the sequence is lengthened, and a clamped step would pass for remanence. A state stays a remanence whatever the preset becomes.
+The card only stores that it is past its sequence (`CardState.completed`, without step), never which end it reached: its group says whether it comes back. A step number past the sequence would not do. Steps are clamped to the current sequence at each computation, so such a number would be read as an ordinary step once the sequence is lengthened, and a clamped step would pass for remanence. A state stays past the sequence whatever the preset becomes.
 
-Switching a group from remanence to acquired rewrites nothing: a card in remanence becomes acquired at its next success. Switching back to remanence sends the acquired cards of the group into remanence, due one remanence interval after the day of the switch, at the [daily slot](../lexicon.md#daily-slot), so that no card becomes due at once. Changing the remanence interval moves no due date; it applies from the next answer.
+Switching the end of a group therefore applies at once to its cards past the sequence:
+
+- switched to acquired, they lose their due date;
+- switched back to remanence, each one is due one remanence interval after its last review, at the [daily slot](../lexicon.md#daily-slot). With a 6-month remanence, a card last reviewed 3 months ago is due in 3 months. When that day has already passed, the card is due one remanence interval after the day of the switch instead, so that the cards acquired long ago do not all become due at once.
+
+Changing the remanence interval moves no due date; it applies from the next answer.
 
 ### On failure
 
@@ -48,7 +53,7 @@ Switching a group from remanence to acquired rewrites nothing: a card in remanen
 
 - **step back** (the default) moves from step k to step k − 1, and stays at the first step; from the remanence, it goes back to the last step;
 - **restart** goes back to the first step; the card stays introduced, unlike "Reset", which sends it back to the queue;
-- **stay** keeps the step, so the card waits its interval again; a card in remanence stays in remanence, even in a group switched to acquired.
+- **stay** keeps the step, so the card waits its interval again; a card in remanence stays in remanence.
 
 The behaviour is read at each answer, from the preset in force at that moment: editing it moves no due date. A [bonus review](../lexicon.md#bonus-review) never applies it.
 
@@ -90,7 +95,7 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 - [x] After the last step, Correct applies the end of sequence of the group, read at the answer: remanence at the interval of the group, or at the last step when it is longer; or acquired, with no more due date.
 - [x] A failure in remanence follows the failure behaviour: back to the last step, back to the first step, or still in remanence.
 - [x] A card in remanence stays in remanence, with its due date, when its sequence gets shorter or longer.
-- [x] Switching a group back to remanence sends its acquired cards into remanence, due one remanence interval after the switch; switching to acquired changes no card before its next success; changing the remanence interval moves no due date.
+- [x] Switching a group to acquired removes at once the due date of its cards past the last step. Switching it back to remanence makes each of them due one remanence interval after its last review, or after the switch when that day has passed. Changing the remanence interval moves no due date.
 - [x] An interval of a day or more counts from the answer day and lands on the [daily slot](../lexicon.md#daily-slot).
 - [x] An interval shorter than a day counts from the answer moment.
 - [x] After a failure, the due date is the interval of the step reached: never the same day for a day-based sequence.
@@ -100,7 +105,7 @@ Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due
 ## Test strategy
 
 - Each engine rule is proven by a domain unit test, without a database: moving forward, each failure behaviour, each end of sequence, each failure in remanence, the remanence interval against the last step, clamped step.
-- The failure behaviours and the end of sequence are proven again through the services on stored cards, so that the step, the due date, the state and the queue position are read back from the database. This covers a preset edited between two answers and a group switched between remanence and acquired in both directions.
+- The failure behaviours and the end of sequence are proven again through the services on stored cards, so that the step, the due date, the state and the queue position are read back from the database. This covers a preset edited between two answers, and a group switched between remanence and acquired in both directions, with a last review recent or older than the remanence interval.
 - Dates are fixed in the tests (November 2026): no test reads the clock or waits.
 - The day boundaries (3:59am and 4am, end of month, slot before 4am) are tested explicitly on the calendar.
 

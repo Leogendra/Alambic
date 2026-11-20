@@ -113,7 +113,8 @@ class ReviewHistoryList extends ConsumerWidget {
   /// may differ from the ones in force at the time of the answer.
   String _effect(AppLocalizations strings, ReviewRecord record) {
     final reached = switch (record.stateAfter) {
-      CardState.remanent => end.remanenceAfter(preset),
+      CardState.completed when record.dueAtAfter == null => null,
+      CardState.completed => end.remanenceAfter(preset),
       _ => switch (preset.clampStep(record.stepAfter)) {
         final step? => preset.intervals[step],
         null => null,

@@ -6,6 +6,7 @@ import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/card_state.dart';
 import '../../domain/groups/after_last_step.dart';
 import '../../domain/groups/remanence_interval.dart';
+import '../../domain/scheduling/card_schedule.dart';
 import '../../domain/scheduling/review_scheduler.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
@@ -55,39 +56,51 @@ class GroupService {
   Future<void> setReverseEnabled(int groupId, {required bool enabled}) =>
       _groups.setReverseEnabled(groupId, enabled: enabled);
 
-  /// Read at each answer, so a card in remanence of a group switched to
-  /// "acquired" becomes acquired at its next success. Switching back to
-  /// remanence sends the acquired cards of the group into remanence, due one
-  /// remanence interval from today: none becomes due at once.
+  /// Applies at once to the cards past their last step. Switched to
+  /// "acquired", they lose their due date. Switched back to remanence, each
+  /// is due one remanence interval after its last review, or after today
+  /// when that day has already passed.
   Future<void> setAfterLastStep(
     int groupId,
     AfterLastStep afterLastStep,
   ) async {
-    final revived = await _cards.transaction(() async {
+    final rescheduled = await _cards.transaction(() async {
+      if ((await _groups.find(groupId))?.afterLastStep == afterLastStep) {
+        return false;
+      }
       await _groups.setAfterLastStep(groupId, afterLastStep);
-      if (afterLastStep != AfterLastStep.remanence) {
-        return false;
-      }
-      final acquired = [
+      final completed = [
         for (final card in await _cards.getCardsOfGroup(groupId))
-          if (card.state == CardState.acquired) card,
+          if (card.state == CardState.completed) card,
       ];
-      if (acquired.isEmpty) {
+      if (completed.isEmpty) {
         return false;
       }
-      final catalog = await _presets.loadCatalog();
-      final schedule = _scheduler.backToRemanence(
-        preset: catalog.presetForGroup(groupId),
-        end: catalog.sequenceEndForGroup(groupId),
-        now: _clock(),
-        dailySlot: (await _settings.loadReminderSettings()).dailySlot,
-      );
-      for (final card in acquired) {
-        await _cards.applySchedule(card.id, schedule);
+      switch (afterLastStep) {
+        case AfterLastStep.acquired:
+          for (final card in completed) {
+            await _cards.applySchedule(card.id, CardSchedule.acquired);
+          }
+        case AfterLastStep.remanence:
+          final catalog = await _presets.loadCatalog();
+          final dailySlot = (await _settings.loadReminderSettings()).dailySlot;
+          final now = _clock();
+          for (final card in completed) {
+            await _cards.applySchedule(
+              card.id,
+              _scheduler.backToRemanence(
+                lastReviewedAt: card.lastReviewedAt ?? now,
+                preset: catalog.presetForGroup(groupId),
+                end: catalog.sequenceEndForGroup(groupId),
+                now: now,
+                dailySlot: dailySlot,
+              ),
+            );
+          }
       }
       return true;
     });
-    if (revived) {
+    if (rescheduled) {
       await _scheduleChangeListener.onSchedulesChanged();
     }
   }

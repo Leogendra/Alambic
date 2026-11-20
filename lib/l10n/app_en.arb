@@ -221,7 +221,7 @@
   "scheduleRangeUnordered": "The end of the range cannot come before its start.",
   "notificationModePerCard": "One per card",
   "notificationModeGrouped": "Grouped reminder",
-  "notificationModePerCardHint": "Each due card arrives on its own, with Correct / Again / Reveal.",
+  "notificationModePerCardHint": "Each due card arrives on its own, with Again / Correct / Reveal.",
   "notificationModeGroupedHint": "A single notification per group, for example \"Capitals: 5 to review\".",
   "notificationModeGroupedTap": "When the reminder is tapped",
   "notificationModeOpenApp": "Open the app",
@@ -706,6 +706,36 @@
   "notificationStartHere": "Start here",
   "notificationOpenApp": "Open the app",
   "notificationReveal": "Reveal",
+  "notificationHide": "Hide",
+  "notificationCorrect": "Correct",
+  "notificationToReview": "To review",
+  "notificationRefused": "To review ({answer})",
+  "@notificationRefused": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationNextIn": "{outcome}, next in {delay}",
+  "@notificationNextIn": {
+    "placeholders": {
+      "outcome": {
+        "type": "String"
+      },
+      "delay": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationLearned": "{outcome}, card learned",
+  "@notificationLearned": {
+    "placeholders": {
+      "outcome": {
+        "type": "String"
+      }
+    }
+  },
   "settingsExactAlarms": "Reminders on the dot",
   "settingsExactAlarmsOn": "Reminders arrive on the minute.",
   "settingsExactAlarmsOff": "Reminders may arrive a few minutes late. Allow exact alarms so that they arrive on time.",
@@ -846,6 +876,7 @@
   "onboardingPermissionsBody": "Allow notifications to get your cards. Android then asks for exact alarms, so each one arrives on time.",
   "onboardingNotificationSource": "Alambic · Capitals",
   "onboardingNotificationQuestion": "What is the capital of Peru?",
+  "onboardingNotificationAnswer": "Lima",
   "onboardingAllowNotifications": "Allow notifications",
   "onboardingTime": "Reminder time",
   "onboardingTimeHint": "Your cards arrive at this time. Change it in Settings.",

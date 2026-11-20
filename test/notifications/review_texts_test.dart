@@ -12,6 +12,7 @@ import 'package:alambic/application/notifications/typed_answer_verdict.dart';
 import 'package:alambic/application/reviews/review_result.dart';
 import 'package:alambic/domain/cards/card_side.dart';
 import 'package:alambic/domain/cards/card_state.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/typed_answer_match.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
@@ -44,17 +45,11 @@ void main() {
 
   TypedAnswerVerdict verdict({
     required bool isBonus,
-    required String typed,
     required TypedAnswerMatch match,
     CardSchedule? schedule,
   }) => TypedAnswerVerdict(
     key: key,
-    askedSide: CardSide.front,
-    groupName: 'Capitals',
-    prompt: 'Peru',
     answer: 'Lima',
-    answerImage: null,
-    typed: typed,
     match: match,
     result: ReviewResult(
       isBonus: isBonus,
@@ -86,6 +81,21 @@ void main() {
     );
   });
 
+  test('the test notification asks the capital of Peru, of the sample '
+      'group', () {
+    expect(texts.testGroupName, 'Capitals');
+    expect(texts.testQuestion, 'What is the capital of Peru?');
+    expect(texts.testAnswer, 'Lima');
+    expect(
+      texts.answered(
+        ReviewOutcome.correct,
+        dueAt: DateTime(2026, 11, 12, 12),
+        answeredAt: DateTime(2026, 11, 10, 12),
+      ),
+      'Correct, next in 2\u00a0d',
+    );
+  });
+
   test('shows the answer alone, a face that is an image alone is named as '
       'such', () {
     expect(texts.promptTitle('Peru'), 'Peru');
@@ -94,9 +104,13 @@ void main() {
     expect(texts.answerLine(''), 'Answer in the image');
   });
 
-  test('after an answer, tells only when the card comes back', () {
-    AnswerConfirmation confirmation(DateTime? dueAt) => AnswerConfirmation(
+  test('after an answer, tells the answer and when the card comes back', () {
+    AnswerConfirmation confirmation(
+      DateTime? dueAt, {
+      ReviewOutcome outcome = ReviewOutcome.correct,
+    }) => AnswerConfirmation(
       key: key,
+      outcome: outcome,
       schedule: CardSchedule(
         state: dueAt == null ? CardState.completed : CardState.active,
         step: dueAt == null ? null : 2,
@@ -106,20 +120,43 @@ void main() {
     );
     expect(
       texts.confirmation(confirmation(DateTime(2026, 11, 13, 12))),
-      'Next in 3 d',
+      'Correct, next in 3\u00a0d',
     );
     expect(
-      texts.confirmation(confirmation(DateTime(2026, 11, 11, 12))),
-      'Next tomorrow',
+      texts.confirmation(
+        confirmation(DateTime(2026, 11, 11, 12), outcome: ReviewOutcome.again),
+      ),
+      'To review, next in 1\u00a0d',
     );
     expect(
-      texts.confirmation(confirmation(DateTime(2026, 11, 10, 12, 15))),
-      'Next at 12:15',
+      texts.confirmation(
+        confirmation(
+          DateTime(2026, 11, 10, 12, 15),
+          outcome: ReviewOutcome.again,
+        ),
+      ),
+      'To review, next in 10\u00a0min',
     );
-    expect(texts.confirmation(confirmation(null)), 'Card learned');
+    expect(
+      texts.confirmation(confirmation(DateTime(2026, 11, 10, 14, 35))),
+      'Correct, next in 3\u00a0h',
+    );
+    expect(texts.confirmation(confirmation(null)), 'Correct, card learned');
   });
 
-  test('tells how a typed answer compared, then what it did', () {
+  test('counts the delay in scheduling days, past midnight included', () {
+    expect(
+      texts.answered(
+        ReviewOutcome.again,
+        dueAt: DateTime(2026, 11, 11, 0, 20),
+        answeredAt: DateTime(2026, 11, 10, 23, 50),
+      ),
+      'To review, next in 30\u00a0min',
+    );
+  });
+
+  test('a typed answer tells whether it was accepted, then what it did, '
+      'with the expected answer when refused', () {
     final next = CardSchedule(
       state: CardState.active,
       step: 2,
@@ -129,35 +166,29 @@ void main() {
       texts.verdict(
         verdict(
           isBonus: false,
-          typed: 'lma',
           match: TypedAnswerMatch.oneTypo,
           schedule: next,
         ),
       ),
-      '"lma" accepted, 1 typo · Next in 3 d',
+      'Correct, next in 3\u00a0d',
     );
     expect(
       texts.verdict(
         verdict(
           isBonus: false,
-          typed: 'Lima',
           match: TypedAnswerMatch.exact,
           schedule: CardSchedule.acquired,
         ),
       ),
-      '"Lima" accepted · Card learned',
+      'Correct, card learned',
     );
     expect(
-      texts.verdict(
-        verdict(isBonus: false, typed: 'Quito', match: TypedAnswerMatch.wrong),
-      ),
-      '"Quito" refused · Next tomorrow',
+      texts.verdict(verdict(isBonus: false, match: TypedAnswerMatch.wrong)),
+      'To review (Lima), next in 1\u00a0d',
     );
     expect(
-      texts.verdict(
-        verdict(isBonus: true, typed: 'Lima', match: TypedAnswerMatch.exact),
-      ),
-      '"Lima" accepted',
+      texts.verdict(verdict(isBonus: true, match: TypedAnswerMatch.exact)),
+      'Correct',
     );
   });
 
@@ -167,19 +198,8 @@ void main() {
       const SchedulingCalendar(),
     );
     expect(
-      french.verdict(
-        verdict(
-          isBonus: false,
-          typed: 'lma',
-          match: TypedAnswerMatch.oneTypo,
-          schedule: CardSchedule(
-            state: CardState.active,
-            step: 2,
-            dueAt: DateTime(2026, 11, 13, 12),
-          ),
-        ),
-      ),
-      '« lma » accepté, 1 faute · Prochain dans 3 j',
+      french.verdict(verdict(isBonus: false, match: TypedAnswerMatch.wrong)),
+      'À\u00a0revoir (Lima), prochaine dans 1\u00a0j',
     );
     expect(
       french.groupReminderTitle(
@@ -223,6 +243,23 @@ void main() {
     );
     expect(NotificationPayload.askedSide(back), CardSide.back);
     expect(NotificationPayload.askedSide('{"card": 7}'), CardSide.front);
+  });
+
+  test('the payload of the test notification is told apart, and opens no '
+      'session', () {
+    final test = NotificationPayload.encodeTest();
+    expect(NotificationPayload.isTest(test), isTrue);
+    expect(NotificationPayload.decode(test), isNull);
+    expect(NotificationPayload.decodeGroup(test), isNull);
+    expect(NotificationPayload.target(test), isNull);
+    expect(
+      NotificationPayload.isTest(
+        NotificationPayload.encodeDigest(
+          const NotificationDigest(count: 2, groupNames: [], alert: true),
+        ),
+      ),
+      isFalse,
+    );
   });
 
   test('the payload of a grouped reminder carries its group and count', () {

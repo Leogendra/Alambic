@@ -113,6 +113,9 @@ void main() {
       expect(revealed.isRevealed, isTrue);
       expect(revealed.answer, 'Lima');
       expect(revealed.chainRemaining, 3);
+      await handler().answer(second.key, NotificationAction.hide);
+      expect(handler().chained(capitals).isRevealed, isFalse);
+      expect(handler().chained(capitals).chainRemaining, 3);
       await handler().answer(second.key, NotificationAction.again);
       expect(handler().chained(capitals).isRevealed, isFalse);
       expect(handler().chained(capitals).chainRemaining, 2);

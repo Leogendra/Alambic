@@ -18,6 +18,7 @@ class ReviewPrompt {
     required this.typedAnswer,
     this.chainRemaining,
     this.isRevealed = false,
+    this.alert = true,
   });
 
   /// The notification of [card] asking its [askedSide] face, following
@@ -29,6 +30,7 @@ class ReviewPrompt {
     required CardGroup group,
     int? chainRemaining,
     bool isRevealed = false,
+    bool alert = true,
   }) => ReviewPrompt(
     key: key,
     askedSide: askedSide,
@@ -40,6 +42,7 @@ class ReviewPrompt {
     typedAnswer: group.asksTypedAnswer(card, askedSide),
     chainRemaining: chainRemaining,
     isRevealed: isRevealed,
+    alert: alert,
   );
 
   final ReviewNotificationKey key;
@@ -60,15 +63,19 @@ class ReviewPrompt {
   final String? answerImage;
   final String groupName;
 
-  /// Asks for a typed answer ("Again", "Reveal" and "Answer") instead of
-  /// "Correct", "Again" and "Reveal".
+  /// Asks for a typed answer ("Again", "Answer" and "Reveal") instead of
+  /// "Again", "Correct" and "Reveal".
   final bool typedAnswer;
 
   /// Cards left in the grouped reminder, this one included, when the cards
   /// are chained in the notification.
   final int? chainRemaining;
 
-  /// Shows the answer face, with "Correct" and "Again" only; nothing is
-  /// recorded until one of them is pressed.
+  /// Shows the answer face, with "Again", "Correct" and "Hide"; nothing is
+  /// recorded until "Again" or "Correct" is pressed.
   final bool isRevealed;
+
+  /// Rings; `false` when the notification only changes in place, its answer
+  /// shown or hidden.
+  final bool alert;
 }

@@ -209,10 +209,7 @@ void main() {
     await tapAndSettle(tester, find.text(l10n.onboardingTestNotification));
 
     expect(presenter.notificationPermissionRequests, 1);
-    expect(presenter.testPrompt, (
-      groupName: 'Capitals',
-      question: 'What is the capital of Peru?',
-    ));
+    expect(presenter.testPrompt, (isRevealed: false, alert: true));
     expect(presenter.prompts, isEmpty);
     expect(find.text(l10n.onboardingPermissionsTitle), findsOneWidget);
   });

@@ -18,6 +18,7 @@ import 'package:alambic/application/randomness.dart';
 import 'package:alambic/application/scheduling/scheduling_providers.dart';
 import 'package:alambic/data/data_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
 
 import 'fixed_clock.dart';
 import 'fixed_random.dart';
@@ -62,8 +63,12 @@ class FakePresenter implements NotificationPresenter {
   final Map<GroupReminderKey, GroupReminder> groupReminders = {};
   NotificationDigest? digest;
 
-  /// The test notification of the onboarding, once shown.
-  ({String groupName, String question})? testPrompt;
+  /// The test notification of the onboarding, while it asks its card.
+  ({bool isRevealed, bool alert})? testPrompt;
+
+  /// The test notification, once answered.
+  ({ReviewOutcome outcome, DateTime dueAt, DateTime answeredAt})?
+  testConfirmation;
 
   /// What the user answers when asked for notifications.
   bool notificationsAllowed = true;
@@ -95,9 +100,22 @@ class FakePresenter implements NotificationPresenter {
 
   @override
   Future<void> showTestPrompt({
-    required String groupName,
-    required String question,
-  }) async => testPrompt = (groupName: groupName, question: question);
+    bool isRevealed = false,
+    bool alert = true,
+  }) async {
+    testConfirmation = null;
+    testPrompt = (isRevealed: isRevealed, alert: alert);
+  }
+
+  @override
+  Future<void> showTestConfirmation(
+    ReviewOutcome outcome, {
+    required DateTime dueAt,
+    required DateTime answeredAt,
+  }) async {
+    testPrompt = null;
+    testConfirmation = (outcome: outcome, dueAt: dueAt, answeredAt: answeredAt);
+  }
 
   @override
   Future<void> dismiss(ReviewNotificationKey key) async => _clearSlotOf(key);

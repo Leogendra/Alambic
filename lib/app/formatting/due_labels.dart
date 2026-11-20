@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../../domain/scheduling/card_schedule.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
@@ -35,6 +37,24 @@ extension DueLabels on AppLocalizations {
       dueDateLabel(dueAt, now: answeredAt, calendar: calendar),
     ),
   };
+
+  /// How long until [dueAt], from [now]: "10 min" or "2 h" within the
+  /// day, else the days, "3 d".
+  String delayLabel(
+    DateTime dueAt, {
+    required DateTime now,
+    required SchedulingCalendar calendar,
+  }) {
+    final days = calendar.daysBetween(now, dueAt);
+    final minutes = math.max(1, (dueAt.difference(now).inSeconds / 60).ceil());
+    if (days > 0) {
+      return intervalDays(days);
+    } else if (minutes < 60) {
+      return intervalMinutes(minutes);
+    } else {
+      return intervalHours((minutes / 60).round());
+    }
+  }
 
   /// Whole days between two scheduling days, robust to daylight saving.
   static int _daysBetween(DateTime from, DateTime to) =>

@@ -344,11 +344,18 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('the three onboarding screens', (tester) async {
+    testWidgets('the four onboarding screens', (tester) async {
       await checkScreen(tester, const OnboardingScreen());
-      await tester.tap(find.text(l10n.onboardingNext));
-      await tester.pumpAndSettle();
-      await expectClearOfSystemBars(tester);
+      for (var screen = 1; screen < 3; screen++) {
+        await tester.tap(find.text(l10n.onboardingNext));
+        await tester.pumpAndSettle();
+        // The sample cards are read from the assets.
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 100)),
+        );
+        await tester.pumpAndSettle();
+        await expectClearOfSystemBars(tester);
+      }
       await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
       await expectClearOfSystemBars(tester);
     });

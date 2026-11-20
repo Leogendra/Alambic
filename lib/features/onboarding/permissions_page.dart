@@ -9,9 +9,9 @@ import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'onboarding_page.dart';
 
-/// Second screen: a card notification as it arrives, the time of the
-/// reminders, and the button asking for the right to post notifications,
-/// then for exact alarms.
+/// Third screen: a card notification as it arrives, the time of the
+/// reminders, a button showing such a notification at once, and the button
+/// asking for the right to post notifications, then for exact alarms.
 ///
 /// Exact alarms are allowed from a system settings page, opened only while
 /// they are refused; the screen moves on without waiting for the user to
@@ -43,6 +43,19 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
     await ref.read(notificationSettingsServiceProvider).setFixedTime(time);
   }
 
+  /// Asks for notifications first, where needed: without them, the test
+  /// shows nothing.
+  Future<void> _sendTest() async {
+    final strings = AppLocalizations.of(context);
+    final presenter = ref.read(notificationPresenterProvider);
+    if (await presenter.requestPermission()) {
+      await presenter.showTestPrompt(
+        groupName: strings.onboardingSampleGroupName,
+        question: strings.onboardingNotificationQuestion,
+      );
+    }
+  }
+
   Future<void> _allow() async {
     setState(() => _isAsking = true);
     await ref.read(notificationPresenterProvider).requestPermission();
@@ -59,7 +72,7 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     return OnboardingPage(
-      step: 1,
+      step: 2,
       title: strings.onboardingPermissionsTitle,
       body: strings.onboardingPermissionsBody,
       action: FilledButton(
@@ -67,7 +80,24 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
         child: Text(strings.onboardingAllowNotifications),
       ),
       illustration: const _NotificationPreview(),
-      child: _TimeRow(time: _time, onTap: _pickTime),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 32,
+        children: [
+          _ActionRow(
+            icon: Icons.schedule,
+            title: strings.onboardingTime,
+            hint: strings.onboardingTimeHint,
+            value: '$_time',
+            onTap: _pickTime,
+          ),
+          _ActionRow(
+            title: strings.onboardingTestNotification,
+            hint: strings.onboardingTestNotificationHint,
+            onTap: _sendTest,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -170,16 +200,25 @@ class _DropsPainter extends CustomPainter {
   bool shouldRepaint(_DropsPainter oldDelegate) => oldDelegate.color != color;
 }
 
-/// The time of the reminders, which opens a time picker.
-class _TimeRow extends StatelessWidget {
-  const _TimeRow({required this.time, required this.onTap});
+/// A tappable row: an optional [icon], a [title] over its [hint], and an
+/// optional [value] at the end.
+class _ActionRow extends StatelessWidget {
+  const _ActionRow({
+    required this.title,
+    required this.hint,
+    required this.onTap,
+    this.icon,
+    this.value,
+  });
 
-  final ClockTime time;
+  final IconData? icon;
+  final String title;
+  final String hint;
+  final String? value;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
     return Material(
       color: colors.surface,
@@ -191,26 +230,27 @@ class _TimeRow extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          height: 64,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          constraints: const BoxConstraints(minHeight: 64),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
             spacing: 14,
             children: [
-              Icon(Icons.schedule, size: 22, color: colors.textTertiary),
+              if (icon case final icon?)
+                Icon(icon, size: 22, color: colors.textTertiary),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      strings.onboardingTime,
+                      title,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     Text(
-                      strings.onboardingTimeHint,
+                      hint,
                       style: TextStyle(
                         fontSize: 13,
                         color: colors.textSecondary,
@@ -219,14 +259,15 @@ class _TimeRow extends StatelessWidget {
                   ],
                 ),
               ),
-              Text(
-                '$time',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: colors.accentText,
+              if (value case final value?)
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: colors.accentText,
+                  ),
                 ),
-              ),
             ],
           ),
         ),

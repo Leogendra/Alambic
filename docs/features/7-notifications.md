@@ -123,7 +123,7 @@ Exact alarms need a permission that Android 14 refuses by default. Without it, w
 
 Wake-ups survive a restart of the phone: the alarm plugin restores them at boot, and a wake-up whose moment passed while the phone was off fires right away, showing everything late. A missed 4am wake-up of a distillation fires the same way, so the day's batch comes out at restart ([Feature 8](8-distillation.md#rhythm)). Every launch of the app also schedules all wake-ups again, since a force-stop loses them.
 
-The notification permission of Android 13 and exact alarms are both asked on the second welcome screen ([Feature 10](10-onboarding.md)). A user who refused can still allow exact alarms from Settings, and notifications from the system settings of the app.
+The notification permission of Android 13 and exact alarms are both asked on the third welcome screen ([Feature 10](10-onboarding.md)), which also shows a test notification on demand: a card notification tied to no card, whose buttons only close it. A user who refused can still allow exact alarms from Settings, and notifications from the system settings of the app.
 
 ## Acceptance criteria
 

@@ -5,7 +5,8 @@ import 'onboarding_screen.dart';
 
 /// Layout shared by the welcome screens: an illustration, a title, a short
 /// text and the content of the screen, centred in the height, then the
-/// position of the screen and its button at the bottom.
+/// position of the screen and its button at the bottom. The text waits for
+/// what it depends on when [body] is `null`.
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({
     required this.step,
@@ -20,7 +21,7 @@ class OnboardingPage extends StatelessWidget {
   /// Position of the screen among the welcome screens, from 0.
   final int step;
   final String title;
-  final String body;
+  final String? body;
   final Widget? illustration;
   final Widget? child;
   final Widget action;
@@ -57,14 +58,15 @@ class OnboardingPage extends StatelessWidget {
                               letterSpacing: -0.68,
                             ),
                           ),
-                          Text(
-                            body,
-                            style: TextStyle(
-                              fontSize: 17,
-                              height: 1.45,
-                              color: colors.textSecondary,
+                          if (body case final body?)
+                            Text(
+                              body,
+                              style: TextStyle(
+                                fontSize: 17,
+                                height: 1.45,
+                                color: colors.textSecondary,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                       ?child,
@@ -107,6 +109,54 @@ class _PageDots extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// The frame of an illustration: a [title] in capitals, the drawing and a
+/// [hint] under it.
+class IllustrationCard extends StatelessWidget {
+  const IllustrationCard({
+    required this.title,
+    required this.hint,
+    required this.child,
+    super.key,
+  });
+
+  final String title;
+  final String hint;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AlambicColors.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 18,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.8,
+              color: colors.textSecondary,
+            ),
+          ),
+          child,
+          Text(
+            hint,
+            style: TextStyle(fontSize: 12, color: colors.textSecondary),
+          ),
+        ],
+      ),
     );
   }
 }

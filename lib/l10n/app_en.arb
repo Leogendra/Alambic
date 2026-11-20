@@ -825,25 +825,45 @@
   "backupIncompatibleVersion": "This backup comes from a version of Alambic this one cannot read.",
   "backupCorrupted": "This backup is damaged or incomplete.",
   "backupFailed": "The operation failed. Your data was not changed.",
-  "onboardingWelcomeTitle": "Remember everything without thinking about it.",
+  "onboardingWelcomeTitle": "Learn it once,\nkeep it for good.",
   "onboardingWelcomeBody": "Alambic reminds you of each card at the right moment.",
   "onboardingRemindersTitle": "One card, multiple reminders",
   "onboardingRemindersStart": "Start",
-  "onboardingRemindersWeek": "1W",
-  "onboardingRemindersMonth": "1M",
   "onboardingRemindersHint": "Each correct answer spaces out the next reminder.",
+  "onboardingDistillTitle": "Distill what you learn, one drop at a time.",
+  "onboardingDistillBody": "Add as many cards as you like: they wait in their group. Distilling lets a few in at a time, so reviews never pile up.",
+  "onboardingDistillHeader": "{count, plural, =1{1 card, one a day} other{{count} cards, one a day}}",
+  "@onboardingDistillHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingDistillWaiting": "waiting",
+  "onboardingDistillHint": "You choose the pace: 1, 3 or 10 cards a day.",
   "onboardingPermissionsTitle": "You review straight from the notification.",
-  "onboardingPermissionsBody": "Android will also ask for exact alarms, so reminders land right on time.",
+  "onboardingPermissionsBody": "Allow notifications to get your cards. Android then asks for exact alarms, so each one arrives on time.",
   "onboardingNotificationSource": "Alambic · Capitals",
   "onboardingNotificationQuestion": "What is the capital of Peru?",
   "onboardingAllowNotifications": "Allow notifications",
   "onboardingTime": "Reminder time",
-  "onboardingTimeHint": "For all groups",
+  "onboardingTimeHint": "Your cards arrive at this time. Change it in Settings.",
+  "onboardingTestNotification": "Test notification",
+  "onboardingTestNotificationHint": "Click on this button to receive a test notification.",
   "onboardingNext": "Next",
-  "onboardingSampleTitle": "A group to start with",
-  "onboardingSampleBody": "Its cards are waiting. Distill it, and they will arrive as notifications, one a day.",
+  "onboardingSampleTitle": "A group to get started",
+  "onboardingSampleBody": "{count} capitals are waiting. Distill the group and the first one arrives today.",
+  "@onboardingSampleBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "onboardingSampleFirstCard": "First card",
   "onboardingSampleGroupName": "Capitals",
+  "onboardingGetStarted": "Get started",
   "onboardingSkip": "Skip",
   "presetNameStandard": "Standard",
   "presetNameIntensive": "Intensive",

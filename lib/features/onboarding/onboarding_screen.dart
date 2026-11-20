@@ -6,19 +6,21 @@ import '../../app/theme/alambic_theme.dart';
 import '../../application/onboarding/onboarding_providers.dart';
 import '../../application/preferences/interface_settings_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'distillation_page.dart';
 import 'permissions_page.dart';
 import 'sample_group_page.dart';
 import 'welcome_page.dart';
 
-/// The three welcome screens of the first launch: the principle, the
-/// notification permissions with the reminder time, and the sample group.
+/// The four welcome screens of the first launch: the principle, the
+/// distillation, the notification permissions with the reminder time, and
+/// the sample group.
 /// Going through them, or skipping them from any screen, creates the sample
 /// group, named in the language of the app, and opens the app for good. The
 /// onboarding being shown once, so is the group created.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
-  static const int pageCount = 3;
+  static const int pageCount = 4;
 
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -48,38 +50,53 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => PopScope(
-    // The system back goes to the previous screen, and leaves the app from
-    // the first one.
-    canPop: _page == 0,
-    onPopInvokedWithResult: (didPop, _) {
-      if (!didPop) {
-        _back();
-      }
-    },
-    child: Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _TopBar(
-              onBack: _page == 0 ? null : _back,
-              onSkip: _isFinishing ? null : () => _finish(openGroup: false),
-            ),
-            Expanded(
-              child: switch (_page) {
-                0 => WelcomePage(onNext: _next),
-                1 => PermissionsPage(onNext: _next),
-                _ => SampleGroupPage(
-                  onStart: _isFinishing ? null : () => _finish(openGroup: true),
-                ),
-              },
-            ),
-          ],
+  Widget build(BuildContext context) {
+    // Read from the first screen, so that the next ones show them at once.
+    final sampleCards = ref
+        .watch(
+          sampleCardsProvider(Localizations.localeOf(context).languageCode),
+        )
+        .value;
+    return PopScope(
+      // The system back goes to the previous screen, and leaves the app from
+      // the first one.
+      canPop: _page == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _back();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _TopBar(
+                onBack: _page == 0 ? null : _back,
+                onSkip: _isFinishing ? null : () => _finish(openGroup: false),
+              ),
+              Expanded(
+                child: switch (_page) {
+                  0 => WelcomePage(onNext: _next),
+                  1 => DistillationPage(
+                    sampleCardCount: sampleCards?.length,
+                    onNext: _next,
+                  ),
+                  2 => PermissionsPage(onNext: _next),
+                  _ => SampleGroupPage(
+                    cards: sampleCards,
+                    onStart: _isFinishing
+                        ? null
+                        : () => _finish(openGroup: true),
+                  ),
+                },
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// "Back" to the previous screen, absent on the first one, and "Skip".

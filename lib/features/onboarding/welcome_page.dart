@@ -35,34 +35,10 @@ class _RemindersIllustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final colors = AlambicColors.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 18,
-        children: [
-          Text(
-            strings.onboardingRemindersTitle.toUpperCase(),
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.8,
-              color: colors.textSecondary,
-            ),
-          ),
-          const _ReminderLine(),
-          Text(
-            strings.onboardingRemindersHint,
-            style: TextStyle(fontSize: 14, color: colors.textSecondary),
-          ),
-        ],
-      ),
+    return IllustrationCard(
+      title: strings.onboardingRemindersTitle,
+      hint: strings.onboardingRemindersHint,
+      child: const _ReminderLine(),
     );
   }
 }
@@ -81,10 +57,10 @@ class _ReminderLine extends StatelessWidget {
     final colors = AlambicColors.of(context);
     final stops = [
       (0.0, strings.onboardingRemindersStart),
-      (0.13, strings.homeDelayDays(1)),
-      (0.24, strings.homeDelayDays(2)),
-      (0.45, strings.onboardingRemindersWeek),
-      (1.0, strings.onboardingRemindersMonth),
+      (0.13, strings.intervalDays(1)),
+      (0.24, strings.intervalDays(2)),
+      (0.45, strings.intervalWeeks(1)),
+      (1.0, strings.intervalMonths(1)),
     ];
     return SizedBox(
       height: 56,

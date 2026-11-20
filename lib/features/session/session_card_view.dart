@@ -10,11 +10,11 @@ import '../../domain/cards/flashcard.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../cards/card_image.dart';
 
-/// The card of a session, in two halves of fixed height: the context line
-/// and the asked face on top, unchanged by the reveal; the answer below.
-/// [reveal] runs from 0 to 1 as the answer shows: the line between the
-/// halves draws from the center to the edges, and the answer fades in while
-/// rising. A typed answer gives its [verdict], shown under the answer.
+/// The card of a session, in two halves of fixed height split by a line: the
+/// context line and the asked face on top, unchanged by the reveal; the
+/// answer below. [reveal] runs from 0 to 1 as the answer shows: the answer
+/// fades in while rising. A typed answer gives its [verdict], shown under the
+/// answer.
 class SessionCardView extends ConsumerWidget {
   const SessionCardView({
     required this.card,
@@ -35,6 +35,16 @@ class SessionCardView extends ConsumerWidget {
 
   /// How far the answer rises while it fades in.
   static const _answerRise = 12.0;
+
+  /// Size of the text of a face, never larger: a single word does not fill
+  /// the card. A text longer than [_longTextLength] characters is smaller.
+  static const maxFontSize = 28.0;
+  static const _longTextFontSize = 22.0;
+  static const _longTextLength = 60;
+
+  /// Widest the text of a face runs, so that its lines stay readable on a
+  /// wide screen.
+  static const maxTextWidth = 400.0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -63,15 +73,7 @@ class SessionCardView extends ConsumerWidget {
               ),
             ),
           ),
-          SizedBox(
-            height: 1,
-            child: AnimatedBuilder(
-              animation: reveal,
-              builder: (context, child) =>
-                  FractionallySizedBox(widthFactor: reveal.value, child: child),
-              child: ColoredBox(color: colors.divider),
-            ),
-          ),
+          SizedBox(height: 1, child: ColoredBox(color: colors.divider)),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -153,14 +155,19 @@ class SessionCardView extends ConsumerWidget {
     ),
   );
 
-  Widget _faceText(String text, Color color) => Text(
-    text,
-    textAlign: TextAlign.center,
-    style: TextStyle(
-      fontSize: text.length > 60 ? 22 : 36,
-      fontWeight: FontWeight.w700,
-      height: 1.2,
-      color: color,
+  Widget _faceText(String text, Color color) => ConstrainedBox(
+    constraints: const BoxConstraints(maxWidth: maxTextWidth),
+    child: Text(
+      text,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: text.length > _longTextLength
+            ? _longTextFontSize
+            : maxFontSize,
+        fontWeight: FontWeight.w700,
+        height: 1.2,
+        color: color,
+      ),
     ),
   );
 }

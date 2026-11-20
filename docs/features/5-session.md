@@ -12,13 +12,15 @@ Review [due](../lexicon.md#due) cards in the app, one by one, with the same two 
 
 A session starts from a list of cards. A group page starts it on all its cards ("Review all", [Feature 4](4-groups.md#review-all)); the card sheet starts it on a single card; a touched notification starts it on its card or the due cards of its group, then every due card ([Feature 7](7-notifications.md#touching-a-notification)), the touched card asking the face of its notification. Each card's [asked side](../lexicon.md#asked-side) is drawn when the session opens: the front, or one chance in two the back when its group has the [back option](../lexicon.md#back-option).
 
-For each card, the screen shows a card in two halves of fixed height. The top half holds a context line (the group and the preset, the mention "back → front" when the back is asked) and the asked face, its image above its text, the image shrinking to leave room for the text. The bottom half is empty until the reveal, then shows the other face. The top half does not change at the reveal: same position, same text size, same colour.
+For each card, the screen shows a card in two halves of fixed height, split by a line shown from the question on. The top half holds a context line (the group and the preset, the mention "back → front" when the back is asked) and the asked face, its image above its text, the image shrinking to leave room for the text. The bottom half is empty until the reveal, then shows the other face. The top half does not change at the reveal: same position, same text size, same colour.
+
+The text of a face is 28 at most, a single word included, so that a word does not fill the card; a text longer than 60 characters is 22. It runs 400 wide at most, centered, so that its lines stay readable on a wide screen. The system text size still applies on top of these sizes.
 
 The one announced way to reveal is the "Show answer" button at the bottom of the screen; tapping the card reveals too, without anything saying so. The button sits in a zone of fixed height where "Again" / "Correct" replace it, so the card does not move. Under each answer button stands the effect of the answer: "tomorrow", "in 6 d", "at 15:17" or "acquired"; a bonus review shows the labels alone. A progress bar and a "3 / 12" counter follow the progress; the cross leaves the session, the answers already given staying recorded.
 
 ### Reveal
 
-The reveal takes 250 ms, eased out: the line between the halves draws from the center to the edges, the answer fades in while rising by 12 px, and "Show answer" cross-fades into the two answer buttons. A light haptic tap goes with it. When the system asks for reduced motion, the answer shows at once. Moving to the next card plays nothing backwards: the new card shows unrevealed.
+The reveal takes 250 ms, eased out: the answer fades in while rising by 12 px, and "Show answer" cross-fades into the two answer buttons. A light haptic tap goes with it. When the system asks for reduced motion, the answer shows at once. Moving to the next card plays nothing backwards: the new card shows unrevealed.
 
 ### Answer
 
@@ -47,6 +49,8 @@ The end screen gives the number of cards, the duration, and the number of correc
 
 - [x] The answer appears only after a tap on the card or on "Show answer", the only button before the reveal.
 - [x] The top half of the card keeps its position, text size and colour at the reveal; the answer buttons take the place of "Show answer" without moving the card.
+- [x] The line between the halves shows before the reveal.
+- [x] The text of a face never exceeds its maximum size nor its maximum width, a single word included; a long text is smaller.
 - [x] The reveal is animated in 250 ms with a light haptic tap, at once under reduced motion, and the next card shows unrevealed.
 - [x] Each button announces when the card will come back if chosen; a bonus review shows no effect under the buttons.
 - [x] Answering a due card reschedules it and writes the answer to the history.
@@ -62,6 +66,7 @@ The end screen gives the number of cards, the duration, and the number of correc
 - The answer service is tested on an in-memory database with a fixed clock: answer on a due card, on a card due later in the day, on a card already reviewed (bonus), forced bonus, and agreement between the preview and the recorded answer.
 - Session tracking (order, counts, missed) is tested as pure logic; the draw of the asked side per group is tested with a fixed random generator.
 - The full flow is tested on screen: reveal, answer, end screen, bonus session of the missed cards, then the history read from the database. The front, the back and the end screen are also golden tests, the front and the back in light and dark theme; between the two, the asked face is checked at the same place with the same style.
+- The size of a face text is a golden test for a single word, a sentence and a long text, each checked against the maximum size; the maximum width is checked on a wide screen, where the uncapped text would run wider.
 - The typed answer is tested on screen: an accepted answer with one typo and a refused one, their verdict and the answer recorded in the database, "Next", "Reveal" recording nothing, a blank answer not submitted; the field and the verdict are golden tests.
 - The reveal is tested on screen frame by frame: the answer half-faded midway, "Show answer" gone and the card unmoved at the end, the haptic call read on the platform channel; under reduced motion (a test accessibility setting), the answer is fully shown on the first frame; the next card starts unrevealed.
 

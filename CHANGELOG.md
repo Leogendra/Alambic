@@ -43,6 +43,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Switching a group to "Learned" stops at once the reminders of its cards past the last step, instead of at their next success. Switching it back to remanence brings each card back one remanence interval after its last review, or after the switch when that day has passed.
 - The distillation always takes the head of its group's queue: the "Distill" screen no longer offers an order (group order or random).
 - In a session, the top half of the card no longer shrinks or greys at the reveal: the answer fades in below it with a short animation and a light vibration, shown at once when the phone reduces animations. "Show answer" is the only button before the reveal, in the place of the answer buttons, and a bonus review no longer shows "no effect" under them.
+- In a session, the line between the question and the answer shows from the question on. The text of a card is smaller, a single word included, and stays narrow on a wide screen.
 - Touching a notification opens a review session on its card, or on the due cards of its group, then on every due card, instead of opening Home or the group page.
 - A notification that could not arrive on time, the phone being off, arrives when it is turned back on, however late, instead of being dropped after an hour; during the quiet hours it waits for their end.
 - Correct and Again in a notification leave, for a few seconds, only when the card comes back ("Next in 3 d"), instead of the expected answer: Reveal shows the answer beforehand.

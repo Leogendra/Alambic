@@ -21,6 +21,7 @@ import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
@@ -31,7 +32,7 @@ void main() {
     database = openTestDatabase();
   });
 
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   Future<void> seed(WidgetTester tester) async {
     await tester.runAsync(() async {
@@ -57,9 +58,7 @@ void main() {
     await samples.cards.setSuspended(myanmar.id, suspended: true);
   });
 
-  testWidgets('groups tab, "distillation" on a distilled group', (
-    tester,
-  ) async {
+  testScreen('groups tab, "distillation" on a distilled group', (tester) async {
     await seed(tester);
     await tester.runAsync(
       () => samples.distillations.activate(
@@ -80,7 +79,7 @@ void main() {
     );
   });
 
-  testWidgets('groups tab with a paused distillation', (tester) async {
+  testScreen('groups tab with a paused distillation', (tester) async {
     await seed(tester);
     await tester.runAsync(() async {
       await samples.distillations.activate(
@@ -100,7 +99,7 @@ void main() {
     );
   });
 
-  testWidgets('groups tab searching a card', (tester) async {
+  testScreen('groups tab searching a card', (tester) async {
     await seed(tester);
     await pumpGolden(
       tester,
@@ -119,7 +118,7 @@ void main() {
     (Brightness.light, ''),
     (Brightness.dark, '_dark'),
   ]) {
-    testWidgets('group detail, ${brightness.name} theme', (tester) async {
+    testScreen('group detail, ${brightness.name} theme', (tester) async {
       await seed(tester);
       await seedAcquired(tester);
       await seedWaiting(tester);
@@ -136,7 +135,7 @@ void main() {
     });
   }
 
-  testWidgets('three sections with their counts; the head of the queue '
+  testScreen('three sections with their counts; the head of the queue '
       'that is not suspended is "next"', (tester) async {
     await seed(tester);
     await seedAcquired(tester);
@@ -163,7 +162,7 @@ void main() {
     expect(find.textContaining('Review the'), findsNothing);
   });
 
-  testWidgets('the acquired cards are apart, folded until touched', (
+  testScreen('the acquired cards are apart, folded until touched', (
     tester,
   ) async {
     await seed(tester);
@@ -188,7 +187,7 @@ void main() {
     (Brightness.light, ''),
     (Brightness.dark, '_dark'),
   ]) {
-    testWidgets('group settings, ${brightness.name} theme', (tester) async {
+    testScreen('group settings, ${brightness.name} theme', (tester) async {
       await seed(tester);
       await pumpGolden(
         tester,
@@ -209,7 +208,7 @@ void main() {
     });
   }
 
-  testWidgets('the group settings set the end of sequence and the typed '
+  testScreen('the group settings set the end of sequence and the typed '
       'answer', (tester) async {
     await seed(tester);
     await pumpGolden(
@@ -250,7 +249,7 @@ void main() {
     );
   });
 
-  testWidgets('"Enable the back" switches the option of the group', (
+  testScreen('"Enable the back" switches the option of the group', (
     tester,
   ) async {
     await seed(tester);
@@ -271,7 +270,7 @@ void main() {
     expect(find.text('Disable the back'), findsOneWidget);
   });
 
-  testWidgets('"Distill" opens the activation of the distillation', (
+  testScreen('"Distill" opens the activation of the distillation', (
     tester,
   ) async {
     await seed(tester);
@@ -286,7 +285,7 @@ void main() {
     expect(find.byType(DistillScreen), findsOneWidget);
   });
 
-  testWidgets('"Review all" asks the due cards, then the others, then the '
+  testScreen('"Review all" asks the due cards, then the others, then the '
       'queue, without the acquired ones', (tester) async {
     await seed(tester);
     final ids = (await tester.runAsync(() async {

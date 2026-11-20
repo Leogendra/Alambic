@@ -10,18 +10,19 @@ import 'package:alambic/features/presets/presets_screen.dart';
 
 import '../../support/golden_harness.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
 
   setUp(() => database = openTestDatabase());
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   for (final (brightness, suffix) in [
     (Brightness.light, ''),
     (Brightness.dark, '_dark'),
   ]) {
-    testWidgets('presets list, ${brightness.name} theme', (tester) async {
+    testScreen('presets list, ${brightness.name} theme', (tester) async {
       await pumpGolden(
         tester,
         const PresetsScreen(),
@@ -38,7 +39,7 @@ void main() {
     });
   }
 
-  testWidgets('"Make default" makes a preset the global one', (tester) async {
+  testScreen('"Make default" makes a preset the global one', (tester) async {
     await pumpGolden(
       tester,
       const PresetsScreen(),
@@ -55,7 +56,7 @@ void main() {
     expect(catalog!.globalPreset.builtInKey, BuiltInPresetKey.intensive);
   });
 
-  testWidgets('the tile menu duplicates a preset', (tester) async {
+  testScreen('the tile menu duplicates a preset', (tester) async {
     await pumpGolden(
       tester,
       const PresetsScreen(),
@@ -76,7 +77,7 @@ void main() {
     ]);
   });
 
-  testWidgets('the tile menu deletes a preset after saying who uses it', (
+  testScreen('the tile menu deletes a preset after saying who uses it', (
     tester,
   ) async {
     await tester.runAsync(() async {
@@ -130,7 +131,7 @@ void main() {
     (Brightness.light, ''),
     (Brightness.dark, '_dark'),
   ]) {
-    testWidgets('preset editor on Standard, ${brightness.name} theme', (
+    testScreen('preset editor on Standard, ${brightness.name} theme', (
       tester,
     ) async {
       final standard = await tester.runAsync(
@@ -150,7 +151,7 @@ void main() {
     });
   }
 
-  testWidgets('the line under the failure choice says its effect', (
+  testScreen('the line under the failure choice says its effect', (
     tester,
   ) async {
     final standard = await tester.runAsync(

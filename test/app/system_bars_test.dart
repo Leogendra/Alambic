@@ -35,6 +35,7 @@ import '../support/fixed_clock.dart';
 import '../support/golden_harness.dart';
 import '../support/sample_data.dart';
 import '../support/test_database.dart';
+import '../support/test_screen.dart';
 
 /// Height of the status bar and of a three-button navigation bar, the
 /// tallest of the two navigation modes.
@@ -156,7 +157,7 @@ void main() {
   late int firstCardId;
 
   setUp(() => database = openTestDatabase());
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   /// The sample groups, with enough cards in "Capitals" for every list to
   /// scroll.
@@ -203,7 +204,7 @@ void main() {
 
   group('every tab', () {
     for (final tab in [l10n.tabHome, l10n.tabGroups, l10n.tabSettings]) {
-      testWidgets(tab, (tester) async {
+      testScreen(tab, (tester) async {
         await seed(tester);
         await pumpUnderSystemBars(
           tester,
@@ -218,7 +219,7 @@ void main() {
   });
 
   group('every screen', () {
-    testWidgets('group detail', (tester) async {
+    testScreen('group detail', (tester) async {
       await seed(tester);
       await pumpUnderSystemBars(
         tester,
@@ -228,7 +229,7 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('group settings', (tester) async {
+    testScreen('group settings', (tester) async {
       await seed(tester);
       await pumpUnderSystemBars(
         tester,
@@ -238,7 +239,7 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('distill', (tester) async {
+    testScreen('distill', (tester) async {
       await seed(tester);
       await pumpUnderSystemBars(
         tester,
@@ -248,7 +249,7 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('card editor', (tester) async {
+    testScreen('card editor', (tester) async {
       await seed(tester);
       await pumpUnderSystemBars(
         tester,
@@ -258,7 +259,7 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('bulk add', (tester) async {
+    testScreen('bulk add', (tester) async {
       await seed(tester);
       await pumpUnderSystemBars(
         tester,
@@ -268,7 +269,7 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('bulk add keeps its button above the keyboard', (tester) async {
+    testScreen('bulk add keeps its button above the keyboard', (tester) async {
       const keyboardHeight = 300.0;
       tester.view.viewInsets = const FakeViewPadding(bottom: keyboardHeight);
       await seed(tester);
@@ -284,7 +285,7 @@ void main() {
       );
     });
 
-    testWidgets('card sheet', (tester) async {
+    testScreen('card sheet', (tester) async {
       await seed(tester);
       await pumpUnderSystemBars(
         tester,
@@ -294,11 +295,11 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('presets', (tester) async {
+    testScreen('presets', (tester) async {
       await checkScreen(tester, const PresetsScreen());
     });
 
-    testWidgets('preset editor', (tester) async {
+    testScreen('preset editor', (tester) async {
       await seed(tester);
       final standard = await tester.runAsync(
         () async =>
@@ -312,21 +313,19 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('notification guards', (tester) async {
+    testScreen('notification guards', (tester) async {
       await checkScreen(tester, const NotificationGuardsScreen());
     });
 
-    testWidgets('schedule', (tester) async {
+    testScreen('schedule', (tester) async {
       await checkScreen(tester, const ReminderScheduleScreen());
     });
 
-    testWidgets('notification mode', (tester) async {
+    testScreen('notification mode', (tester) async {
       await checkScreen(tester, const NotificationModeScreen());
     });
 
-    testWidgets('session, before and after the answer is shown', (
-      tester,
-    ) async {
+    testScreen('session, before and after the answer is shown', (tester) async {
       await seed(tester);
       await pumpUnderSystemBars(
         tester,
@@ -344,7 +343,7 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('the four onboarding screens', (tester) async {
+    testScreen('the four onboarding screens', (tester) async {
       await checkScreen(tester, const OnboardingScreen());
       for (var screen = 1; screen < 3; screen++) {
         await tester.tap(find.text(l10n.onboardingNext));
@@ -385,7 +384,7 @@ void main() {
       await tapAndSettle(tester, find.text('Open'));
     }
 
-    testWidgets('preset picker', (tester) async {
+    testScreen('preset picker', (tester) async {
       await openSheet(tester, (context) async {
         final catalog = await PresetRepository(database).loadCatalog();
         if (context.mounted) {
@@ -400,7 +399,7 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('group picker', (tester) async {
+    testScreen('group picker', (tester) async {
       await openSheet(tester, (context) async {
         final groups = await GroupRepository(database).watchAll().first;
         if (context.mounted) {
@@ -414,7 +413,7 @@ void main() {
       await expectClearOfSystemBars(tester);
     });
 
-    testWidgets('review soon', (tester) async {
+    testScreen('review soon', (tester) async {
       await openSheet(
         tester,
         (context) => showReviewSoonSheet(

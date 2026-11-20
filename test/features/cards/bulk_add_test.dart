@@ -13,6 +13,7 @@ import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 const String pastedLines =
     'Capital of Chile ; Santiago\n'
@@ -25,7 +26,7 @@ void main() {
   late int groupId;
 
   setUp(() => database = openTestDatabase());
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   /// The bulk add of a group that already has [waiting] cards in its queue;
   /// [seed] drives the shuffle draws.
@@ -63,7 +64,7 @@ void main() {
     ];
   }
 
-  testWidgets('reports ignored lines and the first card before adding', (
+  testScreen('reports ignored lines and the first card before adding', (
     tester,
   ) async {
     await pumpBulkAdd(tester, waiting: 2);
@@ -77,7 +78,7 @@ void main() {
     );
   });
 
-  testWidgets('a custom separator rereads every line', (tester) async {
+  testScreen('a custom separator rereads every line', (tester) async {
     await pumpBulkAdd(tester);
     await tester.enterText(find.byType(TextField).first, ',');
     await tester.pumpAndSettle();
@@ -85,7 +86,7 @@ void main() {
     expect(find.text(l10n.bulkFirst.toUpperCase()), findsNothing);
   });
 
-  testWidgets('adds the valid lines at the end of the queue, in order', (
+  testScreen('adds the valid lines at the end of the queue, in order', (
     tester,
   ) async {
     await pumpBulkAdd(tester, waiting: 1);
@@ -101,7 +102,7 @@ void main() {
     );
   });
 
-  testWidgets('"Shuffle" draws an order, shown and stored as drawn', (
+  testScreen('"Shuffle" draws an order, shown and stored as drawn', (
     tester,
   ) async {
     const seed = 4;

@@ -13,13 +13,14 @@ import '../../support/fixed_clock.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
   final renderAt = DateTime(2026, 11, 10, 12, 30);
 
   setUp(() => database = openTestDatabase());
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   /// Sample data answered in part at 12:05, a "Review soon" reminder at 18:00
   /// and a "Japanese" group distilling one card a day.
@@ -52,7 +53,7 @@ void main() {
   }
 
   for (final brightness in Brightness.values) {
-    testWidgets('home in ${brightness.name} theme', (tester) async {
+    testScreen('home in ${brightness.name} theme', (tester) async {
       await seed(tester);
       await pumpGolden(
         tester,
@@ -70,7 +71,7 @@ void main() {
     });
   }
 
-  testWidgets('home in French', (tester) async {
+  testScreen('home in French', (tester) async {
     await seed(tester);
     await pumpGolden(
       tester,
@@ -85,7 +86,7 @@ void main() {
     );
   });
 
-  testWidgets('home during the global pause', (tester) async {
+  testScreen('home during the global pause', (tester) async {
     await seed(tester);
     await tester.runAsync(
       () => PauseRepository(database).setGlobalPausedAt(sampleNow),
@@ -102,7 +103,7 @@ void main() {
     );
   });
 
-  testWidgets('the coming month and year, at the end of the timeline', (
+  testScreen('the coming month and year, at the end of the timeline', (
     tester,
   ) async {
     await seed(tester);

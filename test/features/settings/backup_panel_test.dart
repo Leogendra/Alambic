@@ -12,6 +12,7 @@ import '../../support/fake_backup_files.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
@@ -22,7 +23,7 @@ void main() {
     files = FakeBackupFiles();
   });
 
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   Future<void> pumpPanel(WidgetTester tester) => pumpGolden(
     tester,
@@ -46,7 +47,7 @@ void main() {
     exportedAt: sampleNow,
   );
 
-  testWidgets('says when the file is not a backup of Alambic', (tester) async {
+  testScreen('says when the file is not a backup of Alambic', (tester) async {
     files.picked = Uint8List.fromList([1, 2, 3]);
     await pumpPanel(tester);
     await tester.tap(find.text(l10n.backupImport));
@@ -55,7 +56,7 @@ void main() {
     expect(find.byType(AlertDialog), findsNothing);
   });
 
-  testWidgets('asks for confirmation with what the file holds', (tester) async {
+  testScreen('asks for confirmation with what the file holds', (tester) async {
     files.picked = backupOf(1, 2);
     await pumpPanel(tester);
     await tester.tap(find.text(l10n.backupImport));

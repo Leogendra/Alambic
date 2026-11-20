@@ -16,6 +16,7 @@ import '../../support/fake_notifications.dart';
 import '../../support/golden_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
+import '../../support/test_screen.dart';
 
 void main() {
   late AlambicDatabase database;
@@ -26,7 +27,7 @@ void main() {
     store = FakeInterfaceSettingsStore();
   });
 
-  tearDown(() => database.close());
+  tearDown(() => closeTestDatabase(database));
 
   /// The whole app, on a phone in [phone], opened on the Settings tab.
   Future<void> pumpSettings(
@@ -65,7 +66,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('follows the phone until a language is chosen', (tester) async {
+  testScreen('follows the phone until a language is chosen', (tester) async {
     await pumpSettings(tester, phone: const Locale('fr'));
     expect(find.text('Langue du téléphone'), findsOneWidget);
 
@@ -76,7 +77,7 @@ void main() {
     expect(store.saved.language, LanguageChoice.english);
   });
 
-  testWidgets('goes back to the phone language once it is chosen again', (
+  testScreen('goes back to the phone language once it is chosen again', (
     tester,
   ) async {
     await pumpSettings(tester);
@@ -88,7 +89,7 @@ void main() {
     expect(store.saved.language, LanguageChoice.system);
   });
 
-  testWidgets('switches to the dark theme at once', (tester) async {
+  testScreen('switches to the dark theme at once', (tester) async {
     await pumpSettings(tester);
     expect(
       Theme.of(tester.element(find.byType(DisplayPanel))).brightness,

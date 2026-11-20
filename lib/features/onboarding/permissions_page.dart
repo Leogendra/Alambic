@@ -46,13 +46,9 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
   /// Asks for notifications first, where needed: without them, the test
   /// shows nothing.
   Future<void> _sendTest() async {
-    final strings = AppLocalizations.of(context);
     final presenter = ref.read(notificationPresenterProvider);
     if (await presenter.requestPermission()) {
-      await presenter.showTestPrompt(
-        groupName: strings.onboardingSampleGroupName,
-        question: strings.onboardingNotificationQuestion,
-      );
+      await presenter.showTestPrompt();
     }
   }
 

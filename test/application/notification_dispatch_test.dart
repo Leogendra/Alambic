@@ -179,10 +179,9 @@ void main() {
       expect(record.isBonus, isFalse);
       expect(harness.presenter.prompts.containsKey(key), isFalse);
       expect(harness.presenter.verdicts, isEmpty);
-      expect(
-        harness.presenter.confirmations[key]!.schedule.dueAt,
-        record.dueAtAfter,
-      );
+      final confirmation = harness.presenter.confirmations[key]!;
+      expect(confirmation.outcome, ReviewOutcome.correct);
+      expect(confirmation.schedule.dueAt, record.dueAtAfter);
       expect(
         await harness.presenter.shownPrompts(),
         isNot(contains(key)),
@@ -198,16 +197,16 @@ void main() {
       expect(card.dueAt, DateTime(2026, 11, 11, 12));
       expect(harness.presenter.prompts.containsKey(key), isFalse);
       expect(harness.presenter.verdicts, isEmpty);
-      expect(
-        harness.presenter.confirmations[key]!.schedule.dueAt,
-        DateTime(2026, 11, 11, 12),
-      );
+      final confirmation = harness.presenter.confirmations[key]!;
+      expect(confirmation.outcome, ReviewOutcome.again);
+      expect(confirmation.schedule.dueAt, DateTime(2026, 11, 11, 12));
     });
 
     test('"Reveal" shows the answer in place and records nothing', () async {
       await press(NotificationAction.reveal);
       final revealed = harness.presenter.prompts[key]!;
       expect(revealed.isRevealed, isTrue);
+      expect(revealed.alert, isFalse);
       expect(revealed.prompt, 'Mongolia');
       expect(revealed.answer, 'Ulaanbaatar');
       expect(revealed.groupName, 'Capitals');
@@ -215,6 +214,16 @@ void main() {
       // Still on screen, the revealed card is withdrawn like any other once
       // answered in the app.
       expect(await harness.presenter.shownPrompts(), contains(key));
+    });
+
+    test('"Hide" asks the card again in place and records nothing', () async {
+      await press(NotificationAction.reveal);
+      await press(NotificationAction.hide);
+      final hidden = harness.presenter.prompts[key]!;
+      expect(hidden.isRevealed, isFalse);
+      expect(hidden.alert, isFalse, reason: 'it changes in place, silently');
+      expect(hidden.prompt, 'Mongolia');
+      expect(await history(), isEmpty);
     });
 
     test('a revealed card is answered with "Correct" or "Again"', () async {
@@ -271,18 +280,15 @@ void main() {
           .first;
       expect(history.single.outcome, ReviewOutcome.correct);
       expect(verdict.result.schedule!.dueAt, DateTime(2026, 11, 11, 12));
-      // "OK" closes the verdict.
-      await harness
-          .read(notificationActionHandlerProvider)
-          .handle(key, NotificationAction.acknowledge);
-      expect(harness.presenter.verdicts, isEmpty);
     });
 
     test('a wrong answer counts as a failure', () async {
       await harness
           .read(notificationActionHandlerProvider)
           .handle(key, NotificationAction.answer, input: 'Beijing');
-      expect(harness.presenter.verdicts[key]!.match, TypedAnswerMatch.wrong);
+      final verdict = harness.presenter.verdicts[key]!;
+      expect(verdict.match, TypedAnswerMatch.wrong);
+      expect(verdict.answer, 'Ulaanbaatar', reason: 'shown when refused');
       final history = await ReviewRepository(database)
           .watchHistory(key.cardId)
           .first;
@@ -295,6 +301,15 @@ void main() {
           .handle(key, NotificationAction.again);
       expect(harness.presenter.prompts.containsKey(key), isFalse);
       expect(harness.presenter.verdicts, isEmpty);
+    });
+
+    test('"Hide" asks for a typed answer again', () async {
+      final handler = harness.read(notificationActionHandlerProvider);
+      await handler.handle(key, NotificationAction.reveal);
+      await handler.handle(key, NotificationAction.hide);
+      final hidden = harness.presenter.prompts[key]!;
+      expect(hidden.isRevealed, isFalse);
+      expect(hidden.typedAnswer, isTrue);
     });
 
     test('"Reveal" shows the answer, to answer with "Correct"', () async {
@@ -458,6 +473,38 @@ void main() {
       expect(harness.presenter.prompts, isEmpty);
       await dispatchAt(DateTime(2026, 11, 10, 13));
       expect(harness.presenter.prompts, hasLength(7));
+    });
+  });
+
+  group('the test notification of the onboarding', () {
+    Future<void> press(NotificationAction action) =>
+        harness.read(notificationActionHandlerProvider).handleTest(action);
+
+    Future<int> reviewCount() async =>
+        (await database.select(database.reviewRecords).get()).length;
+
+    test('"Reveal" and "Hide" show and hide its answer, silently', () async {
+      await harness.presenter.showTestPrompt();
+      await press(NotificationAction.reveal);
+      expect(harness.presenter.testPrompt, (isRevealed: true, alert: false));
+      await press(NotificationAction.hide);
+      expect(harness.presenter.testPrompt, (isRevealed: false, alert: false));
+    });
+
+    test('"Correct" and "Again" show what they would do, and record '
+        'nothing', () async {
+      final before = await reviewCount();
+      await press(NotificationAction.correct);
+      final correct = harness.presenter.testConfirmation!;
+      expect(correct.outcome, ReviewOutcome.correct);
+      expect(correct.dueAt.difference(correct.answeredAt).inDays, 2);
+      expect(harness.presenter.testPrompt, isNull);
+      await harness.presenter.showTestPrompt();
+      await press(NotificationAction.again);
+      final again = harness.presenter.testConfirmation!;
+      expect(again.outcome, ReviewOutcome.again);
+      expect(again.dueAt.difference(again.answeredAt).inDays, 1);
+      expect(await reviewCount(), before);
     });
   });
 }

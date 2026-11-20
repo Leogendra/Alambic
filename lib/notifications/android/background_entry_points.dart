@@ -21,8 +21,9 @@ Future<void> onReviewAlarm(int alarmId) => _runInBackground(
   (container) => container.read(notificationDispatcherProvider).dispatchDue(),
 );
 
-/// Runs in a background isolate when a button of a review notification or
-/// of a grouped reminder is pressed, app open or not.
+/// Runs in a background isolate when a button of a review notification, of
+/// a grouped reminder or of the test notification is pressed, app open or
+/// not.
 @pragma('vm:entry-point')
 Future<void> onNotificationResponse(NotificationResponse response) async {
   final key = NotificationPayload.decode(response.payload);
@@ -48,6 +49,11 @@ Future<void> onNotificationResponse(NotificationResponse response) async {
       (container) => container
           .read(notificationActionHandlerProvider)
           .handleGroup(group, action),
+    );
+  } else if (NotificationPayload.isTest(response.payload)) {
+    await _runInBackground(
+      (container) =>
+          container.read(notificationActionHandlerProvider).handleTest(action),
     );
   }
 }

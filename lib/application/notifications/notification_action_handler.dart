@@ -37,12 +37,11 @@ class NotificationActionHandler {
 
   /// "Correct" and "Again" record the answer, revealed or not, and replace
   /// the notification with what the answer did. "Reveal" shows the answer,
-  /// the face opposite
-  /// [askedSide], in its place and records nothing. A typed answer counts
-  /// as "Correct" when it matches the expected one and as "Again"
-  /// otherwise, then shows its verdict with an "OK" button. Answering an
-  /// extra reminder is a bonus review. A card deleted meanwhile only closes
-  /// the notification.
+  /// the face opposite [askedSide], in its place and "Hide" asks the card
+  /// again; neither records anything. A typed answer counts as "Correct"
+  /// when it matches the expected one and as "Again" otherwise, then shows
+  /// its verdict. Answering an extra reminder is a bonus review. A card
+  /// deleted meanwhile only closes the notification.
   ///
   /// In a grouped reminder whose cards are chained, the next card replaces
   /// the one answered, or the verdict once acknowledged.
@@ -55,20 +54,54 @@ class NotificationActionHandler {
     final card = await _cards.findCard(key.cardId);
     if (action == NotificationAction.acknowledge || card == null) {
       await _close(key);
-    } else if (action == NotificationAction.reveal) {
-      await _reveal(key, card, askedSide);
+    } else if (action == NotificationAction.reveal ||
+        action == NotificationAction.hide) {
+      await _showAgain(
+        key,
+        card,
+        askedSide,
+        isRevealed: action == NotificationAction.reveal,
+      );
     } else if (action == NotificationAction.answer) {
       await _answerTyped(key, card, input ?? '', askedSide);
     } else {
+      final outcome = action == NotificationAction.correct
+          ? ReviewOutcome.correct
+          : ReviewOutcome.again;
       final result = await _reviews.answer(
         key.cardId,
-        action == NotificationAction.correct
-            ? ReviewOutcome.correct
-            : ReviewOutcome.again,
+        outcome,
         source: ReviewSource.notification,
         forceBonus: key.isExtraReminder,
       );
-      await _confirm(key, result.schedule);
+      await _confirm(key, outcome, result.schedule);
+    }
+  }
+
+  /// The buttons of the test notification of the onboarding, tied to no
+  /// card: "Reveal" and "Hide" as on a card; "Correct" and "Again" show
+  /// what the answer would do to a card at its first step, with the delays
+  /// of the welcome screen, and record nothing.
+  Future<void> handleTest(NotificationAction action) async {
+    final now = _clock();
+    if (action == NotificationAction.reveal ||
+        action == NotificationAction.hide) {
+      await _presenter.showTestPrompt(
+        isRevealed: action == NotificationAction.reveal,
+        alert: false,
+      );
+    } else if (action == NotificationAction.correct) {
+      await _presenter.showTestConfirmation(
+        ReviewOutcome.correct,
+        dueAt: now.add(const Duration(days: 2)),
+        answeredAt: now,
+      );
+    } else if (action == NotificationAction.again) {
+      await _presenter.showTestConfirmation(
+        ReviewOutcome.again,
+        dueAt: now.add(const Duration(days: 1)),
+        answeredAt: now,
+      );
     }
   }
 
@@ -82,11 +115,13 @@ class NotificationActionHandler {
     }
   }
 
-  Future<void> _reveal(
+  /// The card in place, silently, its answer shown or not.
+  Future<void> _showAgain(
     ReviewNotificationKey key,
     Flashcard card,
-    CardSide askedSide,
-  ) async {
+    CardSide askedSide, {
+    required bool isRevealed,
+  }) async {
     final group = await _groups.find(card.groupId);
     if (group == null) {
       await _close(key);
@@ -102,7 +137,8 @@ class NotificationActionHandler {
         chainRemaining: chain == null
             ? null
             : await _groupedReminders.remaining(chain),
-        isRevealed: true,
+        isRevealed: isRevealed,
+        alert: false,
       ),
     );
   }
@@ -123,12 +159,7 @@ class NotificationActionHandler {
     await _presenter.showVerdict(
       TypedAnswerVerdict(
         key: key,
-        askedSide: askedSide,
-        groupName: (await _groups.find(card.groupId))?.name ?? '',
-        prompt: card.promptFor(askedSide).text ?? '',
         answer: card.answerFor(askedSide).text ?? '',
-        answerImage: card.answerFor(askedSide).imagePath,
-        typed: typed,
         match: answered.match,
         result: answered.result,
         answeredAt: _clock(),
@@ -140,13 +171,19 @@ class NotificationActionHandler {
   /// way to the next one.
   Future<void> _confirm(
     ReviewNotificationKey key,
+    ReviewOutcome outcome,
     CardSchedule? schedule,
   ) async {
     if (schedule == null || key.chain != null) {
       await _close(key);
     } else {
       await _presenter.showConfirmation(
-        AnswerConfirmation(key: key, schedule: schedule, answeredAt: _clock()),
+        AnswerConfirmation(
+          key: key,
+          outcome: outcome,
+          schedule: schedule,
+          answeredAt: _clock(),
+        ),
       );
     }
   }

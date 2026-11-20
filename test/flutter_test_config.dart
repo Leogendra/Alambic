@@ -4,9 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Loads the real fonts so golden images show readable text instead of the
-/// default test font made of boxes.
+/// default test font made of boxes, and fails a widget test stuck for 30 s
+/// instead of the 10 min of flutter_test: the longest takes about 3 s.
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
-  TestWidgetsFlutterBinding.ensureInitialized();
+  final binding = TestWidgetsFlutterBinding.ensureInitialized();
+  if (binding is AutomatedTestWidgetsFlutterBinding) {
+    binding.defaultTestTimeout = const Timeout(Duration(seconds: 30));
+  }
   await _loadFont('DM Sans', const [
     'assets/fonts/DMSans-Regular.ttf',
     'assets/fonts/DMSans-Medium.ttf',

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Colour tokens of the "hybride à plat" theme, beyond what [ColorScheme]
+/// Colour tokens of the "flat hybrid" theme, beyond what [ColorScheme]
 /// carries. Depth comes from steps of colour and 1 px borders, never from
 /// shadows; the contrast rules they must keep are checked by
 /// `test/app/theme/theme_contrast_test.dart`.

@@ -6,7 +6,7 @@ import 'due_labels.dart';
 
 /// What a typed answer gave, shared by the session and the notifications.
 extension TypedAnswerLabels on AppLocalizations {
-  /// "« canbera » accepté, 1 faute", "« Quito » refusé".
+  /// "\"canbera\" accepted, 1 typo", "\"Quito\" refused".
   String typedAnswerVerdict(String typed, TypedAnswerMatch match) =>
       switch (match) {
         TypedAnswerMatch.exact => typedAnswerAccepted(typed),
@@ -14,8 +14,8 @@ extension TypedAnswerLabels on AppLocalizations {
         TypedAnswerMatch.wrong => typedAnswerRefused(typed),
       };
 
-  /// What the answer did to the schedule: "prochain rappel demain",
-  /// "Compté raté · revue demain"; [schedule] is `null` for a bonus review.
+  /// What the answer did to the schedule: "next reminder tomorrow",
+  /// "Counted as missed · review tomorrow"; [schedule] is `null` for a bonus review.
   String typedAnswerEffect(
     CardSchedule? schedule, {
     required bool accepted,

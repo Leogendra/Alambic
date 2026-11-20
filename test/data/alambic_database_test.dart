@@ -18,7 +18,7 @@ void main() {
   tearDown(() => database.close());
 
   test(
-    'a new database ships Standard and Intensif, Standard as global',
+    'a new database ships Standard and Intensive, Standard as global',
     () async {
       final presets = await database.select(database.presets).get();
       expect(presets.map((preset) => preset.builtInKey), [

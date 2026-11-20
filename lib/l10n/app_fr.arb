@@ -13,53 +13,11 @@
   "commonClose": "Fermer",
   "commonOk": "OK",
   "intervalMinutes": "{amount} min",
-  "@intervalMinutes": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
   "intervalHours": "{amount} h",
-  "@intervalHours": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
   "intervalDays": "{amount} j",
-  "@intervalDays": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
   "intervalWeeks": "{amount} sem",
-  "@intervalWeeks": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
   "intervalMonths": "{amount} mois",
-  "@intervalMonths": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
   "intervalYears": "{amount, plural, =1{1 an} other{{amount} ans}}",
-  "@intervalYears": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
   "unitMinutes": "minutes",
   "unitHours": "heures",
   "unitDays": "jours",
@@ -72,52 +30,15 @@
   "settingsNotificationsSection": "Notifications",
   "settingsGuards": "Garde-fous",
   "settingsGuardsSummary": "{cap} par jour max · silence {start} à {end}",
-  "@settingsGuardsSummary": {
-    "placeholders": {
-      "cap": {
-        "type": "int"
-      },
-      "start": {
-        "type": "String"
-      },
-      "end": {
-        "type": "String"
-      }
-    }
-  },
   "settingsGuardsSummaryNoQuiet": "{cap} par jour max",
-  "@settingsGuardsSummaryNoQuiet": {
-    "placeholders": {
-      "cap": {
-        "type": "int"
-      }
-    }
-  },
   "guardsTitle": "Garde-fous",
   "guardsDailyCap": "Plafond par jour",
   "guardsDailyCapHint": "Notifs de cartes, tous groupes",
   "guardsDecrease": "Diminuer",
   "guardsIncrease": "Augmenter",
   "guardsTomorrow": "{count, plural, =0{Demain : aucune carte due} =1{Demain : 1 carte due} other{Demain : {count} cartes dues}}",
-  "@guardsTomorrow": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "guardsTomorrowAllSent": "Toutes notifiées.",
   "guardsTomorrowSplit": "{sent} notifiées. {postponed} décalées au lendemain : les intervalles les plus longs passent en dernier.",
-  "@guardsTomorrowSplit": {
-    "placeholders": {
-      "sent": {
-        "type": "int"
-      },
-      "postponed": {
-        "type": "int"
-      }
-    }
-  },
   "guardsQuietHours": "Ne pas déranger",
   "guardsQuietHoursHint": "Notifs décalées à la fin de la plage",
   "guardsQuietFrom": "De",
@@ -130,73 +51,18 @@
   "presetEdit": "Modifier",
   "presetMakeDefault": "Par défaut",
   "presetActions": "Actions du preset {name}",
-  "@presetActions": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "presetFailureSummary": "En cas d'échec : {behavior}",
-  "@presetFailureSummary": {
-    "placeholders": {
-      "behavior": {
-        "type": "String"
-      }
-    }
-  },
   "presetFailureStepBackShort": "recule d'un cran",
   "presetFailureRestartShort": "retour au début",
   "presetFailureStayShort": "reste au même cran",
   "presetDeleteConfirmTitle": "Supprimer « {name} » ?",
-  "@presetDeleteConfirmTitle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "presetDeleteConfirmBody": "{count, plural, =0{Aucun groupe ne l'utilise.} =1{Un groupe l'utilise : il passera sur le preset par défaut, {defaultName}, en gardant ses crans et ses échéances.} other{{count} groupes l'utilisent : ils passeront sur le preset par défaut, {defaultName}, en gardant leurs crans et leurs échéances.}}",
-  "@presetDeleteConfirmBody": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "defaultName": {
-        "type": "String"
-      }
-    }
-  },
   "presetGlobalBadge": "Par défaut",
   "scheduleRangeValue": "{start} à {end}",
-  "@scheduleRangeValue": {
-    "placeholders": {
-      "start": {
-        "type": "String"
-      },
-      "end": {
-        "type": "String"
-      }
-    }
-  },
   "presetNewName": "Nouveau preset",
   "presetCopyName": "{name} (copie)",
-  "@presetCopyName": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "presetDuplicate": "Dupliquer",
   "presetDuplicated": "Copie créée : {name}",
-  "@presetDuplicated": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "presetEditorName": "Nom",
   "presetEditorSteps": "Crans",
   "presetEditorAddStep": "Cran",
@@ -232,13 +98,6 @@
   "presetEditorStepUnit": "Unité",
   "presetPickerTitle": "Choisir un preset",
   "presetPickerInherit": "Hériter : {name}",
-  "@presetPickerInherit": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "cardEditorNewTitle": "Nouvelle carte",
   "cardEditorEditTitle": "Modifier la carte",
   "cardEditorCreate": "Créer",
@@ -250,13 +109,6 @@
   "cardGroupNone": "Choisir",
   "cardPreset": "Preset",
   "cardPresetInheritedGlobal": "Preset global : {name}",
-  "@cardPresetInheritedGlobal": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "cardIncomplete": "Le recto et le verso ont chacun besoin d'un texte ou d'une image.",
   "cardGroupMissing": "Choisis un groupe pour cette carte.",
   "groupPickerTitle": "Ranger dans un groupe",
@@ -264,49 +116,14 @@
   "groupsSearchHint": "Rechercher dans les cartes",
   "groupsNoResult": "Aucune carte trouvée",
   "cardCount": "{count, plural, =0{aucune carte} =1{1 carte} other{{count} cartes}}",
-  "@cardCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "groupLineDistilling": "{cards} · distillation",
-  "@groupLineDistilling": {
-    "placeholders": {
-      "cards": {
-        "type": "String"
-      }
-    }
-  },
   "newGroupTitle": "Nouveau groupe",
   "groupNameLabel": "Nom",
   "groupCardsSection": "Cartes",
   "groupOngoingSection": "En cours · {count}",
-  "@groupOngoingSection": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "groupWaitingSection": "En attente · {count}",
-  "@groupWaitingSection": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "groupNextCard": "prochaine",
   "groupAcquiredSection": "Acquises · {count}",
-  "@groupAcquiredSection": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "groupReviewAll": "Tout réviser",
   "groupEmpty": "Aucune carte. Ajoute-en avec le bouton + ou l'ajout en masse.",
   "groupSettingsTitle": "Réglages du groupe",
@@ -324,31 +141,10 @@
   "groupAcquired": "Acquise",
   "groupRemanenceEvery": "Revient tous les",
   "groupRemanenceEffect": "La carte reste dans le cycle et revient toujours au bout de {interval}.",
-  "@groupRemanenceEffect": {
-    "placeholders": {
-      "interval": {
-        "type": "String"
-      }
-    }
-  },
   "groupAcquiredEffect": "Une fois le dernier cran réussi, la carte est acquise : elle ne revient plus.",
   "groupDelete": "Supprimer le groupe",
   "groupDeleteConfirmTitle": "Supprimer « {name} » ?",
-  "@groupDeleteConfirmTitle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "groupDeleteConfirmBody": "{count, plural, =0{Le groupe est vide.} =1{Sa carte et son historique seront supprimés.} other{Ses {count} cartes et leur historique seront supprimés.}}",
-  "@groupDeleteConfirmBody": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "groupSettingsTooltip": "Réglages du groupe",
   "cardImageOnly": "Image",
   "cardAddImage": "Image",
@@ -358,82 +154,23 @@
   "cardStatusAcquired": "acquise",
   "dueNow": "Due",
   "dueAtTime": "à {time}",
-  "@dueAtTime": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
   "dueTomorrow": "demain",
   "dueInDays": "dans {days} j",
-  "@dueInDays": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
   "bulkTitle": "Ajout en masse",
   "bulkSeparator": "Séparateur",
   "bulkSeparatorHint": "Entre recto et verso, sur chaque ligne",
   "bulkTextHint": "Une carte par ligne :\nrecto ; verso",
   "bulkReady": "{count, plural, =0{Aucune carte prête} =1{1 carte prête} other{{count} cartes prêtes}}",
-  "@bulkReady": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "bulkErrorMissingSeparator": "Ligne {line} ignorée : pas de « {separator} »",
-  "@bulkErrorMissingSeparator": {
-    "placeholders": {
-      "line": {
-        "type": "int"
-      },
-      "separator": {
-        "type": "String"
-      }
-    }
-  },
   "bulkErrorEmptyFace": "Ligne {line} ignorée : recto ou verso vide",
-  "@bulkErrorEmptyFace": {
-    "placeholders": {
-      "line": {
-        "type": "int"
-      }
-    }
-  },
   "bulkAddButton": "{count, plural, =0{Ajouter} =1{Ajouter 1 carte} other{Ajouter {count} cartes}}",
-  "@bulkAddButton": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "bulkAdded": "{count, plural, =1{1 carte ajoutée} other{{count} cartes ajoutées}}",
-  "@bulkAdded": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "bulkTooltip": "Ajout en masse",
   "bulkOrder": "Ordre",
   "bulkOrderListed": "Dans l'ordre",
   "bulkOrderShuffled": "Mélanger",
   "bulkFirst": "En premier",
   "bulkAfterPending": "{count, plural, =1{après la carte déjà en attente} other{après les {count} cartes déjà en attente}}",
-  "@bulkAfterPending": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reviewCorrect": "Correct",
   "reviewAgain": "À revoir",
   "sessionQuit": "Quitter la session",
@@ -442,64 +179,20 @@
   "sessionNext": "Suivant",
   "sessionSubmitAnswer": "Valider la réponse",
   "sessionProgress": "{position} / {total}",
-  "@sessionProgress": {
-    "placeholders": {
-      "position": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
   "sessionReverseBadge": "verso → recto",
-  "answerAcquired": "acquise",
-  "answerNoEffect": "sans effet",
+  "reviewAcquired": "acquise",
+  "reviewNoEffect": "sans effet",
   "sessionFinished": "Session terminée",
   "sessionSummary": "{count, plural, =1{1 carte en {duration}} other{{count} cartes en {duration}}}",
-  "@sessionSummary": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "duration": {
-        "type": "String"
-      }
-    }
-  },
   "sessionCorrectLabel": "correctes",
   "sessionAgainLabel": "à revoir",
   "sessionNextReminder": "Prochain rappel",
   "sessionBackHome": "Retour à l'accueil",
   "sessionReviewMissed": "{count, plural, =1{Revoir la ratée maintenant} other{Revoir les {count} ratées maintenant}}",
-  "@sessionReviewMissed": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "sessionBonusHint": "Révision bonus : les échéances ne bougent pas.",
   "sessionBonusBadge": "Bonus",
   "durationMinutesSeconds": "{minutes} min {seconds}",
-  "@durationMinutesSeconds": {
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      },
-      "seconds": {
-        "type": "String"
-      }
-    }
-  },
   "durationSeconds": "{seconds} s",
-  "@durationSeconds": {
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
   "cardSheetTapToReview": "Touche la carte pour la réviser maintenant.",
   "cardSheetNextReview": "Prochaine révision",
   "cardSheetDueNow": "À réviser maintenant",
@@ -518,39 +211,11 @@
   "cardSheetDelete": "Supprimer la carte",
   "cardSheetDeleteConfirm": "Supprimer cette carte et son historique ?",
   "cardSheetReminder": "Rappel prévu {date}",
-  "@cardSheetReminder": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "cardSheetReminderRemove": "Retirer le rappel",
-  "historyBonus": "bonus",
-  "historyTo": "→ {interval}",
-  "@historyTo": {
-    "placeholders": {
-      "interval": {
-        "type": "String"
-      }
-    }
-  },
-  "historyBackTo": "recule à {interval}",
-  "@historyBackTo": {
-    "placeholders": {
-      "interval": {
-        "type": "String"
-      }
-    }
-  },
+  "cardSheetHistoryBonus": "bonus",
+  "cardSheetHistoryTo": "→ {interval}",
+  "cardSheetHistoryBackTo": "recule à {interval}",
   "reviewSoonBody": "Un rappel en plus pour « {front} ». La réponse est notée dans l'historique mais ne change pas le planning.",
-  "@reviewSoonBody": {
-    "placeholders": {
-      "front": {
-        "type": "String"
-      }
-    }
-  },
   "reviewSoonDay": "Jour",
   "reviewSoonTomorrow": "Demain",
   "reviewSoonDayAfter": "Après-demain",
@@ -559,13 +224,6 @@
   "reviewSoonTime": "Heure",
   "reviewSoonAdd": "Ajouter le rappel",
   "reviewSoonAdded": "Rappel ajouté : {date}",
-  "@reviewSoonAdded": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "reviewSoonPast": "Ce moment est déjà passé.",
   "homeTitle": "À venir",
   "homeToday": "Aujourd'hui",
@@ -573,42 +231,11 @@
   "homeTodayEmpty": "Rien de prévu aujourd'hui.",
   "homeLate": "en retard",
   "homeDelayHours": "{count}H",
-  "@homeDelayHours": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "homeDelayDays": "{count}J",
-  "@homeDelayDays": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "homeComingMonth": "Mois à venir",
   "homeComingYear": "Année à venir",
   "homeArrivals": "{group} : {count, plural, =1{1 nouvelle carte} other{{count} nouvelles cartes}}",
-  "@homeArrivals": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "pausedSince": "En pause depuis le {date}",
-  "@pausedSince": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "pausedHint": "Aucune nouvelle carte de distillation. Les rappels continuent.",
   "pauseResume": "Reprendre",
   "pauseGlobal": "Pause globale",
@@ -618,108 +245,25 @@
   "pauseAllConfirmBody": "Aucun groupe ne reçoit de nouvelle carte jusqu'à la reprise. Les rappels et leurs notifs continuent.",
   "pauseAllConfirm": "Mettre en pause",
   "groupLinePaused": "{cards} · En pause",
-  "@groupLinePaused": {
-    "placeholders": {
-      "cards": {
-        "type": "String"
-      }
-    }
-  },
   "homeDuration": "Environ {minutes} min",
-  "@homeDuration": {
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
   "notificationChannelName": "Révisions",
   "notificationChannelDescription": "Les cartes à réviser, avec leurs boutons de réponse.",
   "notificationImagePrompt": "Que montre cette image ?",
   "notificationAnswerImage": "Réponse en image",
   "notificationExtra": "Réviser bientôt · sans effet sur le planning",
   "notificationAnswer": "Réponse : {answer}",
-  "@notificationAnswer": {
-    "placeholders": {
-      "answer": {
-        "type": "String"
-      }
-    }
-  },
   "typedAnswerBonus": "Révision bonus · sans effet",
   "notificationAnswerButton": "Répondre",
   "typedAnswerField": "Ta réponse",
   "typedAnswerAccepted": "« {typed} » accepté",
-  "@typedAnswerAccepted": {
-    "placeholders": {
-      "typed": {
-        "type": "String"
-      }
-    }
-  },
   "typedAnswerAcceptedTypo": "« {typed} » accepté, 1 faute",
-  "@typedAnswerAcceptedTypo": {
-    "placeholders": {
-      "typed": {
-        "type": "String"
-      }
-    }
-  },
   "typedAnswerRefused": "« {typed} » refusé",
-  "@typedAnswerRefused": {
-    "placeholders": {
-      "typed": {
-        "type": "String"
-      }
-    }
-  },
   "typedAnswerNextReview": "prochain rappel {when}",
-  "@typedAnswerNextReview": {
-    "placeholders": {
-      "when": {
-        "type": "String"
-      }
-    }
-  },
   "typedAnswerFailed": "Compté raté · revue {when}",
-  "@typedAnswerFailed": {
-    "placeholders": {
-      "when": {
-        "type": "String"
-      }
-    }
-  },
   "typedAnswerAcquired": "carte acquise",
   "notificationGroupTitle": "{group} : {count, plural, =1{1 carte à réviser} other{{count} cartes à réviser}}",
-  "@notificationGroupTitle": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "notificationChainRemaining": "{group} · {count} à réviser",
-  "@notificationChainRemaining": {
-    "placeholders": {
-      "group": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "notificationDigestTitle": "{count, plural, =1{1 carte à réviser} other{{count} cartes à réviser}}",
-  "@notificationDigestTitle": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "notificationStartHere": "Commencer ici",
   "notificationOpenApp": "Ouvrir l'app",
   "notificationReveal": "Révéler",
@@ -731,27 +275,10 @@
   "distillTitle": "Distiller",
   "distillAdjustTitle": "Régler la distillation",
   "distillIntro": "Les cartes en attente du groupe arrivent au compte-gouttes, à l'heure des rappels ({time}). Chacune suit ensuite le preset {preset}.",
-  "@distillIntro": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      },
-      "preset": {
-        "type": "String"
-      }
-    }
-  },
   "distillRhythm": "Rythme",
   "distillCards": "Cartes",
   "distillEvery": "Tous les",
   "distillDays": "{count} j",
-  "@distillDays": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "distillFewerCards": "Moins de cartes",
   "distillMoreCards": "Plus de cartes",
   "distillFewerDays": "Moins de jours",
@@ -759,16 +286,6 @@
   "distillPrioritizeReviews": "Prioriser les révisions",
   "distillPrioritizeReviewsHint": "Un jour de lot, chaque carte du groupe à réviser prend la place d'une nouvelle carte.",
   "distillEstimate": "{count, plural, =1{1 carte · arrivée vers le {date}} other{{count} cartes · dernière arrivée vers le {date}}}",
-  "@distillEstimate": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "distillNothing": "Aucune carte en attente. Les cartes ajoutées au groupe arriveront à ce rythme.",
   "distillActivate": "Activer la distillation",
   "groupDistillationSection": "Distillation",
@@ -777,47 +294,12 @@
   "distillPause": "Mettre en pause",
   "distillPauseHint": "En pause, aucune nouvelle carte ne sort ; les rappels continuent.",
   "distillPausedHint": "En pause depuis le {date} : aucune nouvelle carte ne sort, les rappels continuent.",
-  "@distillPausedHint": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "distillPausedTag": "en pause",
   "distillationNoArrival": "aucune arrivée prévue",
   "distillationWaiting": "{count, plural, =0{Aucune carte en attente} =1{1 carte en attente} other{{count} cartes en attente}}",
-  "@distillationWaiting": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "distillationCardsPer": "{count, plural, =1{1 carte} other{{count} cartes}}",
-  "@distillationCardsPer": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "distillationEveryDays": "{count, plural, =1{par jour} other{tous les {count} jours}}",
-  "@distillationEveryDays": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "distillationLastArrival": "dernière vers le {date}",
-  "@distillationLastArrival": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
   "settingsDataSection": "Données",
   "backupExport": "Exporter les données",
   "backupExportHint": "Un fichier .zip avec les cartes, l'historique, les réglages et les images",
@@ -826,16 +308,6 @@
   "backupImportHint": "Remplace toutes les données actuelles par celles d'un fichier .zip",
   "backupImportConfirmTitle": "Remplacer toutes les données ?",
   "backupImportConfirmBody": "Ce fichier contient {cards, plural, =1{1 carte} other{{cards} cartes}} dans {groups, plural, =1{1 groupe} other{{groups} groupes}}. Toutes les données actuelles (cartes, historique, presets, réglages) seront remplacées, sans retour possible.",
-  "@backupImportConfirmBody": {
-    "placeholders": {
-      "cards": {
-        "type": "int"
-      },
-      "groups": {
-        "type": "int"
-      }
-    }
-  },
   "backupImportConfirm": "Remplacer",
   "backupImportDone": "Données importées",
   "backupNotABackup": "Ce fichier n'est pas une sauvegarde d'Alambic.",
@@ -860,7 +332,7 @@
   "onboardingSampleTitle": "Un groupe pour commencer",
   "onboardingSampleBody": "Ses cartes attendent. Distille-le, et elles arriveront en notification, une par jour.",
   "onboardingSampleFirstCard": "Première carte",
-  "sampleGroupName": "Alphabet OTAN",
+  "onboardingSampleGroupName": "Alphabet OTAN",
   "onboardingSkip": "Passer",
   "presetNameStandard": "Standard",
   "presetNameIntensive": "Intensif",

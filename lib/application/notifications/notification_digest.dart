@@ -1,5 +1,5 @@
 /// The single notification replacing the notifications of a moment beyond
-/// the auto grouping threshold: "12 cartes à réviser".
+/// the auto grouping threshold: "12 cards to review".
 class NotificationDigest {
   const NotificationDigest({
     required this.count,

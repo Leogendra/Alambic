@@ -1,6 +1,6 @@
 import 'interval_unit.dart';
 
-/// One step of a preset sequence, such as "10 min" or "3 mois".
+/// One step of a preset sequence, such as "10 min" or "3 mo".
 class PresetInterval {
   const PresetInterval(this.amount, this.unit) : assert(amount > 0);
 

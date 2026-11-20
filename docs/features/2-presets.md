@@ -1,6 +1,6 @@
 # Feature 2 — Presets
 
-Status: implemented (2026-11-17)
+Status: implemented (2026-11-20)
 
 ## Goal
 
@@ -13,7 +13,7 @@ A [preset](../lexicon.md#preset) gathers the rhythm of the reviews of a card: in
 The database is created with two presets:
 
 - **Standard**: 1 d, 2 d, 1 wk, 1 mo, 3 mo, 6 mo. It is the initial global preset.
-- **Intensive** (*Intensif*): 10 min, 1 h, 1 d, 3 d, 1 wk.
+- **Intensive**: 10 min, 1 h, 1 d, 3 d, 1 wk.
 
 Both step back one step on failure.
 

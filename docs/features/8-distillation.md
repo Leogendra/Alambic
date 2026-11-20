@@ -1,6 +1,6 @@
 # Feature 8 — Distillation
 
-Status: implemented (2026-11-18)
+Status: implemented (2026-11-20)
 
 ## Goal
 
@@ -48,9 +48,9 @@ Resuming, from either pause, processes the current day if it was not processed y
 
 ### Screens
 
-While the group does not distill, its page shows a large "Distill" button ([Feature 4](4-groups.md#group-page)). Once activated, a "Distillation" section takes its place: a "Distillation" tag, or "En pause depuis le 3 nov." with a pause icon, a settings button that opens the "Distill" screen, the rhythm ("1 card per day"), the waiting cards ("5 cards waiting") and the estimated day of the last arrival ("dernière vers le 15 nov."), or "aucune arrivée prévue" while cards wait and no arrival is planned (paused, or during the global pause).
+While the group does not distill, its page shows a large "Distill" button ([Feature 4](4-groups.md#group-page)). Once activated, a "Distillation" section takes its place: a "Distillation" tag, or "Paused since Nov 3" with a pause icon, a settings button that opens the "Distill" screen, the rhythm ("1 card a day"), the waiting cards ("5 cards waiting") and the estimated day of the last arrival ("last around Nov 15"), or "no arrival planned" while cards wait and no arrival is planned (paused, or during the global pause).
 
-The "Distill" screen shows the [schedule](../lexicon.md#schedule) of the app and the preset the cards will follow, then the settings: "N cards every X days" (1 / 1 by default) and "Prioritize reviews" (on, explaining that each card due takes the place of a new card). An estimate of the last arrival follows, with the settings being chosen ("44 cartes · dernière arrivée vers le 23 décembre", see [Estimates](#estimates)), or a line saying no card waits. It ends on "Start distilling"; opened from the group page, it is titled "Adjust the distillation", starts from the current settings and ends on "Save". There, a "Pause" or "Resume" button follows the settings, with a line saying that no new card comes out while the reminders go on ("En pause depuis le 3 novembre : …" while paused); a paused distillation shows "13 cartes en attente · en pause" instead of its estimate, and so does any distillation during the global pause.
+The "Distill" screen shows the [schedule](../lexicon.md#schedule) of the app and the preset the cards will follow, then the settings: "N cards every X days" (1 / 1 by default) and "Prioritize reviews" (on, explaining that each card due takes the place of a new card). An estimate of the last arrival follows, with the settings being chosen ("44 cards · last one arrives around December 23", see [Estimates](#estimates)), or a line saying no card waits. It ends on "Start distilling"; opened from the group page, it is titled "Adjust the distillation", starts from the current settings and ends on "Save". There, a "Pause" or "Resume" button follows the settings, with a line saying that no new card comes out while the reminders go on ("Paused since November 3: …" while paused); a paused distillation shows "13 cards waiting · paused" instead of its estimate, and so does any distillation during the global pause.
 
 On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#new-cards)), and count in the totals of the coming month and year.
 

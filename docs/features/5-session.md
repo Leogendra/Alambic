@@ -1,6 +1,6 @@
 # Feature 5 — In-app review session
 
-Status: in progress (2026-11-17)
+Status: in progress (2026-11-20)
 
 ## Goal
 
@@ -33,9 +33,9 @@ The preview shown under the buttons is computed by the same service, with the sa
 
 ### Typed answer
 
-In a group with the [typed answer](../lexicon.md#typed-answer) option, a card whose answer face has text is answered by typing it. A field ("Ta réponse") takes the place of "Show answer", with a send button and a "Reveal" (*Révéler*) link beside it; it takes the focus, so the keyboard opens on each card. A blank answer is not submitted.
+In a group with the [typed answer](../lexicon.md#typed-answer) option, a card whose answer face has text is answered by typing it. A field ("Your answer") takes the place of "Show answer", with a send button and a "Reveal" link beside it; it takes the focus, so the keyboard opens on each card. A blank answer is not submitted.
 
-Once submitted, the answer is compared and recorded at once, Correct when accepted and Again when refused, with the rules of the notifications ([Feature 7](7-notifications.md#typed-answer)). The keyboard closes, the answer shows with the usual reveal, and under it the verdict, in blue when accepted and in orange when refused ("« oulan batr » accepté, 1 faute"), then what the answer did ("prochain rappel demain"). "Next" (*Suivant*) takes the place of the field and moves to the next card.
+Once submitted, the answer is compared and recorded at once, Correct when accepted and Again when refused, with the rules of the notifications ([Feature 7](7-notifications.md#typed-answer)). The keyboard closes, the answer shows with the usual reveal, and under it the verdict, in blue when accepted and in orange when refused (`"ulanbaatar" accepted, 1 typo`), then what the answer did ("next reminder tomorrow"). "Next" takes the place of the field and moves to the next card.
 
 "Reveal", or a tap on the card, reveals the answer as for any card, with "Again" and "Correct": nothing is typed nor recorded until one of them is pressed.
 

@@ -1,6 +1,6 @@
 # Feature 3 — Cards
 
-Status: in progress (2026-11-17)
+Status: in progress (2026-11-20)
 
 ## Goal
 
@@ -40,7 +40,7 @@ Reading the lines is a domain rule (`BulkCardParser`), rerun at each keystroke:
 
 The screen announces the number of ready cards and lists the skipped lines before adding.
 
-Under them, the order of the batch: "In order" (by default), the top line first, or "Shuffle". Shuffling draws an order when it is chosen, and choosing it again draws a new one; it only mixes the batch, never the cards already waiting. A "First" box shows the card of the batch that will come out first ("Capitale du Chili → Santiago"), with "after the 2 cards already waiting" when the queue of the group is not empty. It follows every keystroke, separator and order change, and is hidden while no line is valid.
+Under them, the order of the batch: "In order" (by default), the top line first, or "Shuffle". Shuffling draws an order when it is chosen, and choosing it again draws a new one; it only mixes the batch, never the cards already waiting. A "First" box shows the card of the batch that will come out first ("Capital of Chile → Santiago"), with "after the 2 cards already waiting" when the queue of the group is not empty. It follows every keystroke, separator and order change, and is hidden while no line is valid.
 
 Cards are created in a single transaction, in the order shown, at the end of the group's queue; they follow their group's preset.
 

@@ -1,6 +1,6 @@
 # Feature 4 — Groups
 
-Status: in progress (2026-11-18)
+Status: in progress (2026-11-20)
 
 ## Goal
 
@@ -12,7 +12,7 @@ Every card is in a group: a group is created from the Groups tab, or on the fly 
 
 ### Groups tab
 
-The tab shows a search field, then the groups in alphabetical order, one row each in a single panel. Each row gives the name and the number of cards, followed by "distillation" once the group's distillation is activated ("48 cartes · distillation"), and a badge with the number of [due](../lexicon.md#due) cards when there are any. While its distillation is paused, the row is greyed and reads "En pause" instead ("64 cartes · En pause"), with a pause icon when no card is due. "New" creates a group after asking for its name.
+The tab shows a search field, then the groups in alphabetical order, one row each in a single panel. Each row gives the name and the number of cards, followed by "distillation" once the group's distillation is activated ("48 cards · distillation"), and a badge with the number of [due](../lexicon.md#due) cards when there are any. While its distillation is paused, the row is greyed and reads "Paused" instead ("64 cards · Paused"), with a pause icon when no card is due. "New" creates a group after asking for its name.
 
 As soon as some text is typed, the group list gives way to the cards whose front or back contains that text, case-insensitively, across all groups (at most 100 results).
 
@@ -22,10 +22,10 @@ The page of a group is titled with its name; from top to bottom:
 
 - the large "Distill" button while the group does not distill, with a line explaining it, then, once activated, the tracking of its distillation in its place ([Feature 8](8-distillation.md#screens));
 - the "Enable the back" / "Disable the back" button, with a line saying how cards are asked;
-- the cards, under a "Cards" title (*Cartes*) with a small "Review all" button at its right, shown while the group has cards in progress or waiting. They come in three sections, each under a small title with its number of cards ("En cours · 4"), left out when empty. Each card shows where it stands ([Feature 3](3-cards.md#where-a-card-stands)):
-  - "In progress · N" (*En cours*): the introduced cards, active or [remanent](../lexicon.md#remanence), soonest due first; the suspended ones stay there, marked "suspended", at the end;
-  - "Waiting · N" (*En attente*): the [queue](../lexicon.md#queue), in its order, suspended cards in their place. The first card that is not suspended, the next one the distillation introduces, reads "next" (*prochaine*) in accent instead of "waiting";
-  - "Learned · N" (*Acquises*): the [acquired](../lexicon.md#acquired) cards, folded by default; touching its title unfolds or folds it.
+- the cards, under a "Cards" title with a small "Review all" button at its right, shown while the group has cards in progress or waiting. They come in three sections, each under a small title with its number of cards ("In progress · 4"), left out when empty. Each card shows where it stands ([Feature 3](3-cards.md#where-a-card-stands)):
+  - "In progress · N": the introduced cards, active or [remanent](../lexicon.md#remanence), soonest due first; the suspended ones stay there, marked "suspended", at the end;
+  - "Waiting · N": the [queue](../lexicon.md#queue), in its order, suspended cards in their place. The first card that is not suspended, the next one the distillation introduces, reads "next" in accent instead of "waiting";
+  - "Learned · N": the [acquired](../lexicon.md#acquired) cards, folded by default; touching its title unfolds or folds it.
 
 The "+" button creates a card directly in the group, and the toolbar opens the bulk add and the group settings.
 
@@ -52,7 +52,7 @@ A group carries two more options, set in its settings:
 
 A group's settings are, from top to bottom: its name; its preset, picked from the preset list or inherited from the global preset; what comes after the last step; the typed answer and the back option, as two switches; its deletion. A group has no pause of its own: only its distillation is paused ([Feature 8](8-distillation.md#pause)). The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
 
-"After the last step" is a segmented control, "Remanence" / "Learned" (*Rémanence* / *Acquise*). With remanence, a second one picks its interval (3 months, 6 months, 1 year). A line under them says what the choice does: the interval the cards will actually come back at, which is the last step of the preset when it is longer than the one chosen, or that an acquired card never comes back. Every change is saved at once; switching to remanence sends the acquired cards of the group back into it.
+"After the last step" is a segmented control, "Remanence" / "Learned". With remanence, a second one picks its interval (3 months, 6 months, 1 year). A line under them says what the choice does: the interval the cards will actually come back at, which is the last step of the preset when it is longer than the one chosen, or that an acquired card never comes back. Every change is saved at once; switching to remanence sends the acquired cards of the group back into it.
 
 Deleting a group asks for confirmation, announcing how many cards go with it, then deletes the group with its cards, their history and its distillation.
 

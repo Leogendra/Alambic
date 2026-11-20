@@ -18,7 +18,11 @@ class SampleGroupPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final cards = ref.watch(sampleCardsProvider).value;
+    final cards = ref
+        .watch(
+          sampleCardsProvider(Localizations.localeOf(context).languageCode),
+        )
+        .value;
     return OnboardingPage(
       step: 2,
       title: strings.onboardingSampleTitle,

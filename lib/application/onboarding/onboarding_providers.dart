@@ -19,7 +19,8 @@ final sampleGroupServiceProvider = Provider(
   ),
 );
 
-/// The cards of the sample group, shown before it is created.
-final sampleCardsProvider = FutureProvider<List<BulkCardDraft>>(
-  (ref) => ref.watch(sampleGroupServiceProvider).cards(),
+/// The cards of the sample group in a language, shown before it is created.
+final sampleCardsProvider = FutureProvider.family<List<BulkCardDraft>, String>(
+  (ref, languageCode) =>
+      ref.watch(sampleGroupServiceProvider).cards(languageCode),
 );

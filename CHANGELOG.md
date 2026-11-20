@@ -45,7 +45,8 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - In a session, the top half of the card no longer shrinks or greys at the reveal: the answer fades in below it with a short animation and a light vibration, shown at once when the phone reduces animations. "Show answer" is the only button before the reveal, in the place of the answer buttons, and a bonus review no longer shows "no effect" under them.
 - Touching a notification opens a review session on its card, or on the due cards of its group, then on every due card, instead of opening Home or the group page.
 - A notification that could not arrive on time, the phone being off, arrives when it is turned back on, however late, instead of being dropped after an hour; during the quiet hours it waits for their end.
-- Again in a notification closes it like Correct, instead of showing the expected answer and the next review: Reveal shows the answer beforehand.
+- Correct and Again in a notification leave, for a few seconds, only when the card comes back ("Next in 3 d"), instead of the expected answer: Reveal shows the answer beforehand.
+- A card notification shows only its group, in the header, the question and, once revealed, the answer alone: no more "back → front", "Review soon · no effect on the schedule" nor "Answer:". After a typed answer, accepted or not, the verdict ends with the next review instead of "Counted as missed".
 - Preset steps can be set in years.
 - The schedule refuses a time range whose end comes before its start.
 - The preset editor says what a missed card does under the failure choice, now named "On failure": one step back, back to start or stay.

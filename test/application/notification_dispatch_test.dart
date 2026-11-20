@@ -147,6 +147,12 @@ void main() {
           .watchHistory(cardId)
           .first;
       expect(history.single.isBonus, isTrue);
+      expect(
+        harness.presenter.prompts.keys,
+        isNot(contains(key)),
+        reason: 'a bonus answer only closes the notification',
+      );
+      expect(harness.presenter.confirmations, isEmpty);
     });
   });
 
@@ -164,7 +170,8 @@ void main() {
     Future<List<ReviewRecord>> history() =>
         ReviewRepository(database).watchHistory(key.cardId).first;
 
-    test('"Correct" records the answer and closes the notification', () async {
+    test('"Correct" records the answer and replaces the notification with '
+        'its next review', () async {
       await press(NotificationAction.correct);
       final record = (await history()).single;
       expect(record.source, ReviewSource.notification);
@@ -172,16 +179,29 @@ void main() {
       expect(record.isBonus, isFalse);
       expect(harness.presenter.prompts.containsKey(key), isFalse);
       expect(harness.presenter.verdicts, isEmpty);
+      expect(
+        harness.presenter.confirmations[key]!.schedule.dueAt,
+        record.dueAtAfter,
+      );
+      expect(
+        await harness.presenter.shownPrompts(),
+        isNot(contains(key)),
+        reason: 'the planner leaves the confirmation alone',
+      );
     });
 
-    test('"Again" records the failure and closes the notification, '
-        'without any result', () async {
+    test('"Again" records the failure and replaces the notification with '
+        'its next review', () async {
       await press(NotificationAction.again);
       expect((await history()).single.outcome, ReviewOutcome.again);
       final card = await CardRepository(database).getCard(key.cardId);
       expect(card.dueAt, DateTime(2026, 11, 11, 12));
       expect(harness.presenter.prompts.containsKey(key), isFalse);
       expect(harness.presenter.verdicts, isEmpty);
+      expect(
+        harness.presenter.confirmations[key]!.schedule.dueAt,
+        DateTime(2026, 11, 11, 12),
+      );
     });
 
     test('"Reveal" shows the answer in place and records nothing', () async {
@@ -203,12 +223,14 @@ void main() {
       expect((await history()).single.outcome, ReviewOutcome.again);
       expect(harness.presenter.prompts.containsKey(key), isFalse);
       expect(harness.presenter.verdicts, isEmpty);
+      expect(harness.presenter.confirmations, contains(key));
     });
 
     test('a card deleted meanwhile only closes the notification', () async {
       await CardRepository(database).deleteCard(key.cardId);
       await press(NotificationAction.correct);
       expect(harness.presenter.prompts.containsKey(key), isFalse);
+      expect(harness.presenter.confirmations, isEmpty);
     });
   });
 

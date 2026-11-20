@@ -1,3 +1,4 @@
+import '../../domain/scheduling/card_schedule.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -21,6 +22,19 @@ extension DueLabels on AppLocalizations {
       return dueInDays(days);
     }
   }
+
+  /// What an answer did, from the delay it gave: "Next in 3 d", "Next at
+  /// 15:17", or "Card learned" for a card left without due date.
+  String nextReviewLabel(
+    CardSchedule schedule, {
+    required DateTime answeredAt,
+    required SchedulingCalendar calendar,
+  }) => switch (schedule.dueAt) {
+    null => nextReviewLearned,
+    final dueAt => nextReview(
+      dueDateLabel(dueAt, now: answeredAt, calendar: calendar),
+    ),
+  };
 
   /// Whole days between two scheduling days, robust to daylight saving.
   static int _daysBetween(DateTime from, DateTime to) =>

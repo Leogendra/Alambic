@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:alambic/application/notifications/answer_confirmation.dart';
 import 'package:alambic/application/notifications/group_reminder.dart';
 import 'package:alambic/application/notifications/group_reminder_key.dart';
 import 'package:alambic/application/notifications/notification_digest.dart';
@@ -49,6 +50,7 @@ void main() {
   }) => TypedAnswerVerdict(
     key: key,
     askedSide: CardSide.front,
+    groupName: 'Capitals',
     prompt: 'Peru',
     answer: 'Lima',
     answerImage: null,
@@ -68,25 +70,53 @@ void main() {
     answeredAt: DateTime(2026, 11, 10, 12, 5),
   );
 
-  test('names the group of the asked card, and nothing of its step', () {
-    expect(texts.promptDetail(prompt()), 'Capitals');
+  test('names the group of the asked card in the header, and nothing else', () {
+    expect(texts.promptHeader(prompt()), 'Capitals');
     expect(
-      texts.promptDetail(prompt(askedSide: CardSide.back)),
-      'back → front · Capitals',
+      texts.promptHeader(prompt(askedSide: CardSide.back)),
+      'Capitals',
+      reason: 'the asked side is not named',
     );
     expect(
-      texts.promptDetail(
+      texts.promptHeader(
         prompt(key: const ReviewNotificationKey(cardId: 7, extraReminderId: 1)),
       ),
-      'Review soon · no effect on the schedule · Capitals',
+      'Capitals',
+      reason: 'an extra reminder is not named',
     );
   });
 
-  test('a face that is an image alone is named as such', () {
+  test('shows the answer alone, a face that is an image alone is named as '
+      'such', () {
     expect(texts.promptTitle('Peru'), 'Peru');
     expect(texts.promptTitle(''), 'What does this image show?');
-    expect(texts.answerLine('Lima'), 'Answer: Lima');
+    expect(texts.answerLine('Lima'), 'Lima');
     expect(texts.answerLine(''), 'Answer in the image');
+  });
+
+  test('after an answer, tells only when the card comes back', () {
+    AnswerConfirmation confirmation(DateTime? dueAt) => AnswerConfirmation(
+      key: key,
+      schedule: CardSchedule(
+        state: dueAt == null ? CardState.completed : CardState.active,
+        step: dueAt == null ? null : 2,
+        dueAt: dueAt,
+      ),
+      answeredAt: DateTime(2026, 11, 10, 12, 5),
+    );
+    expect(
+      texts.confirmation(confirmation(DateTime(2026, 11, 13, 12))),
+      'Next in 3 d',
+    );
+    expect(
+      texts.confirmation(confirmation(DateTime(2026, 11, 11, 12))),
+      'Next tomorrow',
+    );
+    expect(
+      texts.confirmation(confirmation(DateTime(2026, 11, 10, 12, 15))),
+      'Next at 12:15',
+    );
+    expect(texts.confirmation(confirmation(null)), 'Card learned');
   });
 
   test('tells how a typed answer compared, then what it did', () {
@@ -104,7 +134,7 @@ void main() {
           schedule: next,
         ),
       ),
-      '"lma" accepted, 1 typo · next reminder in 3 d',
+      '"lma" accepted, 1 typo · Next in 3 d',
     );
     expect(
       texts.verdict(
@@ -115,19 +145,19 @@ void main() {
           schedule: CardSchedule.acquired,
         ),
       ),
-      '"Lima" accepted · card learned',
+      '"Lima" accepted · Card learned',
     );
     expect(
       texts.verdict(
         verdict(isBonus: false, typed: 'Quito', match: TypedAnswerMatch.wrong),
       ),
-      '"Quito" refused · Counted as missed · review tomorrow',
+      '"Quito" refused · Next tomorrow',
     );
     expect(
       texts.verdict(
         verdict(isBonus: true, typed: 'Lima', match: TypedAnswerMatch.exact),
       ),
-      '"Lima" accepted · Bonus review · no effect',
+      '"Lima" accepted',
     );
   });
 
@@ -149,7 +179,7 @@ void main() {
           ),
         ),
       ),
-      '« lma » accepté, 1 faute · prochain rappel dans 3 j',
+      '« lma » accepté, 1 faute · Prochain dans 3 j',
     );
     expect(
       french.groupReminderTitle(
@@ -295,7 +325,7 @@ void main() {
     expect(texts.groupReminderTitle(reminder), 'Capitals: 5 cards to review');
     expect(texts.groupReminderDetail(reminder), 'About 3 min');
     expect(
-      texts.promptDetail(
+      texts.promptHeader(
         prompt(
           key: const ReviewNotificationKey(
             cardId: 7,

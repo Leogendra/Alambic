@@ -3,13 +3,14 @@ import '../../domain/reviews/typed_answer_match.dart';
 import '../reviews/review_result.dart';
 import 'review_notification_key.dart';
 
-/// Content of a notification updated after a typed answer: the expected
-/// answer, how the typed answer compared with it, and what the answer did
-/// to the schedule.
+/// Content of a notification updated after a typed answer: the card and its
+/// group, the expected answer, how the typed answer compared with it, and
+/// what the answer did to the schedule.
 class TypedAnswerVerdict {
   const TypedAnswerVerdict({
     required this.key,
     required this.askedSide,
+    required this.groupName,
     required this.prompt,
     required this.answer,
     required this.answerImage,
@@ -23,6 +24,7 @@ class TypedAnswerVerdict {
 
   /// Face asked by the notification.
   final CardSide askedSide;
+  final String groupName;
   final String prompt;
   final String answer;
 

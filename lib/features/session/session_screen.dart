@@ -216,7 +216,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
         Text(
           strings.typedAnswerEffect(
             result.isBonus ? null : result.schedule,
-            accepted: answered.match.isAccepted,
             answeredAt: typedAnswer.answeredAt,
             calendar: ref.read(schedulingCalendarProvider),
           ),

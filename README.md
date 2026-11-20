@@ -1,6 +1,6 @@
 # Alambic
 
-A notification-first spaced repetition app for Android: distilate your knowledge by introducing new cards a few at the time. Most reviews happen straight from the notification.
+A notification-first spaced repetition app for Android: distill your knowledge by introducing new cards a few at a time. Most reviews happen straight from the notification.
 
 > **Alpha:** under active development. Features may change or break, and data may be reset between versions.
 
@@ -28,15 +28,15 @@ The release build is signed with the debug key, so it installs over a debug buil
 
 ## Usage example: learning capitals
 
-1. In the Groupes tab, tap "Nouveau" (New) and name the group "Capitals".
-2. In the group, tap "Ajout en masse" (Bulk add) and paste one card per line, front and back separated by `;`:
+1. In the Groups tab, tap "New" and name the group "Capitals".
+2. In the group, tap "Bulk add" in the toolbar and paste one card per line, front and back separated by `;`:
 
    ```text
    Capital of Chile ; Santiago
    Capital of Kenya ; Nairobi
    ```
 
-3. New cards wait until they are started: tap "Tout commencer" (Start all). They arrive at noon (Standard preset), right away if noon has passed, then after 2 days, 1 week, 1 month, 3 months and 6 months as long as they are answered correctly.
+3. New cards wait in the queue of the group until it distills them: tap "Distill", then each card arrives at the reminder time. With the Standard preset, it then comes back after 1 day, 2 days, 1 week, 1 month, 3 months and 6 months as long as it is answered correctly.
 
 ## Development
 

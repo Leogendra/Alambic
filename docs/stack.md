@@ -27,7 +27,7 @@ Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so
 - Dependencies: `flutter pub get`. Translations are regenerated at the same time into `lib/l10n/generated/`, which is not versioned.
 - drift generated code: `dart run build_runner build`. The `*.g.dart` files are versioned so that a fresh clone compiles without this step.
 - Analysis: `flutter analyze`. Formatting: `dart format lib test`.
-- Tests: `flutter test`. Regenerate golden images after an intended visual change: `flutter test --update-goldens`.
+- Tests: `flutter test`; for a local pass, `flutter test --fail-fast` stops at the first failure. Regenerate golden images after an intended visual change: `flutter test --update-goldens`.
 - Debug APK: `flutter build apk --debug`. Install on a connected phone: `flutter install` or `flutter run`.
 - Notifications are tested with in-memory fakes of the platform interfaces (`test/support/fake_notifications.dart`); the Android side is checked on a phone.
 - Tests that touch the database open a real in-memory SQLite database, with `closeStreamsSynchronously` so that widget tests do not end on pending timers.

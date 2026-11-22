@@ -73,7 +73,6 @@ class _StepDialogState extends State<_StepDialog> {
               initialValue: _unit,
               decoration: InputDecoration(
                 labelText: strings.presetEditorStepUnit,
-                helperText: strings.presetEditorStepMinimum,
               ),
               items: [
                 for (final unit in _units)

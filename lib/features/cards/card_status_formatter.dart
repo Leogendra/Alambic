@@ -4,8 +4,8 @@ import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Texts describing where a card stands: its next date ("in 4 d"), or why it
-/// has none ("waiting").
+/// Texts describing where a card stands: how long until it is due ("4 d"),
+/// or why it has no date ("waiting").
 class CardStatusFormatter {
   const CardStatusFormatter({
     required this.strings,
@@ -19,8 +19,8 @@ class CardStatusFormatter {
   final SchedulingCalendar calendar;
   final DateTime now;
 
-  /// "in 4 d", "Due"; "waiting", "suspended" or "learned" for a card with no
-  /// next date.
+  /// "4 d", "3 mo", "Due"; "waiting", "suspended" or "learned" for a card
+  /// with no next date.
   String standing(Flashcard card) {
     if (card.suspended) {
       return strings.cardStatusSuspended;
@@ -29,9 +29,15 @@ class CardStatusFormatter {
     } else if (card.isAcquired) {
       return strings.cardStatusAcquired;
     } else {
-      return isDue(card) ? strings.dueNow : dueDateLabel(card.dueAt!);
+      return isDue(card)
+          ? strings.dueNow
+          : strings.dueInLabel(card.dueAt!, now: now, calendar: calendar);
     }
   }
+
+  /// Whether [standing] is a date, not a reason why the card has none.
+  bool hasDate(Flashcard card) =>
+      !card.suspended && !card.isPending && !card.isAcquired;
 
   bool isDue(Flashcard card) => duePolicy.isDueToday(card, now: now);
 

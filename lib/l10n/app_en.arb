@@ -752,7 +752,7 @@
   "groupDistillationSection": "Distillation",
   "groupDistillationNone": "Distill to receive the cards a few at a time.",
   "distillPause": "Pause",
-  "distillPauseHint": "While paused, no new card comes out; reminders go on.",
+  "distillPauseHint": "No new card comes out, only reminders go on.",
   "distillPausedHint": "Paused since {date}: no new card comes out, reminders go on.",
   "@distillPausedHint": {
     "placeholders": {

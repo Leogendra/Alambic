@@ -48,7 +48,7 @@ Cards are created in a single transaction, in the order shown, at the end of the
 
 No status and no step is shown. A list shows each card's front, its back below, and on the right where it stands:
 
-- its next date, "in 3 d", or "Due" in the accent colour when it is due;
+- the time left before it is due, in days up to 29 ("1 d", "3 d"), then rounded to the month ("3 mo") and, from 365 days, to the year ("2 yr"), or "Due"; it is in the accent colour;
 - "waiting", "suspended" or "learned" for a card without a next date.
 
 ### Card sheet
@@ -83,7 +83,7 @@ Every operation that touches due dates or reminders notifies the notification pl
 - [x] The batch joins the end of the queue in the order of the list, or in a shuffled order drawn when "Shuffle" is chosen and drawn again at each touch; a line edited after the draw keeps its place. The "First" box shows its first card and the cards already waiting.
 - [x] The bulk-add separator is editable; changing it rereads every line.
 - [x] Resetting sends the card back to the end of its group's queue, keeping the history.
-- [x] Lists show the next date only, or "waiting", "suspended", "learned": no status and no step.
+- [x] Lists show the time left in days, months or years, in accent, or "waiting", "suspended", "learned": no status and no step.
 - [x] The card sheet shows the step bar without title, the remanence as its last segment, the next review or why there is none, the reminders and the history with each answer's effect.
 - [x] "Review soon" adds a reminder at a chosen day and time; a past moment is refused; a reminder can be removed.
 - [x] Touching the faces reviews the card, as a bonus review when it is not due.

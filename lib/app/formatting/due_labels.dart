@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 
+import '../../domain/presets/interval_unit.dart';
 import '../../domain/scheduling/card_schedule.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'interval_labels.dart';
 
 /// When a card comes back, relative to [now]: "Due", "at 15:17",
 /// "tomorrow" or "in 3 d". Shared by the screens and the notifications.
@@ -22,6 +24,34 @@ extension DueLabels on AppLocalizations {
       return dueTomorrow;
     } else {
       return dueInDays(days);
+    }
+  }
+
+  /// How long until a card comes back, for a list: "Due", "at 15:17", then
+  /// the days, rounded to the month from 30 days and to the year from 365:
+  /// "1 d", "3 mo", "2 yr".
+  String dueInLabel(
+    DateTime dueAt, {
+    required DateTime now,
+    required SchedulingCalendar calendar,
+  }) {
+    final days = _daysBetween(calendar.dayOf(now), calendar.dayOf(dueAt));
+    if (!dueAt.isAfter(now)) {
+      return dueNow;
+    } else if (days <= 0) {
+      return dueAtTime(ClockTime(dueAt.hour, dueAt.minute).toString());
+    } else if (days >= IntervalUnit.year.daysPerUnit) {
+      return intervalAmount(
+        (days / IntervalUnit.year.daysPerUnit).round(),
+        IntervalUnit.year,
+      );
+    } else if (days >= IntervalUnit.month.daysPerUnit) {
+      return intervalAmount(
+        (days / IntervalUnit.month.daysPerUnit).round(),
+        IntervalUnit.month,
+      );
+    } else {
+      return intervalDays(days);
     }
   }
 

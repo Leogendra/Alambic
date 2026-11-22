@@ -7,7 +7,7 @@ import '../../l10n/generated/app_localizations.dart';
 import 'distill_screen.dart';
 import 'distillation_labels.dart';
 
-/// The distillation of a group: state, waiting cards and rhythm, with a
+/// The distillation of a group: state and rhythm, with a
 /// single settings button that opens the "Distill" screen.
 class DistillationTile extends StatelessWidget {
   const DistillationTile({required this.progress, super.key});
@@ -82,27 +82,9 @@ class DistillationTile extends StatelessWidget {
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              spacing: 12,
-              children: [
-                Flexible(
-                  child: Text(
-                    strings.distillationWaiting(progress.remaining),
-                    style: TextStyle(fontSize: 13, color: colors.textSecondary),
-                  ),
-                ),
-                Flexible(
-                  child: Text(
-                    strings.distillationRhythm(distillation),
-                    textAlign: TextAlign.end,
-                    style: TextStyle(fontSize: 13, color: colors.textPrimary),
-                  ),
-                ),
-              ],
-            ),
+          Text(
+            strings.distillationRhythm(distillation),
+            style: TextStyle(fontSize: 13, color: colors.textPrimary),
           ),
         ],
       ),

@@ -5,9 +5,9 @@ import '../../domain/cards/flashcard.dart';
 import 'card_image.dart';
 import 'card_status_formatter.dart';
 
-/// A card in a list: its front, its back, and where it stands ("in 4 d",
-/// "waiting"). A front image shows as a thumbnail; a face without text reads
-/// "Image".
+/// A card in a list: its front, its back, and where it stands ("4 d",
+/// "suspended"), in accent when it is a date. A front image shows as a
+/// thumbnail; a face without text reads "Image".
 class CardListTile extends StatelessWidget {
   const CardListTile({
     required this.card,
@@ -25,14 +25,14 @@ class CardListTile extends StatelessWidget {
   /// Whether to say where the card stands; a [mark] is shown regardless.
   final bool showStanding;
 
-  /// Shown in accent instead of where the card stands, such as "next" for
-  /// the head of the queue.
+  /// Shown instead of where the card stands, such as "next" for the head of
+  /// the queue.
   final String? mark;
 
   @override
   Widget build(BuildContext context) {
     final colors = AlambicColors.of(context);
-    final highlighted = mark != null || formatter.isDue(card);
+    final highlighted = mark == null && formatter.hasDate(card);
     final imageOnly = formatter.strings.cardImageOnly;
     final back = card.backText ?? imageOnly;
     final frontImage = card.frontImagePath;

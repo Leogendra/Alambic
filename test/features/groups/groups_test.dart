@@ -196,6 +196,7 @@ void main() {
     expect(find.text('In progress · 4'), findsOneWidget);
     expect(find.text('Waiting · 2'), findsOneWidget);
     expect(find.text('next'), findsOneWidget);
+    expect(find.text('waiting'), findsNothing);
     final morocco = find.ancestor(
       of: find.text('Morocco'),
       matching: find.byType(CardListTile),

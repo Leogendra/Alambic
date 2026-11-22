@@ -91,7 +91,8 @@ void main() {
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(find.text('5 cards waiting'), findsOneWidget);
+    expect(find.textContaining('cards waiting'), findsNothing);
+    expect(find.textContaining('a day'), findsOneWidget);
     await captureShot(
       tester,
       find.byType(GroupDetailScreen),

@@ -153,9 +153,9 @@ class _ReviewAllButton extends StatelessWidget {
 
 /// The cards of the group in their sections, each under a small title with
 /// its count; an empty section is left out. [reviewAll] sits beside the first
-/// title. The waiting cards state where they stand only while the group
-/// [distilling]: otherwise nothing is coming out, so "waiting" and "next" say
-/// nothing.
+/// title. The waiting cards do not say "waiting" (their section does) and
+/// only the suspended ones state where they stand; the next card is marked
+/// only while the group [distilling], otherwise nothing comes out.
 class _CardSections extends ConsumerWidget {
   const _CardSections({
     required this.sections,
@@ -231,21 +231,18 @@ class _CardSections extends ConsumerWidget {
     bool waitingCards = false,
     int? nextId,
     String? nextMark,
-  }) {
-    final quiet = waitingCards && !distilling;
-    return SurfacePanel(
-      children: [
-        for (final card in cards)
-          CardListTile(
-            card: card,
-            formatter: formatter,
-            mark: !quiet && card.id == nextId ? nextMark : null,
-            showStanding: !quiet || card.suspended,
-            onTap: () => openCard(context, card.id),
-          ),
-      ],
-    );
-  }
+  }) => SurfacePanel(
+    children: [
+      for (final card in cards)
+        CardListTile(
+          card: card,
+          formatter: formatter,
+          mark: distilling && card.id == nextId ? nextMark : null,
+          showStanding: !waitingCards || card.suspended,
+          onTap: () => openCard(context, card.id),
+        ),
+    ],
+  );
 }
 
 /// "Acquired · 3", folded until its title is touched.

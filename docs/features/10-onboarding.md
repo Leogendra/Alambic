@@ -51,7 +51,7 @@ The preferences of the interface on this phone (whether the onboarding was done,
 - The whole path is driven on the real app widget, over an in-memory database and in-memory replacements of the notification permissions and of the preferences: first launch versus later launch, both permission requests, the test notification allowed and refused, the sample group created with the group page opened, skip from the first and the last screen, back, the French name, no new group at a later launch after its deletion, and the preference saved at the end.
 - The sample group's cards and what its creation stores (order, pending, preset, back, no distillation) are tested on the service, over the asset file itself.
 - The time given to the presets is tested on the preset service: fixed-time presets move, time-range presets do not.
-- Each screen is covered by a golden test in English, the first one in dark theme too and the reminders screen in French too.
+- Each screen is covered by a screen test with a capture in English, the first one in dark theme too and the reminders screen in French too.
 - The Android notification itself is not covered by a test: it is checked on a device.
 
 ## File mapping

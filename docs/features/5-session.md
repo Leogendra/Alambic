@@ -65,9 +65,9 @@ The end screen gives the number of cards, the duration, and the number of correc
 
 - The answer service is tested on an in-memory database with a fixed clock: answer on a due card, on a card due later in the day, on a card already reviewed (bonus), forced bonus, and agreement between the preview and the recorded answer.
 - Session tracking (order, counts, missed) is tested as pure logic; the draw of the asked side per group is tested with a fixed random generator.
-- The full flow is tested on screen: reveal, answer, end screen, bonus session of the missed cards, then the history read from the database. The front, the back and the end screen are also golden tests, the front and the back in light and dark theme; between the two, the asked face is checked at the same place with the same style.
-- The size of a face text is a golden test for a single word, a sentence and a long text, each checked against the maximum size; the maximum width is checked on a wide screen, where the uncapped text would run wider.
-- The typed answer is tested on screen: an accepted answer with one typo and a refused one, their verdict and the answer recorded in the database, "Next", "Reveal" recording nothing, a blank answer not submitted; the field and the verdict are golden tests.
+- The full flow is tested on screen: reveal, answer, end screen, bonus session of the missed cards, then the history read from the database. The front, the back and the end screen also have a capture, the front and the back in light and dark theme; between the two, the asked face is checked at the same place with the same style.
+- The size of a face text has a capture for a single word, a sentence and a long text, each checked against the maximum size; the maximum width is checked on a wide screen, where the uncapped text would run wider.
+- The typed answer is tested on screen: an accepted answer with one typo and a refused one, their verdict and the answer recorded in the database, "Next", "Reveal" recording nothing, a blank answer not submitted; the field and the verdict have a capture.
 - The reveal is tested on screen frame by frame: the answer half-faded midway, "Show answer" gone and the card unmoved at the end, the haptic call read on the platform channel; under reduced motion (a test accessibility setting), the answer is fully shown on the first frame; the next card starts unrevealed.
 
 ## File mapping

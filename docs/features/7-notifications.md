@@ -161,7 +161,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - Each button is tested through the action handler: "Correct" and "Again" record and leave the answer and the next review, a bonus review closes; "Reveal" and "Hide" show and hide the answer silently and record nothing, then "Correct" or "Again"; the typed answer with its verdict, "Again", "Reveal" and "Hide"; "Reveal", "Hide" and "Again" on a chained card; the buttons of the test notification, which record nothing.
 - The notification texts and the payload carried by a notification, including what a touched notification opens, are tested without a device.
 - The content of the session opened by each kind of notification is tested on an in-memory database with a fixed clock: its card or group first, then every due card, earliest first, without repeating the touched card.
-- The exact alarm panel is tested on screen, with a golden test of the refused state; the safeguards, schedule and notification mode screens have golden tests too, and their changes are checked in the database.
+- The exact alarm panel is tested on screen, with a capture of the refused state; the safeguards, schedule and notification mode screens have captures too, and their changes are checked in the database.
 - Moving the due dates to a new slot is tested as pure domain logic, then through the settings service on an in-memory database.
 - The Android implementation itself (alarm plugin, notification plugin, background isolates) is not covered by automated tests: it is checked on a phone.
 

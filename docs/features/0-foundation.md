@@ -85,13 +85,14 @@ When the database is created, the Standard and Intensive presets are inserted an
 
 - The language rule is tested on its own (phone language, unsupported language, choice in Settings), and switching the language and the theme from Settings is driven on the real app widget: from French to English, from English to French, and back to the phone language.
 - Both ARB files are checked to hold the same texts and the same placeholders.
-- Screen tests and golden tests show the English interface, the base language. A test that depends on the French translation asks for French explicitly. A test that only goes through a screen reads the labels it taps from the English texts, so that rewording one does not break it.
+- Screen tests show the English interface, the base language. A test that depends on the French translation asks for French explicitly. A test that only goes through a screen reads the labels it taps from the English texts, so that rewording one does not break it.
 
 - The contrast rules are computed with the WCAG formula on the tokens of both themes, so that a change of value that breaks one fails without looking at a screen.
 - The system bars are simulated as a 32 px status bar and a 48 px navigation bar (the three-button one, the tallest) around every tab, page, sheet and onboarding screen. No text or tappable element may overlap them; a list is checked at its top and at the end of its scroll, since it may legitimately pass under the bars in between. A screen or sheet added or redone joins this check. Dialogs do not: Flutter centres them clear of the bars.
-- The shell is covered by golden tests in light and dark theme, and the Settings tab in English and, in light and dark theme, in French, at the size of the mockup screens (390 × 844).
+- A screen test pumps its screen at the size of the mockup screens (390 × 844) and checks its key texts. At each state worth seeing, `expectNoOverflow` lays the screen out again on a small phone (360 × 640) and with text twice as large, and fails on an overflow; `captureShot` writes an image of it to `build/shots/` when the run asks for it (`stack.md` §Commands). No test compares pixels: the images are for looking at the screens and comparing them with the mockup. A screen added or redone gets a screen test that calls both.
+- The shell is covered by screen tests in light and dark theme, and the Settings tab in English and, in light and dark theme, in French.
 - The schema is tested on a real, not mocked, in-memory SQLite database: initial content and cascading deletion rules.
-- Golden tests load the real fonts (DM Sans and the Material icons); otherwise text would render as blocks and the images would not show the typography.
+- Widget tests load the real fonts (DM Sans and the Material icons); otherwise text would render as blocks, the captures would not show the typography and the overflow checks would measure the wrong glyphs.
 
 ## File mapping
 
@@ -103,5 +104,5 @@ When the database is created, the Standard and Intensive presets are inserted an
 - `lib/l10n/` — interface texts: `app_en.arb` is the template that declares the placeholders, `app_fr.arb` its French translation.
 - `assets/fonts/` — DM Sans and its OFL licence.
 - `android/app/build.gradle.kts` — `compileSdk` 37 and desugaring, required by the notifications (see `stack.md`).
-- `test/support/` — shared golden test harness.
+- `test/support/` — shared test helpers, among them the screen harness (`screen_harness.dart`: `pumpScreen`, `expectNoOverflow`, `captureShot`).
 - `test/flutter_test_config.dart` — loads the fonts before every test.

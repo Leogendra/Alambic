@@ -78,10 +78,10 @@ The "Distill" screen, the group page and Home announce the arrivals to come from
 - The progress of a distillation is tested on its last arrival, slipping with the reviews, and on no arrival while paused.
 - The two examples of "Prioritize reviews" are replayed on an in-memory database, with late and unanswered cards counted and reminders left in place.
 - The service is tested on an in-memory database filled through the services, moving a fixed clock across days: activation, first batch, next days, 4am boundary, a week without pass (one batch, rhythm restarting from it), a batch short of cards, an empty queue, changes of rhythm before and after the day's pass, pause, suspension.
-- The "Distill" screen, the group page and Home are covered by golden tests; widget tests activate a distillation and adjust it from their screens, and check the waiting cards shown instead of the estimate during the global pause.
+- The "Distill" screen, the group page and Home are covered by screen tests with a capture; widget tests activate a distillation and adjust it from their screens, and check the waiting cards shown instead of the estimate during the global pause.
 - The pauses are tested with the notification fakes: a paused distillation keeps its cards notified and their due dates, a pause of a week brings one batch on resume, the global pause holds every distillation and plans no wake-up for them, and leaves alone a distillation paused on its own.
 - The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, the introduction done by the wake-up, and a wake-up firing late at restart, which notifies the batch at once.
-- The group page and the "Distill" screen of a paused distillation have golden tests; resuming from the screen is checked in the database.
+- The group page and the "Distill" screen of a paused distillation have captures; resuming from the screen is checked in the database.
 
 ## File mapping
 

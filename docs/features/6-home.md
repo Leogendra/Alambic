@@ -58,7 +58,7 @@ There is no count of due cards and no "Review all" on Home: reviewing happens fr
 
 - `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, suspended and pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, batch days taken by planned reviews, paused distillation and global pause, "Review soon" reminders, the time left before each reminder, and the totals of the coming month and year at their bounds.
 - The arrivals of a distillation are tested on `DistillationRhythm` ([Feature 8](8-distillation.md#test-strategy)).
-- The screen is covered by golden tests in light and dark theme, in French and during the global pause, on the sample data partly answered, with a reminder and a distilling group, by a golden test of a distillation in progress, and by one scrolled to the coming month and year, with a group distilling over several months.
+- The screen is covered by screen tests with a capture in light and dark theme, in French and during the global pause, on the sample data partly answered, with a reminder and a distilling group, by one of a distillation in progress, and by one scrolled to the coming month and year, with a group distilling over several months.
 
 ## File mapping
 

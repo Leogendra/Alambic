@@ -59,7 +59,7 @@ Changing the preset of a group, the global preset or the steps of a preset rewri
 - Keeping the step and the due date is checked on the stored data after each kind of change (group, global preset, edited steps), not on an in-memory object, then followed by an answer from the last step.
 - Creation, editing, duplication and refusal of an invalid preset are tested through the service, on an in-memory database.
 - Deletion is tested through the service on groups and cards read back from the database: the groups that chose the preset inherit the global one, the others keep their choice, the cards keep their steps and due dates, and the global preset is refused. The screen test checks that the global preset offers no "Delete" and that the confirmation counts the groups.
-- The Presets screen and the editor are covered by golden tests on the shipped presets, in light and dark theme; "Make default" and "Duplicate" are exercised on the screen and checked in the database.
+- The Presets screen and the editor are covered by screen tests with a capture on the shipped presets, in light and dark theme; "Make default" and "Duplicate" are exercised on the screen and checked in the database.
 
 ## File mapping
 

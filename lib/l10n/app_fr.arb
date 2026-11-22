@@ -278,6 +278,7 @@
   "distillPresetHint": "Chaque carte suit ces rappels une fois arrivée. Une modification du preset s'applique à tous les groupes qui le suivent.",
   "distillPrioritizeReviewsHint": "Les cartes à réviser comptent dans ta limite quotidienne : tu ne vois de nouvelles cartes que si les révisions ne dépassent pas la limite.",
   "distillEstimate": "{count, plural, =1{1 carte · arrivée vers le {date}} other{{count} cartes · dernière arrivée vers le {date}}}",
+  "distillEstimateFar": "{count, plural, =1{1 carte · arrivée dans plus de 2 ans} other{{count} cartes · dernière arrivée dans plus de 2 ans}}",
   "distillNothing": "Aucune carte en attente. Les cartes ajoutées au groupe arriveront à ce rythme.",
   "distillActivate": "Activer la distillation",
   "groupDistillationSection": "Distillation",

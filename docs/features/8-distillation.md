@@ -56,7 +56,17 @@ On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#n
 
 ### Estimates
 
-The "Distill" screen and Home announce the arrivals to come from the rhythm, day after day from the next batch day until the queue is empty: today until today's pass ran, otherwise the day after the last batch, never before tomorrow. With "Prioritize reviews", each day gives up a place for every card of the group already due that day: on today, the cards due right now, late ones included; on a later day, the cards whose due day it is. The reviews of the cards not introduced yet, and those of the cards answered meanwhile, are unknown: an announced arrival can slip, which is why the screens say "around". A paused distillation, or any during the global pause, announces nothing.
+The "Distill" screen and Home announce the arrivals to come from the rhythm, day after day from the next batch day until the queue is empty: today until today's pass ran, otherwise the day after the last batch, never before tomorrow. A paused distillation, or any during the global pause, announces nothing.
+
+Without "Prioritize reviews", every day brings N cards: the last one arrives `ceil(waiting / N)` days after the first batch.
+
+With it, each day gives up a place for every review of the group falling that day, and the estimate plays the reviews out as if every card were always answered "Correct", on its due day:
+
+- A card already introduced follows the sequence of its group's preset from its next due date, then its remanence interval over and over, or stops when the group acquires its cards. On today, the cards due right now count, late ones included; a card due later today does not.
+- A card not introduced yet follows the same sequence from its arrival day: it is answered that day, and its first review falls one interval later. Its reviews take places on the days after, so each new card pushes the last arrival back.
+- An interval of less than a day brings the next review back the same day: it is not counted again.
+
+Failures are not played, nor lateness: an announced arrival can slip, which is why the screens say "around". The estimate looks two years ahead. A queue that does not fit, because the reviews take every place or the rhythm is too slow, is announced as "more than 2 years"; Home keeps its own limit of a year.
 
 ## Acceptance criteria
 
@@ -67,7 +77,7 @@ The "Distill" screen and Home announce the arrivals to come from the rhythm, day
 - [x] One distillation per group; it is adjusted, paused and resumed, never stopped.
 - [x] Adjusting changes the number of cards per day and "Prioritize reviews"; the new settings apply from today's pass, or the next one when it already ran.
 - [x] Prioritizing reviews: a day brings N new cards minus the cards of the group due at the pass, late and unanswered ones included; reminders are never moved.
-- [x] The "Distill" screen activates or adjusts, with an estimate of the last arrival that leaves out the batch days taken by the reviews already planned.
+- [x] The "Distill" screen activates or adjusts, with an estimate of the last arrival: N cards a day, or, with "Prioritize reviews", the days left free by the reviews of the group, those of the cards to come played as always answered "Correct", within two years.
 - [x] The "Distill" screen shows the preset of the group with its reminders, and edits it, swaps it or creates another at once.
 - [x] The group page follows the distillation (pause, waiting cards, rhythm) with a single settings button.
 - [x] A paused distillation, and every distillation during the global pause, introduces nothing; the reminders go on and no due date moves. Resuming brings a single batch at most; the global pause leaves each distillation's own pause alone.
@@ -75,7 +85,8 @@ The "Distill" screen and Home announce the arrivals to come from the rhythm, day
 
 ## Test strategy
 
-- The rhythm (`DistillationRhythm`) is tested as pure functions: batch owed the day after the last one, new cards with and without "Prioritize reviews", next introduction day, and the forecast of arrivals: batches until the queue is empty, places taken by the reviews planned on a day (late ones today, not a reminder of less than a day already answered), a day fully taken, a forecast bounded in time.
+- The rhythm (`DistillationRhythm`) is tested as pure functions: batch owed the day after the last one, new cards with and without "Prioritize reviews", next introduction day, and the forecast of arrivals: batches until the queue is empty, places taken by the reviews of the group (late ones today, not a reminder of less than a day already answered) and by those of the cards to come, a day fully taken, a forecast bounded to two years, saturated by the reviews.
+- The review load (`ReviewLoad`) is tested on its own: sequence then remanence, acquired cards, a card resumed at its step, late cards, suspended and pending cards, new cards, intervals of less than a day, the limit of the period.
 - The progress of a distillation is tested on the count of waiting cards.
 - The two examples of "Prioritize reviews" are replayed on an in-memory database, with late and unanswered cards counted and reminders left in place.
 - The service is tested on an in-memory database filled through the services, moving a fixed clock across days: activation, first batch, next days, 4am boundary, a week without pass (one batch, then one a day), an empty queue, a change of cards per day before and after the day's pass, pause, suspension.
@@ -100,7 +111,7 @@ The queue is not a table: a card is in the queue of its group when it is pending
 
 A distillation is paused by the start of its pause (`pausedAt`), shown on its page; `null` means running. A distillation row keeps only two days of progress: the last day processed (`lastAdvancedDay`) and the last day a batch came out (`lastBatchDay`, empty until the first batch). The next batch day is the day after the latter, which is why a change of settings needs no rewrite.
 
-The estimates replay the rhythm without touching the database (`DistillationRhythm.forecast`): it counts the reviews of the group by due day once, then walks the days until the queue is empty or the end of the period asked for.
+The estimates replay the rhythm without touching the database (`DistillationRhythm.forecast`): it walks the days until the queue is empty or the end of the period asked for (two years by default). With "Prioritize reviews", a `ReviewLoad` holds the reviews of the group by day: it starts with the cards already introduced, and takes in the reviews of each batch as it comes out. It walks each card through `SequenceEngine` with "Correct" answers, so the estimate follows the same sequence and remanence rules as a real answer. It needs the preset and the end of sequence of the group, which both screens read from the preset catalog.
 
 A pause records nothing about the days it covers: the pass simply skips a paused distillation, so the day of the last batch decides alone what the first pass after the pause owes: a single batch.
 

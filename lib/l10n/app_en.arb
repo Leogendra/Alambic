@@ -747,6 +747,14 @@
       }
     }
   },
+  "distillEstimateFar": "{count, plural, =1{1 card · arrives in more than 2 years} other{{count} cards · last one arrives in more than 2 years}}",
+  "@distillEstimateFar": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "distillNothing": "No card waiting. Cards added to the group will arrive at this pace.",
   "distillActivate": "Start distilling",
   "groupDistillationSection": "Distillation",

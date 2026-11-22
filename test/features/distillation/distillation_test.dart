@@ -60,7 +60,7 @@ void main() {
       overrides: screenOverrides(database, sampleNow),
     );
     expect(
-      find.text('6 cards · last one arrives around November 15'),
+      find.text('6 cards · last one arrives around November 23'),
       findsOne,
     );
     await captureShot(tester, find.byType(DistillScreen), 'distill_activate');
@@ -108,7 +108,7 @@ void main() {
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(find.text('Japanese: 1 new card'), findsNWidgets(6));
+    expect(find.text('Japanese: 1 new card'), findsNWidgets(4));
     await captureShot(tester, find.byType(HomeScreen), 'home_distillation');
     await expectNoOverflow(tester);
   });
@@ -216,7 +216,7 @@ void main() {
     await tester.tap(find.byTooltip(l10n.distillMoreCards));
     await tester.pumpAndSettle();
     expect(
-      find.text('6 cards · last one arrives around November 12'),
+      find.text('6 cards · last one arrives around November 14'),
       findsOne,
     );
     await tester.tap(find.text(l10n.distillActivate));

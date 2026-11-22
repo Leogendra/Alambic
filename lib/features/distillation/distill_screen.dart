@@ -13,6 +13,7 @@ import '../../application/cards/card_providers.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/notifications/guard_providers.dart';
+import '../../application/presets/preset_providers.dart';
 import '../../application/time/minute_ticker.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation.dart';
@@ -196,7 +197,7 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     final paused =
         (distillation?.isPaused ?? false) ||
         ref.watch(globalPauseProvider).value != null;
-    final lastArrival = paused ? null : _lastArrival(cards, distillation);
+    final arrivals = paused ? null : _arrivals(cards, distillation);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 12,
@@ -220,14 +221,7 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
                           ),
                         ],
                       )
-                    : TextSpan(
-                        text: lastArrival == null
-                            ? strings.distillNothing
-                            : strings.distillEstimate(
-                                remaining,
-                                strings.longDate(lastArrival),
-                              ),
-                      ),
+                    : TextSpan(text: _estimate(strings, remaining, arrivals)),
                 style: TextStyle(fontSize: 14, color: colors.textPrimary),
               ),
             ),
@@ -243,29 +237,55 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     );
   }
 
+  /// The estimate line: empty while the data loads, then the last arrival,
+  /// or the delay when it is out of the forecast.
+  String _estimate(
+    AppLocalizations strings,
+    int remaining,
+    Map<DateTime, int>? arrivals,
+  ) {
+    if (arrivals == null) {
+      return '';
+    } else if (remaining == 0) {
+      return strings.distillNothing;
+    } else if (arrivals.values.fold(0, (sum, count) => sum + count) <
+        remaining) {
+      return strings.distillEstimateFar(remaining);
+    } else {
+      return strings.distillEstimate(
+        remaining,
+        strings.longDate(arrivals.keys.last),
+      );
+    }
+  }
+
+  /// Arrivals with the settings being picked, `null` while the data loads.
   /// The first batch comes out today on activation; once adjusted, the day
   /// after the last one.
-  DateTime? _lastArrival(List<Flashcard> cards, Distillation? distillation) {
+  Map<DateTime, int>? _arrivals(
+    List<Flashcard> cards,
+    Distillation? distillation,
+  ) {
     final now = ref.watch(currentMomentProvider).value;
-    if (now == null) {
+    final catalog = ref.watch(presetCatalogProvider).value;
+    if (now == null || catalog == null) {
       return null;
     }
     final rhythm = ref.watch(distillationRhythmProvider);
     final today = rhythm.calendar.dayOf(now);
-    return rhythm
-        .forecast(
-          _settings,
-          cards,
-          firstDay: distillation == null
-              ? today
-              : rhythm.nextIntroductionDay(
-                  distillation.withSettings(_settings),
-                  today,
-                ),
-          now: now,
-        )
-        .keys
-        .lastOrNull;
+    return rhythm.forecast(
+      _settings,
+      cards,
+      preset: catalog.presetForGroup(widget.groupId),
+      end: catalog.sequenceEndForGroup(widget.groupId),
+      firstDay: distillation == null
+          ? today
+          : rhythm.nextIntroductionDay(
+              distillation.withSettings(_settings),
+              today,
+            ),
+      now: now,
+    );
   }
 
   Future<void> _save() async {

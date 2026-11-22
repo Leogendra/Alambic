@@ -6,17 +6,25 @@ import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/distillation/distillation.dart';
 import 'package:alambic/domain/distillation/distillation_rhythm.dart';
+import 'package:alambic/domain/presets/preset_catalog.dart';
 import 'package:alambic/domain/reviews/extra_reminder.dart';
 import 'package:alambic/domain/scheduling/due_policy.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 import '../domain/test_cards.dart';
+import '../domain/test_presets.dart';
 
 void main() {
   const planner = TimelinePlanner(
     calendar: SchedulingCalendar(),
     duePolicy: DuePolicy(SchedulingCalendar()),
     rhythm: DistillationRhythm(SchedulingCalendar()),
+  );
+  final catalog = PresetCatalog(
+    presetsById: {standardPreset.id: standardPreset},
+    globalPresetId: standardPreset.id,
+    groupPresetIds: const {},
+    groupSequenceEnds: const {},
   );
   final now = DateTime(2026, 11, 10, 9);
   final lastWeek = DateTime(2026, 11, 3, 12);
@@ -51,6 +59,7 @@ void main() {
     cards: cards,
     reminders: reminders,
     distillations: distillations,
+    catalog: catalog,
     globallyPaused: globallyPaused,
     now: now,
   );
@@ -137,8 +146,8 @@ void main() {
     );
   });
 
-  test('the reviews planned on a batch day take the places of new '
-      'cards', () {
+  test('the reviews of the group take the places of new cards, those of the '
+      'cards to come included', () {
     final timeline = build(
       [answered(1, DateTime(2026, 11, 12, 12)), pending(2), pending(3)],
       distillations: [
@@ -157,7 +166,7 @@ void main() {
         (DateTime(2026, 11, 10), 0, null),
         (DateTime(2026, 11, 11), 0, 1),
         (DateTime(2026, 11, 12), 1, null),
-        (DateTime(2026, 11, 13), 0, 1),
+        (DateTime(2026, 11, 16), 0, 1),
       ],
     );
   });

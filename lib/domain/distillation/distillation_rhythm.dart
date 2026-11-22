@@ -1,11 +1,13 @@
 import 'dart:math';
 
 import '../cards/flashcard.dart';
-import '../scheduling/due_policy.dart';
+import '../groups/sequence_end.dart';
+import '../presets/preset.dart';
 import '../scheduling/scheduling_calendar.dart';
 import 'distillation.dart';
 import 'distillation_queue.dart';
 import 'distillation_settings.dart';
+import 'review_load.dart';
 
 /// "N cards a day", day by day.
 ///
@@ -32,61 +34,67 @@ class DistillationRhythm {
       ? max(0, settings.cardsPerBatch - dueCards)
       : settings.cardsPerBatch;
 
+  /// Days looked at by [forecast] when no [until] is given.
+  static const int horizonDays = 730;
+
   /// New cards expected from the queue of a group with [settings], batch
   /// after batch from [firstDay] until it is empty, or until the day before
-  /// [until]. Every batch goes through; with "Prioritize reviews", the
-  /// reviews already planned on a batch day take the place of new cards.
-  /// The reviews of the cards not introduced yet are unknown, so an
-  /// arrival may slip. Days without new card are left out; the days come in
-  /// order.
+  /// [until] (two years from [now] by default): the cards left in the queue
+  /// at that point are not in the result.
+  ///
+  /// Without "Prioritize reviews", every batch goes through. With it, the
+  /// reviews of the group take the place of new cards, each card being
+  /// supposed always answered "Correct" on its due day, as a [ReviewLoad]
+  /// plays it with the [preset] and the [end] of the group: the cards
+  /// already introduced follow it from their next due date, and each new
+  /// card follows it from its arrival. Days without new card are left out;
+  /// the days come in order.
   Map<DateTime, int> forecast(
     DistillationSettings settings,
     Iterable<Flashcard> groupCards, {
+    required Preset preset,
+    required SequenceEnd end,
     required DateTime firstDay,
     required DateTime now,
     DateTime? until,
   }) {
-    final plannedReviews = _plannedReviews(groupCards, now);
+    final limit = until ?? calendar.addDays(calendar.dayOf(now), horizonDays);
+    final load = settings.prioritizeReviews
+        ? _loadOf(groupCards, preset, end, now, limit)
+        : null;
     final arrivals = <DateTime, int>{};
     var left = DistillationQueue.remaining(groupCards);
     var day = firstDay;
-    while (left > 0 && (until == null || day.isBefore(until))) {
-      final count = min(
-        newCards(settings, dueCards: plannedReviews[day] ?? 0),
-        left,
-      );
+    while (left > 0 && day.isBefore(limit)) {
+      final count = min(newCards(settings, dueCards: load?.on(day) ?? 0), left);
       if (count > 0) {
         arrivals[day] = count;
         left -= count;
+        load?.addNewCards(day, count);
       }
       day = calendar.addDays(day, 1);
     }
     return arrivals;
   }
 
-  /// Reviews planned for each day among [groupCards], as a pass on that day
-  /// would count them: today the cards due at [now], late ones included;
-  /// later, the cards whose due day it is.
-  Map<DateTime, int> _plannedReviews(
+  /// The reviews of the cards of [groupCards] already introduced.
+  ReviewLoad _loadOf(
     Iterable<Flashcard> groupCards,
+    Preset preset,
+    SequenceEnd end,
     DateTime now,
+    DateTime limit,
   ) {
-    final duePolicy = DuePolicy(calendar);
-    final today = calendar.dayOf(now);
-    final reviews = <DateTime, int>{};
+    final load = ReviewLoad(
+      calendar: calendar,
+      preset: preset,
+      end: end,
+      until: limit,
+    );
     for (final card in groupCards) {
-      final dueAt = card.dueAt;
-      if (duePolicy.isDueToday(card, now: now)) {
-        reviews[today] = (reviews[today] ?? 0) + 1;
-      } else if (!card.suspended &&
-          card.isScheduled &&
-          dueAt != null &&
-          calendar.dayOf(dueAt).isAfter(today)) {
-        final day = calendar.dayOf(dueAt);
-        reviews[day] = (reviews[day] ?? 0) + 1;
-      }
+      load.addIntroducedCard(card, now: now);
     }
-    return reviews;
+    return load;
   }
 
   /// Day on which [distillation] owes its next batch, seen from [today]: not

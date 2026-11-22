@@ -1,6 +1,7 @@
 import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
+import '../../domain/presets/preset_catalog.dart';
 import '../../domain/reviews/extra_reminder.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
@@ -38,6 +39,7 @@ class TimelinePlanner {
     required List<Flashcard> cards,
     required List<ExtraReminder> reminders,
     required List<Distillation> distillations,
+    required PresetCatalog catalog,
     required bool globallyPaused,
     required DateTime now,
   }) {
@@ -46,7 +48,7 @@ class TimelinePlanner {
     _placeCards(days, cards, now);
     _placeReminders(days, cards, reminders, now);
     if (!globallyPaused) {
-      _placeDistillations(days, cards, distillations, now);
+      _placeDistillations(days, cards, distillations, catalog, now);
     }
     return HomeTimeline(
       days: [
@@ -110,12 +112,13 @@ class TimelinePlanner {
     }
   }
 
-  /// Arrivals of the distillations not paused, the reviews already planned
+  /// Arrivals of the distillations not paused, the reviews of their group
   /// taking their places.
   void _placeDistillations(
     _DayBuckets days,
     List<Flashcard> cards,
     List<Distillation> distillations,
+    PresetCatalog catalog,
     DateTime now,
   ) {
     for (final distillation in distillations) {
@@ -126,6 +129,8 @@ class TimelinePlanner {
       final arrivals = rhythm.forecast(
         distillation.settings,
         cards.where((card) => card.groupId == groupId),
+        preset: catalog.presetForGroup(groupId),
+        end: catalog.sequenceEndForGroup(groupId),
         firstDay: rhythm.nextIntroductionDay(distillation, days.today),
         now: now,
         until: days.end,

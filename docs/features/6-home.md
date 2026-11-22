@@ -28,7 +28,7 @@ Late cards come first, then the others by moment. A card already answered today 
 New cards are never named. Each group gets one line per day, "Capitals: 2 new cards", which opens the group. It counts:
 
 - the introduced cards never answered, on the day they are due (today when late);
-- the cards the group's [distillation](8-distillation.md) should introduce that day, one batch a day from its last one; with "Prioritize reviews", the reviews already planned on a day take the places of new cards ([Estimates](8-distillation.md#estimates)), so an announced arrival may slip.
+- the cards the group's [distillation](8-distillation.md) should introduce that day, one batch a day from its last one; with "Prioritize reviews", the reviews of the group, those of its cards to come included, take the places of new cards ([Estimates](8-distillation.md#estimates)), so an announced arrival may slip.
 
 The distillation lines have no delay.
 
@@ -56,7 +56,7 @@ There is no count of due cards and no "Review all" on Home: reviewing happens fr
 
 ## Test strategy
 
-- `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, suspended and pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, batch days taken by planned reviews, paused distillation and global pause, "Review soon" reminders, the time left before each reminder, and the totals of the coming month and year at their bounds.
+- `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, suspended and pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, batch days taken by the reviews of the group, paused distillation and global pause, "Review soon" reminders, the time left before each reminder, and the totals of the coming month and year at their bounds.
 - The arrivals of a distillation are tested on `DistillationRhythm` ([Feature 8](8-distillation.md#test-strategy)).
 - The screen is covered by screen tests with a capture in light and dark theme, in French and during the global pause, on the sample data partly answered, with a reminder and a distilling group, by one of a distillation in progress, and by one scrolled to the coming month and year, with a group distilling over several months.
 

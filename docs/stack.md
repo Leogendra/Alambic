@@ -28,7 +28,7 @@ Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so
 - drift generated code: `dart run build_runner build`. The `*.g.dart` files are versioned so that a fresh clone compiles without this step.
 - Analysis: `flutter analyze`. Formatting: `dart format lib test`.
 - Tests: `flutter test`; for a local pass, `flutter test --fail-fast` stops at the first failure.
-- Screen captures: `flutter test --dart-define=shots=true test/app test/features` writes one PNG per screen state to `build/shots/` (not versioned, about 15 s). Without the flag, `captureShot` (`test/support/screen_harness.dart`) does nothing.
+- Screen captures: `flutter test --dart-define=shots=true test/app test/features` writes one PNG per screen state to `build/shots/` (not versioned, about 15 s). Without the flag, `captureShot` (`test/support/screen_harness.dart`) does nothing. The three images of the README, in `docs/images/`, are copies of captures of the same name, refreshed by hand: copy them from `build/shots/` after a visible change to their screens.
 - Debug APK: `flutter build apk --debug`. Install on a connected phone: `flutter install` or `flutter run`.
 - Notifications are tested with in-memory fakes of the platform interfaces (`test/support/fake_notifications.dart`); the Android side is checked on a phone.
 - Tests that touch the database open a real in-memory SQLite database, with `closeStreamsSynchronously` so that widget tests do not end on pending timers. A widget test that opens one is declared with `testScreen` (`test/support/test_screen.dart`) instead of `testWidgets`, and its `tearDown` closes the database with `closeTestDatabase`: see Pitfalls.

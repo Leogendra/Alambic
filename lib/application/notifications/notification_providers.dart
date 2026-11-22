@@ -95,8 +95,9 @@ final notificationActionHandlerProvider = Provider(
   ),
 );
 
-/// Notifications touched, the one that launched the app first. Empty unless
-/// the platform layer overrides it.
+/// Notifications touched, the one that launched the app first. Can be
+/// listened to more than once, as the main shell does each time it is built.
+/// Empty unless the platform layer overrides it.
 final notificationTargetsProvider = Provider<Stream<NotificationTarget>>(
   (ref) => const Stream.empty(),
 );

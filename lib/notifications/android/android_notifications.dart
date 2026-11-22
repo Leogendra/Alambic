@@ -53,15 +53,26 @@ abstract final class AndroidNotifications {
     }
   }
 
+  static bool _isLaunchTargetTaken = false;
+
   /// The group to open when a notification launched the app, then the ones
-  /// opened while it runs.
-  static Stream<NotificationTarget> _openedTargets() async* {
-    final launch = await _plugin.getNotificationAppLaunchDetails();
-    final target = launch != null && launch.didNotificationLaunchApp
-        ? NotificationPayload.target(launch.notificationResponse?.payload)
-        : null;
-    if (target != null) {
-      yield target;
+  /// opened while it runs. Listened to again when the main shell is rebuilt,
+  /// after the onboarding is replayed: only the first listener gets the
+  /// launch target, which would otherwise open its session again.
+  static Stream<NotificationTarget> _openedTargets() => Stream.multi(
+    (listener) => listener.addStream(_launchThenOpenedTargets()),
+  );
+
+  static Stream<NotificationTarget> _launchThenOpenedTargets() async* {
+    if (!_isLaunchTargetTaken) {
+      _isLaunchTargetTaken = true;
+      final launch = await _plugin.getNotificationAppLaunchDetails();
+      final target = launch != null && launch.didNotificationLaunchApp
+          ? NotificationPayload.target(launch.notificationResponse?.payload)
+          : null;
+      if (target != null) {
+        yield target;
+      }
     }
     yield* _opened.stream;
   }

@@ -570,16 +570,16 @@
     }
   },
   "homeFurtherAhead": "Further ahead",
-  "homeCardsNextMonth": "{count, plural, =1{card next month} other{cards next month}}",
-  "@homeCardsNextMonth": {
+  "homeCardsWithinMonth": "{count, plural, =1{card within a month} other{cards within a month}}",
+  "@homeCardsWithinMonth": {
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "homeCardsNextYear": "{count, plural, =1{card next year} other{cards next year}}",
-  "@homeCardsNextYear": {
+  "homeCardsWithinYear": "{count, plural, =1{card within a year} other{cards within a year}}",
+  "@homeCardsWithinYear": {
     "placeholders": {
       "count": {
         "type": "int"

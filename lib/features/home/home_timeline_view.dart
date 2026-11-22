@@ -493,7 +493,7 @@ class _FurtherAhead extends StatelessWidget {
                     padding: const EdgeInsetsDirectional.only(end: 16),
                     child: _Total(
                       total: month,
-                      caption: strings.homeCardsNextMonth(month),
+                      caption: strings.homeCardsWithinMonth(month),
                       color: colors.textPrimary,
                     ),
                   ),
@@ -504,7 +504,7 @@ class _FurtherAhead extends StatelessWidget {
                     padding: const EdgeInsetsDirectional.only(start: 20),
                     child: _Total(
                       total: year,
-                      caption: strings.homeCardsNextYear(year),
+                      caption: strings.homeCardsWithinYear(year),
                       color: colors.accentText,
                     ),
                   ),

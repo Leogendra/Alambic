@@ -36,7 +36,7 @@ A paused distillation announces no future arrival, and neither does any distilla
 
 ### Further ahead
 
-After the detailed days, under a dashed rule titled "Further ahead", two figures side by side: the cards of the next month, from the 8th to the 30th day, and those of the next year, from the 31st to the 365th ("8 cards next month", "28 cards next year"). Each counts the reminders planned then (one per card, at its due date, and the "Review soon" reminders) and the new cards expected, introduced cards never answered and distillation arrivals alike. They do not react to touch.
+After the detailed days, under a dashed rule titled "Further ahead", two figures side by side: the cards within a month, from the 8th to the 30th day, and those within a year, from the 31st to the 365th ("8 cards within a month", "28 cards within a year"). The two windows do not overlap: the second does not include the first. Each counts the reminders planned then (one per card, at its due date, and the "Review soon" reminders) and the new cards expected, introduced cards never answered and distillation arrivals alike. They do not react to touch.
 
 ### Header
 

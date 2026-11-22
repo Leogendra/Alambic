@@ -126,9 +126,9 @@ void main() {
     await tester.drag(find.byType(ListView), const Offset(0, -800));
     await tester.pumpAndSettle();
     expect(find.text('8'), findsOneWidget);
-    expect(find.text('cards next month'), findsOneWidget);
+    expect(find.text('cards within a month'), findsOneWidget);
     expect(find.text('28'), findsOneWidget);
-    expect(find.text('cards next year'), findsOneWidget);
+    expect(find.text('cards within a year'), findsOneWidget);
     await captureShot(tester, find.byType(HomeScreen), 'home_coming');
     await expectNoOverflow(tester);
   });

@@ -7,8 +7,8 @@ import '../../l10n/generated/app_localizations.dart';
 import 'distill_screen.dart';
 import 'distillation_labels.dart';
 
-/// The distillation of a group: state, rhythm, waiting cards and last
-/// arrival, with a single settings button that opens the "Distill" screen.
+/// The distillation of a group: state, waiting cards and rhythm, with a
+/// single settings button that opens the "Distill" screen.
 class DistillationTile extends StatelessWidget {
   const DistillationTile({required this.progress, super.key});
 
@@ -20,7 +20,6 @@ class DistillationTile extends StatelessWidget {
     final colors = AlambicColors.of(context);
     final distillation = progress.distillation;
     final pausedAt = distillation.pausedAt;
-    final lastArrival = progress.lastArrival;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 10, 14),
       decoration: BoxDecoration(
@@ -59,7 +58,7 @@ class DistillationTile extends StatelessWidget {
                                     strings.shortDate(pausedAt),
                                   ),
                             style: const TextStyle(
-                              fontSize: 13,
+                              fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -83,29 +82,25 @@ class DistillationTile extends StatelessWidget {
               ),
             ],
           ),
-          Text(
-            strings.distillationRhythm(distillation),
-            style: TextStyle(fontSize: 14, color: colors.textPrimary),
-          ),
           Padding(
             padding: const EdgeInsets.only(right: 6),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              spacing: 12,
               children: [
-                Expanded(
+                Flexible(
                   child: Text(
                     strings.distillationWaiting(progress.remaining),
                     style: TextStyle(fontSize: 13, color: colors.textSecondary),
                   ),
                 ),
-                if (lastArrival != null || progress.remaining > 0)
-                  Text(
-                    lastArrival == null
-                        ? strings.distillationNoArrival
-                        : strings.distillationLastArrival(
-                            strings.shortDate(lastArrival),
-                          ),
-                    style: TextStyle(fontSize: 13, color: colors.textSecondary),
+                Flexible(
+                  child: Text(
+                    strings.distillationRhythm(distillation),
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontSize: 13, color: colors.textPrimary),
                   ),
+                ),
               ],
             ),
           ),

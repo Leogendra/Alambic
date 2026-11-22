@@ -3,9 +3,9 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
-import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
+import '../../application/distillation/distillation_providers.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/groups/group_summary.dart';
 import '../../application/groups/group_sections.dart';
@@ -25,9 +25,8 @@ import 'group_settings_screen.dart';
 import 'reverse_button.dart';
 
 /// A group page: "Distill" or the tracking of its distillation, the back
-/// option, then its cards, under a "Cards" title with "Review all" beside
-/// it, in three sections: in progress, waiting in queue order, and learned,
-/// folded.
+/// option, then its cards in three sections: in progress, waiting in queue
+/// order, and learned, folded. "Review all" sits beside the first title.
 class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({required this.groupId, super.key});
 
@@ -80,8 +79,6 @@ class _GroupBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final strings = AppLocalizations.of(context);
-    final colors = AlambicColors.of(context);
     final cards =
         ref.watch(groupCardsProvider(summary.groupId)).value ?? const [];
     final sections = GroupSections.of(cards);
@@ -93,35 +90,14 @@ class _GroupBody extends ConsumerWidget {
         const SizedBox(height: 16),
         ReverseButton(group: summary.group),
         const SizedBox(height: 24),
-        Row(
-          children: [
-            Expanded(child: SectionLabel(strings.groupCardsSection)),
-            if (sections.ongoing.isNotEmpty || sections.waiting.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 36),
-                    padding: const EdgeInsetsDirectional.fromSTEB(8, 0, 12, 0),
-                    backgroundColor: colors.surface,
-                    foregroundColor: colors.accentText,
-                    side: BorderSide(color: colors.border),
-                    shape: const StadiumBorder(),
-                  ),
-                  icon: const Icon(Icons.play_arrow, size: 18),
-                  label: Text(
-                    strings.groupReviewAll,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  onPressed: () => _reviewAll(context, ref, cards),
-                ),
-              ),
-          ],
+        _CardSections(
+          sections: sections,
+          distilling: ref.watch(groupDistillationProvider(summary.groupId)) !=
+              null,
+          reviewAll: sections.ongoing.isNotEmpty || sections.waiting.isNotEmpty
+              ? _ReviewAllButton(onPressed: () => _reviewAll(context, ref, cards))
+              : null,
         ),
-        _CardSections(sections: sections),
       ],
     );
   }
@@ -144,12 +120,52 @@ class _GroupBody extends ConsumerWidget {
   }
 }
 
+/// "Review all", a small button at the right of the first section title.
+class _ReviewAllButton extends StatelessWidget {
+  const _ReviewAllButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AlambicColors.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(0, 36),
+          padding: const EdgeInsetsDirectional.fromSTEB(8, 0, 12, 0),
+          backgroundColor: colors.surface,
+          foregroundColor: colors.accentText,
+          side: BorderSide(color: colors.border),
+          shape: const StadiumBorder(),
+        ),
+        icon: const Icon(Icons.play_arrow, size: 18),
+        label: Text(
+          AppLocalizations.of(context).groupReviewAll,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        onPressed: onPressed,
+      ),
+    );
+  }
+}
+
 /// The cards of the group in their sections, each under a small title with
-/// its count; an empty section is left out.
+/// its count; an empty section is left out. [reviewAll] sits beside the first
+/// title. The waiting cards state where they stand only while the group
+/// [distilling]: otherwise nothing is coming out, so "waiting" and "next" say
+/// nothing.
 class _CardSections extends ConsumerWidget {
-  const _CardSections({required this.sections});
+  const _CardSections({
+    required this.sections,
+    required this.distilling,
+    required this.reviewAll,
+  });
 
   final GroupSections sections;
+  final bool distilling;
+  final Widget? reviewAll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -173,7 +189,10 @@ class _CardSections extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _SubsectionLabel(strings.groupOngoingSection(ongoing.length)),
+                _SubsectionLabel(
+                  strings.groupOngoingSection(ongoing.length),
+                  trailing: reviewAll,
+                ),
                 _panel(context, ongoing, formatter),
               ],
             ),
@@ -181,11 +200,15 @@ class _CardSections extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _SubsectionLabel(strings.groupWaitingSection(waiting.length)),
+                _SubsectionLabel(
+                  strings.groupWaitingSection(waiting.length),
+                  trailing: sections.ongoing.isEmpty ? reviewAll : null,
+                ),
                 _panel(
                   context,
                   waiting,
                   formatter,
+                  waitingCards: true,
                   nextId: nextId,
                   nextMark: strings.groupNextCard,
                 ),
@@ -205,19 +228,24 @@ class _CardSections extends ConsumerWidget {
     BuildContext context,
     List<Flashcard> cards,
     CardStatusFormatter formatter, {
+    bool waitingCards = false,
     int? nextId,
     String? nextMark,
-  }) => SurfacePanel(
-    children: [
-      for (final card in cards)
-        CardListTile(
-          card: card,
-          formatter: formatter,
-          mark: card.id == nextId ? nextMark : null,
-          onTap: () => openCard(context, card.id),
-        ),
-    ],
-  );
+  }) {
+    final quiet = waitingCards && !distilling;
+    return SurfacePanel(
+      children: [
+        for (final card in cards)
+          CardListTile(
+            card: card,
+            formatter: formatter,
+            mark: !quiet && card.id == nextId ? nextMark : null,
+            showStanding: !quiet || card.suspended,
+            onTap: () => openCard(context, card.id),
+          ),
+      ],
+    );
+  }
 }
 
 /// "Acquired · 3", folded until its title is touched.
@@ -273,22 +301,32 @@ class _AcquiredSectionState extends State<_AcquiredSection> {
   }
 }
 
-/// Title of a section of cards, under "Cards": smaller, not in capitals.
+/// Title of a section of cards: small, not in capitals, with an optional
+/// widget at its right; the title sits at the bottom of that widget.
 class _SubsectionLabel extends StatelessWidget {
-  const _SubsectionLabel(this.text);
+  const _SubsectionLabel(this.text, {this.trailing});
 
   final String text;
+  final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
-    child: Text(
-      text,
-      style: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: AlambicColors.of(context).textSecondary,
+  Widget build(BuildContext context) {
+    final label = Padding(
+      padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AlambicColors.of(context).textSecondary,
+        ),
       ),
-    ),
-  );
+    );
+    return trailing == null
+        ? label
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [Expanded(child: label), trailing!],
+          );
+  }
 }

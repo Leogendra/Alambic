@@ -6,7 +6,6 @@ import '../../domain/distillation/distillation_rhythm.dart';
 import '../cards/card_providers.dart';
 import '../clock.dart';
 import '../scheduling/scheduling_providers.dart';
-import '../time/minute_ticker.dart';
 import 'distillation_progress.dart';
 import 'distillation_service.dart';
 
@@ -43,23 +42,14 @@ final distillationProgressesProvider = Provider<List<DistillationProgress>>((
 ) {
   final distillations = ref.watch(distillationsProvider).value;
   final cards = ref.watch(allCardsProvider).value;
-  final now = ref.watch(currentMomentProvider).value;
-  final globalPause = ref.watch(globalPauseProvider);
-  if (distillations == null ||
-      cards == null ||
-      now == null ||
-      !globalPause.hasValue) {
+  if (distillations == null || cards == null) {
     return const [];
   }
-  final rhythm = ref.watch(distillationRhythmProvider);
   return [
     for (final distillation in distillations)
       DistillationProgress.of(
         distillation,
         cards.where((card) => card.groupId == distillation.groupId).toList(),
-        rhythm,
-        now,
-        globallyPaused: globalPause.value != null,
       ),
   ];
 });

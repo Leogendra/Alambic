@@ -22,9 +22,9 @@ The page of a group is titled with its name; from top to bottom:
 
 - the large "Distill" button while the group does not distill, with a line explaining it and a band of light gliding once across the button when the page opens (nothing when the system asks for no animation), then, once activated, the tracking of its distillation in its place ([Feature 8](8-distillation.md#screens));
 - the "Enable the back" / "Disable the back" button, with a line saying how cards are asked;
-- the cards, under a "Cards" title with a small "Review all" button at its right, shown while the group has cards in progress or waiting. They come in three sections, each under a small title with its number of cards ("In progress · 4"), left out when empty. Each card shows where it stands ([Feature 3](3-cards.md#where-a-card-stands)):
+- the cards, in three sections, each under a small title with its number of cards ("In progress · 4"), left out when empty. A small "Review all" button sits at the right of the first title, shown while the group has cards in progress or waiting. Each card shows where it stands ([Feature 3](3-cards.md#where-a-card-stands)):
   - "In progress · N": the introduced cards that have a due date, in their sequence or in [remanence](../lexicon.md#remanence), soonest due first; the suspended ones stay there, marked "suspended", at the end;
-  - "Waiting · N": the [queue](../lexicon.md#queue), in its order, suspended cards in their place. The first card that is not suspended, the next one the distillation introduces, reads "next" in accent instead of "waiting";
+  - "Waiting · N": the [queue](../lexicon.md#queue), in its order, suspended cards in their place. While the group distills, the first card that is not suspended, the next one the distillation introduces, reads "next" in accent instead of "waiting"; while it does not, the cards say nothing of where they stand, but the suspended ones;
   - "Learned · N": the [acquired](../lexicon.md#acquired) cards, folded by default; touching its title unfolds or folds it.
 
 The "+" button creates a card directly in the group, and the toolbar opens the bulk add and the group settings.
@@ -66,8 +66,8 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 
 - [x] The tab lists the groups, one row each, with number of cards, "distillation" when it is activated, and number of due cards; no preset.
 - [x] Search finds cards by their front or back, case-insensitively.
-- [x] A group page shows its cards under "Cards", with "Review all" beside it, in three sections with their counts, "In progress", "Waiting" and "Learned", each card with where it stands; its header recalls neither the number of cards nor the preset.
-- [x] "In progress" is sorted soonest due first, suspended cards last; "Waiting" follows the queue, and its first card that is not suspended reads "next".
+- [x] A group page shows its cards in three sections with their counts, "In progress", "Waiting" and "Learned", each card with where it stands; its header recalls neither the number of cards nor the preset.
+- [x] "In progress" is sorted soonest due first, suspended cards last; "Waiting" follows the queue, and, while the group distills, its first card that is not suspended reads "next"; without distillation no waiting card says where it stands.
 - [x] The learned section is folded by default; an empty section is absent.
 - [x] A group that does not distill shows a large "Distill" button; once activated, its tracking replaces it. A band of light glides once across the button on arrival.
 - [x] "Review all" asks the due cards first, then the other introduced cards, then the pending ones, all but the due ones as bonus reviews, and leaves suspended and acquired cards out.

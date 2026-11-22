@@ -14,12 +14,16 @@ class CardListTile extends StatelessWidget {
     required this.formatter,
     required this.onTap,
     this.mark,
+    this.showStanding = true,
     super.key,
   });
 
   final Flashcard card;
   final CardStatusFormatter formatter;
   final VoidCallback onTap;
+
+  /// Whether to say where the card stands; a [mark] is shown regardless.
+  final bool showStanding;
 
   /// Shown in accent instead of where the card stands, such as "next" for
   /// the head of the queue.
@@ -71,15 +75,17 @@ class CardListTile extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 12),
-            Text(
-              mark ?? formatter.standing(card),
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: highlighted ? colors.accentText : colors.textSecondary,
+            if (mark != null || showStanding) ...[
+              const SizedBox(width: 12),
+              Text(
+                mark ?? formatter.standing(card),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: highlighted ? colors.accentText : colors.textSecondary,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

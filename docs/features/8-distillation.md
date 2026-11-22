@@ -48,7 +48,7 @@ Resuming, from either pause, processes the current day if it was not processed y
 
 ### Screens
 
-While the group does not distill, its page shows a large "Distill" button ([Feature 4](4-groups.md#group-page)). Once activated, a "Distillation" section takes its place: a "Distillation" tag, or "Paused since Nov 3" with a pause icon, a settings button that opens the "Distill" screen, the rhythm ("1 card a day", "3 cards a day"), the waiting cards ("5 cards waiting") and the estimated day of the last arrival ("last around Nov 15"), or "no arrival planned" while cards wait and no arrival is planned (paused, or during the global pause).
+While the group does not distill, its page shows a large "Distill" button ([Feature 4](4-groups.md#group-page)). Once activated, a tile takes its place, with no title above it: a "Distillation" tag, or "Paused since Nov 3" with a pause icon, a settings button that opens the "Distill" screen, then on one line the waiting cards at the left ("5 cards waiting") and the rhythm at the right ("1 card a day", "3 cards a day").
 
 The "Distill" screen shows the [schedule](../lexicon.md#schedule) of the app, then the settings: "Cards per day" (1 by default) and "Prioritize reviews" (on, explaining that each card due takes the place of a new card). A "Preset" section follows them: the preset the group follows, with its reminders as chips (1 d, 2 d, 1 wk…) and its failure behaviour. The name opens the preset picker of the group settings, which ends on "New preset": the editor on a new preset, which the group follows once saved. "Edit" opens the preset editor ([Feature 2](2-presets.md)). These apply at once, without "Save", and a preset edited here changes for every group that follows it. An estimate of the last arrival follows, with the settings being chosen ("44 cards · last one arrives around December 23", see [Estimates](#estimates)), or a line saying no card waits. It ends on "Start distilling"; opened from the group page, it is titled "Adjust the distillation", starts from the current settings and ends on "Save". There, a "Pause" or "Resume" button follows the settings, with a line saying that no new card comes out while the reminders go on ("Paused since November 3: …" while paused); a paused distillation shows "13 cards waiting · paused" instead of its estimate, and so does any distillation during the global pause.
 
@@ -56,7 +56,7 @@ On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#n
 
 ### Estimates
 
-The "Distill" screen, the group page and Home announce the arrivals to come from the rhythm, day after day from the next batch day until the queue is empty: today until today's pass ran, otherwise the day after the last batch, never before tomorrow. With "Prioritize reviews", each day gives up a place for every card of the group already due that day: on today, the cards due right now, late ones included; on a later day, the cards whose due day it is. The reviews of the cards not introduced yet, and those of the cards answered meanwhile, are unknown: an announced arrival can slip, which is why the screens say "around". A paused distillation, or any during the global pause, announces nothing.
+The "Distill" screen and Home announce the arrivals to come from the rhythm, day after day from the next batch day until the queue is empty: today until today's pass ran, otherwise the day after the last batch, never before tomorrow. With "Prioritize reviews", each day gives up a place for every card of the group already due that day: on today, the cards due right now, late ones included; on a later day, the cards whose due day it is. The reviews of the cards not introduced yet, and those of the cards answered meanwhile, are unknown: an announced arrival can slip, which is why the screens say "around". A paused distillation, or any during the global pause, announces nothing.
 
 ## Acceptance criteria
 
@@ -69,14 +69,14 @@ The "Distill" screen, the group page and Home announce the arrivals to come from
 - [x] Prioritizing reviews: a day brings N new cards minus the cards of the group due at the pass, late and unanswered ones included; reminders are never moved.
 - [x] The "Distill" screen activates or adjusts, with an estimate of the last arrival that leaves out the batch days taken by the reviews already planned.
 - [x] The "Distill" screen shows the preset of the group with its reminders, and edits it, swaps it or creates another at once.
-- [x] The group page follows the distillation (pause, rhythm, waiting cards, last arrival) with a single settings button.
+- [x] The group page follows the distillation (pause, waiting cards, rhythm) with a single settings button.
 - [x] A paused distillation, and every distillation during the global pause, introduces nothing; the reminders go on and no due date moves. Resuming brings a single batch at most; the global pause leaves each distillation's own pause alone.
 - [x] A missed 4am wake-up runs the pass at restart, or at the opening of the app.
 
 ## Test strategy
 
 - The rhythm (`DistillationRhythm`) is tested as pure functions: batch owed the day after the last one, new cards with and without "Prioritize reviews", next introduction day, and the forecast of arrivals: batches until the queue is empty, places taken by the reviews planned on a day (late ones today, not a reminder of less than a day already answered), a day fully taken, a forecast bounded in time.
-- The progress of a distillation is tested on its last arrival, slipping with the reviews, and on no arrival while paused.
+- The progress of a distillation is tested on the count of waiting cards.
 - The two examples of "Prioritize reviews" are replayed on an in-memory database, with late and unanswered cards counted and reminders left in place.
 - The service is tested on an in-memory database filled through the services, moving a fixed clock across days: activation, first batch, next days, 4am boundary, a week without pass (one batch, then one a day), an empty queue, a change of cards per day before and after the day's pass, pause, suspension.
 - The "Distill" screen, the group page and Home are covered by screen tests with a capture; widget tests activate a distillation and adjust it from their screens, and check the waiting cards shown instead of the estimate during the global pause.

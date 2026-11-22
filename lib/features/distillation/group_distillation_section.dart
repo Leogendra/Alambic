@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/theme/alambic_colors.dart';
-import '../../app/widgets/section_label.dart';
 import '../../app/widgets/shine_sweep.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -45,13 +44,7 @@ class GroupDistillationSection extends ConsumerWidget {
         ],
       );
     } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SectionLabel(strings.groupDistillationSection),
-          DistillationTile(progress: distillation),
-        ],
-      );
+      return DistillationTile(progress: distillation);
     }
   }
 }

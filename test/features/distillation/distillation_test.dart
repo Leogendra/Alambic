@@ -283,7 +283,6 @@ void main() {
       overrides: screenOverrides(database, sampleNow),
     );
     expect(find.text('Paused since Nov 10'), findsOne);
-    expect(find.text('no arrival planned'), findsOne);
     await captureShot(
       tester,
       find.byType(GroupDetailScreen),

@@ -60,14 +60,18 @@ void main() {
     await samples.cards.setSuspended(myanmar.id, suspended: true);
   });
 
+  /// Makes Capitals distill; its first batch comes out at once, so it goes
+  /// before the cards that must wait.
+  Future<void> activate(WidgetTester tester) => tester.runAsync(
+    () => samples.distillations.activate(
+      capitalsId,
+      const DistillationSettings(),
+    ),
+  );
+
   testScreen('groups tab, "distillation" on a distilled group', (tester) async {
     await seed(tester);
-    await tester.runAsync(
-      () => samples.distillations.activate(
-        capitalsId,
-        const DistillationSettings(),
-      ),
-    );
+    await activate(tester);
     await pumpScreen(
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
@@ -121,6 +125,7 @@ void main() {
   ]) {
     testScreen('group detail, ${brightness.name} theme', (tester) async {
       await seed(tester);
+      await activate(tester);
       await seedAcquired(tester);
       await seedWaiting(tester);
       await pumpScreen(
@@ -140,9 +145,45 @@ void main() {
     });
   }
 
+  testScreen('without distillation, the waiting cards say nothing of where '
+      'they stand', (tester) async {
+    await seed(tester);
+    await seedWaiting(tester);
+    await pumpScreen(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    expect(find.text('Waiting · 2'), findsOneWidget);
+    expect(find.text('waiting'), findsNothing);
+    expect(find.text('next'), findsNothing);
+    expect(find.text('suspended'), findsNWidgets(2));
+  });
+
+  testScreen('"Review all" sits beside the first section title', (
+    tester,
+  ) async {
+    await seed(tester);
+    await pumpScreen(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    final title = tester.getRect(find.textContaining('In progress'));
+    final button = tester.getRect(
+      find.ancestor(
+        of: find.text('Review all'),
+        matching: find.byType(OutlinedButton),
+      ),
+    );
+    expect(title.bottom, closeTo(button.bottom, 1));
+    expect(find.text('Cards'), findsNothing);
+  });
+
   testScreen('three sections with their counts; the head of the queue '
       'that is not suspended is "next"', (tester) async {
     await seed(tester);
+    await activate(tester);
     await seedAcquired(tester);
     await seedWaiting(tester);
     await pumpScreen(

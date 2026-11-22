@@ -11,13 +11,15 @@ import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/presets/preset_providers.dart';
+import '../../domain/presets/preset.dart';
+import '../../domain/presets/preset_catalog.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../presets/preset_picker.dart';
 import '../presets/presets_screen.dart';
 
-/// The preset followed by the cards of the group, with its reminders. It is
-/// edited here, swapped for another or replaced by a new one, applied at
-/// once, without "Save".
+/// The preset followed by the cards of the group, with its reminders. Its name
+/// opens the choice of another preset or of a new one, "Edit" its editor;
+/// either applies at once, without "Save".
 class DistillationPresetSection extends ConsumerWidget {
   const DistillationPresetSection({required this.groupId, super.key});
 
@@ -39,28 +41,13 @@ class DistillationPresetSection extends ConsumerWidget {
         SectionLabel(strings.cardPreset),
         SurfacePanel(
           children: [
+            _nameRow(context, ref, strings, colors, preset, catalog),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 10,
                 children: [
-                  Row(
-                    spacing: 8,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          strings.presetName(preset),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      if (preset.id == catalog.globalPresetId)
-                        BadgeLabel(strings.presetGlobalBadge),
-                    ],
-                  ),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -75,23 +62,9 @@ class DistillationPresetSection extends ConsumerWidget {
                     ),
                     style: TextStyle(fontSize: 14, color: colors.textSecondary),
                   ),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      CompactButton(
-                        label: strings.presetEdit,
-                        onPressed: () => openPresetEditor(context, preset),
-                      ),
-                      CompactButton(
-                        label: strings.distillPresetChange,
-                        onPressed: () => _choose(context, ref),
-                      ),
-                      CompactButton(
-                        label: strings.presetsNew,
-                        onPressed: () => _create(context, ref),
-                      ),
-                    ],
+                  CompactButton(
+                    label: strings.presetEdit,
+                    onPressed: () => openPresetEditor(context, preset),
                   ),
                 ],
               ),
@@ -113,31 +86,32 @@ class DistillationPresetSection extends ConsumerWidget {
     );
   }
 
-  Future<void> _choose(BuildContext context, WidgetRef ref) async {
-    final catalog = await ref.read(presetCatalogProvider.future);
-    final group = ref.read(groupSummaryProvider(groupId))?.group;
-    if (!context.mounted || group == null) {
-      return;
-    }
-    final presetId = await showPresetPicker(
-      context,
-      presets: catalog.presetsById.values.toList(),
-      selectedPresetId: group.presetId,
-    );
-    if (presetId != null) {
-      await ref.read(groupServiceProvider).setPreset(groupId, presetId);
-    }
-  }
-
-  /// A new preset, which the group follows once it is saved.
-  Future<void> _create(BuildContext context, WidgetRef ref) async {
-    final strings = AppLocalizations.of(context);
-    final draft = ref
-        .read(presetServiceProvider)
-        .newDraft(strings.presetNewName);
-    final presetId = await openPresetEditor(context, draft);
-    if (presetId != null) {
-      await ref.read(groupServiceProvider).setPreset(groupId, presetId);
-    }
-  }
+  /// The name of the preset, which opens the choice of another one.
+  Widget _nameRow(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations strings,
+    AlambicColors colors,
+    Preset preset,
+    PresetCatalog catalog,
+  ) => InkWell(
+    onTap: () => chooseGroupPreset(context, ref, groupId),
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 56),
+      child: Row(
+        spacing: 8,
+        children: [
+          Expanded(
+            child: Text(
+              strings.presetName(preset),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+          ),
+          if (preset.id == catalog.globalPresetId)
+            BadgeLabel(strings.presetGlobalBadge),
+          Icon(Icons.chevron_right, color: colors.textSecondary),
+        ],
+      ),
+    ),
+  );
 }

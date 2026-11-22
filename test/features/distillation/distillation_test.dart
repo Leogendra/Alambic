@@ -131,7 +131,7 @@ void main() {
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
-    await tester.ensureVisible(find.text(l10n.distillPresetChange));
+    await tester.ensureVisible(find.text(l10n.presetEdit));
     expect(find.text('Standard'), findsOne);
     expect(find.text('Default'), findsOne);
     for (final step in BuiltInPresets.standard.intervals) {
@@ -162,8 +162,8 @@ void main() {
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
-    await tester.ensureVisible(find.text(l10n.distillPresetChange));
-    await tester.tap(find.text(l10n.distillPresetChange));
+    await tester.ensureVisible(find.text('Standard'));
+    await tester.tap(find.text('Standard'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Intensive'));
     await settle(tester);
@@ -188,7 +188,9 @@ void main() {
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
-    await tester.ensureVisible(find.text(l10n.presetsNew));
+    await tester.ensureVisible(find.text('Standard'));
+    await tester.tap(find.text('Standard'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l10n.presetsNew));
     await tester.pumpAndSettle();
     expect(find.byType(PresetEditorScreen), findsOne);
@@ -242,6 +244,8 @@ void main() {
     await tester.tap(find.byTooltip(l10n.distillMoreCards));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text(l10n.commonSave), 200);
+    await tester.ensureVisible(find.text(l10n.commonSave));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l10n.commonSave));
     // The save runs on the database, then the screen closes.
     for (

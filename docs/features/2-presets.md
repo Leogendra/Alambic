@@ -70,7 +70,7 @@ Changing the preset of a group or the steps of a preset rewrites no card: the st
 - `lib/data/repositories/preset_repository.dart` — reading and writing presets and the global preset, catalog stream.
 - `lib/data/database/preset_companions.dart` — writing a domain `Preset` into its table.
 - `lib/application/presets/` — creation, editing, duplication and deletion service; Riverpod providers of the presets and the catalog.
-- `lib/features/presets/` — list, editor, step timeline, step dialog and the preset picker of the group settings.
+- `lib/features/presets/` — list, editor, step timeline, step dialog and the preset picker of a group, which ends on "New preset".
 - `lib/features/settings/settings_screen.dart` — the "Presets" row.
 
 ## Technical details

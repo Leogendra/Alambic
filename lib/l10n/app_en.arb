@@ -736,7 +736,6 @@
   "distillFewerCards": "Fewer cards",
   "distillMoreCards": "More cards",
   "distillPrioritizeReviews": "Prioritize reviews",
-  "distillPresetChange": "Choose another",
   "distillPresetHint": "Each card follows these reminders once it arrives. A change to a preset applies to every group that follows it.",
   "distillPrioritizeReviewsHint": "Each day, each card of the group due for review takes the place of a new card.",
   "distillEstimate": "{count, plural, =1{1 card · arrives around {date}} other{{count} cards · last one arrives around {date}}}",

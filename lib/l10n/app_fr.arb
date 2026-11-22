@@ -277,7 +277,6 @@
   "distillFewerCards": "Moins de cartes",
   "distillMoreCards": "Plus de cartes",
   "distillPrioritizeReviews": "Prioriser les révisions",
-  "distillPresetChange": "En choisir un autre",
   "distillPresetHint": "Chaque carte suit ces rappels une fois arrivée. Une modification du preset s'applique à tous les groupes qui le suivent.",
   "distillPrioritizeReviewsHint": "Les cartes à réviser comptent dans ta limite quotidienne : tu ne vois de nouvelles cartes que si les révisions ne dépassent pas la limite.",
   "distillEstimate": "{count, plural, =1{1 carte · arrivée vers le {date}} other{{count} cartes · dernière arrivée vers le {date}}}",

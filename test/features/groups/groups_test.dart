@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/groups/after_last_step.dart';
 import 'package:alambic/domain/groups/card_group.dart';
@@ -15,6 +16,7 @@ import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/groups/group_settings_screen.dart';
 import 'package:alambic/features/groups/groups_screen.dart';
+import 'package:alambic/features/presets/preset_editor_screen.dart';
 import 'package:alambic/features/session/session_screen.dart';
 
 import '../../support/fixed_clock.dart';
@@ -252,6 +254,32 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testScreen('"New preset" of the picker is followed by the group once saved', (
+    tester,
+  ) async {
+    await seed(tester);
+    await pumpScreen(
+      tester,
+      GroupSettingsScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.tap(find.text(l10n.cardPreset));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.presetsNew));
+    await tester.pumpAndSettle();
+    expect(find.byType(PresetEditorScreen), findsOne);
+    await tester.tap(find.text(l10n.commonSave));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pumpAndSettle();
+    final catalog = await tester.runAsync(
+      () => PresetRepository(database).loadCatalog(),
+    );
+    expect(catalog!.presetForGroup(capitalsId).name, l10n.presetNewName);
+    expect(find.text(l10n.presetNewName), findsOne);
   });
 
   testScreen('"Enable the back" switches the option of the group', (

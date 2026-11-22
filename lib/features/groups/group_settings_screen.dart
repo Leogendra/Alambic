@@ -100,16 +100,7 @@ class GroupSettingsScreen extends ConsumerWidget {
       title: strings.cardPreset,
       subtitle: strings.presetStepsSummary(preset),
       value: strings.presetName(preset),
-      onTap: () async {
-        final presetId = await showPresetPicker(
-          context,
-          presets: catalog.presetsById.values.toList(),
-          selectedPresetId: group.presetId,
-        );
-        if (presetId != null) {
-          await ref.read(groupServiceProvider).setPreset(group.id, presetId);
-        }
-      },
+      onTap: () => chooseGroupPreset(context, ref, group.id),
     );
   }
 

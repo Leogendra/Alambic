@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:alambic/application/notifications/notification_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
-import 'package:alambic/features/settings/exact_alarms_panel.dart';
 import 'package:alambic/features/settings/notification_settings_screen.dart';
 
 import '../../support/fake_notifications.dart';
@@ -41,16 +41,15 @@ void main() {
       'settings_exact_alarms_off',
     );
     await expectNoOverflow(tester);
+    expect(find.byIcon(Icons.check_circle), findsNothing);
     await tester.tap(find.text(l10n.settingsExactAlarmsAllow));
     expect(alarms.permissionRequests, 1);
   });
 
-  testScreen('says reminders are on time when exact alarms are allowed', (
-    tester,
-  ) async {
+  testScreen('only says so once exact alarms are allowed', (tester) async {
     await pumpSettings(tester);
-    expect(find.byType(ExactAlarmsPanel), findsOneWidget);
-    expect(find.text('On'), findsOneWidget);
-    expect(find.text('Allow'), findsNothing);
+    expect(find.text(l10n.settingsExactAlarmsOn), findsOneWidget);
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    expect(find.text(l10n.settingsExactAlarmsAllow), findsNothing);
   });
 }

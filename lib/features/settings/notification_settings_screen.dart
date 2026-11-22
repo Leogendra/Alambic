@@ -7,9 +7,10 @@ import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../application/notifications/guard_providers.dart';
+import '../../application/notifications/notification_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../pauses/global_pause_dialog.dart';
-import 'exact_alarms_panel.dart';
+import 'exact_alarms_row.dart';
 import 'notification_guards_screen.dart';
 import 'notification_mode_screen.dart';
 import 'open_settings_screen.dart';
@@ -25,7 +26,7 @@ class NotificationSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SettingsPage(
     title: AppLocalizations.of(context).settingsNotifications,
-    children: const [_NotificationsPanel(), ExactAlarmsPanel()],
+    children: const [_NotificationsPanel()],
   );
 }
 
@@ -38,6 +39,8 @@ class _NotificationsPanel extends ConsumerWidget {
     final reminders = ref.watch(reminderSettingsProvider).value;
     final guards = ref.watch(notificationGuardsProvider).value;
     final pausedAt = ref.watch(globalPauseProvider).value;
+    final exactAlarmsKnown =
+        ref.watch(exactAlarmsAllowedProvider).value != null;
     return SurfacePanel(
       children: [
         PanelRow(
@@ -83,6 +86,7 @@ class _NotificationsPanel extends ConsumerWidget {
                 : ref.read(distillationServiceProvider).resumeAll(),
           ),
         ),
+        if (exactAlarmsKnown) const ExactAlarmsRow(),
       ],
     );
   }

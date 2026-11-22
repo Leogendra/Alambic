@@ -272,7 +272,6 @@
   "settingsExactAlarmsOn": "Les rappels tombent à la minute près.",
   "settingsExactAlarmsOff": "Les rappels peuvent arriver avec quelques minutes de retard. Autorise les alarmes exactes pour qu'ils tombent à l'heure.",
   "settingsExactAlarmsAllow": "Autoriser",
-  "settingsExactAlarmsAllowed": "Activés",
   "distillTitle": "Distiller",
   "distillAdjustTitle": "Régler la distillation",
   "distillIntro": "Les cartes en attente du groupe arrivent au compte-gouttes, à l'heure des rappels ({time}). Chacune suit ensuite le preset {preset}.",

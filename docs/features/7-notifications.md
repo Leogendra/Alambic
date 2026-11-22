@@ -50,7 +50,7 @@ Home's timeline lists the same moments, so a range shows one line per notificati
 
 ### Safeguards
 
-Three safeguards, set in Settings › Notifications › Garde-fous and stored in the database (`NotificationGuards`), apply to every group. `DeliveryPlanner` applies the first two to the notification moments, the dispatcher the third:
+Three safeguards, set in Settings › Notifications › Safeguards, as the rows of a single panel, and stored in the database (`NotificationGuards`), apply to every group. `DeliveryPlanner` applies the first two to the notification moments, the dispatcher the third:
 
 - **Quiet hours** ("Do not disturb", on by default, 22:00 to 08:00): a notification falling inside is moved to their end, 23:10 to 08:00 the next morning. The hours may span midnight or stay within a day. A notification moved to the next morning keeps that moment even though its due day is over.
 - **Daily cap** (20 cards by default): each day, the cards beyond the cap are not notified; the ones waiting the longest interval of their sequence go last, a new card counting as the shortest. They are moved to the slot of the next day, where they compete again. The cards already notified that day count against the cap, through a counter of the day kept in `app_settings`, since a card answered loses the trace of its notification. A card in a grouped reminder counts as one card; "Review soon" reminders are not counted.
@@ -119,7 +119,7 @@ What the reminder offers is set with the mode:
 
 ### Exact alarms, restarts and permissions
 
-Exact alarms need a permission that Android 14 refuses by default. Without it, wake-ups are scheduled as inexact alarms, which Android may deliver a few minutes late, and Settings shows a "Reminders at the exact time" panel with an "Allow" button opening the system page. Back in the app, the permission is read again and, when it changed, every wake-up is scheduled again with the new precision.
+Exact alarms need a permission that Android 14 refuses by default. Without it, wake-ups are scheduled as inexact alarms, which Android may deliver a few minutes late, and the "Reminders on the dot" row of Settings › Notifications offers an "Allow" button opening the system page. Once allowed, the row only says so, with a check mark: the permission is asked once and never offered back. Back in the app, the permission is read again and, when it changed, every wake-up is scheduled again with the new precision.
 
 Wake-ups survive a restart of the phone: the alarm plugin restores them at boot, and a wake-up whose moment passed while the phone was off fires right away, showing everything late. A missed 4am wake-up of a distillation fires the same way, so the day's batch comes out at restart ([Feature 8](8-distillation.md#rhythm)). Every launch of the app also schedules all wake-ups again, since a force-stop loses them.
 
@@ -161,7 +161,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - Each button is tested through the action handler: "Correct" and "Again" record and leave the answer and the next review, a bonus review closes; "Reveal" and "Hide" show and hide the answer silently and record nothing, then "Correct" or "Again"; the typed answer with its verdict, "Again", "Reveal" and "Hide"; "Reveal", "Hide" and "Again" on a chained card; the buttons of the test notification, which record nothing.
 - The notification texts and the payload carried by a notification, including what a touched notification opens, are tested without a device.
 - The content of the session opened by each kind of notification is tested on an in-memory database with a fixed clock: its card or group first, then every due card, earliest first, without repeating the touched card.
-- The exact alarm panel is tested on screen, with a capture of the refused state; the safeguards, schedule and notification mode screens have captures too, and their changes are checked in the database.
+- The exact alarm row is tested on screen, with a capture of the refused state; the safeguards, schedule and notification mode screens have captures too, and their changes are checked in the database.
 - Moving the due dates to a new slot is tested as pure domain logic, then through the settings service on an in-memory database.
 - The Android implementation itself (alarm plugin, notification plugin, background isolates) is not covered by automated tests: it is checked on a phone.
 
@@ -172,7 +172,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - `lib/application/notifications/` — the platform interfaces, the planner, the dispatcher, the grouped reminders, the action handler and their providers.
 - `lib/notifications/` — notification texts and the store of planned wake-ups.
 - `lib/notifications/android/` — Android implementations, wiring and background entry points.
-- `lib/features/settings/` — the Notifications screen, with the exact alarm panel, the schedule, notification mode and safeguards screens.
+- `lib/features/settings/` — the Notifications screen, with the exact alarm row, the schedule, notification mode and safeguards screens.
 - `lib/data/repositories/notification_settings_repository.dart` — the schedule, the mode, the safeguards and the count of cards notified today.
 - `lib/app/shell/main_shell.dart` — opens the session of a touched notification.
 - `lib/main.dart` — initialisation and planning at launch.

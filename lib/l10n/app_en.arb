@@ -738,7 +738,6 @@
   "settingsExactAlarmsOn": "Reminders arrive on the minute.",
   "settingsExactAlarmsOff": "Reminders may arrive a few minutes late. Allow exact alarms so that they arrive on time.",
   "settingsExactAlarmsAllow": "Allow",
-  "settingsExactAlarmsAllowed": "On",
   "distillTitle": "Distill",
   "distillAdjustTitle": "Adjust the distillation",
   "distillIntro": "The waiting cards of the group arrive a few at a time, at the reminder time ({time}). Each then follows the {preset} preset.",

@@ -31,11 +31,13 @@ class NotificationGuardsScreen extends ConsumerWidget {
                 const EdgeInsets.fromLTRB(20, 8, 20, 32),
               ),
               children: [
-                _DailyCapPanel(guards: guards),
-                const SizedBox(height: 14),
-                _QuietHoursPanel(guards: guards),
-                const SizedBox(height: 14),
-                _AutoGroupPanel(guards: guards),
+                SurfacePanel(
+                  children: [
+                    _DailyCapSetting(guards: guards),
+                    _QuietHoursSetting(guards: guards),
+                    _AutoGroupSetting(guards: guards),
+                  ],
+                ),
               ],
             ),
     );
@@ -45,8 +47,8 @@ class NotificationGuardsScreen extends ConsumerWidget {
 Future<void> _save(WidgetRef ref, NotificationGuards guards) =>
     ref.read(notificationSettingsServiceProvider).saveGuards(guards);
 
-class _DailyCapPanel extends ConsumerWidget {
-  const _DailyCapPanel({required this.guards});
+class _DailyCapSetting extends ConsumerWidget {
+  const _DailyCapSetting({required this.guards});
 
   final NotificationGuards guards;
 
@@ -54,7 +56,7 @@ class _DailyCapPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final tomorrow = ref.watch(tomorrowDueCountProvider);
-    return SurfacePanel(
+    return Column(
       children: [
         PanelRow(
           title: strings.guardsDailyCap,
@@ -148,15 +150,15 @@ class _TomorrowLoad extends StatelessWidget {
   }
 }
 
-class _QuietHoursPanel extends ConsumerWidget {
-  const _QuietHoursPanel({required this.guards});
+class _QuietHoursSetting extends ConsumerWidget {
+  const _QuietHoursSetting({required this.guards});
 
   final NotificationGuards guards;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    return SurfacePanel(
+    return Column(
       children: [
         PanelRow(
           title: strings.guardsQuietHours,
@@ -255,15 +257,15 @@ class _TimeButton extends StatelessWidget {
   }
 }
 
-class _AutoGroupPanel extends ConsumerWidget {
-  const _AutoGroupPanel({required this.guards});
+class _AutoGroupSetting extends ConsumerWidget {
+  const _AutoGroupSetting({required this.guards});
 
   final NotificationGuards guards;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    return SurfacePanel(
+    return Column(
       children: [
         PanelRow(
           title: strings.guardsAutoGroup,
@@ -274,7 +276,8 @@ class _AutoGroupPanel extends ConsumerWidget {
                 _save(ref, guards.copyWith(autoGroupEnabled: enabled)),
           ),
         ),
-        if (guards.autoGroupEnabled)
+        if (guards.autoGroupEnabled) ...[
+          const Divider(height: 1),
           PanelRow(
             title: strings.guardsAutoGroupThreshold,
             trailing: CountStepper(
@@ -286,6 +289,7 @@ class _AutoGroupPanel extends ConsumerWidget {
                   _save(ref, guards.copyWith(autoGroupThreshold: threshold)),
             ),
           ),
+        ],
       ],
     );
   }

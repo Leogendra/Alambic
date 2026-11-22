@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -66,7 +67,7 @@ class SettingsScreen extends ConsumerWidget {
         SettingsGroup(
           children: [
             PanelRow(
-              icon: Icons.code,
+              icon: FontAwesomeIcons.github.data,
               title: strings.settingsGithub,
               trailing: const Icon(Icons.open_in_new),
               onTap: () => ref.read(appAboutProvider).openRepository(),

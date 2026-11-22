@@ -133,7 +133,7 @@ void main() {
     );
     await tester.ensureVisible(find.text(l10n.presetEdit));
     expect(find.text('Standard'), findsOne);
-    expect(find.text('Default'), findsOne);
+    expect(find.text('Default'), findsNothing);
     for (final step in BuiltInPresets.standard.intervals) {
       expect(find.text(l10n.intervalLabel(step)), findsOne);
     }

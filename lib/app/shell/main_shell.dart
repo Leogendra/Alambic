@@ -17,7 +17,7 @@ import 'alambic_tab_bar.dart';
 
 /// Root screen: three tabs and the "+" button that creates a card. A
 /// notification touched opens a session above it. Right after the
-/// onboarding, the group it created opens with "Distill" highlighted.
+/// onboarding, the group it created opens.
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
@@ -41,8 +41,7 @@ class _MainShellState extends ConsumerState<MainShell> {
     if (groupId != null && mounted) {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (context) =>
-              GroupDetailScreen(groupId: groupId, highlightDistill: true),
+          builder: (context) => GroupDetailScreen(groupId: groupId),
         ),
       );
     }

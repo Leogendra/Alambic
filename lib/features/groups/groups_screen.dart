@@ -41,33 +41,24 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
           onChanged: (text) => setState(() => _query = text.trim()),
         ),
         const SizedBox(height: 16),
-        if (_query.isEmpty) _groupList() else _searchResults(strings),
+        if (_query.isEmpty) _groupList(strings) else _searchResults(strings),
       ],
     );
   }
 
-  Widget _header(AppLocalizations strings) => Row(
-    children: [
-      Expanded(
-        child: Text(
-          strings.groupsTitle,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
-        ),
-      ),
-      TextButton.icon(
-        onPressed: _createGroup,
-        icon: const Icon(Icons.add),
-        label: Text(strings.commonNew),
-      ),
-    ],
+  Widget _header(AppLocalizations strings) => Text(
+    strings.groupsTitle,
+    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
   );
 
-  /// One row per group, in a single panel; nothing while there is none.
-  Widget _groupList() {
+  /// One row per group, in a single panel, then "New" under the last one.
+  Widget _groupList(AppLocalizations strings) {
     final summaries = ref.watch(groupSummariesProvider);
-    return summaries.isEmpty
-        ? const SizedBox.shrink()
-        : SurfacePanel(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (summaries.isNotEmpty)
+          SurfacePanel(
             children: [
               for (final summary in summaries)
                 GroupSummaryTile(
@@ -75,7 +66,15 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                   onTap: () => _openGroup(summary),
                 ),
             ],
-          );
+          ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: _createGroup,
+          icon: const Icon(Icons.add),
+          label: Text(strings.commonNew),
+        ),
+      ],
+    );
   }
 
   Widget _searchResults(AppLocalizations strings) {

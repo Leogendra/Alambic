@@ -12,7 +12,7 @@ Every card is in a group: a group is created from the Groups tab, or on the fly 
 
 ### Groups tab
 
-The tab shows a search field, then the groups in alphabetical order, one row each in a single panel. Each row gives the name and the number of cards, followed by "distillation" once the group's distillation is activated ("48 cards · distillation"), and a badge with the number of [due](../lexicon.md#due) cards when there are any. While its distillation is paused, the row is greyed and reads "Paused" instead ("64 cards · Paused"), with a pause icon when no card is due. "New" creates a group after asking for its name.
+The tab shows a search field, then the groups in alphabetical order, one row each in a single panel. Each row gives the name and the number of cards, followed by "distillation" once the group's distillation is activated ("48 cards · distillation"), and a badge with the number of [due](../lexicon.md#due) cards when there are any. While its distillation is paused, the row is greyed and reads "Paused" instead ("64 cards · Paused"), with a pause icon when no card is due. "New", under the last group, creates a group after asking for its name; it gives way to the search results like the list.
 
 As soon as some text is typed, the group list gives way to the cards whose front or back contains that text, case-insensitively, across all groups (at most 100 results).
 

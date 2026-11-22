@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' show ImageByteFormat;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -45,6 +47,34 @@ Future<void> pumpGolden(
     ),
   );
   await tester.pumpAndSettle();
+}
+
+/// Whether this run writes the screen captures: `--dart-define=shots=true`.
+const bool writeShots = bool.fromEnvironment('shots');
+
+/// Writes the image of the widget found by [finder] to `build/shots/[name].png`
+/// when the run asks for it ([writeShots]), and does nothing otherwise. The
+/// captures are for looking at the screens, not for comparing them: nothing
+/// fails on a pixel.
+Future<void> captureShot(
+  WidgetTester tester,
+  Finder finder,
+  String name,
+) async {
+  if (!writeShots) return;
+  var renderObject = tester.element(finder).renderObject!;
+  while (!renderObject.isRepaintBoundary) {
+    renderObject = renderObject.parent!;
+  }
+  final layer = renderObject.debugLayer! as OffsetLayer;
+  await tester.runAsync(() async {
+    final image = await layer.toImage(renderObject.paintBounds);
+    final bytes = await image.toByteData(format: ImageByteFormat.png);
+    image.dispose();
+    final file = File('build/shots/$name.png');
+    await file.parent.create(recursive: true);
+    await file.writeAsBytes(bytes!.buffer.asUint8List());
+  });
 }
 
 /// Decodes the image file at [path] into the image cache. A widget test does

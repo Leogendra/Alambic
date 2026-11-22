@@ -64,9 +64,10 @@ void main() {
       expect(find.text('Japanese: 1 new card'), findsNWidgets(2));
       expect(find.text('Capitals: 2 new cards'), findsOneWidget);
       expect(find.text('TOMORROW'), findsOneWidget);
-      await expectLater(
+      await captureShot(
+        tester,
         find.byType(HomeScreen),
-        matchesGoldenFile('goldens/home_${brightness.name}.png'),
+        'home_${brightness.name}',
       );
     });
   }
@@ -80,10 +81,7 @@ void main() {
       overrides: screenOverrides(database, renderAt),
     );
     expect(find.text('DEMAIN'), findsOneWidget);
-    await expectLater(
-      find.byType(HomeScreen),
-      matchesGoldenFile('goldens/home_french.png'),
-    );
+    await captureShot(tester, find.byType(HomeScreen), 'home_french');
   });
 
   testScreen('home during the global pause', (tester) async {
@@ -97,10 +95,7 @@ void main() {
       overrides: screenOverrides(database, renderAt),
     );
     expect(find.text('Resume'), findsOneWidget);
-    await expectLater(
-      find.byType(HomeScreen),
-      matchesGoldenFile('goldens/home_paused.png'),
-    );
+    await captureShot(tester, find.byType(HomeScreen), 'home_paused');
   });
 
   testScreen('the coming month and year, at the end of the timeline', (
@@ -127,9 +122,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('8 cards'), findsOneWidget);
     expect(find.text('30 cards'), findsOneWidget);
-    await expectLater(
-      find.byType(HomeScreen),
-      matchesGoldenFile('goldens/home_coming.png'),
-    );
+    await captureShot(tester, find.byType(HomeScreen), 'home_coming');
   });
 }

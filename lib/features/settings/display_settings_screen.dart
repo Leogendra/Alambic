@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/widgets/panel_row.dart';
-import '../../app/widgets/surface_panel.dart';
+import '../../app/widgets/settings_group.dart';
 import '../../application/preferences/interface_settings_providers.dart';
 import '../../data/preferences/language_choice.dart';
 import '../../data/preferences/theme_choice.dart';
@@ -25,7 +25,7 @@ class DisplaySettingsScreen extends ConsumerWidget {
     return SettingsPage(
       title: strings.settingsDisplay,
       children: [
-        SurfacePanel(
+        SettingsGroup(
           children: [
             PanelRow(
               title: strings.settingsLanguage,

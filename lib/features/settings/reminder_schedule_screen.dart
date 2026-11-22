@@ -7,7 +7,7 @@ import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/segment_option.dart';
 import '../../app/widgets/segmented_choice.dart';
-import '../../app/widgets/surface_panel.dart';
+import '../../app/widgets/settings_group.dart';
 import '../../application/notifications/guard_providers.dart';
 import '../../domain/notifications/reminder_settings.dart';
 import '../../domain/notifications/schedule_kind.dart';
@@ -51,7 +51,7 @@ class ReminderScheduleScreen extends ConsumerWidget {
                       _save(ref, reminders.copyWith(scheduleKind: kind)),
                 ),
                 const SizedBox(height: 14),
-                SurfacePanel(children: _timeRows(context, ref, reminders)),
+                SettingsGroup(children: _timeRows(context, ref, reminders)),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
                   child: Text(

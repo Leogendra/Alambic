@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/widgets/panel_row.dart';
-import '../../app/widgets/surface_panel.dart';
+import '../../app/widgets/settings_group.dart';
 import '../../application/backup/backup_preview.dart';
 import '../../application/backup/backup_providers.dart';
 import '../../data/backup/invalid_backup_exception.dart';
@@ -20,7 +20,7 @@ class BackupScreen extends ConsumerWidget {
     return SettingsPage(
       title: strings.settingsBackup,
       children: [
-        SurfacePanel(
+        SettingsGroup(
           children: [
             PanelRow(
               title: strings.backupExport,

@@ -6,7 +6,7 @@ import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/count_stepper.dart';
 import '../../app/widgets/panel_row.dart';
-import '../../app/widgets/surface_panel.dart';
+import '../../app/widgets/settings_group.dart';
 import '../../application/notifications/guard_providers.dart';
 import '../../domain/notifications/notification_guards.dart';
 import '../../domain/scheduling/clock_time.dart';
@@ -31,11 +31,13 @@ class NotificationGuardsScreen extends ConsumerWidget {
                 const EdgeInsets.fromLTRB(20, 8, 20, 32),
               ),
               children: [
-                SurfacePanel(
+                SettingsGroup(
                   children: [
                     _DailyCapSetting(guards: guards),
                     _QuietHoursSetting(guards: guards),
                     _AutoGroupSetting(guards: guards),
+                    if (guards.autoGroupEnabled)
+                      _AutoGroupThreshold(guards: guards),
                   ],
                 ),
               ],
@@ -265,32 +267,36 @@ class _AutoGroupSetting extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    return Column(
-      children: [
-        PanelRow(
-          title: strings.guardsAutoGroup,
-          subtitle: strings.guardsAutoGroupHint,
-          trailing: Switch(
-            value: guards.autoGroupEnabled,
-            onChanged: (enabled) =>
-                _save(ref, guards.copyWith(autoGroupEnabled: enabled)),
-          ),
-        ),
-        if (guards.autoGroupEnabled) ...[
-          const Divider(height: 1),
-          PanelRow(
-            title: strings.guardsAutoGroupThreshold,
-            trailing: CountStepper(
-              value: guards.autoGroupThreshold,
-              label: '${guards.autoGroupThreshold}',
-              decreaseTooltip: strings.guardsDecrease,
-              increaseTooltip: strings.guardsIncrease,
-              onChanged: (threshold) =>
-                  _save(ref, guards.copyWith(autoGroupThreshold: threshold)),
-            ),
-          ),
-        ],
-      ],
+    return PanelRow(
+      title: strings.guardsAutoGroup,
+      subtitle: strings.guardsAutoGroupHint,
+      trailing: Switch(
+        value: guards.autoGroupEnabled,
+        onChanged: (enabled) =>
+            _save(ref, guards.copyWith(autoGroupEnabled: enabled)),
+      ),
+    );
+  }
+}
+
+class _AutoGroupThreshold extends ConsumerWidget {
+  const _AutoGroupThreshold({required this.guards});
+
+  final NotificationGuards guards;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    return PanelRow(
+      title: strings.guardsAutoGroupThreshold,
+      trailing: CountStepper(
+        value: guards.autoGroupThreshold,
+        label: '${guards.autoGroupThreshold}',
+        decreaseTooltip: strings.guardsDecrease,
+        increaseTooltip: strings.guardsIncrease,
+        onChanged: (threshold) =>
+            _save(ref, guards.copyWith(autoGroupThreshold: threshold)),
+      ),
     );
   }
 }

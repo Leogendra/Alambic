@@ -4,7 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/reminder_settings_labels.dart';
 import '../../app/widgets/panel_row.dart';
-import '../../app/widgets/surface_panel.dart';
+import '../../app/widgets/settings_group.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../application/notifications/guard_providers.dart';
 import '../../application/notifications/notification_providers.dart';
@@ -41,7 +41,7 @@ class _NotificationsPanel extends ConsumerWidget {
     final pausedAt = ref.watch(globalPauseProvider).value;
     final exactAlarmsKnown =
         ref.watch(exactAlarmsAllowedProvider).value != null;
-    return SurfacePanel(
+    return SettingsGroup(
       children: [
         PanelRow(
           title: strings.scheduleTitle,

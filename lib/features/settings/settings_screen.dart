@@ -5,7 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
-import '../../app/widgets/surface_panel.dart';
+import '../../app/widgets/settings_group.dart';
 import '../../application/about/about_providers.dart';
 import '../../application/preferences/interface_settings_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -33,7 +33,7 @@ class SettingsScreen extends ConsumerWidget {
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
           ),
         ),
-        SurfacePanel(
+        SettingsGroup(
           children: [
             _category(
               context,
@@ -63,7 +63,7 @@ class SettingsScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         SectionLabel(strings.settingsAboutSection),
-        SurfacePanel(
+        SettingsGroup(
           children: [
             PanelRow(
               icon: Icons.code,
@@ -76,7 +76,7 @@ class SettingsScreen extends ConsumerWidget {
         if (kDebugMode) ...[
           const SizedBox(height: 24),
           SectionLabel(strings.settingsDevelopmentSection),
-          SurfacePanel(
+          SettingsGroup(
             children: [
               PanelRow(
                 icon: Icons.smartphone_outlined,

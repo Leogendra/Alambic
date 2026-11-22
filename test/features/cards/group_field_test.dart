@@ -5,7 +5,7 @@ import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/features/cards/card_editor_screen.dart';
 
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -17,7 +17,7 @@ void main() {
   tearDown(() => closeTestDatabase(database));
 
   Future<void> pumpEditor(WidgetTester tester) async {
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const CardEditorScreen(),
       overrides: screenOverrides(database, sampleNow),

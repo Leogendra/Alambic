@@ -29,9 +29,8 @@ void main() {
   test('an edited line keeps its place, and every other line its own', () {
     final edited = [...batch]..[4] = 50;
     final before = const BulkOrder.shuffled(7).apply(batch);
-    expect(
-      const BulkOrder.shuffled(7).apply(edited),
-      [for (final line in before) line == 5 ? 50 : line],
-    );
+    expect(const BulkOrder.shuffled(7).apply(edited), [
+      for (final line in before) line == 5 ? 50 : line,
+    ]);
   });
 }

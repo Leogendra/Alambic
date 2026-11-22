@@ -6,7 +6,7 @@ import 'package:alambic/features/settings/exact_alarms_panel.dart';
 import 'package:alambic/features/settings/settings_screen.dart';
 
 import '../../support/fake_notifications.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -22,7 +22,7 @@ void main() {
 
   tearDown(() => closeTestDatabase(database));
 
-  Future<void> pumpSettings(WidgetTester tester) => pumpGolden(
+  Future<void> pumpSettings(WidgetTester tester) => pumpScreen(
     tester,
     const Scaffold(body: SafeArea(child: SettingsScreen())),
     overrides: [
@@ -36,9 +36,10 @@ void main() {
   ) async {
     alarms.exactAllowed = false;
     await pumpSettings(tester);
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(SettingsScreen),
-      matchesGoldenFile('goldens/settings_exact_alarms_off.png'),
+      'settings_exact_alarms_off',
     );
     await tester.tap(find.text(l10n.settingsExactAlarmsAllow));
     expect(alarms.permissionRequests, 1);
@@ -49,7 +50,7 @@ void main() {
     (Brightness.dark, '_dark'),
   ]) {
     testScreen('settings in French, ${brightness.name} theme', (tester) async {
-      await pumpGolden(
+      await pumpScreen(
         tester,
         const Scaffold(body: SafeArea(child: SettingsScreen())),
         locale: const Locale('fr'),
@@ -60,9 +61,10 @@ void main() {
         ],
       );
       expect(find.text('Presets'), findsOneWidget);
-      await expectLater(
+      await captureShot(
+        tester,
         find.byType(SettingsScreen),
-        matchesGoldenFile('goldens/settings_french$suffix.png'),
+        'settings_french$suffix',
       );
     });
   }

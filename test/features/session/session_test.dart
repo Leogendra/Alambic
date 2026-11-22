@@ -13,7 +13,7 @@ import 'package:alambic/features/session/session_card_view.dart';
 import 'package:alambic/features/session/session_screen.dart';
 
 import '../../support/fixed_clock.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_images.dart';
@@ -42,7 +42,7 @@ void main() {
           SessionItem(cardId: card.id, askedSide: CardSide.front),
       ];
     });
-    await pumpGolden(
+    await pumpScreen(
       tester,
       SessionScreen(items: items),
       brightness: brightness,
@@ -76,15 +76,12 @@ void main() {
       );
     });
     await precacheImageFile(tester, flagPath);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       SessionScreen(items: flagItems),
       overrides: screenOverrides(database, sampleNow, images: images),
     );
-    await expectLater(
-      find.byType(SessionScreen),
-      matchesGoldenFile('goldens/session_image.png'),
-    );
+    await captureShot(tester, find.byType(SessionScreen), 'session_image');
   });
 
   /// A session on a single card of [front] and [back], in a new group.
@@ -99,7 +96,7 @@ void main() {
       await services.introduceAll(groupId);
       cardItems = [SessionItem(cardId: cardId, askedSide: CardSide.front)];
     });
-    await pumpGolden(
+    await pumpScreen(
       tester,
       SessionScreen(items: cardItems),
       overrides: screenOverrides(database, sampleNow),
@@ -121,10 +118,7 @@ void main() {
         tester.widget<Text>(find.text(front)).style!.fontSize,
         lessThanOrEqualTo(SessionCardView.maxFontSize),
       );
-      await expectLater(
-        find.byType(SessionScreen),
-        matchesGoldenFile('goldens/session_$name.png'),
-      );
+      await captureShot(tester, find.byType(SessionScreen), 'session_$name');
     });
   }
 
@@ -155,9 +149,10 @@ void main() {
     testScreen('shows the prompt, then the answer and the next intervals, '
         '${brightness.name} theme', (tester) async {
       await pumpSession(tester, brightness: brightness);
-      await expectLater(
+      await captureShot(
+        tester,
         find.byType(SessionScreen),
-        matchesGoldenFile('goldens/session_front$suffix.png'),
+        'session_front$suffix',
       );
       final prompt = find.text('Mongolia');
       final before = (
@@ -172,9 +167,10 @@ void main() {
         tester.widget<Text>(prompt).style,
       ), before);
       expect(find.text('tomorrow'), findsNWidgets(2));
-      await expectLater(
+      await captureShot(
+        tester,
         find.byType(SessionScreen),
-        matchesGoldenFile('goldens/session_back$suffix.png'),
+        'session_back$suffix',
       );
     });
   }
@@ -271,7 +267,7 @@ void main() {
             .first;
         items = [SessionItem(cardId: card.id, askedSide: CardSide.front)];
       });
-      await pumpGolden(
+      await pumpScreen(
         tester,
         SessionScreen(items: items, isBonus: true),
         overrides: screenOverrides(database, sampleNow),
@@ -299,7 +295,7 @@ void main() {
             SessionItem(cardId: card.id, askedSide: CardSide.front),
         ];
       });
-      await pumpGolden(
+      await pumpScreen(
         tester,
         SessionScreen(items: items),
         overrides: screenOverrides(database, sampleNow),
@@ -327,19 +323,17 @@ void main() {
       await pumpTyped(tester);
       expect(find.text(l10n.sessionShowAnswer), findsNothing);
       expect(find.text(l10n.sessionReveal), findsOneWidget);
-      await expectLater(
-        find.byType(SessionScreen),
-        matchesGoldenFile('goldens/session_typed.png'),
-      );
+      await captureShot(tester, find.byType(SessionScreen), 'session_typed');
       await submit(tester, 'ulaanbatar');
       expect(find.text('Ulaanbaatar'), findsOneWidget);
       expect(find.text('"ulaanbatar" accepted, 1 typo'), findsOneWidget);
       expect(find.textContaining('Next tomorrow'), findsOneWidget);
       expect(find.text('Correct'), findsNothing);
       expect(await history(tester), [(ReviewOutcome.correct, false)]);
-      await expectLater(
+      await captureShot(
+        tester,
         find.byType(SessionScreen),
-        matchesGoldenFile('goldens/session_typed_verdict.png'),
+        'session_typed_verdict',
       );
       await tester.tap(find.text(l10n.sessionNext));
       await tester.pumpAndSettle();
@@ -395,10 +389,7 @@ void main() {
     await answer(tester, 'Correct');
     await answer(tester, l10n.reviewAgain);
     expect(find.text(l10n.sessionFinished), findsOneWidget);
-    await expectLater(
-      find.byType(SessionScreen),
-      matchesGoldenFile('goldens/session_end.png'),
-    );
+    await captureShot(tester, find.byType(SessionScreen), 'session_end');
     await tester.runAsync(() async {
       await tester.tap(find.text(l10n.sessionReviewMissed(1)));
       await Future<void>.delayed(const Duration(milliseconds: 100));
@@ -421,7 +412,7 @@ void main() {
           .first;
       backItems = [SessionItem(cardId: card.id, askedSide: CardSide.back)];
     });
-    await pumpGolden(
+    await pumpScreen(
       tester,
       SessionScreen(items: backItems),
       overrides: screenOverrides(database, sampleNow),
@@ -449,7 +440,7 @@ void main() {
           SessionItem(cardId: cardId, askedSide: CardSide.front),
       ];
     });
-    await pumpGolden(
+    await pumpScreen(
       tester,
       SessionScreen(items: pendingItems, raisesMissedPending: true),
       overrides: screenOverrides(database, sampleNow),

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Loads the real fonts so golden images show readable text instead of the
+/// Loads the real fonts so the screen captures show readable text instead of the
 /// default test font made of boxes, and fails a widget test stuck for 30 s
 /// instead of the 10 min of flutter_test: the longest takes about 3 s.
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {

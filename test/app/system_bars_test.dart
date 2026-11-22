@@ -32,7 +32,7 @@ import 'package:alambic/features/settings/reminder_schedule_screen.dart';
 import '../support/fake_interface_settings_store.dart';
 import '../support/fake_notifications.dart';
 import '../support/fixed_clock.dart';
-import '../support/golden_harness.dart';
+import '../support/screen_harness.dart';
 import '../support/sample_data.dart';
 import '../support/test_database.dart';
 import '../support/test_screen.dart';
@@ -54,7 +54,7 @@ Future<void> pumpUnderSystemBars(
   );
   tester.view.padding = padding;
   tester.view.viewPadding = padding;
-  await pumpGolden(tester, screen, overrides: overrides);
+  await pumpScreen(tester, screen, overrides: overrides);
 }
 
 /// Checks that no text and no tappable element shows under a system bar.

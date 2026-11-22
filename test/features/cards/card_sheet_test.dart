@@ -8,7 +8,7 @@ import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/features/cards/card_sheet_screen.dart';
 
 import '../../support/fixed_clock.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -59,7 +59,7 @@ void main() {
     testScreen('card sheet, ${brightness.name} theme', (tester) async {
       final renderAt = DateTime(2026, 11, 12, 9);
       final cardId = await seedReviewedCard(tester, renderAt);
-      await pumpGolden(
+      await pumpScreen(
         tester,
         CardSheetScreen(cardId: cardId),
         brightness: brightness,
@@ -69,9 +69,10 @@ void main() {
       expect(find.text('D2'), findsNothing);
       expect(find.text('6\u00A0mo'), findsNWidgets(2));
       expect(find.text('bonus'), findsNWidgets(2));
-      await expectLater(
+      await captureShot(
+        tester,
         find.byType(CardSheetScreen),
-        matchesGoldenFile('goldens/card_sheet$suffix.png'),
+        'card_sheet$suffix',
       );
     });
   }
@@ -86,7 +87,7 @@ void main() {
         groupId: await samples.groups.create('Capitals'),
       );
     });
-    await pumpGolden(
+    await pumpScreen(
       tester,
       CardSheetScreen(cardId: cardId),
       overrides: screenOverrides(database, sampleNow),

@@ -13,7 +13,7 @@ import 'package:alambic/l10n/generated/app_localizations.dart';
 
 import '../../support/fake_interface_settings_store.dart';
 import '../../support/fake_notifications.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';

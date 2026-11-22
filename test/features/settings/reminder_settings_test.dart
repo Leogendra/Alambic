@@ -10,7 +10,7 @@ import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/features/settings/notification_mode_screen.dart';
 import 'package:alambic/features/settings/reminder_schedule_screen.dart';
 
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -28,15 +28,16 @@ void main() {
   testScreen('the schedule switches to a time range, dark theme', (
     tester,
   ) async {
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const ReminderScheduleScreen(),
       brightness: Brightness.dark,
       overrides: screenOverrides(database, sampleNow),
     );
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(ReminderScheduleScreen),
-      matchesGoldenFile('goldens/schedule_fixed_dark.png'),
+      'schedule_fixed_dark',
     );
     await tester.runAsync(() async {
       await tester.tap(find.text(l10n.scheduleRange));
@@ -44,9 +45,10 @@ void main() {
     });
     await tester.pumpAndSettle();
     expect((await stored(tester))!.scheduleKind, ScheduleKind.timeRange);
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(ReminderScheduleScreen),
-      matchesGoldenFile('goldens/schedule_range_dark.png'),
+      'schedule_range_dark',
     );
   });
 
@@ -60,7 +62,7 @@ void main() {
         ),
       ),
     );
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const ReminderScheduleScreen(),
       overrides: screenOverrides(database, sampleNow),
@@ -95,7 +97,7 @@ void main() {
   testScreen('the grouped reminder offers to open the app or chain', (
     tester,
   ) async {
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const NotificationModeScreen(),
       brightness: Brightness.dark,
@@ -118,9 +120,10 @@ void main() {
     final reminders = (await stored(tester))!;
     expect(reminders.notificationMode, NotificationMode.grouped);
     expect(reminders.groupedAction, GroupedReminderAction.chainInNotification);
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(NotificationModeScreen),
-      matchesGoldenFile('goldens/notification_mode_dark.png'),
+      'notification_mode_dark',
     );
   });
 }

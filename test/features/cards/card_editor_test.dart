@@ -9,7 +9,7 @@ import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/features/cards/card_editor_screen.dart';
 import 'package:alambic/features/cards/image_picking.dart';
 
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/test_database.dart';
 import '../../support/test_images.dart';
 import '../../support/test_screen.dart';
@@ -26,7 +26,7 @@ void main() {
   tearDown(() => closeTestDatabase(database));
 
   testScreen('new card with both faces, in a group', (tester) async {
-    await pumpGolden(
+    await pumpScreen(
       tester,
       CardEditorScreen(initialGroupId: groupId),
       overrides: [databaseProvider.overrideWithValue(database)],
@@ -34,17 +34,14 @@ void main() {
     await tester.enterText(find.byType(TextField).first, 'Mongolia');
     await tester.enterText(find.byType(TextField).last, 'Ulaanbaatar');
     await tester.pumpAndSettle();
-    await expectLater(
-      find.byType(CardEditorScreen),
-      matchesGoldenFile('goldens/card_editor_new.png'),
-    );
+    await captureShot(tester, find.byType(CardEditorScreen), 'card_editor_new');
   });
 
   testScreen('a front image is picked, shown, then stored with the card', (
     tester,
   ) async {
     final images = openTestImageStore();
-    await pumpGolden(
+    await pumpScreen(
       tester,
       CardEditorScreen(initialGroupId: groupId),
       overrides: [
@@ -64,9 +61,10 @@ void main() {
     await tester.tap(find.text('Image').first);
     await tester.pumpAndSettle();
     expect(find.text('Image'), findsOneWidget, reason: 'the back one only');
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(CardEditorScreen),
-      matchesGoldenFile('goldens/card_editor_image.png'),
+      'card_editor_image',
     );
     await tester.runAsync(() async {
       await tester.tap(find.text(l10n.cardEditorCreate));

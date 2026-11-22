@@ -10,7 +10,7 @@ import 'package:alambic/domain/cards/bulk/bulk_order.dart';
 import 'package:alambic/features/cards/bulk_add_screen.dart';
 
 import '../../support/fixed_clock.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -42,7 +42,7 @@ void main() {
         await services.card('Capital of Peru', 'Lima', groupId: groupId);
       }
     });
-    await pumpGolden(
+    await pumpScreen(
       tester,
       BulkAddScreen(initialGroupId: groupId),
       overrides: [
@@ -72,10 +72,7 @@ void main() {
     expect(find.text('Line 3 skipped: no ";"'), findsOneWidget);
     expect(find.text('Capital of Chile → Santiago'), findsOneWidget);
     expect(find.text('after the 2 cards already waiting'), findsOneWidget);
-    await expectLater(
-      find.byType(BulkAddScreen),
-      matchesGoldenFile('goldens/bulk_add.png'),
-    );
+    await captureShot(tester, find.byType(BulkAddScreen), 'bulk_add');
   });
 
   testScreen('a custom separator rereads every line', (tester) async {

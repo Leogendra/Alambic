@@ -8,7 +8,7 @@ import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/home/home_screen.dart';
 
 import '../../support/fixed_clock.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -48,7 +48,7 @@ void main() {
 
   testScreen('activating a distillation', (tester) async {
     await seed(tester, activate: false);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
@@ -57,10 +57,7 @@ void main() {
       find.text('6 cards · last one arrives around November 15'),
       findsOne,
     );
-    await expectLater(
-      find.byType(DistillScreen),
-      matchesGoldenFile('goldens/distill_activate.png'),
-    );
+    await captureShot(tester, find.byType(DistillScreen), 'distill_activate');
   });
 
   testScreen('during the global pause, the waiting cards instead of an '
@@ -72,7 +69,7 @@ void main() {
         FixedClock(sampleNow),
       ).distillations.pauseAll(),
     );
-    await pumpGolden(
+    await pumpScreen(
       tester,
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
@@ -82,35 +79,33 @@ void main() {
 
   testScreen('distillation followed on the group page', (tester) async {
     await seed(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
     expect(find.text('5 cards waiting'), findsOneWidget);
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(GroupDetailScreen),
-      matchesGoldenFile('goldens/group_distillation.png'),
+      'group_distillation',
     );
   });
 
   testScreen('new cards on the home timeline', (tester) async {
     await seed(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, sampleNow),
     );
     expect(find.text('Japanese: 1 new card'), findsNWidgets(6));
-    await expectLater(
-      find.byType(HomeScreen),
-      matchesGoldenFile('goldens/home_distillation.png'),
-    );
+    await captureShot(tester, find.byType(HomeScreen), 'home_distillation');
   });
 
   testScreen('activates the distillation from the screen', (tester) async {
     await seed(tester, activate: false);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
@@ -135,7 +130,7 @@ void main() {
     tester,
   ) async {
     await seed(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
@@ -178,16 +173,17 @@ void main() {
   testScreen('paused distillation on the group page', (tester) async {
     await seed(tester);
     await pause(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       GroupDetailScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
     expect(find.text('Paused since Nov 10'), findsOne);
     expect(find.text('no arrival planned'), findsOne);
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(GroupDetailScreen),
-      matchesGoldenFile('goldens/group_distillation_paused.png'),
+      'group_distillation_paused',
     );
   });
 
@@ -196,7 +192,7 @@ void main() {
   ) async {
     await seed(tester);
     await pause(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       DistillScreen(
         groupId: japaneseId,
@@ -210,9 +206,10 @@ void main() {
       ),
       findsOne,
     );
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(DistillScreen),
-      matchesGoldenFile('goldens/distill_adjust_paused.png'),
+      'distill_adjust_paused',
     );
     await tester.ensureVisible(find.text(l10n.pauseResume));
     await tester.tap(find.text(l10n.pauseResume));

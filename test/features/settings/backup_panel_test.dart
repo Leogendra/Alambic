@@ -9,7 +9,7 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/features/settings/backup_panel.dart';
 
 import '../../support/fake_backup_files.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -25,7 +25,7 @@ void main() {
 
   tearDown(() => closeTestDatabase(database));
 
-  Future<void> pumpPanel(WidgetTester tester) => pumpGolden(
+  Future<void> pumpPanel(WidgetTester tester) => pumpScreen(
     tester,
     const Scaffold(body: SafeArea(child: BackupPanel())),
     overrides: [

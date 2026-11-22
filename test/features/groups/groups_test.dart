@@ -18,7 +18,7 @@ import 'package:alambic/features/groups/groups_screen.dart';
 import 'package:alambic/features/session/session_screen.dart';
 
 import '../../support/fixed_clock.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -66,17 +66,14 @@ void main() {
         const DistillationSettings(),
       ),
     );
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
     );
     expect(find.text('4 cards · distillation'), findsOneWidget);
     expect(find.text('2 cards'), findsOneWidget);
-    await expectLater(
-      find.byType(GroupsScreen),
-      matchesGoldenFile('goldens/groups_tab.png'),
-    );
+    await captureShot(tester, find.byType(GroupsScreen), 'groups_tab');
   });
 
   testScreen('groups tab with a paused distillation', (tester) async {
@@ -88,30 +85,24 @@ void main() {
       );
       await samples.distillations.pause(capitalsId);
     });
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
     );
-    await expectLater(
-      find.byType(GroupsScreen),
-      matchesGoldenFile('goldens/groups_tab_paused.png'),
-    );
+    await captureShot(tester, find.byType(GroupsScreen), 'groups_tab_paused');
   });
 
   testScreen('groups tab searching a card', (tester) async {
     await seed(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
     );
     await tester.enterText(find.byType(TextField), 'an');
     await tester.pumpAndSettle();
-    await expectLater(
-      find.byType(GroupsScreen),
-      matchesGoldenFile('goldens/groups_search.png'),
-    );
+    await captureShot(tester, find.byType(GroupsScreen), 'groups_search');
   });
 
   for (final (brightness, suffix) in [
@@ -122,15 +113,16 @@ void main() {
       await seed(tester);
       await seedAcquired(tester);
       await seedWaiting(tester);
-      await pumpGolden(
+      await pumpScreen(
         tester,
         GroupDetailScreen(groupId: capitalsId),
         brightness: brightness,
         overrides: screenOverrides(database, sampleNow),
       );
-      await expectLater(
+      await captureShot(
+        tester,
         find.byType(GroupDetailScreen),
-        matchesGoldenFile('goldens/group_detail$suffix.png'),
+        'group_detail$suffix',
       );
     });
   }
@@ -140,7 +132,7 @@ void main() {
     await seed(tester);
     await seedAcquired(tester);
     await seedWaiting(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
@@ -167,7 +159,7 @@ void main() {
   ) async {
     await seed(tester);
     await seedAcquired(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
@@ -189,7 +181,7 @@ void main() {
   ]) {
     testScreen('group settings, ${brightness.name} theme', (tester) async {
       await seed(tester);
-      await pumpGolden(
+      await pumpScreen(
         tester,
         GroupSettingsScreen(groupId: capitalsId),
         brightness: brightness,
@@ -201,9 +193,10 @@ void main() {
         ),
         findsOneWidget,
       );
-      await expectLater(
+      await captureShot(
+        tester,
         find.byType(GroupSettingsScreen),
-        matchesGoldenFile('goldens/group_settings$suffix.png'),
+        'group_settings$suffix',
       );
     });
   }
@@ -211,7 +204,7 @@ void main() {
   testScreen('the group settings set the end of sequence and the typed '
       'answer', (tester) async {
     await seed(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       GroupSettingsScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
@@ -253,7 +246,7 @@ void main() {
     tester,
   ) async {
     await seed(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
@@ -274,7 +267,7 @@ void main() {
     tester,
   ) async {
     await seed(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
@@ -303,7 +296,7 @@ void main() {
       return [for (final card in cards) card.id, chile];
     }))!;
     await seedAcquired(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),

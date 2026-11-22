@@ -10,7 +10,7 @@ import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/features/home/home_screen.dart';
 
 import '../../support/fixed_clock.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -55,7 +55,7 @@ void main() {
   for (final brightness in Brightness.values) {
     testScreen('home in ${brightness.name} theme', (tester) async {
       await seed(tester);
-      await pumpGolden(
+      await pumpScreen(
         tester,
         const Scaffold(body: SafeArea(child: HomeScreen())),
         brightness: brightness,
@@ -74,7 +74,7 @@ void main() {
 
   testScreen('home in French', (tester) async {
     await seed(tester);
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       locale: const Locale('fr'),
@@ -89,7 +89,7 @@ void main() {
     await tester.runAsync(
       () => PauseRepository(database).setGlobalPausedAt(sampleNow),
     );
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, renderAt),
@@ -113,7 +113,7 @@ void main() {
         const DistillationSettings(cardsPerBatch: 2, everyDays: 7),
       );
     });
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, renderAt),

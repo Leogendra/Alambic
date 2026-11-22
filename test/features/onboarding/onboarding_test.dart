@@ -16,7 +16,7 @@ import 'package:alambic/features/onboarding/onboarding_screen.dart';
 import '../../support/fake_interface_settings_store.dart';
 import '../../support/fake_notifications.dart';
 import '../../support/fixed_clock.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -260,31 +260,35 @@ void main() {
   });
 
   testScreen('the welcome screens', (tester) async {
-    await pumpGolden(tester, const OnboardingScreen(), overrides: overrides());
-    await expectLater(
+    await pumpScreen(tester, const OnboardingScreen(), overrides: overrides());
+    await captureShot(
+      tester,
       find.byType(OnboardingScreen),
-      matchesGoldenFile('goldens/onboarding_welcome.png'),
+      'onboarding_welcome',
     );
     await tapAndSettle(tester, find.text(l10n.onboardingNext));
     await waitForSampleCards(tester);
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(OnboardingScreen),
-      matchesGoldenFile('goldens/onboarding_distillation.png'),
+      'onboarding_distillation',
     );
     await tapAndSettle(tester, find.text(l10n.onboardingNext));
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(OnboardingScreen),
-      matchesGoldenFile('goldens/onboarding_permissions.png'),
+      'onboarding_permissions',
     );
     await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(OnboardingScreen),
-      matchesGoldenFile('goldens/onboarding_sample_group.png'),
+      'onboarding_sample_group',
     );
   });
 
   testScreen('the reminders screen in French', (tester) async {
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const OnboardingScreen(),
       locale: const Locale('fr'),
@@ -293,22 +297,24 @@ void main() {
     await tapAndSettle(tester, find.text('Suivant'));
     await waitForSampleCards(tester);
     await tapAndSettle(tester, find.text('Suivant'));
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(OnboardingScreen),
-      matchesGoldenFile('goldens/onboarding_permissions_french.png'),
+      'onboarding_permissions_french',
     );
   });
 
   testScreen('the welcome screen in dark theme', (tester) async {
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const OnboardingScreen(),
       brightness: Brightness.dark,
       overrides: overrides(),
     );
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(OnboardingScreen),
-      matchesGoldenFile('goldens/onboarding_welcome_dark.png'),
+      'onboarding_welcome_dark',
     );
   });
 }

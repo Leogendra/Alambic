@@ -5,7 +5,7 @@ import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/features/settings/notification_guards_screen.dart';
 
 import '../../support/fixed_clock.dart';
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/sample_data.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -30,14 +30,15 @@ void main() {
           NotificationSettingsRepository(database)
               .saveGuards(NotificationGuards.defaults.copyWith(dailyCap: 1)),
     );
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const NotificationGuardsScreen(),
       overrides: screenOverrides(database, sampleNow),
     );
-    await expectLater(
+    await captureShot(
+      tester,
       find.byType(NotificationGuardsScreen),
-      matchesGoldenFile('goldens/notification_guards.png'),
+      'notification_guards',
     );
     await tester.runAsync(() async {
       await tester.tap(find.byTooltip(l10n.guardsIncrease).first);

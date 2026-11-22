@@ -18,7 +18,7 @@ final AppLocalizations l10n = lookupAppLocalizations(const Locale('en'));
 
 /// Pumps [screen] inside the app theme and the localizations of [locale]
 /// (English by default), at phone size.
-Future<void> pumpGolden(
+Future<void> pumpScreen(
   WidgetTester tester,
   Widget screen, {
   Brightness brightness = Brightness.light,

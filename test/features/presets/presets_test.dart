@@ -8,7 +8,7 @@ import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/features/presets/preset_editor_screen.dart';
 import 'package:alambic/features/presets/presets_screen.dart';
 
-import '../../support/golden_harness.dart';
+import '../../support/screen_harness.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
 
@@ -23,7 +23,7 @@ void main() {
     (Brightness.dark, '_dark'),
   ]) {
     testScreen('presets list, ${brightness.name} theme', (tester) async {
-      await pumpGolden(
+      await pumpScreen(
         tester,
         const PresetsScreen(),
         brightness: brightness,
@@ -32,15 +32,16 @@ void main() {
       expect(find.text('Default'), findsOneWidget);
       expect(find.text('Make default'), findsOneWidget);
       expect(find.text('On failure: one step back'), findsNWidgets(2));
-      await expectLater(
+      await captureShot(
+        tester,
         find.byType(PresetsScreen),
-        matchesGoldenFile('goldens/presets_list$suffix.png'),
+        'presets_list$suffix',
       );
     });
   }
 
   testScreen('"Make default" makes a preset the global one', (tester) async {
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const PresetsScreen(),
       overrides: [databaseProvider.overrideWithValue(database)],
@@ -57,7 +58,7 @@ void main() {
   });
 
   testScreen('the tile menu duplicates a preset', (tester) async {
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const PresetsScreen(),
       overrides: [databaseProvider.overrideWithValue(database)],
@@ -93,7 +94,7 @@ void main() {
         await groups.setPreset(groupId, intensiveId);
       }
     });
-    await pumpGolden(
+    await pumpScreen(
       tester,
       const PresetsScreen(),
       overrides: [databaseProvider.overrideWithValue(database)],
@@ -138,15 +139,16 @@ void main() {
         () async =>
             (await PresetRepository(database).loadCatalog()).globalPreset,
       );
-      await pumpGolden(
+      await pumpScreen(
         tester,
         PresetEditorScreen(initialPreset: standard!),
         brightness: brightness,
         overrides: [databaseProvider.overrideWithValue(database)],
       );
-      await expectLater(
+      await captureShot(
+        tester,
         find.byType(PresetEditorScreen),
-        matchesGoldenFile('goldens/preset_editor$suffix.png'),
+        'preset_editor$suffix',
       );
     });
   }
@@ -157,7 +159,7 @@ void main() {
     final standard = await tester.runAsync(
       () async => (await PresetRepository(database).loadCatalog()).globalPreset,
     );
-    await pumpGolden(
+    await pumpScreen(
       tester,
       PresetEditorScreen(initialPreset: standard!),
       overrides: [databaseProvider.overrideWithValue(database)],

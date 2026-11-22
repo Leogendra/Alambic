@@ -50,6 +50,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - Correct and Again in a notification leave, for a few seconds, only when the card comes back ("Next in 3 d"), instead of the expected answer: Reveal shows the answer beforehand.
 - A card notification shows only its group, in the header, the question and, once revealed, the answer alone: no more "back → front", "Review soon · no effect on the schedule" nor "Answer:". After a typed answer, accepted or not, the verdict ends with the next review instead of "Counted as missed".
 - The steps of a preset are listed vertically, as a timeline, in the editor, and ordered from the nearest to the furthest each time one is added or removed.
+- A step added in the preset editor is converted to the largest unit that holds it (24 h to 1 d, 7 d to 1 wk, 4 wk to 1 mo, 12 mo to 1 yr), and its units no longer include minutes: a step lasts 1 hour at least.
 - The failure behaviour of a preset is chosen among three tiles, "Back to start", "One step back" and "Same step" (formerly "Stay"), each saying what a missed card does.
 - Preset steps can be set in years.
 - The schedule refuses a time range whose end comes before its start.

@@ -95,6 +95,7 @@
   "presetEditorStepDialogTitle": "Nouveau cran",
   "presetEditorStepAmount": "Durée",
   "presetEditorStepUnit": "Unité",
+  "presetEditorStepMinimum": "Un cran dure 1 heure au minimum",
   "presetPickerTitle": "Choisir un preset",
   "cardEditorNewTitle": "Nouvelle carte",
   "cardEditorEditTitle": "Modifier la carte",

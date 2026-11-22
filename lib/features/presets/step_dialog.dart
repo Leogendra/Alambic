@@ -21,6 +21,12 @@ class _StepDialog extends StatefulWidget {
 }
 
 class _StepDialogState extends State<_StepDialog> {
+  /// A step is at least an hour: shorter ones only exist in shipped presets.
+  static final List<IntervalUnit> _units = [
+    for (final unit in IntervalUnit.values)
+      if (unit != IntervalUnit.minute) unit,
+  ];
+
   final TextEditingController _amountController = TextEditingController(
     text: '1',
   );
@@ -67,9 +73,10 @@ class _StepDialogState extends State<_StepDialog> {
               initialValue: _unit,
               decoration: InputDecoration(
                 labelText: strings.presetEditorStepUnit,
+                helperText: strings.presetEditorStepMinimum,
               ),
               items: [
-                for (final unit in IntervalUnit.values)
+                for (final unit in _units)
                   DropdownMenuItem(
                     value: unit,
                     child: Text(strings.intervalUnitName(unit)),

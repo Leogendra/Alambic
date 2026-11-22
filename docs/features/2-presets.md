@@ -47,6 +47,7 @@ Changing the preset of a group or the steps of a preset rewrites no card: the st
 - [x] Changing the preset of a group or the steps of a preset keeps the step and the due date; a step beyond a shorter sequence counts as the last step, and the next answer starts from it; a card in remanence stays in remanence.
 - [x] The editor sets the name, the steps and the failure behaviour only.
 - [x] The editor lists the steps vertically, and every addition or removal of a step leaves them ordered from the nearest to the furthest.
+- [x] A step added in the editor is written in the largest unit that holds it exactly: 24 h become 1 d, 7 d 1 wk, 4 wk or 30 d 1 mo, 12 mo 1 yr. The unit choice starts at hours, a step lasting 1 hour at least (the shipped Intensive preset keeps its 10 min).
 - [x] A preset is created from the Standard values, any preset can be edited, a preset can be duplicated under a new name.
 - [x] A preset without a name or without a step cannot be saved.
 - [x] The editor lists the failure behaviours as tiles ("Back to start", "One step back", "Same step"), each saying its effect, the chosen one highlighted.

@@ -49,6 +49,54 @@ void main() {
     });
   });
 
+  group('normalized', () {
+    PresetInterval normalized(int amount, IntervalUnit unit) =>
+        PresetInterval(amount, unit).normalized;
+
+    test('converts exact multiples to the next unit', () {
+      expect(
+        normalized(60, IntervalUnit.minute),
+        const PresetInterval(1, IntervalUnit.hour),
+      );
+      expect(normalized(24, IntervalUnit.hour), oneDay);
+      expect(normalized(7, IntervalUnit.day), oneWeek);
+      expect(normalized(4, IntervalUnit.week), oneMonth);
+      expect(normalized(30, IntervalUnit.day), oneMonth);
+      expect(
+        normalized(12, IntervalUnit.month),
+        const PresetInterval(1, IntervalUnit.year),
+      );
+    });
+
+    test('chains conversions', () {
+      expect(normalized(168, IntervalUnit.hour), oneWeek);
+      expect(normalized(28, IntervalUnit.day), oneMonth);
+      expect(
+        normalized(365, IntervalUnit.day),
+        const PresetInterval(1, IntervalUnit.year),
+      );
+      expect(
+        normalized(48, IntervalUnit.hour),
+        const PresetInterval(2, IntervalUnit.day),
+      );
+    });
+
+    test('keeps an interval no unit holds exactly', () {
+      expect(
+        normalized(5, IntervalUnit.week),
+        const PresetInterval(5, IntervalUnit.week),
+      );
+      expect(
+        normalized(10, IntervalUnit.day),
+        const PresetInterval(10, IntervalUnit.day),
+      );
+      expect(
+        normalized(18, IntervalUnit.month),
+        const PresetInterval(18, IntervalUnit.month),
+      );
+    });
+  });
+
   group('withoutStep', () {
     test('removes the step at the index', () {
       final preset = presetOf([oneDay, oneWeek, oneMonth]).withoutStep(1);

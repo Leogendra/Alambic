@@ -118,7 +118,7 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
   Future<void> _addStep() async {
     final step = await showStepDialog(context);
     if (step != null) {
-      _update((draft) => draft.withStep(step));
+      _update((draft) => draft.withStep(step.normalized));
     }
   }
 

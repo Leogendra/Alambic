@@ -229,6 +229,7 @@
   "presetEditorStepDialogTitle": "New step",
   "presetEditorStepAmount": "Duration",
   "presetEditorStepUnit": "Unit",
+  "presetEditorStepMinimum": "A step lasts 1 hour at least",
   "presetPickerTitle": "Choose a preset",
   "cardEditorNewTitle": "New card",
   "cardEditorEditTitle": "Edit card",

@@ -57,10 +57,6 @@ class _DripLine extends StatelessWidget {
           spacing: 8,
           children: [
             _CardPile(count: count),
-            Text(
-              strings.onboardingDistillWaiting,
-              style: TextStyle(fontSize: 12, color: colors.textSecondary),
-            ),
           ],
         ),
         Icon(Icons.arrow_forward, size: 20, color: colors.textSecondary),

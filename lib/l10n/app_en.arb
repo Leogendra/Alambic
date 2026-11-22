@@ -852,7 +852,7 @@
   "backupIncompatibleVersion": "This backup comes from a version of Alambic this one cannot read.",
   "backupCorrupted": "This backup is damaged or incomplete.",
   "backupFailed": "The operation failed. Your data was not changed.",
-  "onboardingWelcomeTitle": "Learn it once,\nkeep it for good.",
+  "onboardingWelcomeTitle": "Learn little by little, keep it for good.",
   "onboardingWelcomeBody": "Alambic reminds you of each card at the right moment.",
   "onboardingRemindersTitle": "One card, multiple reminders",
   "onboardingRemindersStart": "Start",
@@ -867,8 +867,7 @@
       }
     }
   },
-  "onboardingDistillWaiting": "waiting",
-  "onboardingDistillHint": "You choose the pace: 1, 3 or 10 cards a day.",
+  "onboardingDistillHint": "Learn the cards at your own pace rather than all at once.",
   "onboardingPermissionsTitle": "You review straight from the notification.",
   "onboardingPermissionsBody": "Allow notifications to get your cards. Android then asks for exact alarms, so each one arrives on time.",
   "onboardingNotificationSource": "Alambic · Capitals",
@@ -891,7 +890,7 @@
   },
   "onboardingSampleFirstCard": "First card",
   "onboardingSampleGroupName": "Capitals",
-  "onboardingGetStarted": "Get started",
+  "onboardingGetStarted": "Open the group",
   "onboardingSkip": "Skip",
   "presetNameStandard": "Standard",
   "presetNameIntensive": "Intensive",

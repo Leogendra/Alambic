@@ -569,8 +569,32 @@
       }
     }
   },
-  "homeComingMonth": "Next month",
-  "homeComingYear": "Next year",
+  "homeFurtherAhead": "Further ahead",
+  "homeCardsNextMonth": "{count, plural, =1{card next month} other{cards next month}}",
+  "@homeCardsNextMonth": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeCardsNextYear": "{count, plural, =1{card next year} other{cards next year}}",
+  "@homeCardsNextYear": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeLearned": "{count, plural, =1{card learned} other{cards learned}}",
+  "@homeLearned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeLearnedCaption": "Every card notified so far",
   "homeArrivals": "{group}: {count, plural, =1{1 new card} other{{count} new cards}}",
   "@homeArrivals": {
     "placeholders": {

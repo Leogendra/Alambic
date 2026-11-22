@@ -4,8 +4,12 @@ import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// Dates as the mockup writes them: "Nov 2", "Fri, Nov 13",
-/// "Fri, Nov 13, 12:00", "December 23".
+/// "Fri, Nov 13, 12:00", "December 23", and the weekday alone, "Fri".
 extension DateLabels on AppLocalizations {
+  /// Abbreviated weekday, without the full stop some languages add.
+  String weekdayShort(DateTime moment) =>
+      DateFormat.E(localeName).format(moment).replaceAll('.', '');
+
   String shortDate(DateTime moment) =>
       DateFormat.MMMd(localeName).format(moment);
 

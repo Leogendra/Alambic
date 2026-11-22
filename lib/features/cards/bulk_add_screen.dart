@@ -157,10 +157,12 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
   /// waiting in the group.
   Widget _firstCard(AppLocalizations strings, BulkCardDraft first) {
     final colors = AlambicColors.of(context);
-    final cards = switch (_groupId) {
-      final groupId? => ref.watch(groupCardsProvider(groupId)).value,
-      null => null,
-    } ?? const [];
+    final cards =
+        switch (_groupId) {
+          final groupId? => ref.watch(groupCardsProvider(groupId)).value,
+          null => null,
+        } ??
+        const [];
     final waiting = DistillationQueue.remaining(cards);
     return SurfacePanel(
       padding: const EdgeInsets.all(16),
@@ -209,9 +211,7 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final groupId = _groupId;
     if (groupId == null) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(strings.cardGroupMissing)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(strings.cardGroupMissing)));
       return;
     }
     final count = await ref.read(cardServiceProvider).createAll([

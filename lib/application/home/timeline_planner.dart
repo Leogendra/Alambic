@@ -59,7 +59,21 @@ class TimelinePlanner {
       ],
       comingMonth: days.comingMonth,
       comingYear: days.comingYear,
+      learnedCount: cards.where((card) => _isNotified(card, now)).length,
     );
+  }
+
+  /// A card has been notified once answered, or once introduced with its
+  /// first moment passed.
+  bool _isNotified(Flashcard card, DateTime now) {
+    if (card.isPending) {
+      return false;
+    } else if (card.lastReviewedAt != null) {
+      return true;
+    } else {
+      final dueAt = card.dueAt;
+      return dueAt != null && !dueAt.isAfter(now);
+    }
   }
 
   /// A due card goes on today, late or not; another one on its due day.

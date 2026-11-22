@@ -79,10 +79,12 @@ class _GroupBody extends ConsumerWidget {
         const SizedBox(height: 24),
         _CardSections(
           sections: sections,
-          distilling: ref.watch(groupDistillationProvider(summary.groupId)) !=
-              null,
+          distilling:
+              ref.watch(groupDistillationProvider(summary.groupId)) != null,
           reviewAll: sections.ongoing.isNotEmpty || sections.waiting.isNotEmpty
-              ? _ReviewAllButton(onPressed: () => _reviewAll(context, ref, cards))
+              ? _ReviewAllButton(
+                  onPressed: () => _reviewAll(context, ref, cards),
+                )
               : null,
         ),
       ],
@@ -310,7 +312,10 @@ class _SubsectionLabel extends StatelessWidget {
         ? label
         : Row(
             crossAxisAlignment: CrossAxisAlignment.end,
-            children: [Expanded(child: label), trailing!],
+            children: [
+              Expanded(child: label),
+              trailing!,
+            ],
           );
   }
 }

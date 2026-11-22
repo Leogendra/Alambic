@@ -61,8 +61,8 @@ void main() {
         brightness: brightness,
         overrides: screenOverrides(database, renderAt),
       );
-      expect(find.text('Japanese: 1 new card'), findsNWidgets(2));
-      expect(find.text('Capitals: 2 new cards'), findsOneWidget);
+      expect(find.text('Japanese 1'), findsNWidgets(2));
+      expect(find.text('Capitals 2'), findsOneWidget);
       expect(find.text('TOMORROW'), findsOneWidget);
       // The global pause is started from Settings, not from Home.
       expect(find.byIcon(Icons.pause), findsNothing);
@@ -125,9 +125,32 @@ void main() {
     );
     await tester.drag(find.byType(ListView), const Offset(0, -800));
     await tester.pumpAndSettle();
-    expect(find.text('8 cards'), findsOneWidget);
-    expect(find.text('28 cards'), findsOneWidget);
+    expect(find.text('8'), findsOneWidget);
+    expect(find.text('cards next month'), findsOneWidget);
+    expect(find.text('28'), findsOneWidget);
+    expect(find.text('cards next year'), findsOneWidget);
     await captureShot(tester, find.byType(HomeScreen), 'home_coming');
     await expectNoOverflow(tester);
+  });
+
+  testScreen('pulling the timeline down uncovers the cards learned', (
+    tester,
+  ) async {
+    await seed(tester);
+    await pumpScreen(
+      tester,
+      const Scaffold(body: SafeArea(child: HomeScreen())),
+      brightness: Brightness.dark,
+      overrides: screenOverrides(database, renderAt),
+    );
+    expect(find.text('cards learned'), findsNothing);
+    final pull = await tester.startGesture(const Offset(200, 300));
+    await pull.moveBy(const Offset(0, 200));
+    await tester.pump();
+    expect(find.text('cards learned'), findsOneWidget);
+    await captureShot(tester, find.byType(HomeScreen), 'home_learned');
+    await pull.up();
+    await tester.pumpAndSettle();
+    expect(find.text('cards learned'), findsNothing);
   });
 }

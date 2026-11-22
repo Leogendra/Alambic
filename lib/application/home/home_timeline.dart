@@ -7,6 +7,7 @@ class HomeTimeline {
     required this.days,
     required this.comingMonth,
     required this.comingYear,
+    required this.learnedCount,
   });
 
   final List<TimelineDay> days;
@@ -16,6 +17,9 @@ class HomeTimeline {
 
   /// Reminders and new cards expected from the 31st to the 365th day.
   final int comingYear;
+
+  /// Cards whose first notification has been sent.
+  final int learnedCount;
 
   TimelineDay get today => days.first;
 }

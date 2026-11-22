@@ -199,10 +199,7 @@ void main() {
     final bulk = tester.getRect(find.text(l10n.addCardsBulk));
     expect(bulk.bottom, lessThan(card.top));
     expect(card.bottom, lessThan(plus.top));
-    expect(
-      tester.getRect(find.byTooltip(l10n.commonClose)),
-      plus,
-    );
+    expect(tester.getRect(find.byTooltip(l10n.commonClose)), plus);
     await tester.tap(find.byTooltip(l10n.commonClose));
     await tester.pumpAndSettle();
     expect(find.text(l10n.addCardsOne), findsNothing);
@@ -225,9 +222,7 @@ void main() {
     expect(find.byType(CardEditorScreen), findsNothing);
   });
 
-  testScreen('"Add a card" opens the card editor on the group', (
-    tester,
-  ) async {
+  testScreen('"Add a card" opens the card editor on the group', (tester) async {
     await seed(tester);
     await pumpScreen(
       tester,

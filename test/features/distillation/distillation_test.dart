@@ -108,7 +108,7 @@ void main() {
       const Scaffold(body: SafeArea(child: HomeScreen())),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(find.text('Japanese: 1 new card'), findsNWidgets(4));
+    expect(find.text('Japanese 1'), findsNWidgets(4));
     await captureShot(tester, find.byType(HomeScreen), 'home_distillation');
     await expectNoOverflow(tester);
   });

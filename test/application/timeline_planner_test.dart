@@ -245,4 +245,15 @@ void main() {
     expect(reminder.isExtraReminder, isTrue);
     expect(reminder.at, DateTime(2026, 11, 10, 18));
   });
+
+  test('a card is learned once notified: answered, or introduced with its '
+      'first moment passed', () {
+    final timeline = build([
+      answered(1, DateTime(2026, 11, 20, 12)),
+      testCard(id: 2, dueAt: DateTime(2026, 11, 10, 8)),
+      testCard(id: 3, dueAt: DateTime(2026, 11, 11, 12)),
+      pending(4),
+    ]);
+    expect(timeline.learnedCount, 2);
+  });
 }

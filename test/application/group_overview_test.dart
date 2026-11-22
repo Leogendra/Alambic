@@ -57,10 +57,7 @@ void main() {
     final capitals = await seedSampleData(services);
     await services.distillations.activate(
       capitals,
-      const DistillationSettings(
-        cardsPerBatch: 1,
-        prioritizeReviews: false,
-      ),
+      const DistillationSettings(cardsPerBatch: 1, prioritizeReviews: false),
     );
     final summaries = overview.summarize(
       groups: await GroupRepository(database).watchAll().first,

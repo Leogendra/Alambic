@@ -35,6 +35,10 @@ Its cards are a text file in the app's assets, `assets/samples/capitals_en.txt` 
 
 The preferences of the interface on this phone (whether the onboarding was done, the [language and the theme](0-foundation.md#language-and-theme)) live in shared_preferences, not in the database: they are not part of the review data and stay out of the export ([Feature 9](9-backup.md)). They are loaded once by the entry point, and by each background task for the language of the notifications, then held by a Riverpod notifier, which saves each change.
 
+### Replay
+
+A debug build shows a "Development" panel at the end of Settings, whose "Replay the onboarding" row shows the four screens again, in place of the tabs. It only clears the preference above: finishing creates a new sample group, as the first launch does. A release build has no such row.
+
 ## Acceptance criteria
 
 - [x] The first launch opens on the four welcome screens; later launches open on the tabs.

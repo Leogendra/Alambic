@@ -6,7 +6,7 @@ import 'package:alambic/application/backup/backup_providers.dart';
 import 'package:alambic/data/backup/backup_archive.dart';
 import 'package:alambic/data/backup/backup_contents.dart';
 import 'package:alambic/data/database/alambic_database.dart';
-import 'package:alambic/features/settings/backup_panel.dart';
+import 'package:alambic/features/settings/backup_screen.dart';
 
 import '../../support/fake_backup_files.dart';
 import '../../support/screen_harness.dart';
@@ -25,9 +25,9 @@ void main() {
 
   tearDown(() => closeTestDatabase(database));
 
-  Future<void> pumpPanel(WidgetTester tester) => pumpScreen(
+  Future<void> pumpBackup(WidgetTester tester) => pumpScreen(
     tester,
-    const Scaffold(body: SafeArea(child: BackupPanel())),
+    const BackupScreen(),
     overrides: [
       ...screenOverrides(database, sampleNow),
       backupFilesProvider.overrideWithValue(files),
@@ -49,7 +49,7 @@ void main() {
 
   testScreen('says when the file is not a backup of Alambic', (tester) async {
     files.picked = Uint8List.fromList([1, 2, 3]);
-    await pumpPanel(tester);
+    await pumpBackup(tester);
     await tester.tap(find.text(l10n.backupImport));
     await tester.pumpAndSettle();
     expect(find.text('This file is not an Alambic backup.'), findsOneWidget);
@@ -58,7 +58,7 @@ void main() {
 
   testScreen('asks for confirmation with what the file holds', (tester) async {
     files.picked = backupOf(1, 2);
-    await pumpPanel(tester);
+    await pumpBackup(tester);
     await tester.tap(find.text(l10n.backupImport));
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsOneWidget);

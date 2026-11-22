@@ -8,11 +8,12 @@ import '../../data/preferences/language_choice.dart';
 import '../../data/preferences/theme_choice.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'choice_dialog.dart';
+import 'settings_page.dart';
 
 /// Language and theme of the app. Both apply at once, and the language also
 /// applies to the notifications.
-class DisplayPanel extends ConsumerWidget {
-  const DisplayPanel({super.key});
+class DisplaySettingsScreen extends ConsumerWidget {
+  const DisplaySettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,37 +22,42 @@ class DisplayPanel extends ConsumerWidget {
     final controller = ref.read(interfaceSettingsProvider.notifier);
     final languages = _languageLabels(strings);
     final themes = _themeLabels(strings);
-    return SurfacePanel(
+    return SettingsPage(
+      title: strings.settingsDisplay,
       children: [
-        PanelRow(
-          title: strings.settingsLanguage,
-          value: languages[settings.language],
-          onTap: () async {
-            final choice = await showChoiceDialog(
-              context,
+        SurfacePanel(
+          children: [
+            PanelRow(
               title: strings.settingsLanguage,
-              options: languages,
-              selected: settings.language,
-            );
-            if (choice != null) {
-              await controller.setLanguage(choice);
-            }
-          },
-        ),
-        PanelRow(
-          title: strings.settingsTheme,
-          value: themes[settings.theme],
-          onTap: () async {
-            final choice = await showChoiceDialog(
-              context,
+              value: languages[settings.language],
+              onTap: () async {
+                final choice = await showChoiceDialog(
+                  context,
+                  title: strings.settingsLanguage,
+                  options: languages,
+                  selected: settings.language,
+                );
+                if (choice != null) {
+                  await controller.setLanguage(choice);
+                }
+              },
+            ),
+            PanelRow(
               title: strings.settingsTheme,
-              options: themes,
-              selected: settings.theme,
-            );
-            if (choice != null) {
-              await controller.setTheme(choice);
-            }
-          },
+              value: themes[settings.theme],
+              onTap: () async {
+                final choice = await showChoiceDialog(
+                  context,
+                  title: strings.settingsTheme,
+                  options: themes,
+                  selected: settings.theme,
+                );
+                if (choice != null) {
+                  await controller.setTheme(choice);
+                }
+              },
+            ),
+          ],
         ),
       ],
     );

@@ -8,27 +8,33 @@ import '../../application/backup/backup_providers.dart';
 import '../../data/backup/invalid_backup_exception.dart';
 import '../../data/backup/invalid_backup_kind.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'settings_page.dart';
 
 /// Export and import of all the data as a zip file.
-class BackupPanel extends ConsumerWidget {
-  const BackupPanel({super.key});
+class BackupScreen extends ConsumerWidget {
+  const BackupScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    return SurfacePanel(
+    return SettingsPage(
+      title: strings.settingsBackup,
       children: [
-        PanelRow(
-          title: strings.backupExport,
-          subtitle: strings.backupExportHint,
-          trailing: const Icon(Icons.upload_file_outlined),
-          onTap: () => _export(context, ref),
-        ),
-        PanelRow(
-          title: strings.backupImport,
-          subtitle: strings.backupImportHint,
-          trailing: const Icon(Icons.download_outlined),
-          onTap: () => _import(context, ref),
+        SurfacePanel(
+          children: [
+            PanelRow(
+              title: strings.backupExport,
+              subtitle: strings.backupExportHint,
+              trailing: const Icon(Icons.upload_file_outlined),
+              onTap: () => _export(context, ref),
+            ),
+            PanelRow(
+              title: strings.backupImport,
+              subtitle: strings.backupImportHint,
+              trailing: const Icon(Icons.download_outlined),
+              onTap: () => _import(context, ref),
+            ),
+          ],
         ),
       ],
     );

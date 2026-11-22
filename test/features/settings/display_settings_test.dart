@@ -8,7 +8,7 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/preferences/interface_settings.dart';
 import 'package:alambic/data/preferences/language_choice.dart';
 import 'package:alambic/data/preferences/theme_choice.dart';
-import 'package:alambic/features/settings/display_panel.dart';
+import 'package:alambic/features/settings/display_settings_screen.dart';
 import 'package:alambic/l10n/generated/app_localizations.dart';
 
 import '../../support/fake_interface_settings_store.dart';
@@ -29,7 +29,7 @@ void main() {
 
   tearDown(() => closeTestDatabase(database));
 
-  /// The whole app, on a phone in [phone], opened on the Settings tab.
+  /// The whole app, on a phone in [phone], opened on the Display settings.
   Future<void> pumpSettings(
     WidgetTester tester, {
     Locale phone = const Locale('en'),
@@ -53,9 +53,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text(lookupAppLocalizations(phone).tabSettings).last);
+    final strings = lookupAppLocalizations(phone);
+    await tester.tap(find.text(strings.tabSettings).last);
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byType(DisplayPanel));
+    await tester.tap(find.text(strings.settingsDisplay));
     await tester.pumpAndSettle();
   }
 
@@ -72,7 +73,7 @@ void main() {
 
     await choose(tester, 'Langue', 'English');
 
-    expect(find.text('Settings'), findsWidgets);
+    expect(find.text(l10n.settingsDisplay), findsOneWidget);
     expect(find.text('Language'), findsOneWidget);
     expect(store.saved.language, LanguageChoice.english);
   });
@@ -85,21 +86,21 @@ void main() {
 
     await choose(tester, 'Langue', 'Langue du téléphone');
 
-    expect(find.text(l10n.settingsTitle), findsWidgets);
+    expect(find.text(l10n.settingsDisplay), findsOneWidget);
     expect(store.saved.language, LanguageChoice.system);
   });
 
   testScreen('switches to the dark theme at once', (tester) async {
     await pumpSettings(tester);
     expect(
-      Theme.of(tester.element(find.byType(DisplayPanel))).brightness,
+      Theme.of(tester.element(find.byType(DisplaySettingsScreen))).brightness,
       Brightness.light,
     );
 
     await choose(tester, l10n.settingsTheme, l10n.themeDark);
 
     expect(
-      Theme.of(tester.element(find.byType(DisplayPanel))).brightness,
+      Theme.of(tester.element(find.byType(DisplaySettingsScreen))).brightness,
       Brightness.dark,
     );
     expect(store.saved.theme, ThemeChoice.dark);

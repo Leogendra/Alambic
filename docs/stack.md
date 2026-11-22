@@ -19,6 +19,8 @@ Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so
 - `path_provider`: locates the folder of the app, where the database and the image store live.
 - `archive`: reads and writes the zip file of a backup.
 - `file_picker`: the system dialogs that save a backup file and pick one to import.
+- `package_info_plus`: the version of the installed app, shown in Settings.
+- `url_launcher`: opens the GitHub repository in the browser.
 - `intl` and `flutter_localizations`: translations generated from the ARB files of `lib/l10n/`.
 - DM Sans font (OFL), bundled as four static weights in `assets/fonts/`.
 

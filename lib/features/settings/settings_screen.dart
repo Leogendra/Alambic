@@ -1,24 +1,22 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../app/formatting/date_labels.dart';
-import '../../app/formatting/reminder_settings_labels.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/surface_panel.dart';
-import '../../application/distillation/distillation_providers.dart';
-import '../../application/notifications/guard_providers.dart';
+import '../../application/about/about_providers.dart';
+import '../../application/preferences/interface_settings_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../pauses/global_pause_dialog.dart';
 import '../presets/presets_screen.dart';
-import 'backup_panel.dart';
-import 'display_panel.dart';
-import 'exact_alarms_panel.dart';
-import 'notification_guards_screen.dart';
-import 'notification_mode_screen.dart';
-import 'reminder_schedule_screen.dart';
+import 'backup_screen.dart';
+import 'display_settings_screen.dart';
+import 'notification_settings_screen.dart';
+import 'open_settings_screen.dart';
 
-/// Settings tab.
+/// Settings tab: one row per category of settings, each opening its own
+/// screen, then the "About" links and, in debug builds, the development tools.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -35,101 +33,97 @@ class SettingsScreen extends ConsumerWidget {
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
           ),
         ),
-        SectionLabel(strings.settingsNotificationsSection),
-        const _NotificationsPanel(),
-        const SizedBox(height: 14),
-        const ExactAlarmsPanel(),
-        const SizedBox(height: 24),
-        SectionLabel(strings.settingsPresetsSection),
-        const _PresetsPanel(),
-        const SizedBox(height: 24),
-        SectionLabel(strings.settingsDisplaySection),
-        const DisplayPanel(),
-        const SizedBox(height: 24),
-        SectionLabel(strings.settingsDataSection),
-        const BackupPanel(),
-      ],
-    );
-  }
-}
-
-class _PresetsPanel extends StatelessWidget {
-  const _PresetsPanel();
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
-    return SurfacePanel(
-      children: [
-        PanelRow(
-          title: strings.settingsPresets,
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (context) => const PresetsScreen(),
+        SurfacePanel(
+          children: [
+            _category(
+              context,
+              Icons.notifications_outlined,
+              strings.settingsNotifications,
+              const NotificationSettingsScreen(),
             ),
-          ),
+            _category(
+              context,
+              Icons.tune,
+              strings.settingsPresets,
+              const PresetsScreen(),
+            ),
+            _category(
+              context,
+              Icons.palette_outlined,
+              strings.settingsDisplay,
+              const DisplaySettingsScreen(),
+            ),
+            _category(
+              context,
+              Icons.settings_backup_restore,
+              strings.settingsBackup,
+              const BackupScreen(),
+            ),
+          ],
         ),
+        const SizedBox(height: 24),
+        SectionLabel(strings.settingsAboutSection),
+        SurfacePanel(
+          children: [
+            PanelRow(
+              icon: Icons.code,
+              title: strings.settingsGithub,
+              trailing: const Icon(Icons.open_in_new),
+              onTap: () => ref.read(appAboutProvider).openRepository(),
+            ),
+          ],
+        ),
+        if (kDebugMode) ...[
+          const SizedBox(height: 24),
+          SectionLabel(strings.settingsDevelopmentSection),
+          SurfacePanel(
+            children: [
+              PanelRow(
+                icon: Icons.smartphone_outlined,
+                title: strings.settingsReplayOnboarding,
+                showsChevron: false,
+                onTap: () => ref
+                    .read(interfaceSettingsProvider.notifier)
+                    .replayOnboarding(),
+              ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 24),
+        const _Version(),
       ],
     );
   }
+
+  Widget _category(
+    BuildContext context,
+    IconData icon,
+    String title,
+    Widget screen,
+  ) => PanelRow(
+    icon: icon,
+    title: title,
+    onTap: () => openSettingsScreen(context, screen),
+  );
 }
 
-class _NotificationsPanel extends ConsumerWidget {
-  const _NotificationsPanel();
+/// "Alambic v0.2.0", at the foot of the tab.
+class _Version extends ConsumerWidget {
+  const _Version();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final strings = AppLocalizations.of(context);
-    final reminders = ref.watch(reminderSettingsProvider).value;
-    final guards = ref.watch(notificationGuardsProvider).value;
-    final pausedAt = ref.watch(globalPauseProvider).value;
-    return SurfacePanel(
-      children: [
-        PanelRow(
-          title: strings.scheduleTitle,
-          value: reminders == null ? null : strings.scheduleLabel(reminders),
-          onTap: () => _open(context, const ReminderScheduleScreen()),
-        ),
-        PanelRow(
-          title: strings.notificationModeTitle,
-          value: reminders == null
-              ? null
-              : strings.notificationModeLabel(reminders),
-          onTap: () => _open(context, const NotificationModeScreen()),
-        ),
-        PanelRow(
-          title: strings.settingsGuards,
-          subtitle: switch (guards) {
-            null => null,
-            final guards when guards.quietHoursEnabled =>
-              strings.settingsGuardsSummary(
-                guards.dailyCap,
-                '${guards.quietStart}',
-                '${guards.quietEnd}',
-              ),
-            final guards => strings.settingsGuardsSummaryNoQuiet(
-              guards.dailyCap,
-            ),
-          },
-          onTap: () => _open(context, const NotificationGuardsScreen()),
-        ),
-        PanelRow(
-          title: strings.pauseGlobal,
-          subtitle: pausedAt == null
-              ? strings.pauseGlobalHint
-              : strings.pausedSince(strings.shortDate(pausedAt)),
-          trailing: Switch(
-            value: pausedAt != null,
-            onChanged: (paused) => paused
-                ? confirmGlobalPause(context, ref)
-                : ref.read(distillationServiceProvider).resumeAll(),
-          ),
-        ),
-      ],
+    final version = ref.watch(appVersionProvider).value;
+    if (version == null) {
+      return const SizedBox.shrink();
+    }
+    return Text(
+      AppLocalizations.of(context).settingsVersion(version),
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 13,
+        color: AlambicColors.of(context).textSecondary,
+      ),
     );
   }
 }
-
-Future<void> _open(BuildContext context, Widget screen) =>
-    Navigator.of(context)
-        .push(MaterialPageRoute<void>(builder: (context) => screen));

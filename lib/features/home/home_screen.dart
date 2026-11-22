@@ -7,12 +7,11 @@ import '../../application/distillation/distillation_providers.dart';
 import '../../application/home/home_providers.dart';
 import '../../application/time/minute_ticker.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../pauses/global_pause_dialog.dart';
 import '../pauses/paused_banner.dart';
 import 'home_timeline_view.dart';
 
-/// Home tab: the timeline of the cards coming, from today on, and the
-/// global pause.
+/// Home tab: the timeline of the cards coming, from today on, and the banner
+/// of the global pause, which is started from Settings.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -27,7 +26,7 @@ class HomeScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 96),
       children: [
-        _header(context, ref, now, paused: pausedAt != null),
+        _header(context, now),
         if (pausedAt != null) ...[
           const SizedBox(height: 20),
           PausedBanner(
@@ -41,12 +40,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _header(
-    BuildContext context,
-    WidgetRef ref,
-    DateTime now, {
-    required bool paused,
-  }) {
+  Widget _header(BuildContext context, DateTime now) {
     final strings = AppLocalizations.of(context);
     final date = DateFormat.MMMMEEEEd(strings.localeName).format(now);
     return Row(
@@ -76,12 +70,6 @@ class HomeScreen extends ConsumerWidget {
             ],
           ),
         ),
-        if (!paused)
-          IconButton(
-            tooltip: strings.pauseAllTooltip,
-            icon: const Icon(Icons.pause),
-            onPressed: () => confirmGlobalPause(context, ref),
-          ),
       ],
     );
   }

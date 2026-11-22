@@ -67,9 +67,8 @@
   "unitMonths": "months",
   "unitYears": "years",
   "settingsTitle": "Settings",
-  "settingsPresetsSection": "Presets",
   "settingsPresets": "Presets",
-  "settingsNotificationsSection": "Notifications",
+  "settingsNotifications": "Notifications",
   "settingsGuards": "Safeguards",
   "settingsGuardsSummary": "{cap} a day max · quiet {start} to {end}",
   "@settingsGuardsSummary": {
@@ -613,7 +612,6 @@
   "pauseResume": "Resume",
   "pauseGlobal": "Global pause",
   "pauseGlobalHint": "Stops the distillations, not the reminders",
-  "pauseAllTooltip": "Pause the distillations",
   "pauseAllConfirmTitle": "Pause the distillations?",
   "pauseAllConfirmBody": "No group receives a new card until you resume. Reminders and their notifications go on.",
   "pauseAllConfirm": "Pause",
@@ -831,7 +829,7 @@
       }
     }
   },
-  "settingsDataSection": "Data",
+  "settingsBackup": "Backup & restore",
   "backupExport": "Export data",
   "backupExportHint": "A .zip file with the cards, the history, the settings and the images",
   "backupExportDone": "Export saved",
@@ -898,9 +896,21 @@
   "onboardingSkip": "Skip",
   "presetNameStandard": "Standard",
   "presetNameIntensive": "Intensive",
-  "settingsDisplaySection": "Display",
+  "settingsDisplay": "Display",
   "settingsLanguage": "Language",
   "settingsTheme": "Theme",
+  "settingsAboutSection": "About",
+  "settingsGithub": "GitHub repository",
+  "settingsVersion": "Alambic v{version}",
+  "@settingsVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDevelopmentSection": "Development",
+  "settingsReplayOnboarding": "Replay the onboarding",
   "languageSystem": "Phone language",
   "languageFrench": "Français",
   "languageEnglish": "English",

@@ -10,7 +10,7 @@ Out of scope: merging a backup into the current data. An import always replaces 
 
 ## Implementation overview
 
-Settings has a "Data" section with two rows, "Export data" and "Import data".
+The "Backup & restore" category of Settings opens a screen with two rows, "Export data" and "Import data".
 
 ### Export
 
@@ -47,11 +47,11 @@ The database goes first and in one transaction because it is the part that can f
 
 - The zip layout is tested on its own, without a database: round trip of rows and images, and each kind of refused file.
 - Export and import are tested between two real in-memory databases with their own image folders, filled through the services: the imported tables and images equal the exported ones, the previous content is gone, the notifications are planned again, and a refused file or a failed insertion leaves the data unchanged.
-- The Settings panel is tested with an in-memory replacement of the system file dialogs: refusal message and confirmation dialog.
+- The Backup & restore screen is tested with an in-memory replacement of the system file dialogs: refusal message and confirmation dialog.
 
 ## File mapping
 
 - `lib/data/backup/` — zip layout, copy of the database tables, and the system file dialogs behind an interface.
 - `lib/data/images/image_store.dart` — reading and replacing the whole image folder.
 - `lib/application/backup/` — `BackupService`, the preview of a picked file and the providers.
-- `lib/features/settings/backup_panel.dart` — the "Data" section of Settings.
+- `lib/features/settings/backup_screen.dart` — the "Backup & restore" screen of Settings.

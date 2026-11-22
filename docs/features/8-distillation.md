@@ -42,7 +42,7 @@ Without the option, the N new cards of a batch arrive at the rhythm whatever is 
 
 A distillation is paused and resumed from its "Distill" screen, opened from its group page; the button applies at once, without "Save". A paused distillation introduces nothing. Its introduced cards follow their preset and keep being notified: no due date moves, during the pause or at its end. There is no stop and no end.
 
-The global pause, started from Home or Settings after a confirmation and ended from Home's banner or Settings, holds back every distillation the same way, and only them: the reminders go on. It leaves each distillation's own pause alone: a distillation paused before it is still paused after it.
+The global pause, started from the Notifications category of Settings after a confirmation and ended from Home's banner or from Settings, holds back every distillation the same way, and only them: the reminders go on. It leaves each distillation's own pause alone: a distillation paused before it is still paused after it.
 
 Resuming, from either pause, processes the current day if it was not processed yet: a single batch comes out if the rhythm owes one, as after days with the phone off, and the rhythm starts again from that day. A distillation resumed on a day already processed waits for the next one.
 

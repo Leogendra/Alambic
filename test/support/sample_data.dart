@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/misc.dart';
+import 'package:alambic/application/about/about_providers.dart';
 import 'package:alambic/application/cards/card_draft.dart';
 import 'package:alambic/application/cards/card_service.dart';
 import 'package:alambic/application/clock.dart';
@@ -9,6 +10,7 @@ import 'package:alambic/application/reviews/review_service.dart';
 import 'package:alambic/application/scheduling/ignored_schedule_changes.dart';
 import 'package:alambic/application/time/minute_ticker.dart';
 import 'package:alambic/data/data_providers.dart';
+import 'package:alambic/data/about/app_about.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/images/image_store.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
@@ -23,6 +25,7 @@ import 'package:alambic/domain/scheduling/due_policy.dart';
 import 'package:alambic/domain/scheduling/review_scheduler.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
+import 'fake_app_about.dart';
 import 'fixed_clock.dart';
 import 'test_images.dart';
 
@@ -146,9 +149,11 @@ List<Override> screenOverrides(
   AlambicDatabase database,
   DateTime now, {
   ImageStore? images,
+  AppAbout? about,
 }) => [
   databaseProvider.overrideWithValue(database),
   imageStoreProvider.overrideWithValue(images ?? openTestImageStore()),
   clockProvider.overrideWithValue(() => now),
   currentMomentProvider.overrideWith((ref) => Stream.value(now)),
+  appAboutProvider.overrideWithValue(about ?? FakeAppAbout()),
 ];

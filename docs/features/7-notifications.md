@@ -20,7 +20,7 @@ The application decides what to notify and when; a platform layer decides how. T
 
 ### Schedule and mode
 
-The [schedule](../lexicon.md#schedule) and the notification mode are set once for the whole app, in the Notifications section of Settings: "Schedule" (a fixed time, 12:00 by default, or a time range, 9:00 to 18:00 when first chosen) and "Notification mode" (one notification per card by default, or a grouped reminder per group that opens the app or chains the cards). No group nor preset has its own. The end of a range never precedes its start, so a range does not run past midnight: a time that would break this order is refused with a message and nothing is saved, and the settings service refuses such a range whatever its caller. They are stored in `app_settings`, where the background tasks read them, and each change is saved at once and plans the wake-ups again.
+The [schedule](../lexicon.md#schedule) and the notification mode are set once for the whole app, in the Notifications category of Settings: "Schedule" (a fixed time, 12:00 by default, or a time range, 9:00 to 18:00 when first chosen) and "Notification mode" (one notification per card by default, or a grouped reminder per group that opens the app or chains the cards). No group nor preset has its own. The end of a range never precedes its start, so a range does not run past midnight: a time that would break this order is refused with a message and nothing is saved, and the settings service refuses such a range whatever its caller. They are stored in `app_settings`, where the background tasks read them, and each change is saved at once and plans the wake-ups again.
 
 A due date is a moment, written when a card is answered, so changing the daily slot would leave the dates already set at the old time. The settings service therefore moves every due date still to come that falls on the old slot to the new slot of the same day (`DailySlotMove`). A due date at another time of day comes from an interval of less than a day and keeps its moment; a due date already passed is left alone, the card being due anyway.
 
@@ -172,7 +172,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - `lib/application/notifications/` — the platform interfaces, the planner, the dispatcher, the grouped reminders, the action handler and their providers.
 - `lib/notifications/` — notification texts and the store of planned wake-ups.
 - `lib/notifications/android/` — Android implementations, wiring and background entry points.
-- `lib/features/settings/` — the exact alarm panel, the schedule, notification mode and safeguards screens.
+- `lib/features/settings/` — the Notifications screen, with the exact alarm panel, the schedule, notification mode and safeguards screens.
 - `lib/data/repositories/notification_settings_repository.dart` — the schedule, the mode, the safeguards and the count of cards notified today.
 - `lib/app/shell/main_shell.dart` — opens the session of a touched notification.
 - `lib/main.dart` — initialisation and planning at launch.

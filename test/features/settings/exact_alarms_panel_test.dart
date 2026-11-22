@@ -1,9 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:alambic/application/notifications/notification_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/features/settings/exact_alarms_panel.dart';
-import 'package:alambic/features/settings/settings_screen.dart';
+import 'package:alambic/features/settings/notification_settings_screen.dart';
 
 import '../../support/fake_notifications.dart';
 import '../../support/screen_harness.dart';
@@ -24,7 +23,7 @@ void main() {
 
   Future<void> pumpSettings(WidgetTester tester) => pumpScreen(
     tester,
-    const Scaffold(body: SafeArea(child: SettingsScreen())),
+    const NotificationSettingsScreen(),
     overrides: [
       ...screenOverrides(database, sampleNow),
       alarmSchedulerProvider.overrideWithValue(alarms),
@@ -38,38 +37,13 @@ void main() {
     await pumpSettings(tester);
     await captureShot(
       tester,
-      find.byType(SettingsScreen),
+      find.byType(NotificationSettingsScreen),
       'settings_exact_alarms_off',
     );
     await expectNoOverflow(tester);
     await tester.tap(find.text(l10n.settingsExactAlarmsAllow));
     expect(alarms.permissionRequests, 1);
   });
-
-  for (final (brightness, suffix) in [
-    (Brightness.light, ''),
-    (Brightness.dark, '_dark'),
-  ]) {
-    testScreen('settings in French, ${brightness.name} theme', (tester) async {
-      await pumpScreen(
-        tester,
-        const Scaffold(body: SafeArea(child: SettingsScreen())),
-        locale: const Locale('fr'),
-        brightness: brightness,
-        overrides: [
-          ...screenOverrides(database, sampleNow),
-          alarmSchedulerProvider.overrideWithValue(alarms),
-        ],
-      );
-      expect(find.text('Presets'), findsOneWidget);
-      await captureShot(
-        tester,
-        find.byType(SettingsScreen),
-        'settings_french$suffix',
-      );
-      await expectNoOverflow(tester);
-    });
-  }
 
   testScreen('says reminders are on time when exact alarms are allowed', (
     tester,

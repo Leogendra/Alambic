@@ -2,8 +2,9 @@ import 'package:material_ui/material_ui.dart';
 
 import '../theme/alambic_colors.dart';
 
-/// One line of a [SurfacePanel]: a title, an optional subtitle, the current
-/// [value] of the setting and an optional [trailing] control.
+/// One line of a [SurfacePanel]: an optional [icon], a title, an optional
+/// subtitle, the current [value] of the setting and an optional [trailing]
+/// control.
 ///
 /// A row that opens something (a screen, a picker, a dialog) ends with a
 /// chevron, so that no tappable row reads as plain text. By default the
@@ -14,6 +15,7 @@ class PanelRow extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.value,
+    this.icon,
     this.trailing,
     this.onTap,
     this.titleColor,
@@ -26,6 +28,9 @@ class PanelRow extends StatelessWidget {
 
   /// Current value of the setting, shown before [trailing].
   final String? value;
+
+  /// Icon at the start of the row, which names a category of settings.
+  final IconData? icon;
   final Widget? trailing;
   final VoidCallback? onTap;
   final Color? titleColor;
@@ -46,6 +51,10 @@ class PanelRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
             children: [
+              if (icon != null) ...[
+                Icon(icon, color: colors.textSecondary),
+                const SizedBox(width: 16),
+              ],
               Expanded(child: _texts(colors)),
               if (value != null) ...[
                 const SizedBox(width: 12),

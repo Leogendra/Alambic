@@ -32,7 +32,7 @@ A selected state never rests on its fill alone. The two shared selection compone
 - The segmented control, for every choice of 2 or 3 states: the selected segment is raised and outlined, with bold primary text, while the others are plain secondary text on the track.
 - The choice tile, for a list where one option is active (preset, group, language, theme, day of a reminder): the active tile has a 2 px accent outline on an accent tint.
 
-A settings row (`PanelRow`) shows the current value in secondary text, and ends with a chevron when a tap opens something (a screen, a picker, a dialog), so that no tappable row reads as plain text. A row that already ends with its own control, such as a switch, a stepper or an action icon, has no chevron.
+A settings row (`PanelRow`) can start with an icon, shows the current value in secondary text, and ends with a chevron when a tap opens something (a screen, a picker, a dialog), so that no tappable row reads as plain text. A row that already ends with its own control, such as a switch, a stepper or an action icon, has no chevron.
 
 ### System bars
 
@@ -42,9 +42,22 @@ The app draws edge to edge, under transparent status and navigation bars whose i
 - A list under an app bar runs under the navigation bar, but ends with a margin of the bar's height (`scrollPadding`), so its last element can always be brought above it.
 - The main button of a page with text input sits under its list rather than at its end (`BottomActionArea`): the page body shrinks above the keyboard, so the button stays visible while typing.
 
+### Settings
+
+The Settings tab is a short list with no subtitle and no value, so that it reads at a glance. Its first panel holds one row per category, each with an icon and a chevron, and each opening a screen of its own that groups the settings of the category:
+
+- **Notifications**: the schedule, the notification mode, the safeguards, the global pause of the distillations and the exact alarms ([Feature 7](7-notifications.md)).
+- **Presets**: opens the Presets screen directly ([Feature 2](2-presets.md)).
+- **Display**: the language and the theme, see below.
+- **Backup & restore**: the export and the import ([Feature 9](9-backup.md)).
+
+Below, an "About" panel holds a link to the GitHub repository of the app, which opens in the browser, and the tab ends on the version of the installed app ("Alambic v0.2.0"). A debug build adds a "Development" panel, absent from a release build, whose "Replay the onboarding" row shows the welcome screens again ([Feature 10](10-onboarding.md#replay)).
+
+A category screen is a page with an app bar, where the explanations and the current values that would crowd the tab belong.
+
 ### Language and theme
 
-Settings has a "Display" section with two choices, applied at once:
+The Display category of Settings has two choices, applied at once:
 
 - **Language**: the language of the phone (default), English or French. Following the phone means French on a French phone and English for any other language, including the ones the app does not have. The notifications speak the same language as the screens, background tasks included: both go through the same rule. English is the base language: every text is written in English first, and French translates all of them.
 - **Theme**: the setting of the phone (default), light or dark.
@@ -78,6 +91,7 @@ When the database is created, the Standard and Intensive presets are inserted an
 - [x] The app and its notifications speak English or French, from the phone language or the choice in Settings.
 - [x] English is the base language: its texts are the template, and French translates every one of them.
 - [x] The main navigation shows three tabs and a "+" button.
+- [x] The Settings tab lists four categories (Notifications, Presets, Display, Backup & restore), each opening its own screen, then the link to the GitHub repository and the version of the app; a debug build also lists the development tools.
 - [x] A fresh database contains the Standard and Intensive presets, Standard being the global preset.
 - [x] Deleting a group deletes its cards and its distillation; deleting a card deletes its history and its reminders.
 
@@ -90,7 +104,7 @@ When the database is created, the Standard and Intensive presets are inserted an
 - The contrast rules are computed with the WCAG formula on the tokens of both themes, so that a change of value that breaks one fails without looking at a screen.
 - The system bars are simulated as a 32 px status bar and a 48 px navigation bar (the three-button one, the tallest) around every tab, page, sheet and onboarding screen. No text or tappable element may overlap them; a list is checked at its top and at the end of its scroll, since it may legitimately pass under the bars in between. A screen or sheet added or redone joins this check. Dialogs do not: Flutter centres them clear of the bars.
 - A screen test pumps its screen at the size of the mockup screens (390 × 844) and checks its key texts. At each state worth seeing, `expectNoOverflow` lays the screen out again on a small phone (360 × 640) and with text twice as large, and fails on an overflow; `captureShot` writes an image of it to `build/shots/` when the run asks for it (`stack.md` §Commands). No test compares pixels: the images are for looking at the screens and comparing them with the mockup. A screen added or redone gets a screen test that calls both.
-- The shell is covered by screen tests in light and dark theme, and the Settings tab in English and, in light and dark theme, in French.
+- The shell is covered by screen tests in light and dark theme. The Settings tab is covered in English and in French, in light and dark theme, and each category is opened from it; the version and the browser are replaced by an in-memory fake, so that the tests need no platform plugin.
 - The schema is tested on a real, not mocked, in-memory SQLite database: initial content and cascading deletion rules.
 - Widget tests load the real fonts (DM Sans and the Material icons); otherwise text would render as blocks, the captures would not show the typography and the overflow checks would measure the wrong glyphs.
 
@@ -99,7 +113,8 @@ When the database is created, the Standard and Intensive presets are inserted an
 - `lib/app/` — app shell and its tab bar (`shell/`), theme, and the language rule (`app_locale.dart`).
 - `lib/app/widgets/` — the shared components, among them the segmented control, the choice tile and the settings row.
 - `lib/app/layout/` — the margins that keep content clear of the system bars.
-- `lib/features/settings/display_panel.dart` — the Display section of Settings.
+- `lib/features/settings/` — the Settings tab, the page shared by the category screens, and the Display screen.
+- `lib/data/about/` — the version and the repository link behind an interface, with the plugins that implement it.
 - `lib/data/database/` — drift database: tables, converters and initial content. `alambic_database.g.dart` is generated by `build_runner`.
 - `lib/l10n/` — interface texts: `app_en.arb` is the template that declares the placeholders, `app_fr.arb` its French translation.
 - `assets/fonts/` — DM Sans and its OFL licence.

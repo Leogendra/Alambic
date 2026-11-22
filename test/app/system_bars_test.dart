@@ -25,8 +25,11 @@ import 'package:alambic/features/presets/preset_editor_screen.dart';
 import 'package:alambic/features/presets/preset_picker.dart';
 import 'package:alambic/features/presets/presets_screen.dart';
 import 'package:alambic/features/session/session_screen.dart';
+import 'package:alambic/features/settings/backup_screen.dart';
+import 'package:alambic/features/settings/display_settings_screen.dart';
 import 'package:alambic/features/settings/notification_guards_screen.dart';
 import 'package:alambic/features/settings/notification_mode_screen.dart';
+import 'package:alambic/features/settings/notification_settings_screen.dart';
 import 'package:alambic/features/settings/reminder_schedule_screen.dart';
 
 import '../support/fake_interface_settings_store.dart';
@@ -311,6 +314,18 @@ void main() {
         overrides: overrides(),
       );
       await expectClearOfSystemBars(tester);
+    });
+
+    testScreen('notification settings', (tester) async {
+      await checkScreen(tester, const NotificationSettingsScreen());
+    });
+
+    testScreen('display settings', (tester) async {
+      await checkScreen(tester, const DisplaySettingsScreen());
+    });
+
+    testScreen('backup', (tester) async {
+      await checkScreen(tester, const BackupScreen());
     });
 
     testScreen('notification guards', (tester) async {

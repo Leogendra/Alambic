@@ -25,7 +25,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - A notification ignored or swiped is sent again the next day at the reminder time.
 - Schedule and notification mode in Settings, for every group at once: a fixed time (12:00 by default) or a time range, one notification per card or a grouped reminder. A new reminder time also moves the reminders already set at the old one.
 - Notification safeguards in Settings: a daily cap that holds back the longest intervals first, quiet hours (22:00 to 08:00 by default) and auto grouping of a busy moment into a single notification.
-- Pause of a distillation, from its "Distill" screen, and global pause of every distillation, from Settings or Home, after a confirmation: no new card comes out until the resume, which brings a single batch at most. Reminders and their notifications go on, and no due date moves.
+- Pause of a distillation, from its "Distill" screen, and global pause of every distillation, from Settings, after a confirmation: no new card comes out until the resume, which brings a single batch at most. Reminders and their notifications go on, and no due date moves.
 - Images on cards: each face takes a picture from the gallery, alone or with a text. It shows on the card sheet, in the lists, in a session and in the expanded notification.
 - In-app review session: answer revealed on tap, Correct / Again buttons showing the next due date, end screen and bonus review of the missed cards.
 - Typed answer in a session, for groups with this option: a field takes the place of "Show answer", with Reveal beside it. The answer is checked like in the notifications, recorded at once and shown with its verdict, then Next moves on.
@@ -34,6 +34,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - The whole app in English and in French, notifications included.
 - Language and theme in Settings: the app follows the phone by default, or stays in French or English, light or dark. A phone in another language gets English. The shipped presets are named in the language of the interface until they are renamed.
 - App icon on the home screen, following the phone's icon shape and its themed icons, and in the notifications' status bar.
+- "About" in Settings: a link to the GitHub repository and the version of the app, at the foot of the tab. A debug build also offers to replay the onboarding.
 
 ### Changed
 
@@ -52,6 +53,7 @@ All visible changes to Alambic are listed here. Format: [Keep a Changelog 1.0.0]
 - The schedule refuses a time range whose end comes before its start.
 - The preset editor says what a missed card does under the failure choice, now named "On failure": one step back, back to start or stay.
 - Sharper dark theme: a darker background, lighter cards and a brighter blue, so cards stand out and the selected option of a choice is clearly visible. Both themes are flat, with outlines instead of shadows.
+- Settings is a short list of categories (Notifications, Presets, Display, Backup & restore), each opening a screen that groups its settings, instead of one long page. The global pause is no longer started from Home, only from Notifications in Settings.
 - Settings rows show their value in grey with an arrow when they open something, and lists where one option is chosen (preset, group, language, theme) highlight it with a blue outline.
 
 ### Removed

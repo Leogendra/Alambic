@@ -64,6 +64,8 @@ void main() {
       expect(find.text('Japanese: 1 new card'), findsNWidgets(2));
       expect(find.text('Capitals: 2 new cards'), findsOneWidget);
       expect(find.text('TOMORROW'), findsOneWidget);
+      // The global pause is started from Settings, not from Home.
+      expect(find.byIcon(Icons.pause), findsNothing);
       await captureShot(
         tester,
         find.byType(HomeScreen),

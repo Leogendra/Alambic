@@ -15,6 +15,10 @@ class InterfaceSettingsController extends Notifier<InterfaceSettings> {
   Future<void> completeOnboarding() =>
       _update(state.copyWith(onboardingDone: true));
 
+  /// Shows the welcome screens again, in place of the tabs.
+  Future<void> replayOnboarding() =>
+      _update(state.copyWith(onboardingDone: false));
+
   Future<void> setLanguage(LanguageChoice language) =>
       _update(state.copyWith(language: language));
 

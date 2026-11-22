@@ -40,7 +40,7 @@ After the detailed days, two blocks side by side: "Next month", from the 8th to 
 
 ### Header
 
-The title "Coming up" sits over today's date. A pause button next to it starts the global pause, after a confirmation ([Feature 8](8-distillation.md#pause)). During the pause, Home starts with "Paused since …", a line saying that no new card arrives and that the reminders go on, and a "Resume" button.
+The title "Coming up" sits over today's date. The global pause is started from Settings ([Feature 8](8-distillation.md#pause)), not from Home. During the pause, Home starts with "Paused since …", a line saying that no new card arrives and that the reminders go on, and a "Resume" button.
 
 There is no count of due cards and no "Review all" on Home: reviewing happens from the notifications, a group page or a card sheet.
 
@@ -52,7 +52,7 @@ There is no count of due cards and no "Review all" on Home: reviewing happens fr
 - [x] A paused distillation, or any during the global pause, announces no arrival.
 - [x] Each reminder shows the time left before it, in hours today and in days afterwards, except when late or past.
 - [x] The coming month and year give the total of reminders and expected new cards, with a pile that grows with it.
-- [x] The pause button starts the global pause; Home then offers to resume it.
+- [x] Home has no pause button; during the global pause, started from Settings, it offers to resume it.
 
 ## Test strategy
 

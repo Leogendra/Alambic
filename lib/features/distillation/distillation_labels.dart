@@ -5,6 +5,5 @@ import '../../l10n/generated/app_localizations.dart';
 extension DistillationLabels on AppLocalizations {
   /// "1 card per day".
   String distillationRhythm(Distillation distillation) =>
-      '${distillationCardsPer(distillation.cardsPerBatch)} '
-      '${distillationEveryDays(distillation.everyDays)}';
+      distillationCardsPerDay(distillation.cardsPerBatch);
 }

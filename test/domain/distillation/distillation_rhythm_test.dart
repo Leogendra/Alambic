@@ -13,14 +13,12 @@ void main() {
 
   Distillation distillation({
     int cardsPerBatch = 3,
-    int everyDays = 2,
     bool prioritizeReviews = true,
     DateTime? lastBatchDay,
     DateTime? lastAdvancedDay,
   }) => Distillation(
     groupId: 1,
     cardsPerBatch: cardsPerBatch,
-    everyDays: everyDays,
     prioritizeReviews: prioritizeReviews,
     pausedAt: null,
     startedAt: DateTime(2026, 11, 10, 9),
@@ -32,10 +30,10 @@ void main() {
     expect(rhythm.batchDue(distillation(), DateTime(2026, 11, 10)), isTrue);
   });
 
-  test('a batch is owed X days after the last one, and later on', () {
+  test('a batch is owed the day after the last one, and later on', () {
     final batched = distillation(lastBatchDay: DateTime(2026, 11, 10));
-    expect(rhythm.batchDue(batched, DateTime(2026, 11, 11)), isFalse);
-    expect(rhythm.batchDue(batched, DateTime(2026, 11, 12)), isTrue);
+    expect(rhythm.batchDue(batched, DateTime(2026, 11, 10)), isFalse);
+    expect(rhythm.batchDue(batched, DateTime(2026, 11, 11)), isTrue);
     expect(rhythm.batchDue(batched, DateTime(2026, 11, 17)), isTrue);
   });
 
@@ -67,10 +65,10 @@ void main() {
       );
     });
 
-    test('X days after the last batch', () {
+    test('the day after the last batch', () {
       expect(
         rhythm.nextIntroductionDay(
-          distillation(lastBatchDay: DateTime(2026, 11, 9)),
+          distillation(lastBatchDay: today),
           today,
         ),
         DateTime(2026, 11, 11),
@@ -92,7 +90,7 @@ void main() {
     final now = DateTime(2026, 11, 10, 9);
     final today = DateTime(2026, 11, 10);
     final lastWeek = DateTime(2026, 11, 3, 12);
-    const settings = DistillationSettings(cardsPerBatch: 3, everyDays: 2);
+    const settings = DistillationSettings(cardsPerBatch: 3);
 
     List<Flashcard> queue(int count) => [
       for (var id = 1; id <= count; id++)
@@ -109,29 +107,29 @@ void main() {
     test('follows the batches until the queue is empty', () {
       expect(rhythm.forecast(settings, queue(7), firstDay: today, now: now), {
         DateTime(2026, 11, 10): 3,
-        DateTime(2026, 11, 12): 3,
-        DateTime(2026, 11, 14): 1,
+        DateTime(2026, 11, 11): 3,
+        DateTime(2026, 11, 12): 1,
       });
     });
 
     test('the reviews planned on a batch day take places, so the last '
         'arrival slips', () {
       final cards = [
-        ...queue(7),
+        ...queue(9),
         review(11, DateTime(2026, 11, 12, 12)),
         review(12, DateTime(2026, 11, 12, 18)),
         review(13, DateTime(2026, 11, 13, 12)),
       ];
       expect(rhythm.forecast(settings, cards, firstDay: today, now: now), {
         DateTime(2026, 11, 10): 3,
+        DateTime(2026, 11, 11): 3,
         DateTime(2026, 11, 12): 1,
-        DateTime(2026, 11, 14): 3,
+        DateTime(2026, 11, 13): 2,
       });
       expect(
         rhythm.forecast(
           const DistillationSettings(
             cardsPerBatch: 3,
-            everyDays: 2,
             prioritizeReviews: false,
           ),
           cards,
@@ -140,8 +138,8 @@ void main() {
         ),
         {
           DateTime(2026, 11, 10): 3,
+          DateTime(2026, 11, 11): 3,
           DateTime(2026, 11, 12): 3,
-          DateTime(2026, 11, 14): 1,
         },
       );
     });
@@ -159,7 +157,7 @@ void main() {
       ];
       expect(rhythm.forecast(settings, cards, firstDay: today, now: now), {
         DateTime(2026, 11, 10): 1,
-        DateTime(2026, 11, 12): 3,
+        DateTime(2026, 11, 11): 3,
       });
     });
 
@@ -171,7 +169,7 @@ void main() {
           review(id, DateTime(2026, 11, 10, 12)),
       ];
       expect(rhythm.forecast(settings, cards, firstDay: today, now: now), {
-        DateTime(2026, 11, 12): 2,
+        DateTime(2026, 11, 11): 2,
       });
     });
 
@@ -182,9 +180,9 @@ void main() {
           queue(30),
           firstDay: today,
           now: now,
-          until: DateTime(2026, 11, 14),
+          until: DateTime(2026, 11, 12),
         ),
-        {DateTime(2026, 11, 10): 3, DateTime(2026, 11, 12): 3},
+        {DateTime(2026, 11, 10): 3, DateTime(2026, 11, 11): 3},
       );
     });
   });

@@ -7,23 +7,21 @@ import 'distillation.dart';
 import 'distillation_queue.dart';
 import 'distillation_settings.dart';
 
-/// "N cards every X days", day by day.
+/// "N cards a day", day by day.
 ///
-/// A batch comes out X days after the last one, counted from the day it came
-/// out. It is never completed the next days, and a missed batch is not
-/// caught up: at most one batch comes out per day, and the rhythm starts
-/// again from that day.
+/// A batch comes out the day after the last one. It is never completed the
+/// next days, and a missed batch is not caught up: at most one batch comes
+/// out per day.
 class DistillationRhythm {
   const DistillationRhythm(this.calendar);
 
   final SchedulingCalendar calendar;
 
-  /// Whether [distillation] owes a batch on [day]: none came out yet, or X
-  /// days have passed since the last one.
+  /// Whether [distillation] owes a batch on [day]: none came out yet, or
+  /// the last one came out before [day].
   bool batchDue(Distillation distillation, DateTime day) {
     final lastBatchDay = distillation.lastBatchDay;
-    return lastBatchDay == null ||
-        !day.isBefore(calendar.addDays(lastBatchDay, distillation.everyDays));
+    return lastBatchDay == null || lastBatchDay.isBefore(day);
   }
 
   /// New cards of a batch when [dueCards] cards of the group are due at the
@@ -61,7 +59,7 @@ class DistillationRhythm {
         arrivals[day] = count;
         left -= count;
       }
-      day = calendar.addDays(day, settings.everyDays);
+      day = calendar.addDays(day, 1);
     }
     return arrivals;
   }
@@ -92,7 +90,7 @@ class DistillationRhythm {
   }
 
   /// Day on which [distillation] owes its next batch, seen from [today]: not
-  /// before the next pass, nor before X days after the last batch.
+  /// before the next pass, nor before the day after the last batch.
   DateTime nextIntroductionDay(Distillation distillation, DateTime today) {
     final earliest = distillation.lastAdvancedDay == today
         ? calendar.addDays(today, 1)
@@ -101,7 +99,7 @@ class DistillationRhythm {
     if (lastBatchDay == null) {
       return earliest;
     } else {
-      final next = calendar.addDays(lastBatchDay, distillation.everyDays);
+      final next = calendar.addDays(lastBatchDay, 1);
       return next.isAfter(earliest) ? next : earliest;
     }
   }

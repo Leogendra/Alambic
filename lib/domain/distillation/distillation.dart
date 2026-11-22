@@ -8,7 +8,6 @@ class Distillation {
   const Distillation({
     required this.groupId,
     required this.cardsPerBatch,
-    required this.everyDays,
     required this.prioritizeReviews,
     required this.pausedAt,
     required this.startedAt,
@@ -18,7 +17,6 @@ class Distillation {
 
   final int groupId;
   final int cardsPerBatch;
-  final int everyDays;
   final bool prioritizeReviews;
 
   /// Start of the pause of the distillation, `null` while it runs. While
@@ -26,8 +24,8 @@ class Distillation {
   final DateTime? pausedAt;
   final DateTime startedAt;
 
-  /// Last scheduling day on which a batch came out; the next one comes X
-  /// days later. `null` until the first batch.
+  /// Last scheduling day on which a batch came out; the next one comes
+  /// the day after. `null` until the first batch.
   final DateTime? lastBatchDay;
 
   /// Last scheduling day the daily pass processed; each day is processed
@@ -38,7 +36,6 @@ class Distillation {
 
   DistillationSettings get settings => DistillationSettings(
     cardsPerBatch: cardsPerBatch,
-    everyDays: everyDays,
     prioritizeReviews: prioritizeReviews,
   );
 
@@ -46,7 +43,6 @@ class Distillation {
   Distillation withSettings(DistillationSettings settings) => Distillation(
     groupId: groupId,
     cardsPerBatch: settings.cardsPerBatch,
-    everyDays: settings.everyDays,
     prioritizeReviews: settings.prioritizeReviews,
     pausedAt: pausedAt,
     startedAt: startedAt,

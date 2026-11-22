@@ -35,15 +35,6 @@ class GroupDistillationSection extends ConsumerWidget {
         spacing: 8,
         children: [
           if (highlighted)
-            Text(
-              strings.groupDistillWaiting,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: colors.accentText,
-              ),
-            ),
           ShineSweep(
             child: FilledButton(
               onPressed: () => Navigator.of(context).push(

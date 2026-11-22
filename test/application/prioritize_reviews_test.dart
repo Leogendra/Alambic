@@ -121,11 +121,11 @@ void main() {
   });
 
   test('the cards held back stay at the head of the queue, '
-      'and the next batch comes X days later', () async {
+      'and the next batch comes the next day', () async {
     await schedule(0, DateTime(2026, 11, 10), DateTime(2026, 11, 3));
     await services.distillations.activate(
       groupId,
-      const DistillationSettings(cardsPerBatch: 2, everyDays: 2),
+      const DistillationSettings(cardsPerBatch: 2),
     );
     expect(await introduced(), [0, 1]);
     await answer(0, ReviewOutcome.correct);
@@ -133,9 +133,6 @@ void main() {
     await schedule(0, DateTime(2026, 11, 20), DateTime(2026, 11, 10));
     await schedule(1, DateTime(2026, 11, 20), DateTime(2026, 11, 10));
     clock.now = DateTime(2026, 11, 11, 9);
-    await services.distillations.advance();
-    expect(await introduced(), [0, 1]);
-    clock.now = DateTime(2026, 11, 12, 9);
     await services.distillations.advance();
     expect(await introduced(), [0, 1, 2, 3]);
   });

@@ -115,7 +115,7 @@ void main() {
       }
       await samples.distillations.activate(
         vocabulary,
-        const DistillationSettings(cardsPerBatch: 2, everyDays: 7),
+        const DistillationSettings(),
       );
     });
     await pumpScreen(
@@ -125,8 +125,8 @@ void main() {
     );
     await tester.drag(find.byType(ListView), const Offset(0, -800));
     await tester.pumpAndSettle();
-    expect(find.text('8 cards'), findsOneWidget);
-    expect(find.text('30 cards'), findsOneWidget);
+    expect(find.text('23 cards'), findsOneWidget);
+    expect(find.text('10 cards'), findsOneWidget);
     await captureShot(tester, find.byType(HomeScreen), 'home_coming');
     await expectNoOverflow(tester);
   });

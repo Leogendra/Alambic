@@ -61,9 +61,8 @@ class DistillationService {
     await _advanceAndReplan();
   }
 
-  /// Applies new settings to the distillation of a group. The next batch
-  /// comes X days (the new X) after the last one, and not before today's
-  /// pass; when that pass already ran, the next one applies them.
+  /// Applies new settings to the distillation of a group, from today's pass;
+  /// when that pass already ran, the next one applies them.
   Future<void> adjust(int groupId, DistillationSettings settings) async {
     await _distillations.saveSettings(groupId, settings);
     await _advanceAndReplan();

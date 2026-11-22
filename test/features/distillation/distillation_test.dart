@@ -142,7 +142,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Adjust the distillation'), findsOneWidget);
     expect(find.text('1'), findsOneWidget, reason: 'one card per batch');
-    await tester.tap(find.byTooltip(l10n.distillMoreDays));
+    await tester.tap(find.byTooltip(l10n.distillMoreCards));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text(l10n.commonSave));
     await tester.tap(find.text(l10n.commonSave));
@@ -161,8 +161,8 @@ void main() {
     final distillation = await tester.runAsync(
       () => DistillationRepository(database).find(japaneseId),
     );
-    expect(distillation!.everyDays, 2);
-    expect(find.text('1 card every 2 days'), findsOne);
+    expect(distillation!.cardsPerBatch, 2);
+    expect(find.text('2 cards a day'), findsOne);
   });
 
   /// Pauses the distillation of Japanese, at 9am on the sample day.

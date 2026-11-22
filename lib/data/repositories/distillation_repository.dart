@@ -20,7 +20,6 @@ class DistillationRepository {
         DistillationsCompanion.insert(
           groupId: Value(groupId),
           cardsPerBatch: settings.cardsPerBatch,
-          everyDays: settings.everyDays,
           prioritizeReviews: settings.prioritizeReviews,
           startedAt: startedAt,
         ),
@@ -52,7 +51,6 @@ class DistillationRepository {
       )..where((row) => row.groupId.equals(groupId))).write(
         DistillationsCompanion(
           cardsPerBatch: Value(settings.cardsPerBatch),
-          everyDays: Value(settings.everyDays),
           prioritizeReviews: Value(settings.prioritizeReviews),
         ),
       );

@@ -242,8 +242,8 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     );
   }
 
-  /// The first batch comes out today on activation; once adjusted, X days
-  /// (the new X) after the last one.
+  /// The first batch comes out today on activation; once adjusted, the day
+  /// after the last one.
   DateTime? _lastArrival(List<Flashcard> cards, Distillation? distillation) {
     final now = ref.watch(currentMomentProvider).value;
     if (now == null) {
@@ -280,7 +280,7 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
   }
 }
 
-/// "N cards every X days", as two steppers.
+/// "N cards a day", as a stepper.
 class DistillationRhythmPanel extends StatelessWidget {
   const DistillationRhythmPanel({
     required this.settings,
@@ -305,17 +305,6 @@ class DistillationRhythmPanel extends StatelessWidget {
             increaseTooltip: strings.distillMoreCards,
             onChanged: (value) =>
                 onChanged(settings.copyWith(cardsPerBatch: value)),
-          ),
-        ),
-        PanelRow(
-          title: strings.distillEvery,
-          trailing: CountStepper(
-            value: settings.everyDays,
-            label: strings.distillDays(settings.everyDays),
-            decreaseTooltip: strings.distillFewerDays,
-            increaseTooltip: strings.distillMoreDays,
-            onChanged: (value) =>
-                onChanged(settings.copyWith(everyDays: value)),
           ),
         ),
       ],

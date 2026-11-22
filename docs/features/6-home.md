@@ -28,7 +28,7 @@ Late cards come first, then the others by moment. A card already answered today 
 New cards are never named. Each group gets one line per day, "Capitals: 2 new cards", which opens the group. It counts:
 
 - the introduced cards never answered, on the day they are due (today when late);
-- the cards the group's [distillation](8-distillation.md) should introduce that day, following its rhythm from its last batch; with "Prioritize reviews", the reviews already planned on a batch day take the places of new cards ([Estimates](8-distillation.md#estimates)), so an announced arrival may slip.
+- the cards the group's [distillation](8-distillation.md) should introduce that day, one batch a day from its last one; with "Prioritize reviews", the reviews already planned on a day take the places of new cards ([Estimates](8-distillation.md#estimates)), so an announced arrival may slip.
 
 The distillation lines have no delay.
 

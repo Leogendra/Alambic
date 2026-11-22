@@ -26,7 +26,6 @@ void main() {
     groupId: groupId,
     settings: const DistillationSettings(
       cardsPerBatch: 3,
-      everyDays: 2,
       prioritizeReviews: false,
     ),
     startedAt: now,
@@ -41,7 +40,6 @@ void main() {
     final distillation = (await distillations.find(groupId))!;
     expect(distillation.groupId, groupId);
     expect(distillation.cardsPerBatch, 3);
-    expect(distillation.everyDays, 2);
     expect(distillation.prioritizeReviews, isFalse);
     expect(distillation.pausedAt, isNull);
     expect(distillation.lastBatchDay, isNull);

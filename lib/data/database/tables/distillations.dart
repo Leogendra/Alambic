@@ -10,7 +10,6 @@ class Distillations extends Table {
   IntColumn get groupId =>
       integer().references(CardGroups, #id, onDelete: KeyAction.cascade)();
   IntColumn get cardsPerBatch => integer()();
-  IntColumn get everyDays => integer()();
   BoolColumn get prioritizeReviews => boolean()();
   DateTimeColumn get pausedAt => dateTime().nullable()();
   DateTimeColumn get startedAt => dateTime()();

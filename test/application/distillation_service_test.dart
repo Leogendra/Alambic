@@ -89,21 +89,15 @@ void main() {
     expect(await states(), [active, pending, pending, pending]);
   });
 
-  test('two cards every three days', () async {
+  test('two cards a day', () async {
     await activate(
       settings: const DistillationSettings(
         cardsPerBatch: 2,
-        everyDays: 3,
         prioritizeReviews: false,
       ),
     );
     expect(await states(), [active, active, pending, pending]);
-    for (final day in [11, 12]) {
-      moveTo(DateTime(2026, 11, day, 9));
-      await services.distillations.advance();
-      expect(await states(), [active, active, pending, pending]);
-    }
-    moveTo(DateTime(2026, 11, 13, 9));
+    moveTo(DateTime(2026, 11, 11, 9));
     await services.distillations.advance();
     expect(await states(), [active, active, active, active]);
   });
@@ -115,45 +109,16 @@ void main() {
     expect(await states(), [active, active, pending, pending]);
   });
 
-  test('a week with the phone off: one batch, and the rhythm starts again '
-      'from that day', () async {
+  test('a week with the phone off: one batch, then one a day again', () async {
     await activate(
-      settings: const DistillationSettings(
-        everyDays: 3,
-        prioritizeReviews: false,
-      ),
+      settings: const DistillationSettings(prioritizeReviews: false),
     );
     moveTo(DateTime(2026, 11, 20, 9));
     await services.distillations.advance();
     expect(await states(), [active, active, pending, pending]);
-    for (final day in [21, 22]) {
-      moveTo(DateTime(2026, 11, day, 9));
-      await services.distillations.advance();
-      expect(await states(), [active, active, pending, pending]);
-    }
-    moveTo(DateTime(2026, 11, 23, 9));
+    moveTo(DateTime(2026, 11, 21, 9));
     await services.distillations.advance();
     expect(await states(), [active, active, active, pending]);
-  });
-
-  test('a batch short of cards is not completed the next days', () async {
-    await activate(
-      settings: const DistillationSettings(
-        cardsPerBatch: 3,
-        everyDays: 3,
-        prioritizeReviews: false,
-      ),
-    );
-    moveTo(DateTime(2026, 11, 13, 9));
-    await services.distillations.advance();
-    expect(await states(), List.filled(4, active));
-    moveTo(DateTime(2026, 11, 14, 9));
-    final added = await services.card('Kenya', 'Nairobi', groupId: groupId);
-    await services.distillations.advance();
-    expect((await cards.getCard(added)).state, pending);
-    moveTo(DateTime(2026, 11, 16, 9));
-    await services.distillations.advance();
-    expect((await cards.getCard(added)).state, active);
   });
 
   group('the distillation never ends', () {
@@ -181,22 +146,6 @@ void main() {
       await services.distillations.advance();
       expect((await cards.getCard(added)).state, active);
     });
-
-    test('an empty queue keeps the batch owed until a card joins it', () async {
-      await activate(
-        settings: const DistillationSettings(
-          cardsPerBatch: 4,
-          everyDays: 3,
-          prioritizeReviews: false,
-        ),
-      );
-      moveTo(DateTime(2026, 11, 13, 9));
-      await services.distillations.advance();
-      moveTo(DateTime(2026, 11, 14, 9));
-      final added = await services.card('Kenya', 'Nairobi', groupId: groupId);
-      await services.distillations.advance();
-      expect((await cards.getCard(added)).state, active);
-    });
   });
 
   test('a card added later joins the end of the queue', () async {
@@ -218,7 +167,7 @@ void main() {
     expect(await states(), [active, active, pending, pending]);
   });
 
-  group('changing the rhythm', () {
+  group('changing the number of cards', () {
     test('a larger batch comes with the next pass', () async {
       await activate();
       await services.distillations.adjust(
@@ -229,61 +178,6 @@ void main() {
       moveTo(DateTime(2026, 11, 11, 9));
       await services.distillations.advance();
       expect(await states(), List.filled(4, active));
-    });
-
-    test(
-      'a shorter rhythm brings the next batch today, before the pass',
-      () async {
-        await activate(
-          settings: const DistillationSettings(
-            everyDays: 7,
-            prioritizeReviews: false,
-          ),
-        );
-        moveTo(DateTime(2026, 11, 12, 9));
-        await services.distillations.adjust(
-          groupId,
-          const DistillationSettings(everyDays: 2, prioritizeReviews: false),
-        );
-        expect(await states(), [active, active, pending, pending]);
-      },
-    );
-
-    test(
-      'once the pass ran, a shorter rhythm waits for the next one',
-      () async {
-        await activate(
-          settings: const DistillationSettings(
-            everyDays: 3,
-            prioritizeReviews: false,
-          ),
-        );
-        moveTo(DateTime(2026, 11, 11, 9));
-        await services.distillations.advance();
-        await services.distillations.adjust(
-          groupId,
-          const DistillationSettings(prioritizeReviews: false),
-        );
-        expect(await states(), [active, pending, pending, pending]);
-        moveTo(DateTime(2026, 11, 12, 9));
-        await services.distillations.advance();
-        expect(await states(), [active, active, pending, pending]);
-      },
-    );
-
-    test('a longer rhythm counts from the last batch', () async {
-      await activate();
-      moveTo(DateTime(2026, 11, 11, 9));
-      await services.distillations.adjust(
-        groupId,
-        const DistillationSettings(everyDays: 3, prioritizeReviews: false),
-      );
-      moveTo(DateTime(2026, 11, 12, 9));
-      await services.distillations.advance();
-      expect(await states(), [active, pending, pending, pending]);
-      moveTo(DateTime(2026, 11, 13, 9));
-      await services.distillations.advance();
-      expect(await states(), [active, active, pending, pending]);
     });
   });
 

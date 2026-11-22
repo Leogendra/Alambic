@@ -46,13 +46,10 @@ void main() {
     await harness.read(notificationDispatcherProvider).dispatchDue();
   }
 
-  /// Distills Verbs, one card every [everyDays] days: "be" comes out today.
-  Future<void> activate({int everyDays = 1}) => harness
+  /// Distills Verbs, one card a day: "be" comes out today.
+  Future<void> activate() => harness
       .read(distillationServiceProvider)
-      .activate(
-        verbs,
-        DistillationSettings(everyDays: everyDays, prioritizeReviews: false),
-      );
+      .activate(verbs, const DistillationSettings(prioritizeReviews: false));
 
   Future<void> advance() => harness.read(distillationServiceProvider).advance();
 
@@ -83,9 +80,8 @@ void main() {
       expect(after['Laos'], DateTime(2026, 11, 10, 12));
     });
 
-    test('brings a single batch on resume, and its rhythm starts again '
-        'from that day', () async {
-      await activate(everyDays: 2);
+    test('brings a single batch on resume, then one a day again', () async {
+      await activate();
       await harness.read(distillationServiceProvider).pause(verbs);
       await moveTo(DateTime(2026, 11, 17, 9));
       await advance();
@@ -93,9 +89,6 @@ void main() {
       await harness.read(distillationServiceProvider).resume(verbs);
       expect(await introduced(), ['be', 'have']);
       await moveTo(DateTime(2026, 11, 18, 9));
-      await advance();
-      expect(await introduced(), ['be', 'have']);
-      await moveTo(DateTime(2026, 11, 19, 9));
       await advance();
       expect(await introduced(), ['be', 'have', 'go']);
     });

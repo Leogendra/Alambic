@@ -59,7 +59,6 @@ void main() {
       capitals,
       const DistillationSettings(
         cardsPerBatch: 1,
-        everyDays: 1,
         prioritizeReviews: false,
       ),
     );

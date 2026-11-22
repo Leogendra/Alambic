@@ -18,7 +18,7 @@ The pending cards of a group, in a fixed order that is the only one (`queuePosit
 
 ### Distillation
 
-A permanent setting of a group that introduces its [pending](#pending) cards a few at a time, "N cards every X days" (`Distillation`). A group has at most one; it does not exist until the user activates it, and afterwards is only adjusted, paused or resumed. It never stops nor ends: a card added later joins the [queue](#queue) and arrives at the same rhythm.
+A permanent setting of a group that introduces its [pending](#pending) cards a few at a time, "N cards a day" (`Distillation`). A group has at most one; it does not exist until the user activates it, and afterwards is only adjusted, paused or resumed. It never stops nor ends: a card added later joins the [queue](#queue) and arrives at the same pace.
 
 ### Asked side
 

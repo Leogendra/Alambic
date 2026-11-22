@@ -15,7 +15,6 @@ void main() {
   Distillation distillation({DateTime? pausedAt}) => Distillation(
     groupId: 1,
     cardsPerBatch: 1,
-    everyDays: 1,
     prioritizeReviews: true,
     pausedAt: pausedAt,
     startedAt: DateTime(2026, 11, 1),

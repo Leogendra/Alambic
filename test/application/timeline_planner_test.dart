@@ -29,7 +29,6 @@ void main() {
   }) => Distillation(
     groupId: 1,
     cardsPerBatch: 1,
-    everyDays: 2,
     prioritizeReviews: prioritizeReviews,
     pausedAt: pausedAt,
     startedAt: DateTime(2026, 11, 1),
@@ -111,7 +110,7 @@ void main() {
     expect(timeline.today.arrivals.single.count, 2);
     expect(
       timeline.days.skip(1).map((day) => (day.day, day.arrivals.single.count)),
-      [(DateTime(2026, 11, 12), 1), (DateTime(2026, 11, 14), 1)],
+      [(DateTime(2026, 11, 11), 1), (DateTime(2026, 11, 12), 1)],
     );
   });
 
@@ -156,9 +155,9 @@ void main() {
       ),
       [
         (DateTime(2026, 11, 10), 0, null),
+        (DateTime(2026, 11, 11), 0, 1),
         (DateTime(2026, 11, 12), 1, null),
-        (DateTime(2026, 11, 14), 0, 1),
-        (DateTime(2026, 11, 16), 0, 1),
+        (DateTime(2026, 11, 13), 0, 1),
       ],
     );
   });
@@ -217,8 +216,8 @@ void main() {
       ],
     );
     expect(timeline.days.last.day, DateTime(2026, 11, 16));
-    expect(timeline.comingMonth, 2 + 11);
-    expect(timeline.comingYear, 1 + 6);
+    expect(timeline.comingMonth, 2 + 14);
+    expect(timeline.comingYear, 1);
   });
 
   test('a "Review soon" reminder falls on its day', () {

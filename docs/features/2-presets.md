@@ -31,7 +31,7 @@ A single "Presets" row of Settings opens the Presets screen, one tile per preset
 
 Deleting a preset first says how many groups follow it ("2 groups use it: they will move to the default preset, Standard, keeping their steps and due dates."). Once confirmed, those groups move to the global preset and the preset is deleted. Making another preset the default moves no group: the global preset only serves new groups and the groups of a deleted preset. Their cards keep their steps and due dates, as for any preset change; a step beyond the shorter sequence counts as its last step.
 
-The editor works on a draft and writes nothing before "Save". It sets the name, the sequence (adding a step as a duration and a unit, from minutes to years, removing a step as long as another one remains) and the failure behaviour, nothing else. The failure behaviour is a three-way choice, "One step back", "Back to start" or "Stay" ([Feature 1](1-scheduling.md#on-failure)), with a line under it that says what a missed card then does ("A missed card goes back to the previous step.").
+The editor works on a draft and writes nothing before "Save". It sets the name, the sequence and the failure behaviour, nothing else. The sequence is a vertical timeline, the nearest step on top, each step with a remove button as long as another one remains; "Step" under it adds a step as a duration and a unit, from minutes to years. Every addition or removal reorders the sequence from the nearest step to the furthest, so the timeline is always sorted. The failure behaviour is a three-way choice, "One step back", "Back to start" or "Stay" ([Feature 1](1-scheduling.md#on-failure)), with a line under it that says what a missed card then does ("A missed card goes back to the previous step.").
 
 A copy is never a shipped preset, even when it copies Standard. Shipped presets remain editable.
 
@@ -46,6 +46,7 @@ Changing the preset of a group or the steps of a preset rewrites no card: the st
 - [x] A card has no preset of its own: neither the card editor nor the card sheet offers one.
 - [x] Changing the preset of a group or the steps of a preset keeps the step and the due date; a step beyond a shorter sequence counts as the last step, and the next answer starts from it; a card in remanence stays in remanence.
 - [x] The editor sets the name, the steps and the failure behaviour only.
+- [x] The editor lists the steps vertically, and every addition or removal of a step leaves them ordered from the nearest to the furthest.
 - [x] A preset is created from the Standard values, any preset can be edited, a preset can be duplicated under a new name.
 - [x] A preset without a name or without a step cannot be saved.
 - [x] The editor says, under the failure choice, the effect of the chosen behaviour.
@@ -57,6 +58,7 @@ Changing the preset of a group or the steps of a preset rewrites no card: the st
 
 - The cascade is proven twice: as pure logic on `PresetCatalog`, then end to end on an in-memory database, changing the choices through the repositories as the screens do.
 - Keeping the step and the due date is checked on the stored data after each kind of change (group, edited steps), not on an in-memory object, then followed by an answer from the last step.
+- The order of the sequence is pure logic on `Preset.withStep` and `withoutStep` (insertion at the right rank, units mixed, a sequence not sorted at first); the editor test adds then removes a step and reads the order on screen.
 - Creation, editing, duplication and refusal of an invalid preset are tested through the service, on an in-memory database.
 - Deletion is tested through the service on groups and cards read back from the database: the groups that follow the preset move to the global one, the others keep theirs, the cards keep their steps and due dates, and the global preset is refused. The screen test checks that the global preset offers no "Delete" and that the confirmation counts the groups.
 - The Presets screen and the editor are covered by screen tests with a capture on the shipped presets, in light and dark theme; "Make default" and "Duplicate" are exercised on the screen and checked in the database.
@@ -67,7 +69,7 @@ Changing the preset of a group or the steps of a preset rewrites no card: the st
 - `lib/data/repositories/preset_repository.dart` — reading and writing presets and the global preset, catalog stream.
 - `lib/data/database/preset_companions.dart` — writing a domain `Preset` into its table.
 - `lib/application/presets/` — creation, editing, duplication and deletion service; Riverpod providers of the presets and the catalog.
-- `lib/features/presets/` — list, editor, step dialog and the preset picker of the group settings.
+- `lib/features/presets/` — list, editor, step timeline, step dialog and the preset picker of the group settings.
 - `lib/features/settings/settings_screen.dart` — the "Presets" row.
 
 ## Technical details

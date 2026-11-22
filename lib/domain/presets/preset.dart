@@ -31,6 +31,19 @@ class Preset {
   /// A step kept from a longer sequence is brought back to the last step.
   int? clampStep(int? step) => step == null ? null : min(step, lastStep);
 
+  /// The preset with [step] added, its sequence ordered from the nearest step
+  /// to the furthest.
+  Preset withStep(PresetInterval step) =>
+      copyWith(intervals: _nearestFirst([...intervals, step]));
+
+  /// The preset without the step at [index], its sequence ordered from the
+  /// nearest step to the furthest.
+  Preset withoutStep(int index) =>
+      copyWith(intervals: _nearestFirst([...intervals]..removeAt(index)));
+
+  static List<PresetInterval> _nearestFirst(List<PresetInterval> steps) =>
+      steps..sort((first, second) => first.length.compareTo(second.length));
+
   Preset copyWith({
     int? id,
     String? name,

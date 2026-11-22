@@ -4,7 +4,10 @@ import 'package:alambic/data/data_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/app/formatting/interval_labels.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
+import 'package:alambic/domain/presets/interval_unit.dart';
+import 'package:alambic/domain/presets/preset_interval.dart';
 import 'package:alambic/features/presets/preset_editor_screen.dart';
 import 'package:alambic/features/presets/presets_screen.dart';
 
@@ -156,6 +159,53 @@ void main() {
       await expectNoOverflow(tester);
     });
   }
+
+  testScreen('a step added in the editor lands in order on the timeline', (
+    tester,
+  ) async {
+    final standard = await tester.runAsync(
+      () async => (await PresetRepository(database).loadCatalog()).globalPreset,
+    );
+    await pumpScreen(
+      tester,
+      PresetEditorScreen(initialPreset: standard!),
+      overrides: [databaseProvider.overrideWithValue(database)],
+    );
+    final addStep = find.widgetWithText(ActionChip, l10n.presetEditorAddStep);
+    await tester.ensureVisible(addStep);
+    await tester.tap(addStep);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '3');
+    await tester.tap(find.text(l10n.commonAdd));
+    await tester.pumpAndSettle();
+    double top(PresetInterval step) =>
+        tester.getTopLeft(find.text(l10n.intervalLabel(step))).dy;
+    const twoDays = PresetInterval(2, IntervalUnit.day);
+    const threeDays = PresetInterval(3, IntervalUnit.day);
+    const oneWeek = PresetInterval(1, IntervalUnit.week);
+    expect(top(twoDays), lessThan(top(threeDays)));
+    expect(top(threeDays), lessThan(top(oneWeek)));
+  });
+
+  testScreen('a step removed in the editor leaves the others in order', (
+    tester,
+  ) async {
+    final standard = await tester.runAsync(
+      () async => (await PresetRepository(database).loadCatalog()).globalPreset,
+    );
+    await pumpScreen(
+      tester,
+      PresetEditorScreen(initialPreset: standard!),
+      overrides: [databaseProvider.overrideWithValue(database)],
+    );
+    await tester.tap(find.byTooltip(l10n.presetEditorRemoveStep).first);
+    await tester.pump();
+    expect(
+      find.text(l10n.intervalLabel(const PresetInterval(1, IntervalUnit.day))),
+      findsNothing,
+    );
+    expect(find.byTooltip(l10n.presetEditorRemoveStep), findsNWidgets(5));
+  });
 
   testScreen('the line under the failure choice says its effect', (
     tester,

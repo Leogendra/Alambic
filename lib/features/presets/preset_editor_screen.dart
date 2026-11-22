@@ -4,7 +4,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/layout/scroll_padding.dart';
-import '../../app/widgets/interval_chip.dart';
 import '../../app/widgets/section_label.dart';
 import '../../app/widgets/segment_option.dart';
 import '../../app/widgets/segmented_choice.dart';
@@ -14,6 +13,7 @@ import '../../domain/presets/failure_behavior.dart';
 import '../../domain/presets/preset.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'step_dialog.dart';
+import 'step_timeline.dart';
 
 /// Creates or edits a preset. Changes are kept in a draft until saved, then
 /// the screen closes with the id of the preset.
@@ -90,25 +90,17 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionLabel(strings.presetEditorSteps),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            for (var index = 0; index < intervals.length; index++)
-              IntervalChip(
-                label: strings.intervalLabel(intervals[index]),
-                deleteTooltip: strings.presetEditorRemoveStep,
-                onDeleted: intervals.length > 1
-                    ? () => _removeStep(index)
-                    : null,
-              ),
-            ActionChip(
-              avatar: const Icon(Icons.add, size: 18),
-              label: Text(strings.presetEditorAddStep),
-              onPressed: _addStep,
-            ),
-          ],
+        const SizedBox(height: 4),
+        StepTimeline(
+          labels: [for (final step in intervals) strings.intervalLabel(step)],
+          removeTooltip: strings.presetEditorRemoveStep,
+          onRemove: intervals.length > 1 ? _removeStep : null,
+        ),
+        const SizedBox(height: 8),
+        ActionChip(
+          avatar: const Icon(Icons.add, size: 18),
+          label: Text(strings.presetEditorAddStep),
+          onPressed: _addStep,
         ),
       ],
     );
@@ -159,13 +151,11 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
   Future<void> _addStep() async {
     final step = await showStepDialog(context);
     if (step != null) {
-      _update((draft) => draft.copyWith(intervals: [...draft.intervals, step]));
+      _update((draft) => draft.withStep(step));
     }
   }
 
-  void _removeStep(int index) => _update(
-    (draft) => draft.copyWith(intervals: [...draft.intervals]..removeAt(index)),
-  );
+  void _removeStep(int index) => _update((draft) => draft.withoutStep(index));
 
   Future<void> _save() async {
     final strings = AppLocalizations.of(context);

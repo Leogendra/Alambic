@@ -2,10 +2,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
+import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/domain/presets/built_in_presets.dart';
+import 'package:alambic/domain/groups/card_group.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
+import 'package:alambic/app/formatting/interval_labels.dart';
 import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/home/home_screen.dart';
+import 'package:alambic/features/presets/preset_editor_screen.dart';
 
 import '../../support/fixed_clock.dart';
 import '../../support/screen_harness.dart';
@@ -106,6 +112,94 @@ void main() {
     await expectNoOverflow(tester);
   });
 
+  /// Lets the database work, as a tap on a button runs on it, then the screen
+  /// follows.
+  Future<void> settle(WidgetTester tester) async {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  Future<CardGroup> japanese(WidgetTester tester) async => (await tester
+      .runAsync(() => GroupRepository(database).find(japaneseId)))!;
+
+  testScreen('the preset of the group shows its reminders', (tester) async {
+    await seed(tester, activate: false);
+    await pumpScreen(
+      tester,
+      DistillScreen(groupId: japaneseId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.ensureVisible(find.text(l10n.distillPresetChange));
+    expect(find.text('Standard'), findsOne);
+    expect(find.text('Default'), findsOne);
+    for (final step in BuiltInPresets.standard.intervals) {
+      expect(find.text(l10n.intervalLabel(step)), findsOne);
+    }
+    expect(find.text('On failure: one step back'), findsOne);
+    await captureShot(tester, find.byType(DistillScreen), 'distill_preset');
+    await expectNoOverflow(tester);
+  });
+
+  testScreen('"Edit" opens the editor of the preset', (tester) async {
+    await seed(tester, activate: false);
+    await pumpScreen(
+      tester,
+      DistillScreen(groupId: japaneseId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.ensureVisible(find.text(l10n.presetEdit));
+    await tester.tap(find.text(l10n.presetEdit));
+    await tester.pumpAndSettle();
+    expect(find.byType(PresetEditorScreen), findsOne);
+  });
+
+  testScreen('another preset is chosen from the screen', (tester) async {
+    await seed(tester, activate: false);
+    await pumpScreen(
+      tester,
+      DistillScreen(groupId: japaneseId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.ensureVisible(find.text(l10n.distillPresetChange));
+    await tester.tap(find.text(l10n.distillPresetChange));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Intensive'));
+    await settle(tester);
+    expect((await japanese(tester)).presetId, isNotNull);
+    expect(find.text('Intensive'), findsOne);
+    expect(find.text('Default'), findsNothing);
+    expect(
+      find.text(l10n.intervalLabel(BuiltInPresets.intensive.intervals.first)),
+      findsOne,
+    );
+  });
+
+  testScreen('a new preset is created and followed by the group', (
+    tester,
+  ) async {
+    await seed(tester, activate: false);
+    await pumpScreen(
+      tester,
+      DistillScreen(groupId: japaneseId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.ensureVisible(find.text(l10n.presetsNew));
+    await tester.tap(find.text(l10n.presetsNew));
+    await tester.pumpAndSettle();
+    expect(find.byType(PresetEditorScreen), findsOne);
+    await tester.tap(find.text(l10n.commonSave));
+    await settle(tester);
+    expect(find.byType(PresetEditorScreen), findsNothing);
+    final catalog = await tester.runAsync(
+      () => PresetRepository(database).loadCatalog(),
+    );
+    expect(catalog!.presetForGroup(japaneseId).name, l10n.presetNewName);
+    expect(catalog.groupPresetIds[japaneseId], isNotNull);
+    expect(find.text('Default'), findsNothing);
+  });
+
   testScreen('activates the distillation from the screen', (tester) async {
     await seed(tester, activate: false);
     await pumpScreen(
@@ -144,7 +238,7 @@ void main() {
     expect(find.text('1'), findsOneWidget, reason: 'one card per batch');
     await tester.tap(find.byTooltip(l10n.distillMoreCards));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text(l10n.commonSave));
+    await tester.scrollUntilVisible(find.text(l10n.commonSave), 200);
     await tester.tap(find.text(l10n.commonSave));
     // The save runs on the database, then the screen closes.
     for (

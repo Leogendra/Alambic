@@ -740,34 +740,22 @@
   "settingsExactAlarmsAllow": "Allow",
   "distillTitle": "Distill",
   "distillAdjustTitle": "Adjust the distillation",
-  "distillIntro": "The waiting cards of the group arrive a few at a time, at the reminder time ({time}). Each then follows the {preset} preset.",
+  "distillIntro": "The waiting cards of the group arrive a few at a time, at the reminder time ({time}).",
   "@distillIntro": {
     "placeholders": {
       "time": {
-        "type": "String"
-      },
-      "preset": {
         "type": "String"
       }
     }
   },
   "distillRhythm": "Rhythm",
-  "distillCards": "Cards",
-  "distillEvery": "Every",
-  "distillDays": "{count} d",
-  "@distillDays": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "distillCards": "Cards per day",
   "distillFewerCards": "Fewer cards",
   "distillMoreCards": "More cards",
-  "distillFewerDays": "Fewer days",
-  "distillMoreDays": "More days",
   "distillPrioritizeReviews": "Prioritize reviews",
-  "distillPrioritizeReviewsHint": "On a batch day, each card of the group due for review takes the place of a new card.",
+  "distillPresetChange": "Choose another",
+  "distillPresetHint": "Each card follows these reminders once it arrives. A change to a preset applies to every group that follows it.",
+  "distillPrioritizeReviewsHint": "Each day, each card of the group due for review takes the place of a new card.",
   "distillEstimate": "{count, plural, =1{1 card · arrives around {date}} other{{count} cards · last one arrives around {date}}}",
   "@distillEstimate": {
     "placeholders": {
@@ -779,11 +767,10 @@
       }
     }
   },
-  "distillNothing": "No card waiting. Cards added to the group will arrive at this rhythm.",
+  "distillNothing": "No card waiting. Cards added to the group will arrive at this pace.",
   "distillActivate": "Start distilling",
   "groupDistillationSection": "Distillation",
   "groupDistillationNone": "Distill brings the waiting cards in a few at a time, at your pace.",
-  "groupDistillWaiting": "Its cards are waiting. Distill the group to receive them.",
   "distillPause": "Pause",
   "distillPauseHint": "While paused, no new card comes out; reminders go on.",
   "distillPausedHint": "Paused since {date}: no new card comes out, reminders go on.",
@@ -804,16 +791,8 @@
       }
     }
   },
-  "distillationCardsPer": "{count, plural, =1{1 card} other{{count} cards}}",
-  "@distillationCardsPer": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "distillationEveryDays": "{count, plural, =1{a day} other{every {count} days}}",
-  "@distillationEveryDays": {
+  "distillationCardsPerDay": "{count, plural, =1{1 card a day} other{{count} cards a day}}",
+  "@distillationCardsPerDay": {
     "placeholders": {
       "count": {
         "type": "int"

@@ -4,6 +4,8 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/formatting/preset_labels.dart';
 import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
+import '../../app/widgets/badge_label.dart';
+import '../../app/widgets/compact_button.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../domain/presets/preset.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -49,9 +51,11 @@ class PresetsScreen extends ConsumerWidget {
   }
 }
 
-Future<void> openPresetEditor(BuildContext context, Preset preset) =>
+/// Opens the editor of [preset]; returns its id once saved, `null` when left
+/// without saving.
+Future<int?> openPresetEditor(BuildContext context, Preset preset) =>
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
+      MaterialPageRoute<int>(
         builder: (context) => PresetEditorScreen(initialPreset: preset),
       ),
     );
@@ -93,7 +97,7 @@ class _PresetTile extends ConsumerWidget {
                   ),
                 ),
               ),
-              if (isGlobal) _Badge(strings.presetGlobalBadge),
+              if (isGlobal) BadgeLabel(strings.presetGlobalBadge),
               _menu(context, ref, strings),
             ],
           ),
@@ -117,12 +121,12 @@ class _PresetTile extends ConsumerWidget {
           Row(
             spacing: 8,
             children: [
-              _TileButton(
+              CompactButton(
                 label: strings.presetEdit,
                 onPressed: () => openPresetEditor(context, preset),
               ),
               if (!isGlobal)
-                _TileButton(
+                CompactButton(
                   label: strings.presetMakeDefault,
                   onPressed: () => ref
                       .read(presetServiceProvider)
@@ -210,53 +214,5 @@ Future<void> _confirmDelete(
   );
   if (confirmed == true) {
     await ref.read(presetServiceProvider).delete(preset.id);
-  }
-}
-
-/// A compact outlined button, sized to its label.
-class _TileButton extends StatelessWidget {
-  const _TileButton({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) => OutlinedButton(
-    style: OutlinedButton.styleFrom(
-      minimumSize: const Size(0, 40),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-    onPressed: onPressed,
-    child: Text(
-      label,
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-    ),
-  );
-}
-
-class _Badge extends StatelessWidget {
-  const _Badge(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = AlambicColors.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: colors.accentTint,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: colors.accentText,
-        ),
-      ),
-    );
   }
 }

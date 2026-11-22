@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/formatting/date_labels.dart';
-import '../../app/formatting/preset_labels.dart';
 import '../../app/formatting/reminder_settings_labels.dart';
 import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
@@ -20,6 +19,7 @@ import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'distillation_preset_section.dart';
 
 /// "Distill": settings of the distillation of a group, with an estimate of
 /// the last arrival of its queue. Activates the distillation, or adjusts it
@@ -88,7 +88,6 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
               child: Text(
                 strings.distillIntro(
                   reminders == null ? '' : strings.scheduleLabel(reminders),
-                  strings.presetName(summary.preset),
                 ),
                 style: TextStyle(
                   fontSize: 15,
@@ -101,6 +100,8 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
           ..._rhythmSection(strings),
           const SizedBox(height: 16),
           _prioritizePanel(strings),
+          const SizedBox(height: 16),
+          DistillationPresetSection(groupId: widget.groupId),
           if (widget.isAdjusting) ...[
             const SizedBox(height: 16),
             _pauseButton(strings, colors, pausedAt),

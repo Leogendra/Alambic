@@ -15,7 +15,8 @@ import '../../domain/presets/preset.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'step_dialog.dart';
 
-/// Creates or edits a preset. Changes are kept in a draft until saved.
+/// Creates or edits a preset. Changes are kept in a draft until saved, then
+/// the screen closes with the id of the preset.
 class PresetEditorScreen extends ConsumerStatefulWidget {
   const PresetEditorScreen({required this.initialPreset, super.key});
 
@@ -172,11 +173,11 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
       _showMessage(strings.presetEditorNameRequired);
       return;
     }
-    await ref
+    final presetId = await ref
         .read(presetServiceProvider)
         .save(_draft.copyWith(name: _draft.name.trim()));
     if (mounted) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(presetId);
     }
   }
 

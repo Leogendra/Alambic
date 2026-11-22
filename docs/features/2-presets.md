@@ -31,7 +31,7 @@ A single "Presets" row of Settings opens the Presets screen, one tile per preset
 
 Deleting a preset first says how many groups follow it ("2 groups use it: they will move to the default preset, Standard, keeping their steps and due dates."). Once confirmed, those groups move to the global preset and the preset is deleted. Making another preset the default moves no group: the global preset only serves new groups and the groups of a deleted preset. Their cards keep their steps and due dates, as for any preset change; a step beyond the shorter sequence counts as its last step.
 
-The editor works on a draft and writes nothing before "Save". It sets the name, the sequence and the failure behaviour, nothing else. The sequence is a vertical timeline, the nearest step on top, each step with a remove button as long as another one remains; "Step" under it adds a step as a duration and a unit, from minutes to years. Every addition or removal reorders the sequence from the nearest step to the furthest, so the timeline is always sorted. The failure behaviour is a three-way choice, "One step back", "Back to start" or "Stay" ([Feature 1](1-scheduling.md#on-failure)), with a line under it that says what a missed card then does ("A missed card goes back to the previous step.").
+The editor works on a draft and writes nothing before "Save". It sets the name, the sequence and the failure behaviour, nothing else. The sequence is a vertical timeline, the nearest step on top, each step with a remove button as long as another one remains; "Step" under it adds a step as a duration and a unit, from minutes to years. Every addition or removal reorders the sequence from the nearest step to the furthest, so the timeline is always sorted. The failure behaviour is a stack of three choice tiles, in this order: "Back to start", "One step back" and "Same step" ([Feature 1](1-scheduling.md#on-failure)). Each tile carries the effect of its behaviour under its name ("A missed card goes back to the previous step."), so that no text has to be squeezed into a segmented control.
 
 A copy is never a shipped preset, even when it copies Standard. Shipped presets remain editable.
 
@@ -49,7 +49,7 @@ Changing the preset of a group or the steps of a preset rewrites no card: the st
 - [x] The editor lists the steps vertically, and every addition or removal of a step leaves them ordered from the nearest to the furthest.
 - [x] A preset is created from the Standard values, any preset can be edited, a preset can be duplicated under a new name.
 - [x] A preset without a name or without a step cannot be saved.
-- [x] The editor says, under the failure choice, the effect of the chosen behaviour.
+- [x] The editor lists the failure behaviours as tiles ("Back to start", "One step back", "Same step"), each saying its effect, the chosen one highlighted.
 - [x] The global preset is chosen with "Make default" on its tile of the Presets screen, which is reached from a single "Presets" row of Settings; it moves no existing group and only serves the groups created afterwards.
 - [x] A tile shows the steps and the failure behaviour of its preset; its menu duplicates it.
 - [x] Any preset but the global one can be deleted, after a confirmation that gives the number of groups that follow it; these groups move to the global preset, their cards keeping their steps and due dates.

@@ -71,7 +71,7 @@
   "presetEditorOnFailure": "En cas d'échec",
   "presetFailureStepBack": "Recule d'un cran",
   "presetFailureRestart": "Retour au début",
-  "presetFailureStay": "Reste",
+  "presetFailureStay": "Même cran",
   "presetFailureStepBackEffect": "Une carte ratée revient au cran précédent.",
   "presetFailureRestartEffect": "Une carte ratée repart du premier cran, sans retourner dans la file.",
   "presetFailureStayEffect": "Une carte ratée garde son cran et revient après le même intervalle.",

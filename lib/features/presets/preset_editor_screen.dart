@@ -2,16 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/formatting/interval_labels.dart';
-import '../../app/theme/alambic_colors.dart';
 import '../../app/layout/scroll_padding.dart';
 import '../../app/widgets/section_label.dart';
-import '../../app/widgets/segment_option.dart';
-import '../../app/widgets/segmented_choice.dart';
 import '../../app/formatting/preset_labels.dart';
 import '../../application/presets/preset_providers.dart';
-import '../../domain/presets/failure_behavior.dart';
 import '../../domain/presets/preset.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'failure_choice.dart';
 import 'step_dialog.dart';
 import 'step_timeline.dart';
 
@@ -106,46 +103,16 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
     );
   }
 
-  /// The three behaviours, with the effect of the chosen one under them.
   Widget _failureSection(AppLocalizations strings) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      _choiceSection(
-        strings.presetEditorOnFailure,
-        SegmentedChoice<FailureBehavior>(
-          options: [
-            SegmentOption(
-              FailureBehavior.stepBack,
-              strings.presetFailureStepBack,
-            ),
-            SegmentOption(
-              FailureBehavior.restart,
-              strings.presetFailureRestart,
-            ),
-            SegmentOption(FailureBehavior.stay, strings.presetFailureStay),
-          ],
-          selected: _draft.failureBehavior,
-          onSelected: (value) =>
-              _update((draft) => draft.copyWith(failureBehavior: value)),
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-        child: Text(
-          strings.failureEffect(_draft.failureBehavior),
-          style: TextStyle(
-            fontSize: 13,
-            height: 1.4,
-            color: AlambicColors.of(context).textSecondary,
-          ),
-        ),
+      SectionLabel(strings.presetEditorOnFailure),
+      FailureChoice(
+        selected: _draft.failureBehavior,
+        onSelected: (value) =>
+            _update((draft) => draft.copyWith(failureBehavior: value)),
       ),
     ],
-  );
-
-  Widget _choiceSection(String title, Widget choice) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [SectionLabel(title), choice],
   );
 
   Future<void> _addStep() async {

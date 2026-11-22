@@ -35,6 +35,13 @@ extension PresetLabels on AppLocalizations {
     FailureBehavior.stay => presetFailureStayShort,
   };
 
+  /// The name of a failure behaviour: "One step back".
+  String failureLabel(FailureBehavior behavior) => switch (behavior) {
+    FailureBehavior.stepBack => presetFailureStepBack,
+    FailureBehavior.restart => presetFailureRestart,
+    FailureBehavior.stay => presetFailureStay,
+  };
+
   /// What a missed card does: "A missed card goes back to the previous step."
   String failureEffect(FailureBehavior behavior) => switch (behavior) {
     FailureBehavior.stepBack => presetFailureStepBackEffect,

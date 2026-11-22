@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:alambic/app/widgets/choice_tile.dart';
 import 'package:alambic/data/data_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
@@ -150,6 +151,7 @@ void main() {
         overrides: [databaseProvider.overrideWithValue(database)],
       );
       expect(find.text('Standard'), findsNWidgets(2));
+      await tester.ensureVisible(find.text(l10n.presetFailureStay));
       expect(find.text(l10n.presetFailureStepBackEffect), findsOneWidget);
       await captureShot(
         tester,
@@ -207,7 +209,7 @@ void main() {
     expect(find.byTooltip(l10n.presetEditorRemoveStep), findsNWidgets(5));
   });
 
-  testScreen('the line under the failure choice says its effect', (
+  testScreen('the failure tiles are ordered and say their effect', (
     tester,
   ) async {
     final standard = await tester.runAsync(
@@ -218,26 +220,47 @@ void main() {
       PresetEditorScreen(initialPreset: standard!),
       overrides: [databaseProvider.overrideWithValue(database)],
     );
+    for (final label in [
+      l10n.presetFailureRestart,
+      l10n.presetFailureStepBack,
+      l10n.presetFailureStay,
+    ]) {
+      await tester.ensureVisible(find.text(label));
+    }
+    double top(String text) => tester.getTopLeft(find.text(text)).dy;
     expect(
-      find.text('A missed card goes back to the previous step.'),
-      findsOneWidget,
+      top(l10n.presetFailureRestart),
+      lessThan(top(l10n.presetFailureStepBack)),
     );
-    await tester.tap(find.text(l10n.presetFailureRestart));
-    await tester.pump();
     expect(
-      find.text(
-        'A missed card starts again from the first step, without going back '
-        'to the queue.',
-      ),
-      findsOneWidget,
+      top(l10n.presetFailureStepBack),
+      lessThan(top(l10n.presetFailureStay)),
     );
+    expect(find.text(l10n.presetFailureStepBackEffect), findsOneWidget);
+    expect(find.text(l10n.presetFailureRestartEffect), findsOneWidget);
+    expect(find.text(l10n.presetFailureStayEffect), findsOneWidget);
+  });
+
+  testScreen('a failure tile selects its behaviour in the draft', (
+    tester,
+  ) async {
+    final standard = await tester.runAsync(
+      () async => (await PresetRepository(database).loadCatalog()).globalPreset,
+    );
+    await pumpScreen(
+      tester,
+      PresetEditorScreen(initialPreset: standard!),
+      overrides: [databaseProvider.overrideWithValue(database)],
+    );
+    Finder tile(String label) =>
+        find.ancestor(of: find.text(label), matching: find.byType(ChoiceTile));
+    bool isSelected(String label) =>
+        tester.widget<ChoiceTile>(tile(label)).isSelected;
+    expect(isSelected(l10n.presetFailureStepBack), isTrue);
+    await tester.ensureVisible(find.text(l10n.presetFailureStay));
     await tester.tap(find.text(l10n.presetFailureStay));
     await tester.pump();
-    expect(
-      find.text(
-        'A missed card keeps its step and comes back after the same interval.',
-      ),
-      findsOneWidget,
-    );
+    expect(isSelected(l10n.presetFailureStay), isTrue);
+    expect(isSelected(l10n.presetFailureStepBack), isFalse);
   });
 }

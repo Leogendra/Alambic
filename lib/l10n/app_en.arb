@@ -205,7 +205,7 @@
   "presetEditorOnFailure": "On failure",
   "presetFailureStepBack": "One step back",
   "presetFailureRestart": "Back to start",
-  "presetFailureStay": "Stay",
+  "presetFailureStay": "Same step",
   "presetFailureStepBackEffect": "A missed card goes back to the previous step.",
   "presetFailureRestartEffect": "A missed card starts again from the first step, without going back to the queue.",
   "presetFailureStayEffect": "A missed card keeps its step and comes back after the same interval.",

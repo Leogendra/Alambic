@@ -406,8 +406,7 @@ void main() {
           await showPresetPicker(
             context,
             presets: catalog.presetsById.values.toList(),
-            selectedPresetId: null,
-            inheritedPreset: catalog.globalPreset,
+            selectedPresetId: catalog.globalPresetId,
           );
         }
       });

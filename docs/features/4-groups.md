@@ -50,7 +50,7 @@ A group carries two more options, set in its settings:
 
 ### Group settings
 
-A group's settings are, from top to bottom: its name; its preset, picked from the preset list or inherited from the global preset; what comes after the last step; the typed answer and the back option, as two switches; its deletion. A group has no pause of its own: only its distillation is paused ([Feature 8](8-distillation.md#pause)). The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
+A group's settings are, from top to bottom: its name; its preset, picked from the preset list; what comes after the last step; the typed answer and the back option, as two switches; its deletion. A group has no pause of its own: only its distillation is paused ([Feature 8](8-distillation.md#pause)). The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
 
 "After the last step" is a segmented control, "Remanence" / "Learned". With remanence, a second one picks its interval (3 months, 6 months, 1 year). A line under them says what the choice does: the interval the cards will actually come back at, which is the last step of the preset when it is longer than the one chosen, or that an acquired card never comes back. Every change is saved at once, and switching applies at once to the cards past their last step ([Feature 1](1-scheduling.md#after-the-last-step)).
 
@@ -73,7 +73,7 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - [x] "Review all" asks the due cards first, then the other introduced cards, then the pending ones, all but the due ones as bonus reviews, and leaves suspended and acquired cards out.
 - [x] In "Review all", a pending card answered "Again" goes to the head of the queue at once, the last one missed first.
 - [x] The back option is switched from the group page or its settings.
-- [x] A group is created, renamed, changes preset or inherits the global preset.
+- [x] A group is created, renamed, changes preset; a new group follows the global preset of the moment.
 - [x] Deleting a group deletes its cards and their history.
 - [x] A suspended card does not count as due.
 - [x] A group whose distillation is paused is shown as such in the tab.

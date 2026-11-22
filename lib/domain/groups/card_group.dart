@@ -20,8 +20,8 @@ class CardGroup {
   final int id;
   final String name;
 
-  /// `null` inherits the global preset.
-  final int? presetId;
+  /// The preset its cards follow.
+  final int presetId;
   final DateTime createdAt;
 
   /// With the back enabled, each display of a card draws the asked face:

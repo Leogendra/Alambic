@@ -230,14 +230,6 @@
   "presetEditorStepAmount": "Duration",
   "presetEditorStepUnit": "Unit",
   "presetPickerTitle": "Choose a preset",
-  "presetPickerInherit": "Inherit: {name}",
-  "@presetPickerInherit": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "cardEditorNewTitle": "New card",
   "cardEditorEditTitle": "Edit card",
   "cardEditorCreate": "Create",
@@ -248,14 +240,6 @@
   "cardGroup": "Group",
   "cardGroupNone": "Choose",
   "cardPreset": "Preset",
-  "cardPresetInheritedGlobal": "Global preset: {name}",
-  "@cardPresetInheritedGlobal": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "cardIncomplete": "The front and the back each need a text or an image.",
   "cardGroupMissing": "Choose a group for this card.",
   "groupPickerTitle": "Put in a group",

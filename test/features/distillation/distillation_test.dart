@@ -167,7 +167,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Intensive'));
     await settle(tester);
-    expect((await japanese(tester)).presetId, isNotNull);
+    final catalog = await tester.runAsync(
+      () => PresetRepository(database).loadCatalog(),
+    );
+    expect((await japanese(tester)).presetId, isNot(catalog!.globalPresetId));
     expect(find.text('Intensive'), findsOne);
     expect(find.text('Default'), findsNothing);
     expect(
@@ -196,7 +199,7 @@ void main() {
       () => PresetRepository(database).loadCatalog(),
     );
     expect(catalog!.presetForGroup(japaneseId).name, l10n.presetNewName);
-    expect(catalog.groupPresetIds[japaneseId], isNotNull);
+    expect(catalog.groupPresetIds[japaneseId], isNot(catalog.globalPresetId));
     expect(find.text('Default'), findsNothing);
   });
 

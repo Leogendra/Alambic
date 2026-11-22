@@ -1,10 +1,9 @@
 import '../groups/sequence_end.dart';
 import 'preset.dart';
-import 'preset_resolver.dart';
 
-/// Snapshot of every preset, of the choices made at each level and of the
-/// end of sequence of each group, to resolve the rhythm of many groups at
-/// once (lists, sessions) without querying.
+/// Snapshot of every preset, of the preset of each group and of the end of
+/// sequence of each group, to resolve the rhythm of many groups at once
+/// (lists, sessions) without querying.
 class PresetCatalog {
   const PresetCatalog({
     required this.presetsById,
@@ -14,27 +13,27 @@ class PresetCatalog {
   });
 
   final Map<int, Preset> presetsById;
+
+  /// The preset given to a new group, and to the groups of a deleted preset.
+  /// A group that already has a preset does not follow its changes.
   final int globalPresetId;
 
-  /// Preset chosen by each group; a missing or `null` entry inherits.
-  final Map<int, int?> groupPresetIds;
+  /// Preset followed by each group.
+  final Map<int, int> groupPresetIds;
 
   /// End of sequence chosen by each group.
   final Map<int, SequenceEnd> groupSequenceEnds;
 
   Preset get globalPreset => presetsById[globalPresetId]!;
 
-  /// Groups that chose [presetId] themselves; the groups that inherit it as
-  /// the global preset are not counted.
-  int groupCountChoosing(int presetId) =>
-      groupPresetIds.values.where((choice) => choice == presetId).length;
+  /// Number of groups that follow [presetId].
+  int groupCountFollowing(int presetId) =>
+      groupPresetIds.values.where((followed) => followed == presetId).length;
 
-  /// Preset followed by the cards of [groupId].
+  /// Preset followed by the cards of [groupId]; the global preset for a group
+  /// created after the snapshot.
   Preset presetForGroup(int groupId) =>
-      presetsById[PresetResolver.resolve(
-        groupPresetId: groupPresetIds[groupId],
-        globalPresetId: globalPresetId,
-      )]!;
+      presetsById[groupPresetIds[groupId] ?? globalPresetId]!;
 
   /// End of sequence of the cards of [groupId].
   SequenceEnd sequenceEndForGroup(int groupId) =>

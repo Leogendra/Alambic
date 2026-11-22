@@ -9,7 +9,7 @@ import 'presets.dart';
 class CardGroups extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
-  IntColumn get presetId => integer().nullable().references(Presets, #id)();
+  IntColumn get presetId => integer().references(Presets, #id)();
   DateTimeColumn get createdAt => dateTime()();
   BoolColumn get reverseEnabled =>
       boolean().withDefault(const Constant(false))();

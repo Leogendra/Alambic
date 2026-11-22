@@ -99,20 +99,15 @@ class GroupSettingsScreen extends ConsumerWidget {
     return PanelRow(
       title: strings.cardPreset,
       subtitle: strings.presetStepsSummary(preset),
-      value: group.presetId == null
-          ? strings.cardPresetInheritedGlobal(strings.presetName(preset))
-          : strings.presetName(preset),
+      value: strings.presetName(preset),
       onTap: () async {
-        final choice = await showPresetPicker(
+        final presetId = await showPresetPicker(
           context,
           presets: catalog.presetsById.values.toList(),
           selectedPresetId: group.presetId,
-          inheritedPreset: catalog.globalPreset,
         );
-        if (choice != null) {
-          await ref
-              .read(groupServiceProvider)
-              .setPreset(group.id, choice.presetId);
+        if (presetId != null) {
+          await ref.read(groupServiceProvider).setPreset(group.id, presetId);
         }
       },
     );

@@ -48,26 +48,28 @@ void main() {
     return catalog.presetForGroup(card.groupId).id;
   }
 
-  test('a group without preset follows the global one', () async {
+  test('a new group follows the global preset of the moment', () async {
     final cardId = await createCard();
+    expect((await groups.find(groupId))!.presetId, standardId);
     expect(await presetIdOfCard(cardId), standardId);
+
     await presets.setGlobalPresetId(intensiveId);
-    expect(await presetIdOfCard(cardId), intensiveId);
+    final later = await groups.create('Later', DateTime(2026, 11, 11));
+
+    expect((await groups.find(later))!.presetId, intensiveId);
   });
 
-  test('a group preset replaces the global one for its cards', () async {
+  test('changing the global preset leaves the existing groups alone', () async {
+    final cardId = await createCard();
+    await presets.setGlobalPresetId(intensiveId);
+    expect(await presetIdOfCard(cardId), standardId);
+  });
+
+  test('the preset of a group is the one it was given', () async {
     final cardId = await createCard();
     await groups.setPreset(groupId, intensiveId);
     expect(await presetIdOfCard(cardId), intensiveId);
-    await presets.setGlobalPresetId(intensiveId);
     await groups.setPreset(groupId, standardId);
-    expect(await presetIdOfCard(cardId), standardId);
-  });
-
-  test('a group that drops its choice goes back to the global one', () async {
-    final cardId = await createCard();
-    await groups.setPreset(groupId, intensiveId);
-    await groups.setPreset(groupId, null);
     expect(await presetIdOfCard(cardId), standardId);
   });
 }

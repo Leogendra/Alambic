@@ -30,9 +30,22 @@ class GroupRepository {
     _database.cardGroups,
   )..where((group) => group.id.equals(groupId))).watchSingleOrNull();
 
-  Future<int> create(String name, DateTime createdAt) => _database
-      .into(_database.cardGroups)
-      .insert(CardGroupsCompanion.insert(name: name, createdAt: createdAt));
+  /// The new group follows the global preset of the moment.
+  Future<int> create(String name, DateTime createdAt) =>
+      _database.transaction(() async {
+        final settings = await _database
+            .select(_database.appSettings)
+            .getSingle();
+        return _database
+            .into(_database.cardGroups)
+            .insert(
+              CardGroupsCompanion.insert(
+                name: name,
+                presetId: settings.globalPresetId,
+                createdAt: createdAt,
+              ),
+            );
+      });
 
   Future<void> rename(int groupId, String name) =>
       (_database.update(_database.cardGroups)
@@ -40,17 +53,17 @@ class GroupRepository {
           .write(CardGroupsCompanion(name: Value(name)));
 
   /// A preset change keeps the step and the due date of every card.
-  Future<void> setPreset(int groupId, int? presetId) =>
+  Future<void> setPreset(int groupId, int presetId) =>
       (_database.update(_database.cardGroups)
             ..where((group) => group.id.equals(groupId)))
           .write(CardGroupsCompanion(presetId: Value(presetId)));
 
-  /// The groups that chose [presetId] inherit the global preset again. The
+  /// The groups that follow [fromPresetId] follow [toPresetId] instead. The
   /// steps and due dates of their cards stay as they are.
-  Future<void> releasePreset(int presetId) =>
+  Future<void> movePreset(int fromPresetId, int toPresetId) =>
       (_database.update(_database.cardGroups)
-            ..where((group) => group.presetId.equals(presetId)))
-          .write(const CardGroupsCompanion(presetId: Value(null)));
+            ..where((group) => group.presetId.equals(fromPresetId)))
+          .write(CardGroupsCompanion(presetId: Value(toPresetId)));
 
   /// Draws the asked face of each display of its cards, or always asks the
   /// front. Changes nothing to their progression.

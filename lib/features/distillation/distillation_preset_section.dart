@@ -15,9 +15,9 @@ import '../../l10n/generated/app_localizations.dart';
 import '../presets/preset_picker.dart';
 import '../presets/presets_screen.dart';
 
-/// The preset followed by the cards of the group, with its reminders: the
-/// default preset until the group chooses one. It is edited here, swapped
-/// for another or replaced by a new one, applied at once, without "Save".
+/// The preset followed by the cards of the group, with its reminders. It is
+/// edited here, swapped for another or replaced by a new one, applied at
+/// once, without "Save".
 class DistillationPresetSection extends ConsumerWidget {
   const DistillationPresetSection({required this.groupId, super.key});
 
@@ -57,7 +57,7 @@ class DistillationPresetSection extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      if (group.presetId == null)
+                      if (preset.id == catalog.globalPresetId)
                         BadgeLabel(strings.presetGlobalBadge),
                     ],
                   ),
@@ -119,14 +119,13 @@ class DistillationPresetSection extends ConsumerWidget {
     if (!context.mounted || group == null) {
       return;
     }
-    final choice = await showPresetPicker(
+    final presetId = await showPresetPicker(
       context,
       presets: catalog.presetsById.values.toList(),
       selectedPresetId: group.presetId,
-      inheritedPreset: catalog.globalPreset,
     );
-    if (choice != null) {
-      await ref.read(groupServiceProvider).setPreset(groupId, choice.presetId);
+    if (presetId != null) {
+      await ref.read(groupServiceProvider).setPreset(groupId, presetId);
     }
   }
 

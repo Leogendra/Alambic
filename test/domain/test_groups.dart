@@ -28,7 +28,7 @@ CardGroup testGroup({
 }) => CardGroup(
   id: id,
   name: name,
-  presetId: null,
+  presetId: 1,
   createdAt: DateTime(2026, 11, 1),
   reverseEnabled: reverseEnabled,
   afterLastStep: afterLastStep,

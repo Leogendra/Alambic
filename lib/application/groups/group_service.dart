@@ -48,9 +48,9 @@ class GroupService {
     return _groups.rename(groupId, name.trim());
   }
 
-  /// `null` makes the group inherit the global preset. Steps and due dates of
-  /// its cards are kept; their notifications follow the new preset.
-  Future<void> setPreset(int groupId, int? presetId) async {
+  /// Steps and due dates of the cards of the group are kept; their
+  /// notifications follow the new preset.
+  Future<void> setPreset(int groupId, int presetId) async {
     await _groups.setPreset(groupId, presetId);
     await _scheduleChangeListener.onSchedulesChanged();
   }

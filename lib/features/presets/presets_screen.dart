@@ -196,7 +196,7 @@ Future<void> _confirmDelete(
       title: Text(strings.presetDeleteConfirmTitle(strings.presetName(preset))),
       content: Text(
         strings.presetDeleteConfirmBody(
-          catalog.groupCountChoosing(preset.id),
+          catalog.groupCountFollowing(preset.id),
           strings.presetName(catalog.globalPreset),
         ),
       ),

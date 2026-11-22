@@ -41,7 +41,7 @@ void main() {
 
   tearDown(() => database.close());
 
-  test('the groups that chose a deleted preset go back to the default one, '
+  test('the groups that follow a deleted preset move to the default one, '
       'their cards keeping their steps and due dates', () async {
     final capitals = await samples.groups.create('Capitals');
     final spanish = await samples.groups.create('Spanish');
@@ -53,22 +53,22 @@ void main() {
       cardId,
       CardSchedule(state: CardState.active, step: 4, dueAt: dueAt),
     );
-    expect((await presets.loadCatalog()).groupCountChoosing(intensiveId), 2);
+    expect((await presets.loadCatalog()).groupCountFollowing(intensiveId), 2);
 
     await service.delete(intensiveId);
 
     final catalog = await presets.loadCatalog();
     expect(catalog.presetsById.keys, [standardId]);
     expect(catalog.presetForGroup(capitals).id, standardId);
-    expect((await groups.find(capitals))!.presetId, isNull);
-    expect((await groups.find(spanish))!.presetId, isNull);
+    expect((await groups.find(capitals))!.presetId, standardId);
+    expect((await groups.find(spanish))!.presetId, standardId);
     final card = await cards.getCard(cardId);
     expect(card.step, 4);
     expect(card.dueAt, dueAt);
     expect(listener.changeCount, 1);
   });
 
-  test('the other groups keep their choice', () async {
+  test('the groups of other presets keep theirs', () async {
     final copyId = await service.duplicate(
       (await presets.loadCatalog()).presetsById[intensiveId]!,
       'Examen',
@@ -80,7 +80,7 @@ void main() {
     await service.delete(intensiveId);
 
     expect((await groups.find(capitals))!.presetId, copyId);
-    expect((await groups.find(biology))!.presetId, isNull);
+    expect((await groups.find(biology))!.presetId, standardId);
   });
 
   test('the default preset cannot be deleted', () async {

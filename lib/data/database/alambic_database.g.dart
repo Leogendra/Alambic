@@ -1290,9 +1290,9 @@ class $CardGroupsTable extends CardGroups
   late final GeneratedColumn<int> presetId = GeneratedColumn<int>(
     'preset_id',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.int,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'REFERENCES presets (id)',
     ),
@@ -1400,6 +1400,8 @@ class $CardGroupsTable extends CardGroups
         _presetIdMeta,
         presetId.isAcceptableOrUnknown(data['preset_id']!, _presetIdMeta),
       );
+    } else if (isInserting) {
+      context.missing(_presetIdMeta);
     }
     if (data.containsKey('created_at')) {
       context.handle(
@@ -1447,7 +1449,7 @@ class $CardGroupsTable extends CardGroups
       presetId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}preset_id'],
-      ),
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1493,7 +1495,7 @@ class $CardGroupsTable extends CardGroups
 class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
   final Value<int> id;
   final Value<String> name;
-  final Value<int?> presetId;
+  final Value<int> presetId;
   final Value<DateTime> createdAt;
   final Value<bool> reverseEnabled;
   final Value<AfterLastStep> afterLastStep;
@@ -1512,13 +1514,14 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
   CardGroupsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    this.presetId = const Value.absent(),
+    required int presetId,
     required DateTime createdAt,
     this.reverseEnabled = const Value.absent(),
     this.afterLastStep = const Value.absent(),
     this.remanenceInterval = const Value.absent(),
     this.typedAnswer = const Value.absent(),
   }) : name = Value(name),
+       presetId = Value(presetId),
        createdAt = Value(createdAt);
   static Insertable<CardGroup> custom({
     Expression<int>? id,
@@ -1545,7 +1548,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
   CardGroupsCompanion copyWith({
     Value<int>? id,
     Value<String>? name,
-    Value<int?>? presetId,
+    Value<int>? presetId,
     Value<DateTime>? createdAt,
     Value<bool>? reverseEnabled,
     Value<AfterLastStep>? afterLastStep,
@@ -4159,7 +4162,7 @@ typedef $$AppSettingsTableProcessedTableManager =
 typedef $$CardGroupsTableCreateCompanionBuilder = CardGroupsCompanion Function({
   Value<int> id,
   required String name,
-  Value<int?> presetId,
+  required int presetId,
   required DateTime createdAt,
   Value<bool> reverseEnabled,
   Value<AfterLastStep> afterLastStep,
@@ -4169,7 +4172,7 @@ typedef $$CardGroupsTableCreateCompanionBuilder = CardGroupsCompanion Function({
 typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
   Value<int> id,
   Value<String> name,
-  Value<int?> presetId,
+  Value<int> presetId,
   Value<DateTime> createdAt,
   Value<bool> reverseEnabled,
   Value<AfterLastStep> afterLastStep,
@@ -4184,9 +4187,9 @@ final class $$CardGroupsTableReferences
   static $PresetsTable _presetIdTable(_$AlambicDatabase db) =>
       db.presets.createAlias('card_groups__preset_id__presets__id');
 
-  $$PresetsTableProcessedTableManager? get presetId {
-    final $_column = $_itemColumn<int>('preset_id');
-    if ($_column == null) return null;
+  $$PresetsTableProcessedTableManager get presetId {
+    final $_column = $_itemColumn<int>('preset_id')!;
+
     final manager = $$PresetsTableTableManager(
       $_db,
       $_db.presets,
@@ -4572,7 +4575,7 @@ class $$CardGroupsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<int?> presetId = const Value.absent(),
+                Value<int> presetId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<bool> reverseEnabled = const Value.absent(),
                 Value<AfterLastStep> afterLastStep = const Value.absent(),
@@ -4593,7 +4596,7 @@ class $$CardGroupsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required String name,
-                Value<int?> presetId = const Value.absent(),
+                required int presetId,
                 required DateTime createdAt,
                 Value<bool> reverseEnabled = const Value.absent(),
                 Value<AfterLastStep> afterLastStep = const Value.absent(),

@@ -37,12 +37,11 @@ class PresetService {
     }
   }
 
-  /// Changing the global preset keeps every step and due date; the
-  /// notifications of the cards that inherit it follow the new preset.
-  Future<void> setGlobalPreset(int presetId) async {
-    await _presets.setGlobalPresetId(presetId);
-    await _scheduleChangeListener.onSchedulesChanged();
-  }
+  /// The global preset is the one given to the groups created from now on and
+  /// to those of a deleted preset. Existing groups keep their own preset, so
+  /// no card is touched.
+  Future<void> setGlobalPreset(int presetId) =>
+      _presets.setGlobalPresetId(presetId);
 
   /// Stores a copy of [preset] under [copyName] and returns its id. The copy is
   /// never a shipped preset, even when copied from one.
@@ -50,8 +49,8 @@ class PresetService {
     preset.copyWith(id: 0, name: copyName, builtInKey: () => null),
   );
 
-  /// Deletes a preset other than the global one. The groups that chose it
-  /// go back to the global preset, keeping the steps and due dates of their
+  /// Deletes a preset other than the global one. The groups that follow it
+  /// move to the global preset, keeping the steps and due dates of their
   /// cards; their notifications follow it.
   Future<void> delete(int presetId) async {
     await _presets.transaction(() async {
@@ -59,7 +58,7 @@ class PresetService {
       if (presetId == catalog.globalPresetId) {
         throw StateError('The global preset cannot be deleted.');
       }
-      await _groups.releasePreset(presetId);
+      await _groups.movePreset(presetId, catalog.globalPresetId);
       await _presets.delete(presetId);
     });
     await _scheduleChangeListener.onSchedulesChanged();

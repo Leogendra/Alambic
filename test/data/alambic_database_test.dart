@@ -31,14 +31,18 @@ void main() {
     },
   );
 
-  Future<int> insertGroup() => database
-      .into(database.cardGroups)
-      .insert(
-        CardGroupsCompanion.insert(
-          name: 'Capitals',
-          createdAt: DateTime(2026, 11, 10),
-        ),
-      );
+  Future<int> insertGroup() async {
+    final settings = await database.select(database.appSettings).getSingle();
+    return database
+        .into(database.cardGroups)
+        .insert(
+          CardGroupsCompanion.insert(
+            name: 'Capitals',
+            presetId: settings.globalPresetId,
+            createdAt: DateTime(2026, 11, 10),
+          ),
+        );
+  }
 
   Future<int> insertCard(int groupId) => database
       .into(database.flashcards)

@@ -13,19 +13,19 @@ void main() {
       intensivePreset.id: intensivePreset,
     },
     globalPresetId: standardPreset.id,
-    groupPresetIds: {10: intensivePreset.id, 11: null},
+    groupPresetIds: {10: intensivePreset.id, 11: standardPreset.id},
     groupSequenceEnds: {
       10: acquiredEnd,
       11: remanence(RemanenceInterval.oneYear),
     },
   );
 
-  test('a group follows its own choice', () {
+  test('a group follows its own preset', () {
     expect(catalog.presetForGroup(10), intensivePreset);
+    expect(catalog.presetForGroup(11), standardPreset);
   });
 
-  test('a group without choice, or unknown, follows the global preset', () {
-    expect(catalog.presetForGroup(11), standardPreset);
+  test('a group created after the snapshot follows the global preset', () {
     expect(catalog.presetForGroup(12), standardPreset);
   });
 
@@ -38,8 +38,8 @@ void main() {
     expect(catalog.sequenceEndForGroup(12), SequenceEnd.standard);
   });
 
-  test('counts the groups that chose a preset, not those that inherit it', () {
-    expect(catalog.groupCountChoosing(intensivePreset.id), 1);
-    expect(catalog.groupCountChoosing(standardPreset.id), 0);
+  test('counts the groups that follow a preset', () {
+    expect(catalog.groupCountFollowing(intensivePreset.id), 1);
+    expect(catalog.groupCountFollowing(standardPreset.id), 1);
   });
 }

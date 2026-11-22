@@ -25,7 +25,7 @@ The four screens follow each other with a button at the bottom, under a row of d
 
 ### Sample group
 
-The sample group is the capitals of the world: 197 cards, the country on the front and its capital on the back ("Afghanistan" → "Kabul"), all [pending](../lexicon.md#pending) in alphabetical order of the country. Its name and its cards are in the language of the app at that moment: "Capitals" with English country names, "Capitales" with French ones. They do not follow a later change of language. It inherits the global preset, its back is off and it does not distill.
+The sample group is the capitals of the world: 197 cards, the country on the front and its capital on the back ("Afghanistan" → "Kabul"), all [pending](../lexicon.md#pending) in alphabetical order of the country. Its name and its cards are in the language of the app at that moment: "Capitals" with English country names, "Capitales" with French ones. They do not follow a later change of language. It follows the global preset of the moment, its back is off and it does not distill.
 
 It is created when the onboarding ends, and so once per installation: never again after it is deleted, nor after an import. It is then an ordinary group, which can be renamed or deleted.
 

@@ -6,6 +6,7 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/samples/bundled_sample_cards.dart';
 
 import '../support/fixed_clock.dart';
@@ -46,7 +47,10 @@ void main() {
     final groupId = await samples.createOrFind('Capitals', 'en');
     final group = await GroupRepository(database).watchById(groupId).first;
     expect(group!.name, 'Capitals');
-    expect(group.presetId, isNull);
+    expect(
+      group.presetId,
+      (await PresetRepository(database).loadCatalog()).globalPresetId,
+    );
     expect(group.reverseEnabled, isFalse);
     expect(await DistillationRepository(database).getAll(), isEmpty);
     final cards = await CardRepository(database).getCardsOfGroup(groupId)

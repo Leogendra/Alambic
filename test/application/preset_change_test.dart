@@ -87,13 +87,14 @@ void main() {
     expect(progress.interval, intensive.intervals[4]);
   });
 
-  test('changing the global preset keeps the step and the due date', () async {
+  test('changing the global preset moves no existing group', () async {
     final cardId = await cardAtStep(2);
+    final standard = await shipped(BuiltInPresetKey.standard);
     final intensive = await shipped(BuiltInPresetKey.intensive);
     await presetService.setGlobalPreset(intensive.id);
     await expectKept(cardId, step: 2);
     final progress = await progressOf(await cards.getCard(cardId));
-    expect((progress as SequenceProgress).interval, intensive.intervals[2]);
+    expect((progress as SequenceProgress).interval, standard.intervals[2]);
   });
 
   group('a preset edited to fewer steps', () {

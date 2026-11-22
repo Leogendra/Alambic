@@ -13,16 +13,9 @@ import 'distillation_tile.dart';
 /// does not distill, a light gliding over it once on arrival, then the
 /// tracking of its distillation.
 class GroupDistillationSection extends ConsumerWidget {
-  const GroupDistillationSection({
-    required this.groupId,
-    this.highlighted = false,
-    super.key,
-  });
+  const GroupDistillationSection({required this.groupId, super.key});
 
   final int groupId;
-
-  /// Introduces the button with a line telling the cards wait for it.
-  final bool highlighted;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,7 +27,6 @@ class GroupDistillationSection extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 8,
         children: [
-          if (highlighted)
           ShineSweep(
             child: FilledButton(
               onPressed: () => Navigator.of(context).push(

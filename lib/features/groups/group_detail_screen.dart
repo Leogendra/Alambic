@@ -29,16 +29,9 @@ import 'reverse_button.dart';
 /// it, in three sections: in progress, waiting in queue order, and learned,
 /// folded.
 class GroupDetailScreen extends ConsumerWidget {
-  const GroupDetailScreen({
-    required this.groupId,
-    this.highlightDistill = false,
-    super.key,
-  });
+  const GroupDetailScreen({required this.groupId, super.key});
 
   final int groupId;
-
-  /// Points out "Distill", for the group created by the onboarding.
-  final bool highlightDistill;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -75,16 +68,15 @@ class GroupDetailScreen extends ConsumerWidget {
       ),
       body: summary == null
           ? const SizedBox.shrink()
-          : _GroupBody(summary: summary, highlightDistill: highlightDistill),
+          : _GroupBody(summary: summary),
     );
   }
 }
 
 class _GroupBody extends ConsumerWidget {
-  const _GroupBody({required this.summary, required this.highlightDistill});
+  const _GroupBody({required this.summary});
 
   final GroupSummary summary;
-  final bool highlightDistill;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -97,10 +89,7 @@ class _GroupBody extends ConsumerWidget {
       padding: scrollPadding(context, const EdgeInsets.fromLTRB(20, 0, 20, 96)),
       children: [
         const SizedBox(height: 8),
-        GroupDistillationSection(
-          groupId: summary.groupId,
-          highlighted: highlightDistill,
-        ),
+        GroupDistillationSection(groupId: summary.groupId),
         const SizedBox(height: 16),
         ReverseButton(group: summary.group),
         const SizedBox(height: 24),

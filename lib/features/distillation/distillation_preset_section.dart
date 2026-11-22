@@ -4,7 +4,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/formatting/interval_labels.dart';
 import '../../app/formatting/preset_labels.dart';
 import '../../app/theme/alambic_colors.dart';
-import '../../app/widgets/badge_label.dart';
 import '../../app/widgets/compact_button.dart';
 import '../../app/widgets/interval_chip.dart';
 import '../../app/widgets/section_label.dart';
@@ -12,7 +11,6 @@ import '../../app/widgets/surface_panel.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../domain/presets/preset.dart';
-import '../../domain/presets/preset_catalog.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../presets/preset_picker.dart';
 import '../presets/presets_screen.dart';
@@ -41,7 +39,7 @@ class DistillationPresetSection extends ConsumerWidget {
         SectionLabel(strings.cardPreset),
         SurfacePanel(
           children: [
-            _nameRow(context, ref, strings, colors, preset, catalog),
+            _nameRow(context, ref, strings, colors, preset),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 14),
               child: Column(
@@ -71,17 +69,6 @@ class DistillationPresetSection extends ConsumerWidget {
             ),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-          child: Text(
-            strings.distillPresetHint,
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.4,
-              color: colors.textSecondary,
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -93,7 +80,6 @@ class DistillationPresetSection extends ConsumerWidget {
     AppLocalizations strings,
     AlambicColors colors,
     Preset preset,
-    PresetCatalog catalog,
   ) => InkWell(
     onTap: () => chooseGroupPreset(context, ref, groupId),
     child: ConstrainedBox(
@@ -107,8 +93,6 @@ class DistillationPresetSection extends ConsumerWidget {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
           ),
-          if (preset.id == catalog.globalPresetId)
-            BadgeLabel(strings.presetGlobalBadge),
           Icon(Icons.chevron_right, color: colors.textSecondary),
         ],
       ),

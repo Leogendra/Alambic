@@ -20,7 +20,7 @@ As soon as some text is typed, the group list gives way to the cards whose front
 
 The page of a group is titled with its name; from top to bottom:
 
-- the large "Distill" button while the group does not distill, with a line explaining it, then, once activated, the tracking of its distillation in its place ([Feature 8](8-distillation.md#screens));
+- the large "Distill" button while the group does not distill, with a line explaining it and a band of light gliding once across the button when the page opens (nothing when the system asks for no animation), then, once activated, the tracking of its distillation in its place ([Feature 8](8-distillation.md#screens));
 - the "Enable the back" / "Disable the back" button, with a line saying how cards are asked;
 - the cards, under a "Cards" title with a small "Review all" button at its right, shown while the group has cards in progress or waiting. They come in three sections, each under a small title with its number of cards ("In progress · 4"), left out when empty. Each card shows where it stands ([Feature 3](3-cards.md#where-a-card-stands)):
   - "In progress · N": the introduced cards that have a due date, in their sequence or in [remanence](../lexicon.md#remanence), soonest due first; the suspended ones stay there, marked "suspended", at the end;
@@ -69,7 +69,7 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - [x] A group page shows its cards under "Cards", with "Review all" beside it, in three sections with their counts, "In progress", "Waiting" and "Learned", each card with where it stands; its header recalls neither the number of cards nor the preset.
 - [x] "In progress" is sorted soonest due first, suspended cards last; "Waiting" follows the queue, and its first card that is not suspended reads "next".
 - [x] The learned section is folded by default; an empty section is absent.
-- [x] A group that does not distill shows a large "Distill" button; once activated, its tracking replaces it.
+- [x] A group that does not distill shows a large "Distill" button; once activated, its tracking replaces it. A band of light glides once across the button on arrival.
 - [x] "Review all" asks the due cards first, then the other introduced cards, then the pending ones, all but the due ones as bonus reviews, and leaves suspended and acquired cards out.
 - [x] In "Review all", a pending card answered "Again" goes to the head of the queue at once, the last one missed first.
 - [x] The back option is switched from the group page or its settings.

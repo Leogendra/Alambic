@@ -3,13 +3,15 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/section_label.dart';
+import '../../app/widgets/shine_sweep.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'distill_screen.dart';
 import 'distillation_tile.dart';
 
 /// Distillation of a group page: the large "Distill" button while the group
-/// does not distill, then the tracking of its distillation.
+/// does not distill, a light gliding over it once on arrival, then the
+/// tracking of its distillation.
 class GroupDistillationSection extends ConsumerWidget {
   const GroupDistillationSection({
     required this.groupId,
@@ -42,13 +44,15 @@ class GroupDistillationSection extends ConsumerWidget {
                 color: colors.accentText,
               ),
             ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (context) => DistillScreen(groupId: groupId),
+          ShineSweep(
+            child: FilledButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (context) => DistillScreen(groupId: groupId),
+                ),
               ),
+              child: Text(strings.distillTitle),
             ),
-            child: Text(strings.distillTitle),
           ),
           Text(
             strings.groupDistillationNone,

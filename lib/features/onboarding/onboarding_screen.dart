@@ -34,12 +34,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   void _back() => setState(() => _page--);
 
-  /// Creates the sample group, to be opened by the tabs when [openGroup].
+  /// Creates the sample group, or finds the one a previous onboarding made,
+  /// to be opened by the tabs when [openGroup].
   Future<void> _finish({required bool openGroup}) async {
     setState(() => _isFinishing = true);
     final groupId = await ref
         .read(sampleGroupServiceProvider)
-        .create(
+        .createOrFind(
           AppLocalizations.of(context).onboardingSampleGroupName,
           Localizations.localeOf(context).languageCode,
         );

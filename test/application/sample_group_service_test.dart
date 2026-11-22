@@ -43,7 +43,7 @@ void main() {
 
   test('creates the group with its cards pending in order, on the global '
       'preset, without the back nor a distillation', () async {
-    final groupId = await samples.create('Capitals', 'en');
+    final groupId = await samples.createOrFind('Capitals', 'en');
     final group = await GroupRepository(database).watchById(groupId).first;
     expect(group!.name, 'Capitals');
     expect(group.presetId, isNull);
@@ -58,11 +58,22 @@ void main() {
   });
 
   test('creates the cards in French for the French app', () async {
-    final groupId = await samples.create('Capitales', 'fr');
+    final groupId = await samples.createOrFind('Capitales', 'fr');
     final cards = await CardRepository(database).getCardsOfGroup(groupId);
     final france = cards.singleWhere((card) => card.frontText == 'France');
     expect(france.backText, 'Paris');
     final germany = cards.singleWhere((card) => card.frontText == 'Allemagne');
     expect(germany.backText, 'Berlin');
+  });
+
+  test('returns the group already named so, without adding any card', () async {
+    final first = await samples.createOrFind('Capitals', 'en');
+    final second = await samples.createOrFind('Capitals', 'en');
+    expect(second, first);
+    expect(await GroupRepository(database).watchAll().first, hasLength(1));
+    expect(
+      await CardRepository(database).getCardsOfGroup(first),
+      hasLength(197),
+    );
   });
 }

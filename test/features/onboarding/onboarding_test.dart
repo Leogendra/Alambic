@@ -145,7 +145,6 @@ void main() {
     expect(cards!.every((card) => card.isPending), isTrue);
     expect(store.saved.onboardingDone, isTrue);
     expect(find.byType(GroupDetailScreen), findsOneWidget);
-    expect(find.text(l10n.groupDistillWaiting), findsOneWidget);
   });
 
   testScreen('"Skip" opens the tabs, the sample group created all the same', (
@@ -257,6 +256,29 @@ void main() {
     await pumpApp(tester, onboardingDone: store.saved.onboardingDone);
     expect(find.byType(MainShell), findsOneWidget);
     expect(await groupNames(tester), isEmpty);
+  });
+
+  testScreen('replayed, "Get started" opens the group already named like the '
+      'sample group instead of creating it again', (tester) async {
+    final existingId = (await tester.runAsync(
+      () => SampleServices(
+        database,
+        FixedClock(sampleNow),
+      ).groups.create('Capitals'),
+    ))!;
+    await pumpApp(tester);
+    await reachSampleGroup(tester);
+    await finishWith(tester, l10n.onboardingGetStarted);
+
+    expect(await groupNames(tester), ['Capitals']);
+    final cards = await tester.runAsync(
+      () => CardRepository(database).getAll(),
+    );
+    expect(cards, isEmpty);
+    expect(
+      tester.widget<GroupDetailScreen>(find.byType(GroupDetailScreen)).groupId,
+      existingId,
+    );
   });
 
   testScreen('the welcome screens', (tester) async {

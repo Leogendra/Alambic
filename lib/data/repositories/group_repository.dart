@@ -18,6 +18,14 @@ class GroupRepository {
     _database.cardGroups,
   )..where((group) => group.id.equals(groupId))).getSingleOrNull();
 
+  /// The first group named exactly [name], if any.
+  Future<CardGroup?> findByName(String name) =>
+      (_database.select(_database.cardGroups)
+            ..where((group) => group.name.equals(name))
+            ..orderBy([(group) => OrderingTerm.asc(group.id)])
+            ..limit(1))
+          .getSingleOrNull();
+
   Stream<CardGroup?> watchById(int groupId) => (_database.select(
     _database.cardGroups,
   )..where((group) => group.id.equals(groupId))).watchSingleOrNull();

@@ -39,6 +39,10 @@ class GroupService {
     return _groups.create(name.trim(), _clock());
   }
 
+  /// The id of the group named [name], or `null` when there is none.
+  Future<int?> findIdByName(String name) async =>
+      (await _groups.findByName(name.trim()))?.id;
+
   Future<void> rename(int groupId, String name) {
     _checkName(name);
     return _groups.rename(groupId, name.trim());

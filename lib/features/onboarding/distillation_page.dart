@@ -53,12 +53,7 @@ class _DripLine extends StatelessWidget {
     return Row(
       spacing: 12,
       children: [
-        Column(
-          spacing: 8,
-          children: [
-            _CardPile(count: count),
-          ],
-        ),
+        Column(spacing: 8, children: [_CardPile(count: count)]),
         Icon(Icons.arrow_forward, size: 20, color: colors.textSecondary),
         const Expanded(child: _Week()),
       ],

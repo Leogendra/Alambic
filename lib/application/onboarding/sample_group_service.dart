@@ -30,8 +30,14 @@ class SampleGroupService {
 
   /// Creates the group named [name] with its cards in [languageCode], pending
   /// in their order; it follows the global preset, without the back nor a
-  /// distillation. Returns the id of the group.
-  Future<int> create(String name, String languageCode) async {
+  /// distillation. A group already named [name], as when the onboarding is
+  /// replayed, is returned as it is instead of being created again. Returns
+  /// the id of the group.
+  Future<int> createOrFind(String name, String languageCode) async {
+    final existingId = await _groups.findIdByName(name);
+    if (existingId != null) {
+      return existingId;
+    }
     final drafts = await cards(languageCode);
     final groupId = await _groups.create(name);
     await _cards.createAll([

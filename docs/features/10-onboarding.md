@@ -37,7 +37,7 @@ The preferences of the interface on this phone (whether the onboarding was done,
 
 ### Replay
 
-A debug build shows a "Development" panel at the end of Settings, whose "Replay the onboarding" row shows the four screens again, in place of the tabs. It only clears the preference above: finishing creates a new sample group, as the first launch does. A release build has no such row.
+A debug build shows a "Development" panel at the end of Settings, whose "Replay the onboarding" row shows the four screens again, in place of the tabs. It only clears the preference above: finishing opens the group already named like the sample group, if there is one, instead of creating it again, and creates it otherwise, as the first launch does. A release build has no such row.
 
 ## Acceptance criteria
 
@@ -48,6 +48,7 @@ A debug build shows a "Development" panel at the end of Settings, whose "Replay 
 - [x] The last screen shows the sample group; "Get started" creates it, with its 197 cards pending in order, named and written in the language of the app, and opens the group page with "Distill" pointed out. "Skip", from any screen, creates it too and opens Home.
 - [x] "Back" returns to the previous screen, from the second one on.
 - [x] The sample group is created once: a later launch does not create it again, even after its deletion.
+- [x] When the onboarding is replayed, finishing it opens the group already named like the sample group, with its cards untouched, instead of creating a second one.
 - [x] The notification permission is not asked at launch anymore.
 
 ## Test strategy

@@ -31,7 +31,7 @@ class ReverseButton extends ConsumerWidget {
               .setReverseEnabled(group.id, enabled: !enabled),
         ),
         Text(
-          enabled ? strings.groupReverseOnHint : strings.groupReverseOffHint,
+          strings.groupReverseHint,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 13,

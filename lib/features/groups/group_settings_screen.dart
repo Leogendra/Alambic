@@ -183,9 +183,7 @@ class GroupSettingsScreen extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     return PanelRow(
       title: strings.groupReverse,
-      subtitle: group.reverseEnabled
-          ? strings.groupReverseOnHint
-          : strings.groupReverseOffHint,
+      subtitle: strings.groupReverseHint,
       trailing: Switch(
         value: group.reverseEnabled,
         onChanged: (enabled) => ref

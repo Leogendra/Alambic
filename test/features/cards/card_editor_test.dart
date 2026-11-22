@@ -34,7 +34,9 @@ void main() {
     await tester.enterText(find.byType(TextField).first, 'Mongolia');
     await tester.enterText(find.byType(TextField).last, 'Ulaanbaatar');
     await tester.pumpAndSettle();
+    expect(find.text('Capitals'), findsOneWidget);
     await captureShot(tester, find.byType(CardEditorScreen), 'card_editor_new');
+    await expectNoOverflow(tester);
   });
 
   testScreen('a front image is picked, shown, then stored with the card', (
@@ -66,6 +68,7 @@ void main() {
       find.byType(CardEditorScreen),
       'card_editor_image',
     );
+    await expectNoOverflow(tester);
     await tester.runAsync(() async {
       await tester.tap(find.text(l10n.cardEditorCreate));
       await Future<void>.delayed(const Duration(milliseconds: 200));

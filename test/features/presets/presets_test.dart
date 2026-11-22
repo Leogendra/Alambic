@@ -37,6 +37,7 @@ void main() {
         find.byType(PresetsScreen),
         'presets_list$suffix',
       );
+      await expectNoOverflow(tester);
     });
   }
 
@@ -145,11 +146,14 @@ void main() {
         brightness: brightness,
         overrides: [databaseProvider.overrideWithValue(database)],
       );
+      expect(find.text('Standard'), findsNWidgets(2));
+      expect(find.text(l10n.presetFailureStepBackEffect), findsOneWidget);
       await captureShot(
         tester,
         find.byType(PresetEditorScreen),
         'preset_editor$suffix',
       );
+      await expectNoOverflow(tester);
     });
   }
 

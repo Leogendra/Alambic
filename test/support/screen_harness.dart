@@ -13,6 +13,12 @@ import 'package:alambic/l10n/generated/app_localizations.dart';
 /// Phone-sized surface matching the mockup artboards (390 x 844).
 const Size phoneSize = Size(390, 844);
 
+/// A small Android phone (360 x 640 dp).
+const Size smallPhoneSize = Size(360, 640);
+
+/// The largest text size of the Android settings.
+const double largeTextScale = 2;
+
 /// The English texts, the language of the screens under test by default.
 final AppLocalizations l10n = lookupAppLocalizations(const Locale('en'));
 
@@ -46,6 +52,24 @@ Future<void> pumpScreen(
       ),
     ),
   );
+  await tester.pumpAndSettle();
+}
+
+/// Lays the current screen out again on a small phone, then with large text,
+/// and back to the current layout: an overflow, or any other exception, fails
+/// the test there.
+Future<void> expectNoOverflow(WidgetTester tester) async {
+  final size = tester.view.physicalSize;
+  addTearDown(tester.view.reset);
+  addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+  tester.view.physicalSize = smallPhoneSize;
+  await tester.pumpAndSettle();
+  expect(tester.takeException(), isNull, reason: 'on a $smallPhoneSize phone');
+  tester.view.physicalSize = size;
+  tester.platformDispatcher.textScaleFactorTestValue = largeTextScale;
+  await tester.pumpAndSettle();
+  expect(tester.takeException(), isNull, reason: 'with text x$largeTextScale');
+  tester.platformDispatcher.clearTextScaleFactorTestValue();
   await tester.pumpAndSettle();
 }
 

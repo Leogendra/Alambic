@@ -68,10 +68,16 @@ class ReviewHistoryList extends ConsumerWidget {
             child: Row(
               spacing: 6,
               children: [
-                Text(switch (record.outcome) {
-                  ReviewOutcome.correct => strings.reviewCorrect,
-                  ReviewOutcome.again => strings.reviewAgain,
-                }, style: const TextStyle(fontSize: 15)),
+                Flexible(
+                  child: Text(
+                    switch (record.outcome) {
+                      ReviewOutcome.correct => strings.reviewCorrect,
+                      ReviewOutcome.again => strings.reviewAgain,
+                    },
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ),
                 if (record.isBonus) _bonusTag(strings, colors),
               ],
             ),

@@ -69,6 +69,7 @@ void main() {
         find.byType(HomeScreen),
         'home_${brightness.name}',
       );
+      await expectNoOverflow(tester);
     });
   }
 
@@ -82,6 +83,7 @@ void main() {
     );
     expect(find.text('DEMAIN'), findsOneWidget);
     await captureShot(tester, find.byType(HomeScreen), 'home_french');
+    await expectNoOverflow(tester);
   });
 
   testScreen('home during the global pause', (tester) async {
@@ -96,6 +98,7 @@ void main() {
     );
     expect(find.text('Resume'), findsOneWidget);
     await captureShot(tester, find.byType(HomeScreen), 'home_paused');
+    await expectNoOverflow(tester);
   });
 
   testScreen('the coming month and year, at the end of the timeline', (
@@ -123,5 +126,6 @@ void main() {
     expect(find.text('8 cards'), findsOneWidget);
     expect(find.text('30 cards'), findsOneWidget);
     await captureShot(tester, find.byType(HomeScreen), 'home_coming');
+    await expectNoOverflow(tester);
   });
 }

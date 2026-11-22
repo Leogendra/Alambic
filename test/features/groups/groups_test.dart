@@ -74,6 +74,7 @@ void main() {
     expect(find.text('4 cards · distillation'), findsOneWidget);
     expect(find.text('2 cards'), findsOneWidget);
     await captureShot(tester, find.byType(GroupsScreen), 'groups_tab');
+    await expectNoOverflow(tester);
   });
 
   testScreen('groups tab with a paused distillation', (tester) async {
@@ -90,7 +91,9 @@ void main() {
       const Scaffold(body: SafeArea(child: GroupsScreen())),
       overrides: screenOverrides(database, sampleNow),
     );
+    expect(find.text('4 cards · Paused'), findsOneWidget);
     await captureShot(tester, find.byType(GroupsScreen), 'groups_tab_paused');
+    await expectNoOverflow(tester);
   });
 
   testScreen('groups tab searching a card', (tester) async {
@@ -102,7 +105,12 @@ void main() {
     );
     await tester.enterText(find.byType(TextField), 'an');
     await tester.pumpAndSettle();
+    for (final country in ['Mongolia', 'Laos', 'Myanmar']) {
+      expect(find.text(country), findsOneWidget);
+    }
+    expect(find.text('Peru'), findsNothing);
     await captureShot(tester, find.byType(GroupsScreen), 'groups_search');
+    await expectNoOverflow(tester);
   });
 
   for (final (brightness, suffix) in [
@@ -119,11 +127,14 @@ void main() {
         brightness: brightness,
         overrides: screenOverrides(database, sampleNow),
       );
+      expect(find.text('Capitals'), findsOneWidget);
+      expect(find.text('In progress · 4'), findsOneWidget);
       await captureShot(
         tester,
         find.byType(GroupDetailScreen),
         'group_detail$suffix',
       );
+      await expectNoOverflow(tester);
     });
   }
 
@@ -198,6 +209,7 @@ void main() {
         find.byType(GroupSettingsScreen),
         'group_settings$suffix',
       );
+      await expectNoOverflow(tester);
     });
   }
 

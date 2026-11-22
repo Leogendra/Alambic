@@ -94,22 +94,29 @@ class AnswerButtons extends ConsumerWidget {
           ),
         ),
         onPressed: enabled ? onPressed : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            if (hint != null)
+        // Large text shrinks to the fixed height instead of overflowing it.
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Text(
-                hint,
+                label,
                 style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-          ],
+              if (hint != null)
+                Text(
+                  hint,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     ),

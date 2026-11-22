@@ -74,6 +74,7 @@ void main() {
         find.byType(CardSheetScreen),
         'card_sheet$suffix',
       );
+      await expectNoOverflow(tester);
     });
   }
 

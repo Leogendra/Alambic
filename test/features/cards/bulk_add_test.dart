@@ -73,6 +73,7 @@ void main() {
     expect(find.text('Capital of Chile → Santiago'), findsOneWidget);
     expect(find.text('after the 2 cards already waiting'), findsOneWidget);
     await captureShot(tester, find.byType(BulkAddScreen), 'bulk_add');
+    await expectNoOverflow(tester);
   });
 
   testScreen('a custom separator rereads every line', (tester) async {

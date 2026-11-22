@@ -261,30 +261,38 @@ void main() {
 
   testScreen('the welcome screens', (tester) async {
     await pumpScreen(tester, const OnboardingScreen(), overrides: overrides());
+    expect(find.text(l10n.onboardingWelcomeTitle), findsOneWidget);
     await captureShot(
       tester,
       find.byType(OnboardingScreen),
       'onboarding_welcome',
     );
+    await expectNoOverflow(tester);
     await tapAndSettle(tester, find.text(l10n.onboardingNext));
     await waitForSampleCards(tester);
+    expect(find.text(l10n.onboardingDistillTitle), findsOneWidget);
     await captureShot(
       tester,
       find.byType(OnboardingScreen),
       'onboarding_distillation',
     );
+    await expectNoOverflow(tester);
     await tapAndSettle(tester, find.text(l10n.onboardingNext));
+    expect(find.text(l10n.onboardingPermissionsTitle), findsOneWidget);
     await captureShot(
       tester,
       find.byType(OnboardingScreen),
       'onboarding_permissions',
     );
+    await expectNoOverflow(tester);
     await tapAndSettle(tester, find.text(l10n.onboardingAllowNotifications));
+    expect(find.text(l10n.onboardingSampleTitle), findsOneWidget);
     await captureShot(
       tester,
       find.byType(OnboardingScreen),
       'onboarding_sample_group',
     );
+    await expectNoOverflow(tester);
   });
 
   testScreen('the reminders screen in French', (tester) async {
@@ -297,11 +305,13 @@ void main() {
     await tapAndSettle(tester, find.text('Suivant'));
     await waitForSampleCards(tester);
     await tapAndSettle(tester, find.text('Suivant'));
+    expect(find.text('Tu révises depuis la notification.'), findsOneWidget);
     await captureShot(
       tester,
       find.byType(OnboardingScreen),
       'onboarding_permissions_french',
     );
+    await expectNoOverflow(tester);
   });
 
   testScreen('the welcome screen in dark theme', (tester) async {
@@ -311,10 +321,12 @@ void main() {
       brightness: Brightness.dark,
       overrides: overrides(),
     );
+    expect(find.text(l10n.onboardingWelcomeTitle), findsOneWidget);
     await captureShot(
       tester,
       find.byType(OnboardingScreen),
       'onboarding_welcome_dark',
     );
+    await expectNoOverflow(tester);
   });
 }

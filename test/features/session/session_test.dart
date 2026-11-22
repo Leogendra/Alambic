@@ -81,7 +81,10 @@ void main() {
       SessionScreen(items: flagItems),
       overrides: screenOverrides(database, sampleNow, images: images),
     );
+    expect(find.text('Which country has this flag?'), findsOneWidget);
+    expect(find.byType(Image), findsOneWidget);
     await captureShot(tester, find.byType(SessionScreen), 'session_image');
+    await expectNoOverflow(tester);
   });
 
   /// A session on a single card of [front] and [back], in a new group.
@@ -119,6 +122,7 @@ void main() {
         lessThanOrEqualTo(SessionCardView.maxFontSize),
       );
       await captureShot(tester, find.byType(SessionScreen), 'session_$name');
+      await expectNoOverflow(tester);
     });
   }
 
@@ -154,6 +158,7 @@ void main() {
         find.byType(SessionScreen),
         'session_front$suffix',
       );
+      await expectNoOverflow(tester);
       final prompt = find.text('Mongolia');
       final before = (
         tester.getRect(prompt),
@@ -172,6 +177,7 @@ void main() {
         find.byType(SessionScreen),
         'session_back$suffix',
       );
+      await expectNoOverflow(tester);
     });
   }
 
@@ -324,6 +330,7 @@ void main() {
       expect(find.text(l10n.sessionShowAnswer), findsNothing);
       expect(find.text(l10n.sessionReveal), findsOneWidget);
       await captureShot(tester, find.byType(SessionScreen), 'session_typed');
+      await expectNoOverflow(tester);
       await submit(tester, 'ulaanbatar');
       expect(find.text('Ulaanbaatar'), findsOneWidget);
       expect(find.text('"ulaanbatar" accepted, 1 typo'), findsOneWidget);
@@ -335,6 +342,7 @@ void main() {
         find.byType(SessionScreen),
         'session_typed_verdict',
       );
+      await expectNoOverflow(tester);
       await tester.tap(find.text(l10n.sessionNext));
       await tester.pumpAndSettle();
       expect(find.text('Peru'), findsOneWidget);
@@ -390,6 +398,7 @@ void main() {
     await answer(tester, l10n.reviewAgain);
     expect(find.text(l10n.sessionFinished), findsOneWidget);
     await captureShot(tester, find.byType(SessionScreen), 'session_end');
+    await expectNoOverflow(tester);
     await tester.runAsync(() async {
       await tester.tap(find.text(l10n.sessionReviewMissed(1)));
       await Future<void>.delayed(const Duration(milliseconds: 100));

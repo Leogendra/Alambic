@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -141,32 +143,52 @@ class SessionCardView extends ConsumerWidget {
   }
 
   /// The image of a face above its text, the image shrinking to leave room
-  /// for the text.
+  /// for the text. Without an image, a text too long for its half (large
+  /// text setting) shrinks to fit it.
   Widget _face(CardFace face, Color color) => SizedBox(
     width: double.infinity,
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       spacing: 12,
       children: [
-        if (face.imagePath case final image?)
+        if (face.imagePath case final image?) ...[
           Flexible(child: CardImage.stored(image)),
-        if (face.hasText) _faceText(face.text!, color),
+          if (face.hasText) _faceText(face.text!, color),
+        ] else if (face.hasText)
+          Flexible(child: _fittedFaceText(face.text!, color)),
       ],
     ),
   );
 
+  Widget _fittedFaceText(String text, Color color) => LayoutBuilder(
+    builder: (context, constraints) => FittedBox(
+      fit: BoxFit.scaleDown,
+      child: SizedBox(
+        width: min(constraints.maxWidth, maxTextWidth),
+        child: _faceText(text, color),
+      ),
+    ),
+  );
+
+  /// Already large, the text of a face grows at most this much with the text
+  /// size setting, as Android 14 scales large text less than small text.
+  static const _maxFaceTextScale = 1.5;
+
   Widget _faceText(String text, Color color) => ConstrainedBox(
     constraints: const BoxConstraints(maxWidth: maxTextWidth),
-    child: Text(
-      text,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: text.length > _longTextLength
-            ? _longTextFontSize
-            : maxFontSize,
-        fontWeight: FontWeight.w700,
-        height: 1.2,
-        color: color,
+    child: MediaQuery.withClampedTextScaling(
+      maxScaleFactor: _maxFaceTextScale,
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: text.length > _longTextLength
+              ? _longTextFontSize
+              : maxFontSize,
+          fontWeight: FontWeight.w700,
+          height: 1.2,
+          color: color,
+        ),
       ),
     ),
   );

@@ -58,6 +58,7 @@ void main() {
       findsOne,
     );
     await captureShot(tester, find.byType(DistillScreen), 'distill_activate');
+    await expectNoOverflow(tester);
   });
 
   testScreen('during the global pause, the waiting cards instead of an '
@@ -90,6 +91,7 @@ void main() {
       find.byType(GroupDetailScreen),
       'group_distillation',
     );
+    await expectNoOverflow(tester);
   });
 
   testScreen('new cards on the home timeline', (tester) async {
@@ -101,6 +103,7 @@ void main() {
     );
     expect(find.text('Japanese: 1 new card'), findsNWidgets(6));
     await captureShot(tester, find.byType(HomeScreen), 'home_distillation');
+    await expectNoOverflow(tester);
   });
 
   testScreen('activates the distillation from the screen', (tester) async {
@@ -185,6 +188,7 @@ void main() {
       find.byType(GroupDetailScreen),
       'group_distillation_paused',
     );
+    await expectNoOverflow(tester);
   });
 
   testScreen('a paused distillation resumes from its screen, at once', (
@@ -211,6 +215,7 @@ void main() {
       find.byType(DistillScreen),
       'distill_adjust_paused',
     );
+    await expectNoOverflow(tester);
     await tester.ensureVisible(find.text(l10n.pauseResume));
     await tester.tap(find.text(l10n.pauseResume));
     // The resume runs on the database, then the screen follows it.

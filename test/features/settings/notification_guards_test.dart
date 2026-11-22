@@ -40,6 +40,7 @@ void main() {
       find.byType(NotificationGuardsScreen),
       'notification_guards',
     );
+    await expectNoOverflow(tester);
     await tester.runAsync(() async {
       await tester.tap(find.byTooltip(l10n.guardsIncrease).first);
       await Future<void>.delayed(const Duration(milliseconds: 100));

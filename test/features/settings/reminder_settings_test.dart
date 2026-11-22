@@ -39,6 +39,7 @@ void main() {
       find.byType(ReminderScheduleScreen),
       'schedule_fixed_dark',
     );
+    await expectNoOverflow(tester);
     await tester.runAsync(() async {
       await tester.tap(find.text(l10n.scheduleRange));
       await Future<void>.delayed(const Duration(milliseconds: 100));
@@ -50,6 +51,7 @@ void main() {
       find.byType(ReminderScheduleScreen),
       'schedule_range_dark',
     );
+    await expectNoOverflow(tester);
   });
 
   testScreen('an end before the start of the range is refused', (tester) async {
@@ -125,5 +127,6 @@ void main() {
       find.byType(NotificationModeScreen),
       'notification_mode_dark',
     );
+    await expectNoOverflow(tester);
   });
 }

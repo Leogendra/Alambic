@@ -41,6 +41,7 @@ void main() {
       find.byType(SettingsScreen),
       'settings_exact_alarms_off',
     );
+    await expectNoOverflow(tester);
     await tester.tap(find.text(l10n.settingsExactAlarmsAllow));
     expect(alarms.permissionRequests, 1);
   });
@@ -66,6 +67,7 @@ void main() {
         find.byType(SettingsScreen),
         'settings_french$suffix',
       );
+      await expectNoOverflow(tester);
     });
   }
 

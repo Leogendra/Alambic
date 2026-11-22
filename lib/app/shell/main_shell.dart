@@ -6,7 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../application/notifications/notification_providers.dart';
 import '../../application/notifications/notification_target.dart';
 import '../../application/onboarding/onboarding_providers.dart';
-import '../../features/cards/card_navigation.dart';
+import '../../features/cards/add_cards_button.dart';
 import '../../features/groups/group_detail_screen.dart';
 import '../../features/groups/groups_screen.dart';
 import '../../features/home/home_screen.dart';
@@ -70,11 +70,7 @@ class _MainShellState extends ConsumerState<MainShell> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: strings.addCardTooltip,
-        onPressed: () => openNewCard(context),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: const AddCardsButton(),
       bottomNavigationBar: AlambicTabBar(
         selectedIndex: _selectedTab,
         onSelected: (index) => setState(() => _selectedTab = index),

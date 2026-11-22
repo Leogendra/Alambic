@@ -14,7 +14,7 @@ import '../../application/reviews/whole_group_review.dart';
 import '../../application/scheduling/scheduling_providers.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../cards/bulk_add_screen.dart';
+import '../cards/add_cards_button.dart';
 import '../cards/card_list_tile.dart';
 import '../cards/card_navigation.dart';
 import '../cards/card_status_formatter.dart';
@@ -41,15 +41,6 @@ class GroupDetailScreen extends ConsumerWidget {
         title: Text(summary?.group.name ?? ''),
         actions: [
           IconButton(
-            tooltip: strings.bulkTooltip,
-            icon: const Icon(Icons.playlist_add),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (context) => BulkAddScreen(initialGroupId: groupId),
-              ),
-            ),
-          ),
-          IconButton(
             tooltip: strings.groupSettingsTooltip,
             icon: const Icon(Icons.tune),
             onPressed: () => Navigator.of(context).push(
@@ -60,11 +51,7 @@ class GroupDetailScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: strings.addCardTooltip,
-        onPressed: () => openNewCard(context, groupId: groupId),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: AddCardsButton(groupId: groupId),
       body: summary == null
           ? const SizedBox.shrink()
           : _GroupBody(summary: summary),

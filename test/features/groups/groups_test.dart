@@ -11,6 +11,8 @@ import 'package:alambic/domain/groups/remanence_interval.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
+import 'package:alambic/features/cards/bulk_add_screen.dart';
+import 'package:alambic/features/cards/card_editor_screen.dart';
 import 'package:alambic/features/cards/card_list_tile.dart';
 import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
@@ -178,6 +180,85 @@ void main() {
     );
     expect(title.bottom, closeTo(button.bottom, 1));
     expect(find.text('Cards'), findsNothing);
+  });
+
+  testScreen('the "+" button opens two separate floating buttons above it, '
+      'and a close button in its place', (tester) async {
+    await seed(tester);
+    await pumpScreen(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    expect(find.byIcon(Icons.playlist_add), findsNothing);
+    final plus = tester.getRect(find.byTooltip(l10n.addCardsTooltip));
+    await tester.tap(find.byTooltip(l10n.addCardsTooltip));
+    await tester.pumpAndSettle();
+    await captureShot(tester, find.byType(Overlay).first, 'add_cards_buttons');
+    final card = tester.getRect(find.text(l10n.addCardsOne));
+    final bulk = tester.getRect(find.text(l10n.addCardsBulk));
+    expect(bulk.bottom, lessThan(card.top));
+    expect(card.bottom, lessThan(plus.top));
+    expect(
+      tester.getRect(find.byTooltip(l10n.commonClose)),
+      plus,
+    );
+    await tester.tap(find.byTooltip(l10n.commonClose));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.addCardsOne), findsNothing);
+  });
+
+  testScreen('touching beside the floating buttons closes them', (
+    tester,
+  ) async {
+    await seed(tester);
+    await pumpScreen(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.tap(find.byTooltip(l10n.addCardsTooltip));
+    await tester.pumpAndSettle();
+    await tester.tapAt(const Offset(20, 100));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.addCardsOne), findsNothing);
+    expect(find.byType(CardEditorScreen), findsNothing);
+  });
+
+  testScreen('"Add a card" opens the card editor on the group', (
+    tester,
+  ) async {
+    await seed(tester);
+    await pumpScreen(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.tap(find.byTooltip(l10n.addCardsTooltip));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.addCardsOne));
+    await tester.pumpAndSettle();
+    final editor = tester.widget<CardEditorScreen>(
+      find.byType(CardEditorScreen),
+    );
+    expect(editor.initialGroupId, capitalsId);
+  });
+
+  testScreen('"Add several cards" opens the bulk add on the group', (
+    tester,
+  ) async {
+    await seed(tester);
+    await pumpScreen(
+      tester,
+      GroupDetailScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.tap(find.byTooltip(l10n.addCardsTooltip));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.addCardsBulk));
+    await tester.pumpAndSettle();
+    final bulk = tester.widget<BulkAddScreen>(find.byType(BulkAddScreen));
+    expect(bulk.initialGroupId, capitalsId);
   });
 
   testScreen('three sections with their counts; the head of the queue '

@@ -8,7 +8,7 @@ Create and edit front / back [cards](../lexicon.md#card), put them in a group, t
 
 ## Implementation overview
 
-The "+" button of the navigation opens an empty card editor. The same screen edits an existing card. It shows the front, the back and the group (the group the user came from, or none chosen yet). It offers no preset: a card follows the preset of its group ([Feature 2](2-presets.md#cascading-resolution)).
+"Add a card", from the "+" button of the navigation or of a group page, opens an empty card editor. The same screen edits an existing card. It shows the front, the back and the group (the group the user came from, or none chosen yet). It offers no preset: a card follows the preset of its group ([Feature 2](2-presets.md#cascading-resolution)).
 
 Every card needs a group. The group row opens the list of groups; its "+" button asks for the name of a new group, creates it and chooses it. With no group yet, the row itself asks for a name. Saving without a group is refused with a message.
 
@@ -30,7 +30,7 @@ Moving a card to another group keeps the progression of an introduced card; a pe
 
 ### Bulk add
 
-The page of a group opens the bulk add: the user pastes one card per line, front and back split by a separator. The separator is a free field pre-filled with `;`, and may be several characters long. The group row, with the same "+" button as the editor, starts on the group the user came from.
+"Add several cards", from the same "+" button, opens the bulk add: the user pastes one card per line, front and back split by a separator. The separator is a free field pre-filled with `;`, and may be several characters long. The group row, with the same "+" button as the editor, starts on the group the user came from, or on none chosen yet when the "+" of the navigation opened it; adding with no group is refused with a message, as in the editor.
 
 Reading the lines is a domain rule (`BulkCardParser`), rerun at each keystroke:
 
@@ -107,7 +107,7 @@ Every operation that touches due dates or reminders notifies the notification pl
 - `lib/domain/reviews/review_soon_days.dart` — the days offered by "Review soon".
 - `lib/data/repositories/card_repository.dart` — storage of the cards, their progression and their queue position.
 - `lib/domain/cards/bulk/` — parsing of bulk-add lines and the order of a batch.
-- `lib/features/cards/` — card editor, group row and picker, card sheet and its panels, "Review soon" sheet, bulk add, card row of the lists and the text of where a card stands, card image and gallery picker.
+- `lib/features/cards/` — card editor, the "+" button that adds cards (`add_cards_button.dart`), group row and picker, card sheet and its panels, "Review soon" sheet, bulk add, card row of the lists and the text of where a card stands, card image and gallery picker.
 - `lib/data/images/image_store.dart` — the folder of the card images.
 
 ## Technical details

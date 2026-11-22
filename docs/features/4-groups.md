@@ -27,7 +27,7 @@ The page of a group is titled with its name; from top to bottom:
   - "Waiting · N": the [queue](../lexicon.md#queue), in its order, suspended cards in their place. The cards do not say "waiting", their section does, and only the suspended ones state where they stand; while the group distills, the first card that is not suspended, the next one the distillation introduces, reads "next", in grey;
   - "Learned · N": the [acquired](../lexicon.md#acquired) cards, folded by default; touching its title unfolds or folds it.
 
-The "+" button creates a card directly in the group, and the toolbar opens the bulk add and the group settings.
+The "+" button opens the two floating buttons of the app, "Add a card" and "Add several cards", both starting in the group ([Feature 0](0-foundation.md#implementation-overview)). The toolbar opens the group settings.
 
 The page opened at the end of the onboarding, on the sample group ([Feature 10](10-onboarding.md#sample-group)), points out "Distill" with a line above it: "Its cards are waiting. Distill the group to receive them."
 

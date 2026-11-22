@@ -22,13 +22,13 @@ import '../../l10n/generated/app_localizations.dart';
 import 'group_field.dart';
 
 /// Pastes "front ; back" lines to create many cards in a group at once. The
-/// group is the one the user came from, and can be changed or created here.
-/// The batch joins the end of the queue of the group, in the order of the
-/// list or shuffled; the card that will come first is shown.
+/// group is the one the user came from, if any, and can be chosen, changed or
+/// created here. The batch joins the end of the queue of the group, in the
+/// order of the list or shuffled; the card that will come first is shown.
 class BulkAddScreen extends ConsumerStatefulWidget {
-  const BulkAddScreen({required this.initialGroupId, super.key});
+  const BulkAddScreen({this.initialGroupId, super.key});
 
-  final int initialGroupId;
+  final int? initialGroupId;
 
   @override
   ConsumerState<BulkAddScreen> createState() => _BulkAddScreenState();
@@ -39,7 +39,7 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
   final TextEditingController _separatorController = TextEditingController(
     text: BulkCardParser.defaultSeparator,
   );
-  late int _groupId = widget.initialGroupId;
+  late int? _groupId = widget.initialGroupId;
   BulkOrder _order = const BulkOrder.listed();
 
   @override
@@ -157,7 +157,10 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
   /// waiting in the group.
   Widget _firstCard(AppLocalizations strings, BulkCardDraft first) {
     final colors = AlambicColors.of(context);
-    final cards = ref.watch(groupCardsProvider(_groupId)).value ?? const [];
+    final cards = switch (_groupId) {
+      final groupId? => ref.watch(groupCardsProvider(groupId)).value,
+      null => null,
+    } ?? const [];
     final waiting = DistillationQueue.remaining(cards);
     return SurfacePanel(
       padding: const EdgeInsets.all(16),
@@ -204,12 +207,19 @@ class _BulkAddScreenState extends ConsumerState<BulkAddScreen> {
   Future<void> _add(List<BulkCardDraft> batch) async {
     final strings = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    final groupId = _groupId;
+    if (groupId == null) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(strings.cardGroupMissing)),
+      );
+      return;
+    }
     final count = await ref.read(cardServiceProvider).createAll([
       for (final draft in batch)
         CardDraft(
           frontText: draft.front,
           backText: draft.back,
-          groupId: _groupId,
+          groupId: groupId,
         ),
     ]);
     messenger.showSnackBar(SnackBar(content: Text(strings.bulkAdded(count))));

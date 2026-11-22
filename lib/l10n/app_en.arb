@@ -4,7 +4,9 @@
   "tabHome": "Home",
   "tabGroups": "Groups",
   "tabSettings": "Settings",
-  "addCardTooltip": "New card",
+  "addCardsTooltip": "Add cards",
+  "addCardsOne": "Add a card",
+  "addCardsBulk": "Add several cards",
   "commonSave": "Save",
   "commonCancel": "Cancel",
   "commonAdd": "Add",
@@ -401,7 +403,6 @@
       }
     }
   },
-  "bulkTooltip": "Bulk add",
   "bulkOrder": "Order",
   "bulkOrderListed": "In order",
   "bulkOrderShuffled": "Shuffle",

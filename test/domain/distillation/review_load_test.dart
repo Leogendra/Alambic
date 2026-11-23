@@ -148,7 +148,7 @@ void main() {
         'same day, where it is not counted', () {
       final reviews = load(preset: intensivePreset, end: acquiredEnd)
         ..addNewCards(today, 1);
-      // 10 min, 1 h, 1 d, 3 d, 1 wk.
+      // 1 h, 3 h, 1 d, 3 d, 1 wk.
       expect(reviewDays(reviews), [day(1), day(4), day(11)]);
     });
   });

@@ -83,7 +83,7 @@ Standard preset, 12:00 slot, remanence every 6 months:
 | Waiting 6 mo (last step), 10 November | Correct | Remanence, 9 May 12:00 (180 days) |
 | In remanence, step back on failure | Again | 6 mo, in 180 days |
 
-Intensive preset (10 min, 1 h, …): a first correct answer at 15:07 gives a due date at 15:17, whatever the [daily slot](../lexicon.md#daily-slot).
+Intensive preset (1 h, 3 h, …): a first correct answer at 15:07 gives a due date at 16:07, whatever the [daily slot](../lexicon.md#daily-slot).
 
 ## Acceptance criteria
 

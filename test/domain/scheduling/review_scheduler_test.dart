@@ -70,7 +70,7 @@ void main() {
       answeredAt: DateTime(2026, 11, 10, 15, 7),
       dailySlot: noon,
     );
-    expect(schedule.dueAt, DateTime(2026, 11, 10, 15, 17));
+    expect(schedule.dueAt, DateTime(2026, 11, 10, 16, 7));
   });
 
   test('an acquired card has no due date', () {

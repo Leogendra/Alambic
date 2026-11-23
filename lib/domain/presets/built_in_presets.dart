@@ -26,8 +26,8 @@ abstract final class BuiltInPresets {
     name: 'Intensive',
     builtInKey: BuiltInPresetKey.intensive,
     intervals: [
-      PresetInterval(10, IntervalUnit.minute),
       PresetInterval(1, IntervalUnit.hour),
+      PresetInterval(3, IntervalUnit.hour),
       PresetInterval(1, IntervalUnit.day),
       PresetInterval(3, IntervalUnit.day),
       PresetInterval(1, IntervalUnit.week),

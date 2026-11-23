@@ -74,7 +74,7 @@ class NotificationActionHandler {
         source: ReviewSource.notification,
         forceBonus: key.isExtraReminder,
       );
-      await _confirm(key, outcome, result.schedule);
+      await _confirm(key, card, askedSide, outcome, result.schedule);
     }
   }
 
@@ -156,10 +156,18 @@ class NotificationActionHandler {
       source: ReviewSource.notification,
       forceBonus: key.isExtraReminder,
     );
+    final group = await _groups.find(card.groupId);
+    if (group == null) {
+      await _close(key);
+      return;
+    }
+    final answer = card.answerFor(askedSide);
     await _presenter.showVerdict(
       TypedAnswerVerdict(
         key: key,
-        answer: card.answerFor(askedSide).text ?? '',
+        groupName: group.name,
+        answer: answer.text ?? '',
+        answerImage: answer.imagePath,
         match: answered.match,
         result: answered.result,
         answeredAt: _clock(),
@@ -167,22 +175,30 @@ class NotificationActionHandler {
     );
   }
 
+  /// What the answer did, with the answer face of the card, revealed or not.
   /// A bonus answer changed nothing worth telling, and a chained card gives
   /// way to the next one.
   Future<void> _confirm(
     ReviewNotificationKey key,
+    Flashcard card,
+    CardSide askedSide,
     ReviewOutcome outcome,
     CardSchedule? schedule,
   ) async {
-    if (schedule == null || key.chain != null) {
+    final group = await _groups.find(card.groupId);
+    if (schedule == null || key.chain != null || group == null) {
       await _close(key);
     } else {
+      final answer = card.answerFor(askedSide);
       await _presenter.showConfirmation(
         AnswerConfirmation(
           key: key,
           outcome: outcome,
           schedule: schedule,
           answeredAt: _clock(),
+          groupName: group.name,
+          answer: answer.text ?? '',
+          answerImage: answer.imagePath,
         ),
       );
     }

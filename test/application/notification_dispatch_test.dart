@@ -183,6 +183,12 @@ void main() {
       expect(confirmation.outcome, ReviewOutcome.correct);
       expect(confirmation.schedule.dueAt, record.dueAtAfter);
       expect(
+        confirmation.answer,
+        'Ulaanbaatar',
+        reason: 'the answer is shown even when "Reveal" was not pressed',
+      );
+      expect(confirmation.groupName, 'Capitals');
+      expect(
         await harness.presenter.shownPrompts(),
         isNot(contains(key)),
         reason: 'the planner leaves the confirmation alone',
@@ -200,6 +206,7 @@ void main() {
       final confirmation = harness.presenter.confirmations[key]!;
       expect(confirmation.outcome, ReviewOutcome.again);
       expect(confirmation.schedule.dueAt, DateTime(2026, 11, 11, 12));
+      expect(confirmation.answer, 'Ulaanbaatar');
     });
 
     test('"Reveal" shows the answer in place and records nothing', () async {
@@ -232,7 +239,7 @@ void main() {
       expect((await history()).single.outcome, ReviewOutcome.again);
       expect(harness.presenter.prompts.containsKey(key), isFalse);
       expect(harness.presenter.verdicts, isEmpty);
-      expect(harness.presenter.confirmations, contains(key));
+      expect(harness.presenter.confirmations[key]!.answer, 'Ulaanbaatar');
     });
 
     test('a card deleted meanwhile only closes the notification', () async {
@@ -274,7 +281,12 @@ void main() {
           .handle(key, NotificationAction.answer, input: 'ulaanbatar');
       final verdict = harness.presenter.verdicts[key]!;
       expect(verdict.match, TypedAnswerMatch.oneTypo);
-      expect(verdict.answer, 'Ulaanbaatar');
+      expect(
+        verdict.answer,
+        'Ulaanbaatar',
+        reason: 'the expected answer is shown when accepted too',
+      );
+      expect(verdict.groupName, 'Capitals');
       final history = await ReviewRepository(database)
           .watchHistory(key.cardId)
           .first;
@@ -288,7 +300,7 @@ void main() {
           .handle(key, NotificationAction.answer, input: 'Beijing');
       final verdict = harness.presenter.verdicts[key]!;
       expect(verdict.match, TypedAnswerMatch.wrong);
-      expect(verdict.answer, 'Ulaanbaatar', reason: 'shown when refused');
+      expect(verdict.answer, 'Ulaanbaatar');
       final history = await ReviewRepository(database)
           .watchHistory(key.cardId)
           .first;

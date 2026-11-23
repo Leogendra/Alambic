@@ -36,12 +36,9 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   /// The test notification of the onboarding is a single one too.
   static const int _testId = 2000000001;
 
-  /// Long enough to be read, short enough not to pile up in the shade.
-  static const Duration _confirmationLifetime = Duration(seconds: 4);
-
-  /// A refused answer also shows the expected one, which takes longer to
-  /// read.
-  static const Duration _verdictLifetime = Duration(seconds: 5);
+  /// Long enough to read the answer, short enough not to pile up in the
+  /// shade.
+  static const Duration _confirmationLifetime = Duration(seconds: 5);
 
   final AndroidFlutterLocalNotificationsPlugin _plugin;
   final ReviewTexts _texts;
@@ -67,8 +64,7 @@ class AndroidNotificationPresenter implements NotificationPresenter {
       notificationDetails: _details(
         header: _texts.promptHeader(prompt),
         style: prompt.isRevealed
-            ? _picture(prompt.answerImage, title: title, summary: answer) ??
-                  BigTextStyleInformation(answer)
+            ? _answerStyle(answer, prompt.answerImage, title: title)
             : _picture(prompt.image, title: title),
         // A chained card follows the answer of the previous one, and a card
         // whose answer is shown or hidden replaces itself without a sound.
@@ -135,9 +131,12 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   @override
   Future<void> showVerdict(TypedAnswerVerdict verdict) {
     final chained = verdict.key.chain != null;
+    final title = _texts.verdict(verdict);
+    final answer = _texts.answerLine(verdict.answer);
     return _plugin.show(
       id: _idOf(verdict.key),
-      title: _texts.verdict(verdict),
+      title: title,
+      body: answer,
       // Not a prompt: the planner leaves it alone.
       payload: NotificationPayload.encode(
         verdict.key,
@@ -145,10 +144,12 @@ class AndroidNotificationPresenter implements NotificationPresenter {
         askedSide: CardSide.front,
       ),
       notificationDetails: _details(
+        header: verdict.groupName,
+        style: _answerStyle(answer, verdict.answerImage, title: title),
         onlyAlertOnce: true,
         silent: true,
         // A chained card waits for "OK" to move on, nothing else would.
-        timeout: chained ? null : _verdictLifetime,
+        timeout: chained ? null : _confirmationLifetime,
         actions: [
           if (chained)
             AndroidNotificationAction(
@@ -162,23 +163,29 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   }
 
   @override
-  Future<void> showConfirmation(AnswerConfirmation confirmation) =>
-      _plugin.show(
-        id: _idOf(confirmation.key),
-        title: _texts.confirmation(confirmation),
-        // Not a prompt: the planner leaves it alone, and it closes by itself.
-        payload: NotificationPayload.encode(
-          confirmation.key,
-          isPrompt: false,
-          askedSide: CardSide.front,
-        ),
-        notificationDetails: _details(
-          onlyAlertOnce: true,
-          silent: true,
-          timeout: _confirmationLifetime,
-          actions: const [],
-        ),
-      );
+  Future<void> showConfirmation(AnswerConfirmation confirmation) {
+    final title = _texts.confirmation(confirmation);
+    final answer = _texts.answerLine(confirmation.answer);
+    return _plugin.show(
+      id: _idOf(confirmation.key),
+      title: title,
+      body: answer,
+      // Not a prompt: the planner leaves it alone, and it closes by itself.
+      payload: NotificationPayload.encode(
+        confirmation.key,
+        isPrompt: false,
+        askedSide: CardSide.front,
+      ),
+      notificationDetails: _details(
+        header: confirmation.groupName,
+        style: _answerStyle(answer, confirmation.answerImage, title: title),
+        onlyAlertOnce: true,
+        silent: true,
+        timeout: _confirmationLifetime,
+        actions: const [],
+      ),
+    );
+  }
 
   @override
   Future<void> showTestPrompt({bool isRevealed = false, bool alert = true}) {
@@ -203,17 +210,23 @@ class AndroidNotificationPresenter implements NotificationPresenter {
     ReviewOutcome outcome, {
     required DateTime dueAt,
     required DateTime answeredAt,
-  }) => _plugin.show(
-    id: _testId,
-    title: _texts.answered(outcome, dueAt: dueAt, answeredAt: answeredAt),
-    payload: NotificationPayload.encodeTest(),
-    notificationDetails: _details(
-      onlyAlertOnce: true,
-      silent: true,
-      timeout: _confirmationLifetime,
-      actions: const [],
-    ),
-  );
+  }) {
+    final answer = _texts.testAnswer;
+    return _plugin.show(
+      id: _testId,
+      title: _texts.answered(outcome, dueAt: dueAt, answeredAt: answeredAt),
+      body: answer,
+      payload: NotificationPayload.encodeTest(),
+      notificationDetails: _details(
+        header: _texts.testGroupName,
+        style: BigTextStyleInformation(answer),
+        onlyAlertOnce: true,
+        silent: true,
+        timeout: _confirmationLifetime,
+        actions: const [],
+      ),
+    );
+  }
 
   @override
   Future<void> dismiss(ReviewNotificationKey key) =>
@@ -306,6 +319,16 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   /// Grouped reminders use negative ids, which no card or extra reminder
   /// uses.
   static int _groupIdOf(GroupReminderKey key) => -1 - key.groupId;
+
+  /// The answer in the expanded notification: its image under [title] when
+  /// it has one, else [answer] as long text.
+  StyleInformation _answerStyle(
+    String answer,
+    String? image, {
+    required String title,
+  }) =>
+      _picture(image, title: title, summary: answer) ??
+      BigTextStyleInformation(answer);
 
   /// The image named [image] in the expanded notification, with [title] and
   /// [summary] in place of the title and text; `null` without an image, or

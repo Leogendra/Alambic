@@ -49,7 +49,9 @@ void main() {
     CardSchedule? schedule,
   }) => TypedAnswerVerdict(
     key: key,
+    groupName: 'Capitals',
     answer: 'Lima',
+    answerImage: null,
     match: match,
     result: ReviewResult(
       isBonus: isBonus,
@@ -117,6 +119,9 @@ void main() {
         dueAt: dueAt,
       ),
       answeredAt: DateTime(2026, 11, 10, 12, 5),
+      groupName: 'Capitals',
+      answer: 'Lima',
+      answerImage: null,
     );
     expect(
       texts.confirmation(confirmation(DateTime(2026, 11, 13, 12))),

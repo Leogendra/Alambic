@@ -21,13 +21,14 @@ abstract interface class NotificationPresenter {
 
   /// Replaces the notification of [verdict]'s key, silently, with the
   /// verdict of a typed answer and what it did ("To review (Lima), next in
-  /// 1 d"). It closes by itself after a few seconds, or gives a chained card
-  /// an "OK" button moving on to the next one.
+  /// 1 d"), above the expected answer. It closes by itself after a few
+  /// seconds, or gives a chained card an "OK" button moving on to the next
+  /// one.
   Future<void> showVerdict(TypedAnswerVerdict verdict);
 
-  /// Replaces the notification of [confirmation]'s key, silently, with the
-  /// answer and what it did ("Correct, next in 3 d"). It closes by itself
-  /// after a few seconds.
+  /// Replaces the notification of [confirmation]'s key, silently, with what
+  /// the answer did ("Correct, next in 3 d"), above the answer face. It
+  /// closes by itself after a few seconds.
   Future<void> showConfirmation(AnswerConfirmation confirmation);
 
   /// Shows the test notification of the onboarding, a sample card tied to
@@ -36,7 +37,8 @@ abstract interface class NotificationPresenter {
   Future<void> showTestPrompt({bool isRevealed = false, bool alert = true});
 
   /// Replaces the test notification, silently, with what [outcome] would
-  /// have done to a card due again at [dueAt], as [showConfirmation] does.
+  /// have done to a card due again at [dueAt], above its answer, as
+  /// [showConfirmation] does.
   Future<void> showTestConfirmation(
     ReviewOutcome outcome, {
     required DateTime dueAt,

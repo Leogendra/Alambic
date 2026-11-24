@@ -5,9 +5,13 @@ import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../cards/card_providers.dart';
 import '../clock.dart';
+import '../presets/preset_providers.dart';
 import '../scheduling/scheduling_providers.dart';
+import '../time/minute_ticker.dart';
 import 'distillation_progress.dart';
 import 'distillation_service.dart';
+import 'queue_service.dart';
+import 'queue_standing.dart';
 
 final distillationServiceProvider = Provider(
   (ref) => DistillationService(
@@ -61,3 +65,46 @@ final groupDistillationProvider = Provider.family<DistillationProgress?, int>(
       .where((progress) => progress.groupId == groupId)
       .firstOrNull,
 );
+
+final queueServiceProvider = Provider(
+  (ref) => QueueService(
+    cards: ref.watch(cardRepositoryProvider),
+    scheduleChangeListener: ref.watch(scheduleChangeListenerProvider),
+  ),
+);
+
+/// Where a pending card stands in the queue of its group; `null` while
+/// loading and once it is introduced.
+final queueStandingProvider = Provider.family<QueueStanding?, int>((
+  ref,
+  cardId,
+) {
+  final card = ref.watch(cardProvider(cardId)).value;
+  if (card == null || !card.isPending) {
+    return null;
+  }
+  final groupCards = ref.watch(groupCardsProvider(card.groupId)).value;
+  final distillations = ref.watch(distillationsProvider).value;
+  final globalPause = ref.watch(globalPauseProvider);
+  final catalog = ref.watch(presetCatalogProvider).value;
+  final now = ref.watch(currentMomentProvider).value;
+  if (groupCards == null ||
+      distillations == null ||
+      !globalPause.hasValue ||
+      catalog == null ||
+      now == null) {
+    return null;
+  }
+  return QueueStanding.of(
+    card,
+    groupCards,
+    distillation: distillations
+        .where((distillation) => distillation.groupId == card.groupId)
+        .firstOrNull,
+    globallyPaused: globalPause.value != null,
+    preset: catalog.presetForGroup(card.groupId),
+    end: catalog.sequenceEndForGroup(card.groupId),
+    rhythm: ref.watch(distillationRhythmProvider),
+    now: now,
+  );
+});

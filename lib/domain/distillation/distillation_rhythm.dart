@@ -77,6 +77,20 @@ class DistillationRhythm {
     return arrivals;
   }
 
+  /// Day on which the card at [rank] of the queue (1 for its head) comes
+  /// out, read from [arrivals] as [forecast] gives them: the first day by
+  /// which as many cards came out. `null` when the card lies beyond them.
+  static DateTime? arrivalDay(Map<DateTime, int> arrivals, int rank) {
+    var cameOut = 0;
+    for (final MapEntry(key: day, value: count) in arrivals.entries) {
+      cameOut += count;
+      if (cameOut >= rank) {
+        return day;
+      }
+    }
+    return null;
+  }
+
   /// The reviews of the cards of [groupCards] already introduced.
   ReviewLoad _loadOf(
     Iterable<Flashcard> groupCards,

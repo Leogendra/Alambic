@@ -251,4 +251,18 @@ void main() {
       expect(arrivals.keys.last.isBefore(DateTime(2028, 11, 10)), isTrue);
     });
   });
+
+  test('a card of the queue comes out on the day the arrivals reach its '
+      'rank', () {
+    final arrivals = {
+      DateTime(2026, 11, 10): 2,
+      DateTime(2026, 11, 12): 1,
+      DateTime(2026, 11, 13): 2,
+    };
+    expect(DistillationRhythm.arrivalDay(arrivals, 1), DateTime(2026, 11, 10));
+    expect(DistillationRhythm.arrivalDay(arrivals, 2), DateTime(2026, 11, 10));
+    expect(DistillationRhythm.arrivalDay(arrivals, 3), DateTime(2026, 11, 12));
+    expect(DistillationRhythm.arrivalDay(arrivals, 5), DateTime(2026, 11, 13));
+    expect(DistillationRhythm.arrivalDay(arrivals, 6), isNull);
+  });
 }

@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/cards/card_draft.dart';
+import 'package:alambic/application/distillation/queue_service.dart';
+import 'package:alambic/application/groups/group_sections.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
@@ -10,6 +14,7 @@ import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/step_target.dart';
 
 import '../support/fixed_clock.dart';
+import '../support/recording_schedule_listener.dart';
 import '../support/sample_data.dart';
 import '../support/test_database.dart';
 
@@ -135,6 +140,62 @@ void main() {
         const DistillationSettings(prioritizeReviews: false),
       );
       expect(await queue(), ['Mongolia', 'Peru', 'Chile']);
+    });
+  });
+
+  group('moved by hand', () {
+    late RecordingScheduleListener listener;
+    late QueueService queueService;
+
+    setUp(() {
+      listener = RecordingScheduleListener();
+      queueService = QueueService(
+        cards: cards,
+        scheduleChangeListener: listener,
+      );
+    });
+
+    /// The ranks stored, which always run from 0 without a gap.
+    Future<List<int?>> ranks() async {
+      final pending = [
+        for (final card in await cards.getCardsOfGroup(groupId))
+          if (card.isPending) card,
+      ]..sort(_byQueue);
+      return [for (final card in pending) card.queuePosition];
+    }
+
+    test('to the head, and it is next', () async {
+      await queueService.moveToHead(ids['Laos']!);
+      expect(await queue(), ['Laos', 'Mongolia', 'Peru', 'Chile']);
+      expect(await ranks(), [0, 1, 2, 3]);
+      final sections = GroupSections.of(await cards.getCardsOfGroup(groupId));
+      expect(sections.nextId, ids['Laos']);
+      expect(listener.changeCount, 1);
+    });
+
+    test('to the end', () async {
+      await queueService.moveToEnd(ids['Mongolia']!);
+      expect(await queue(), ['Peru', 'Laos', 'Chile', 'Mongolia']);
+      expect(await ranks(), [0, 1, 2, 3]);
+    });
+
+    test('to a place in the middle, the others keeping their order', () async {
+      await queueService.moveTo(ids['Chile']!, 1);
+      expect(await queue(), ['Mongolia', 'Chile', 'Peru', 'Laos']);
+      await queueService.moveTo(ids['Mongolia']!, 2);
+      expect(await queue(), ['Chile', 'Peru', 'Mongolia', 'Laos']);
+      expect(await ranks(), [0, 1, 2, 3]);
+    });
+
+    test('shuffled with the draw given', () async {
+      await queueService.shuffleQueue(groupId, Random(7));
+      expect(await queue(), ['Peru', 'Chile', 'Laos', 'Mongolia']);
+      expect(await ranks(), [0, 1, 2, 3]);
+    });
+
+    test('an introduced card is not in the queue', () async {
+      await services.introduceAll(groupId);
+      expect(() => queueService.moveToHead(ids['Peru']!), throwsArgumentError);
     });
   });
 }

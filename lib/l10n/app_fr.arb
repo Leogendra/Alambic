@@ -222,7 +222,6 @@
   "reviewSoonPast": "Ce moment est déjà passé.",
   "homeTitle": "À venir",
   "homeToday": "Aujourd'hui",
-  "homeTomorrow": "Demain",
   "homeTodayEmpty": "Rien de prévu aujourd'hui.",
   "homeLate": "en retard",
   "homeDelayHours": "{count}H",

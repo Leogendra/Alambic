@@ -44,7 +44,6 @@ class HomeTimelineView extends ConsumerWidget {
         for (final (index, day) in timeline.days.indexed)
           _DaySection(
             day: day,
-            isTomorrow: _isTomorrow(day),
             isLast: index == timeline.days.length - 1,
             formatter: formatter,
             groupNames: groupNames,
@@ -53,18 +52,12 @@ class HomeTimelineView extends ConsumerWidget {
       ],
     );
   }
-
-  bool _isTomorrow(TimelineDay day) {
-    final today = timeline.today.day;
-    return day.day == DateTime(today.year, today.month, today.day + 1);
-  }
 }
 
 /// One day: its date and trait, then what it holds.
 class _DaySection extends StatelessWidget {
   const _DaySection({
     required this.day,
-    required this.isTomorrow,
     required this.isLast,
     required this.formatter,
     required this.groupNames,
@@ -78,7 +71,6 @@ class _DaySection extends StatelessWidget {
   static const double _traitRoom = 8 + 12 + 10;
 
   final TimelineDay day;
-  final bool isTomorrow;
 
   /// The trait of the last day fades out, towards what lies further ahead.
   final bool isLast;
@@ -91,7 +83,7 @@ class _DaySection extends StatelessWidget {
     final badgeHeight = _DateBadge.heightOf(isToday: day.isToday);
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: colors.divider)),
+        border: Border(top: BorderSide(color: colors.border)),
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -131,11 +123,7 @@ class _DaySection extends StatelessWidget {
   Widget _content(BuildContext context) {
     final strings = formatter.strings;
     final colors = AlambicColors.of(context);
-    final label = day.isToday
-        ? strings.homeToday
-        : isTomorrow
-        ? strings.homeTomorrow
-        : null;
+    final label = day.isToday ? strings.homeToday : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -148,7 +136,7 @@ class _DaySection extends StatelessWidget {
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,
-                color: day.isToday ? colors.accentText : colors.textSecondary,
+                color: colors.accentText,
               ),
             ),
           ),
@@ -498,14 +486,14 @@ class _FurtherAhead extends StatelessWidget {
                     ),
                   ),
                 ),
-                VerticalDivider(width: 1, color: colors.divider),
+                VerticalDivider(width: 1, color: colors.border),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsetsDirectional.only(start: 20),
                     child: _Total(
                       total: year,
                       caption: strings.homeCardsWithinYear(year),
-                      color: colors.accentText,
+                      color: colors.textPrimary,
                     ),
                   ),
                 ),

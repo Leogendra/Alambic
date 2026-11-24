@@ -550,7 +550,6 @@
   "reviewSoonPast": "This moment has already passed.",
   "homeTitle": "Coming up",
   "homeToday": "Today",
-  "homeTomorrow": "Tomorrow",
   "homeTodayEmpty": "Nothing planned today.",
   "homeLate": "late",
   "homeDelayHours": "{count}H",

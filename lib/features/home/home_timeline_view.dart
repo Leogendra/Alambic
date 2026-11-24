@@ -18,9 +18,8 @@ import '../cards/card_status_formatter.dart';
 import '../cards/card_status_formatter_provider.dart';
 import '../groups/group_detail_screen.dart';
 
-/// Home's timeline, as an agenda: each day has its date on the left, with a
-/// trait running down towards the next one, and its reminders card by card
-/// with their group and the time left, then its new cards, grouped in a
+/// Home's timeline, as an agenda: each day has its date on the left and its
+/// reminders card by card with their group and the time left, then its new cards, grouped in a
 /// single line. The coming month and year close it, as two totals.
 class HomeTimelineView extends ConsumerWidget {
   const HomeTimelineView({required this.timeline, super.key});
@@ -41,24 +40,18 @@ class HomeTimelineView extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final (index, day) in timeline.days.indexed)
-          _DaySection(
-            day: day,
-            isLast: index == timeline.days.length - 1,
-            formatter: formatter,
-            groupNames: groupNames,
-          ),
+        for (final day in timeline.days)
+          _DaySection(day: day, formatter: formatter, groupNames: groupNames),
         _FurtherAhead(month: timeline.comingMonth, year: timeline.comingYear),
       ],
     );
   }
 }
 
-/// One day: its date and trait, then what it holds.
+/// One day: its date, then what it holds.
 class _DaySection extends StatelessWidget {
   const _DaySection({
     required this.day,
-    required this.isLast,
     required this.formatter,
     required this.groupNames,
   });
@@ -66,14 +59,7 @@ class _DaySection extends StatelessWidget {
   static const double _gutterWidth = 52;
   static const double _padding = 16;
 
-  /// Room kept under the date badge for its trait: gap, shortest trait and
-  /// margin before the next day.
-  static const double _traitRoom = 8 + 12 + 10;
-
   final TimelineDay day;
-
-  /// The trait of the last day fades out, towards what lies further ahead.
-  final bool isLast;
   final CardStatusFormatter formatter;
   final Map<int, String> groupNames;
 
@@ -87,7 +73,7 @@ class _DaySection extends StatelessWidget {
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          minHeight: _padding + badgeHeight + _traitRoom,
+          minHeight: _padding + badgeHeight + _padding,
         ),
         child: IntrinsicHeight(
           child: Row(
@@ -97,13 +83,10 @@ class _DaySection extends StatelessWidget {
               SizedBox(
                 width: _gutterWidth,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: _padding, bottom: 10),
-                  child: Column(
-                    children: [
-                      _DateBadge(date: day.day, isToday: day.isToday),
-                      const SizedBox(height: 8),
-                      Expanded(child: _Trait(fadesOut: isLast)),
-                    ],
+                  padding: const EdgeInsets.only(top: _padding),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: _DateBadge(date: day.day, isToday: day.isToday),
                   ),
                 ),
               ),
@@ -219,37 +202,6 @@ class _DateBadge extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// The trait under a date, running down towards the next day.
-class _Trait extends StatelessWidget {
-  const _Trait({required this.fadesOut});
-
-  final bool fadesOut;
-
-  @override
-  Widget build(BuildContext context) {
-    final trait = Container(
-      width: 2,
-      decoration: BoxDecoration(
-        color: AlambicColors.of(context).border,
-        borderRadius: BorderRadius.circular(1),
-      ),
-    );
-    return ExcludeSemantics(
-      child: fadesOut
-          ? ShaderMask(
-              blendMode: BlendMode.dstIn,
-              shaderCallback: (bounds) => const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF000000), Color(0x00000000)],
-              ).createShader(bounds),
-              child: trait,
-            )
-          : trait,
     );
   }
 }

@@ -2,8 +2,7 @@ import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation_queue.dart';
 
 /// The cards of a group page, in its three sections: the introduced ones,
-/// soonest first with the suspended ones at the end, the queue in its order,
-/// and the acquired ones.
+/// soonest first, the queue in its order, and the acquired ones.
 class GroupSections {
   factory GroupSections.of(Iterable<Flashcard> groupCards) {
     final ongoing = [
@@ -32,14 +31,10 @@ class GroupSections {
 
   bool get isEmpty => ongoing.isEmpty && waiting.isEmpty && acquired.isEmpty;
 
-  /// The card the distillation brings out next: the first of the queue that
-  /// is not suspended.
+  /// The card the distillation brings out next: the head of the queue.
   int? get nextId => DistillationQueue.next(waiting, 1).firstOrNull?.id;
 
   static int _bySoonest(Flashcard first, Flashcard second) {
-    if (first.suspended != second.suspended) {
-      return first.suspended ? 1 : -1;
-    }
     final byDue = (first.dueAt ?? DateTime(0)).compareTo(
       second.dueAt ?? DateTime(0),
     );

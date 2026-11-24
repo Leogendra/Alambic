@@ -114,12 +114,8 @@ void main() {
       expect(reviews.on(day(1)), 1);
     });
 
-    test('a suspended, acquired or pending card has no review', () {
+    test('an acquired or pending card has no review', () {
       final reviews = load()
-        ..addIntroducedCard(
-          testCard(suspended: true, dueAt: DateTime(2026, 11, 13, 12)),
-          now: now,
-        )
         ..addIntroducedCard(
           testCard(id: 2, state: CardState.completed),
           now: now,

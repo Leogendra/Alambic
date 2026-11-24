@@ -36,11 +36,10 @@ class ReviewLoad {
 
   /// The reviews of a card already introduced, from its next due date: today
   /// when it is due at [now], late ones included. A card due later today
-  /// does not count today, as at a pass; a suspended or acquired card has no
-  /// review.
+  /// does not count today, as at a pass; an acquired card has no review.
   void addIntroducedCard(Flashcard card, {required DateTime now}) {
     final dueAt = card.dueAt;
-    if (card.suspended || !card.isScheduled || dueAt == null) {
+    if (!card.isScheduled || dueAt == null) {
       return;
     }
     final today = calendar.dayOf(now);

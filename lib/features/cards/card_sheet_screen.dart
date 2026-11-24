@@ -80,10 +80,6 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
         children: [
           _FacesPanel(card: card, onTap: () => _review(card)),
           _hint(strings.cardSheetTapToReview),
-          if (card.suspended) ...[
-            const SizedBox(height: 8),
-            _hint(strings.cardSheetSuspended),
-          ],
           const SizedBox(height: 14),
           CardProgressPanel(
             card: card,
@@ -103,17 +99,9 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
 
   Widget _actions(Flashcard card, Preset preset) {
     final strings = AppLocalizations.of(context);
-    final suspended = card.suspended;
     return Row(
       spacing: 8,
       children: [
-        _ActionButton(
-          icon: suspended ? Icons.play_arrow : Icons.pause,
-          label: suspended ? strings.cardSheetResume : strings.cardSheetSuspend,
-          onPressed: () => ref
-              .read(cardServiceProvider)
-              .setSuspended(card.id, suspended: !suspended),
-        ),
         _ActionButton(
           icon: Icons.restart_alt,
           label: strings.cardSheetReset,

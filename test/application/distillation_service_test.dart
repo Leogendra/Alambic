@@ -181,15 +181,6 @@ void main() {
     });
   });
 
-  test('a suspended card keeps its place without being introduced', () async {
-    await services.cards.setSuspended(cardIds[1], suspended: true);
-    await activate();
-    moveTo(DateTime(2026, 11, 11, 9));
-    await services.distillations.advance();
-    expect(await states(), [active, pending, active, pending]);
-    expect((await cards.getCard(cardIds[1])).queuePosition, 1);
-  });
-
   test('a pending card moved to another group leaves the queue', () async {
     await activate();
     final otherGroup = await services.groups.create('Autres');

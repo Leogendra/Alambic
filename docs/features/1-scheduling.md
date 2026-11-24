@@ -63,7 +63,7 @@ A new card is never scheduled by itself: it is [pending](../lexicon.md#pending) 
 
 ### Due
 
-A card counts as [due](../lexicon.md#due) when it is active or in remanence, not suspended, and:
+A card counts as [due](../lexicon.md#due) when it is active or in remanence, and:
 
 - its due date has passed;
 - or its due date falls today (or earlier) and it has not already been reviewed today.

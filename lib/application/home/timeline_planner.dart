@@ -77,7 +77,7 @@ class TimelinePlanner {
   void _placeCards(_DayBuckets days, List<Flashcard> cards, DateTime now) {
     for (final card in cards) {
       final dueAt = card.dueAt;
-      if (card.suspended || !card.isScheduled || dueAt == null) {
+      if (!card.isScheduled || dueAt == null) {
         continue;
       }
       final day = duePolicy.isDueToday(card, now: now)

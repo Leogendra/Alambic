@@ -81,11 +81,6 @@ class CardService {
     await _scheduleChangeListener.onSchedulesChanged();
   }
 
-  Future<void> setSuspended(int cardId, {required bool suspended}) async {
-    await _cards.setSuspended(cardId, suspended: suspended);
-    await _scheduleChangeListener.onSchedulesChanged();
-  }
-
   /// Forgets the progression of a card: it goes back to the end of the queue
   /// of its group, waiting for the distillation. The history is kept.
   Future<void> resetProgress(int cardId) async {

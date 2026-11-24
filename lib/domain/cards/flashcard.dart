@@ -13,7 +13,6 @@ class Flashcard {
     required this.frontImagePath,
     required this.backText,
     required this.backImagePath,
-    required this.suspended,
     required this.createdAt,
     required this.state,
     required this.step,
@@ -29,9 +28,6 @@ class Flashcard {
   final String? frontImagePath;
   final String? backText;
   final String? backImagePath;
-
-  /// A suspended card is never due.
-  final bool suspended;
   final DateTime createdAt;
   final CardState state;
 

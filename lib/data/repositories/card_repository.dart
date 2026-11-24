@@ -59,11 +59,6 @@ class CardRepository {
         ),
       );
 
-  Future<void> setSuspended(int cardId, {required bool suspended}) =>
-      (_database.update(_database.flashcards)
-            ..where((card) => card.id.equals(cardId)))
-          .write(FlashcardsCompanion(suspended: Value(suspended)));
-
   Future<void> deleteCard(int cardId) => (_database.delete(
     _database.flashcards,
   )..where((card) => card.id.equals(cardId))).go();

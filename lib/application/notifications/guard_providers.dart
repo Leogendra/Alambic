@@ -44,10 +44,7 @@ final tomorrowDueCountProvider = Provider<int?>((ref) {
   final tomorrow = calendar.addDays(calendar.dayOf(start), 1);
   return cards
       .where(
-        (card) =>
-            !card.suspended &&
-            card.isScheduled &&
-            calendar.dayOf(card.dueAt!) == tomorrow,
+        (card) => card.isScheduled && calendar.dayOf(card.dueAt!) == tomorrow,
       )
       .length;
 });

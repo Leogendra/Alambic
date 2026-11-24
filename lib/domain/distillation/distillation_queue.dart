@@ -2,17 +2,15 @@ import '../cards/flashcard.dart';
 
 /// The queue of a group: its pending cards, by rank.
 abstract final class DistillationQueue {
-  /// The [count] next cards of [groupCards] to introduce. A suspended card is
-  /// skipped and keeps its place.
+  /// The [count] next cards of [groupCards] to introduce.
   static List<Flashcard> next(Iterable<Flashcard> groupCards, int count) =>
-      inOrder(groupCards).where((card) => !card.suspended).take(count).toList();
+      inOrder(groupCards).take(count).toList();
 
-  /// The pending cards of [groupCards], head first, suspended ones in their
-  /// place.
+  /// The pending cards of [groupCards], head first.
   static List<Flashcard> inOrder(Iterable<Flashcard> groupCards) =>
       groupCards.where((card) => card.isPending).toList()..sort(_byRank);
 
-  /// Cards still waiting in the queue, suspended ones included.
+  /// Cards still waiting in the queue.
   static int remaining(Iterable<Flashcard> groupCards) =>
       groupCards.where((card) => card.isPending).length;
 

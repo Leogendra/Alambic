@@ -6,7 +6,7 @@ import 'card_image.dart';
 import 'card_status_formatter.dart';
 
 /// A card in a list: its front, its back unless [showBack] is off, and where
-/// it stands ("4 d", "suspended"), in accent when it is a date. A front image
+/// it stands ("4 d", "learned"), in accent when it is a date. A front image
 /// shows as a thumbnail; a face without text reads "Image".
 class CardListTile extends StatelessWidget {
   const CardListTile({

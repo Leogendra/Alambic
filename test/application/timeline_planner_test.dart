@@ -88,11 +88,8 @@ void main() {
     expect(timeline.today.isEmpty, isTrue);
   });
 
-  test('suspended and pending cards are not reminders', () {
-    final timeline = build([
-      testCard(id: 1, suspended: true, dueAt: DateTime(2026, 11, 10, 12)),
-      pending(2),
-    ]);
+  test('pending cards are not reminders', () {
+    final timeline = build([pending(2)]);
     expect(timeline.days.single.isEmpty, isTrue);
   });
 

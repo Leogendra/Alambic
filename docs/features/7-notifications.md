@@ -26,7 +26,7 @@ A due date is a moment, written when a card is answered, so changing the daily s
 
 ### Planning the wake-ups
 
-`NotificationPlanner` listens to every schedule change: an answer, an introduction, a reset, a suspension, a deletion. Each time, it computes the next wake-ups from the [notification moments](../lexicon.md#notification-moment) of the scheduled, non-suspended cards, plus the start of the next day each running [distillation](8-distillation.md) has to process, and the slot of the next day for every card still due whose moment has passed, so that an ignored card is sent again even when nothing else wakes the app:
+`NotificationPlanner` listens to every schedule change: an answer, an introduction, a reset, a deletion. Each time, it computes the next wake-ups from the [notification moments](../lexicon.md#notification-moment) of the scheduled cards, plus the start of the next day each running [distillation](8-distillation.md) has to process, and the slot of the next day for every card still due whose moment has passed, so that an ignored card is sent again even when nothing else wakes the app:
 
 - one wake-up per distinct minute, a due moment with seconds (after a sub-day interval) being rounded up to the next minute;
 - at most 48 wake-ups ahead, since each wake-up plans the next ones;
@@ -132,7 +132,6 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] "Correct" and "Again" record the answer from the notification, revealed or not, and replace it with the next review ("Correct, next in 3 d", "To review, next in 1 d") above the answer face, even when it was not revealed; it closes by itself, a bonus review only closes it.
 - [x] "Reveal" shows the answer alone in place, silently, with "Again", "Hide" and "Correct", and records nothing; "Hide" asks the card again, silently.
 - [x] A card reviewed in the app before its slot is not notified, and a notification already shown is withdrawn.
-- [x] A suspended card is never notified.
 - [x] A notification that could not be shown at its moment is shown when the phone is back on, whatever the delay, outside the quiet hours.
 - [x] A notification ignored or swiped is sent again the next day at the [daily slot](../lexicon.md#daily-slot), without any effect on the step.
 - [x] Without the exact alarm permission, reminders are still planned as inexact alarms, and Settings offers to allow exact alarms.

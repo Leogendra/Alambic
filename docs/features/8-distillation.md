@@ -16,13 +16,13 @@ A distillation is a permanent setting of a group, at most one per group. The gro
 
 The [queue](../lexicon.md#queue) of a group is its pending cards in a fixed order, and the distillation takes its cards from the head of it. That order is the only one: the distillation has no order setting, and the user never reorders the queue by hand.
 
-A card created in the group, moved into it while pending, or reset joins the end of the queue, and a pending card missed in "Review all" goes to its head ([Feature 4](4-groups.md#review-all)); a bulk add joins it as a whole batch, in the order chosen on its screen ([Feature 3](3-cards.md#bulk-add)). A card moved out of the group leaves it, keeping its progression if it was introduced. A suspended card keeps its place and is skipped.
+A card created in the group, moved into it while pending, or reset joins the end of the queue, and a pending card missed in "Review all" goes to its head ([Feature 4](4-groups.md#review-all)); a bulk add joins it as a whole batch, in the order chosen on its screen ([Feature 3](3-cards.md#bulk-add)). A card moved out of the group leaves it, keeping its progression if it was introduced.
 
 ### Rhythm
 
 The distillation makes one pass per scheduling day, by the first pass that sees it: at app launch, or at any wake-up of the app. A running distillation plans a wake-up at the start (4am) of the day it owes its next batch, so cards are introduced with the app closed. When that wake-up is missed, the phone being off at 4am, it fires at restart, and the pass runs then; opening the app runs it too. Introducing a card makes it due today at the [daily slot](../lexicon.md#daily-slot), due right away when the slot has passed. It then follows its preset.
 
-A batch of N cards comes out every day; the first one comes out on activation. A batch comes out only when a card is ready to leave the queue (pending and not suspended): while the queue is empty, nothing comes out, and the first pass after a card joins brings it in. A batch short of cards gives what the queue holds.
+A batch of N cards comes out every day; the first one comes out on activation. A batch comes out only when a card is ready to leave the queue (pending): while the queue is empty, nothing comes out, and the first pass after a card joins brings it in. A batch short of cards gives what the queue holds.
 
 At most one batch comes out per pass, and missed batches are never caught up: after a week with the phone off, a single batch comes out, then one a day again. The reminders due meanwhile stay due.
 
@@ -71,7 +71,7 @@ Failures are not played, nor lateness: an announced arrival can slip, which is w
 ## Acceptance criteria
 
 - [x] A group does not distill until activated; activating introduces the first batch the same day.
-- [x] The distillation takes the head of the queue, skipping the suspended cards; it has no order setting.
+- [x] The distillation takes the head of the queue; it has no order setting.
 - [x] A batch of N cards comes out every day, one at most per pass, the day starting at 4am, with the app closed; missed batches are not caught up.
 - [x] A card added to the group joins the end of the queue, even when the queue was empty; a card moved out of the group leaves it.
 - [x] One distillation per group; it is adjusted, paused and resumed, never stopped.
@@ -86,7 +86,7 @@ Failures are not played, nor lateness: an announced arrival can slip, which is w
 ## Test strategy
 
 - The rhythm (`DistillationRhythm`) is tested as pure functions: batch owed the day after the last one, new cards with and without "Prioritize reviews", next introduction day, and the forecast of arrivals: batches until the queue is empty, places taken by the reviews of the group (late ones today, not a reminder of less than a day already answered) and by those of the cards to come, a day fully taken, a forecast bounded to two years, saturated by the reviews.
-- The review load (`ReviewLoad`) is tested on its own: sequence then remanence, acquired cards, a card resumed at its step, late cards, suspended and pending cards, new cards, intervals of less than a day, the limit of the period.
+- The review load (`ReviewLoad`) is tested on its own: sequence then remanence, acquired cards, a card resumed at its step, late cards, pending cards, new cards, intervals of less than a day, the limit of the period.
 - The progress of a distillation is tested on the count of waiting cards.
 - The two examples of "Prioritize reviews" are replayed on an in-memory database, with late and unanswered cards counted and reminders left in place.
 - The service is tested on an in-memory database filled through the services, moving a fixed clock across days: activation, first batch, next days, 4am boundary, a week without pass (one batch, then one a day), an empty queue, a change of cards per day before and after the day's pass, pause, suspension.

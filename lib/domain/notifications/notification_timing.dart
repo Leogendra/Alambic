@@ -3,16 +3,15 @@ import '../scheduling/scheduling_calendar.dart';
 
 /// When reminders are shown, and when the app must wake up to show them.
 abstract final class NotificationTiming {
-  /// Whether [card] must be notified now: it is scheduled and not
-  /// suspended, the moment [deliverAt] planned for its notification has
-  /// come, however long ago, and it was not notified yet that day.
+  /// Whether [card] must be notified now: it is scheduled, the moment
+  /// [deliverAt] planned for its notification has come, however long ago,
+  /// and it was not notified yet that day.
   static bool shouldNotify(
     Flashcard card, {
     required DateTime deliverAt,
     required DateTime now,
     required SchedulingCalendar calendar,
   }) =>
-      !card.suspended &&
       card.isScheduled &&
       !wasNotified(card, deliverAt: deliverAt, calendar: calendar) &&
       !deliverAt.isAfter(now);

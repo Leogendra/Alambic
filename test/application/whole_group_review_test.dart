@@ -22,20 +22,6 @@ void main() {
     expect(review.cardIds(cards, now), [6, 3, 5, 2, 4, 1]);
   });
 
-  test('suspended cards are left out', () {
-    final cards = [
-      testCard(id: 1, suspended: true, dueAt: DateTime(2026, 11, 9, 12)),
-      testCard(
-        id: 2,
-        suspended: true,
-        state: CardState.pending,
-        queuePosition: 1,
-      ),
-      testCard(id: 3, dueAt: DateTime(2026, 11, 12, 12)),
-    ];
-    expect(review.cardIds(cards, now), [3]);
-  });
-
   test('acquired cards are left out', () {
     final cards = [
       testCard(id: 1, state: CardState.completed),

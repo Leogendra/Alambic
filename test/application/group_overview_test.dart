@@ -89,15 +89,6 @@ void main() {
     expect(summary.dueCount, 0);
   });
 
-  test('counts the cards due today, suspended ones excluded', () async {
-    final capitals = await seedSampleData(services);
-    final cards = await CardRepository(database)
-        .watchCardsOfGroup(capitals)
-        .first;
-    await services.cards.setSuspended(cards.first.id, suspended: true);
-    expect(await dueCounts(sampleNow), [1, 3, 2]);
-  });
-
   test('cards introduced after the slot are due at once', () async {
     services.clock.now = DateTime(2026, 11, 10, 15);
     await seedSampleData(services);

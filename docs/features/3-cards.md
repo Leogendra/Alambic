@@ -49,7 +49,7 @@ Cards are created in a single transaction, in the order shown, at the end of the
 No status and no step is shown. A list shows each card's front, its back below, and on the right where it stands:
 
 - the time left before it is due, in days up to 29 ("1 d", "3 d"), then rounded to the month ("3 mo") and, from 365 days, to the year ("2 yr"), or "Due"; it is in the accent colour;
-- "waiting", "suspended" or "learned" for a card without a next date.
+- "waiting" or "learned" for a card without a next date.
 
 ### Card sheet
 
@@ -63,9 +63,8 @@ Touching the faces opens a one-card session; when the card is not due, the answe
 
 ### Card management
 
-Two actions sit under the progress panel:
+One action sits under the progress panel:
 
-- "Suspend" / "Resume": a suspended card is never due.
 - "Reset", after confirmation: the card goes back to the end of its group's queue, history kept.
 
 Every operation that touches due dates notifies the notification planning.
@@ -81,7 +80,7 @@ Every operation that touches due dates notifies the notification planning.
 - [x] The batch joins the end of the queue in the order of the list, or in a shuffled order drawn when "Shuffle" is chosen and drawn again at each touch; a line edited after the draw keeps its place. The "First" box shows its first card and the cards already waiting.
 - [x] The bulk-add separator is editable; changing it rereads every line.
 - [x] Resetting sends the card back to the end of its group's queue, keeping the history.
-- [x] Lists show the time left in days, months or years, in accent, or "waiting", "suspended", "learned": no status and no step.
+- [x] Lists show the time left in days, months or years, in accent, or "waiting", "learned": no status and no step.
 - [x] The card sheet shows the step bar without title, the remanence as its last segment, the next review or why there is none, and the history with each answer's effect.
 - [x] Touching the faces reviews the card, as a bonus review when it is not due.
 

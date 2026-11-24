@@ -2061,21 +2061,6 @@ class $FlashcardsTable extends Flashcards
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _suspendedMeta = const VerificationMeta(
-    'suspended',
-  );
-  @override
-  late final GeneratedColumn<bool> suspended = GeneratedColumn<bool>(
-    'suspended',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("suspended" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -2156,7 +2141,6 @@ class $FlashcardsTable extends Flashcards
     frontImagePath,
     backText,
     backImagePath,
-    suspended,
     createdAt,
     state,
     step,
@@ -2216,12 +2200,6 @@ class $FlashcardsTable extends Flashcards
           data['back_image_path']!,
           _backImagePathMeta,
         ),
-      );
-    }
-    if (data.containsKey('suspended')) {
-      context.handle(
-        _suspendedMeta,
-        suspended.isAcceptableOrUnknown(data['suspended']!, _suspendedMeta),
       );
     }
     if (data.containsKey('created_at')) {
@@ -2301,10 +2279,6 @@ class $FlashcardsTable extends Flashcards
         DriftSqlType.string,
         data['${effectivePrefix}back_image_path'],
       ),
-      suspended: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}suspended'],
-      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2354,7 +2328,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
   final Value<String?> frontImagePath;
   final Value<String?> backText;
   final Value<String?> backImagePath;
-  final Value<bool> suspended;
   final Value<DateTime> createdAt;
   final Value<CardState> state;
   final Value<int?> step;
@@ -2369,7 +2342,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     this.frontImagePath = const Value.absent(),
     this.backText = const Value.absent(),
     this.backImagePath = const Value.absent(),
-    this.suspended = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.state = const Value.absent(),
     this.step = const Value.absent(),
@@ -2385,7 +2357,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     this.frontImagePath = const Value.absent(),
     this.backText = const Value.absent(),
     this.backImagePath = const Value.absent(),
-    this.suspended = const Value.absent(),
     required DateTime createdAt,
     required CardState state,
     this.step = const Value.absent(),
@@ -2403,7 +2374,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     Expression<String>? frontImagePath,
     Expression<String>? backText,
     Expression<String>? backImagePath,
-    Expression<bool>? suspended,
     Expression<DateTime>? createdAt,
     Expression<String>? state,
     Expression<int>? step,
@@ -2419,7 +2389,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
       if (frontImagePath != null) 'front_image_path': frontImagePath,
       if (backText != null) 'back_text': backText,
       if (backImagePath != null) 'back_image_path': backImagePath,
-      if (suspended != null) 'suspended': suspended,
       if (createdAt != null) 'created_at': createdAt,
       if (state != null) 'state': state,
       if (step != null) 'step': step,
@@ -2437,7 +2406,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     Value<String?>? frontImagePath,
     Value<String?>? backText,
     Value<String?>? backImagePath,
-    Value<bool>? suspended,
     Value<DateTime>? createdAt,
     Value<CardState>? state,
     Value<int?>? step,
@@ -2453,7 +2421,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
       frontImagePath: frontImagePath ?? this.frontImagePath,
       backText: backText ?? this.backText,
       backImagePath: backImagePath ?? this.backImagePath,
-      suspended: suspended ?? this.suspended,
       createdAt: createdAt ?? this.createdAt,
       state: state ?? this.state,
       step: step ?? this.step,
@@ -2484,9 +2451,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
     }
     if (backImagePath.present) {
       map['back_image_path'] = Variable<String>(backImagePath.value);
-    }
-    if (suspended.present) {
-      map['suspended'] = Variable<bool>(suspended.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -2523,7 +2487,6 @@ class FlashcardsCompanion extends UpdateCompanion<Flashcard> {
           ..write('frontImagePath: $frontImagePath, ')
           ..write('backText: $backText, ')
           ..write('backImagePath: $backImagePath, ')
-          ..write('suspended: $suspended, ')
           ..write('createdAt: $createdAt, ')
           ..write('state: $state, ')
           ..write('step: $step, ')
@@ -4947,7 +4910,6 @@ typedef $$FlashcardsTableCreateCompanionBuilder = FlashcardsCompanion Function({
   Value<String?> frontImagePath,
   Value<String?> backText,
   Value<String?> backImagePath,
-  Value<bool> suspended,
   required DateTime createdAt,
   required CardState state,
   Value<int?> step,
@@ -4963,7 +4925,6 @@ typedef $$FlashcardsTableUpdateCompanionBuilder = FlashcardsCompanion Function({
   Value<String?> frontImagePath,
   Value<String?> backText,
   Value<String?> backImagePath,
-  Value<bool> suspended,
   Value<DateTime> createdAt,
   Value<CardState> state,
   Value<int?> step,
@@ -5045,11 +5006,6 @@ class $$FlashcardsTableFilterComposer
 
   ColumnFilters<String> get backImagePath => $composableBuilder(
     column: $table.backImagePath,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get suspended => $composableBuilder(
-    column: $table.suspended,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5172,11 +5128,6 @@ class $$FlashcardsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get suspended => $composableBuilder(
-    column: $table.suspended,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -5263,9 +5214,6 @@ class $$FlashcardsTableAnnotationComposer
     column: $table.backImagePath,
     builder: (column) => column,
   );
-
-  GeneratedColumn<bool> get suspended =>
-      $composableBuilder(column: $table.suspended, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5377,7 +5325,6 @@ class $$FlashcardsTableTableManager
                 Value<String?> frontImagePath = const Value.absent(),
                 Value<String?> backText = const Value.absent(),
                 Value<String?> backImagePath = const Value.absent(),
-                Value<bool> suspended = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<CardState> state = const Value.absent(),
                 Value<int?> step = const Value.absent(),
@@ -5392,7 +5339,6 @@ class $$FlashcardsTableTableManager
                 frontImagePath: frontImagePath,
                 backText: backText,
                 backImagePath: backImagePath,
-                suspended: suspended,
                 createdAt: createdAt,
                 state: state,
                 step: step,
@@ -5409,7 +5355,6 @@ class $$FlashcardsTableTableManager
                 Value<String?> frontImagePath = const Value.absent(),
                 Value<String?> backText = const Value.absent(),
                 Value<String?> backImagePath = const Value.absent(),
-                Value<bool> suspended = const Value.absent(),
                 required DateTime createdAt,
                 required CardState state,
                 Value<int?> step = const Value.absent(),
@@ -5424,7 +5369,6 @@ class $$FlashcardsTableTableManager
                 frontImagePath: frontImagePath,
                 backText: backText,
                 backImagePath: backImagePath,
-                suspended: suspended,
                 createdAt: createdAt,
                 state: state,
                 step: step,

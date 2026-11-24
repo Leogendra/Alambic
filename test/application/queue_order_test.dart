@@ -136,18 +136,6 @@ void main() {
       expect(await queue(), ['Mongolia', 'Peru', 'Chile']);
     });
   });
-
-  test(
-    'the distillation skips a suspended head, which keeps its place',
-    () async {
-      await services.cards.setSuspended(ids['Mongolia']!, suspended: true);
-      await services.distillations.activate(
-        groupId,
-        const DistillationSettings(prioritizeReviews: false),
-      );
-      expect(await queue(), ['Mongolia', 'Laos', 'Chile']);
-    },
-  );
 }
 
 int _byQueue(Flashcard first, Flashcard second) {

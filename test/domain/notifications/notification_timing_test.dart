@@ -11,7 +11,6 @@ void main() {
     CardState state = CardState.active,
     DateTime? dueAt,
     DateTime? notifiedAt,
-    bool suspended = false,
   }) => testCard(
     state: state,
     step: 0,
@@ -19,7 +18,6 @@ void main() {
         ? dueAt ?? DateTime(2026, 11, 10, 12)
         : null,
     notifiedAt: notifiedAt,
-    suspended: suspended,
   );
 
   bool shouldNotify(Flashcard card, DateTime now, {DateTime? deliverAt}) =>
@@ -61,9 +59,8 @@ void main() {
       );
     });
 
-    test('never for a suspended card or a card not scheduled', () {
+    test('never for a card not scheduled', () {
       final now = DateTime(2026, 11, 10, 12);
-      expect(shouldNotify(card(suspended: true), now), false);
       expect(shouldNotify(card(state: CardState.pending), now), false);
     });
   });

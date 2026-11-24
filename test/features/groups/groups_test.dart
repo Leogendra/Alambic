@@ -51,15 +51,10 @@ void main() {
     await CardRepository(database).applySchedule(cardId, CardSchedule.acquired);
   });
 
-  /// Adds to Capitals a queue of two cards, the first one suspended, and
-  /// suspends Myanmar, in progress.
+  /// Adds to Capitals a queue of two cards, Kenya then Morocco.
   Future<void> seedWaiting(WidgetTester tester) => tester.runAsync(() async {
-    final kenya = await samples.card('Kenya', 'Nairobi', groupId: capitalsId);
+    await samples.card('Kenya', 'Nairobi', groupId: capitalsId);
     await samples.card('Morocco', 'Rabat', groupId: capitalsId);
-    await samples.cards.setSuspended(kenya, suspended: true);
-    final myanmar = (await CardRepository(database).getCardsOfGroup(capitalsId))
-        .firstWhere((card) => card.frontText == 'Myanmar');
-    await samples.cards.setSuspended(myanmar.id, suspended: true);
   });
 
   /// Makes Capitals distill; its first batch comes out at once, so it goes
@@ -159,7 +154,6 @@ void main() {
     expect(find.text('Waiting · 2'), findsOneWidget);
     expect(find.text('waiting'), findsNothing);
     expect(find.text('next'), findsNothing);
-    expect(find.text('suspended'), findsNWidgets(2));
   });
 
   testScreen('"Review all" sits beside the first section title', (
@@ -256,8 +250,8 @@ void main() {
     expect(bulk.initialGroupId, capitalsId);
   });
 
-  testScreen('three sections with their counts; the head of the queue '
-      'that is not suspended is "next"', (tester) async {
+  testScreen('three sections with their counts; the head of the queue is '
+      '"next"', (tester) async {
     await seed(tester);
     await activate(tester);
     await seedAcquired(tester);
@@ -273,12 +267,12 @@ void main() {
     expect(find.text('Waiting · 2'), findsOneWidget);
     expect(find.text('next'), findsOneWidget);
     expect(find.text('waiting'), findsNothing);
-    final morocco = find.ancestor(
-      of: find.text('Morocco'),
+    final kenya = find.ancestor(
+      of: find.text('Kenya'),
       matching: find.byType(CardListTile),
     );
     expect(
-      find.descendant(of: morocco, matching: find.text('next')),
+      find.descendant(of: kenya, matching: find.text('next')),
       findsOneWidget,
     );
     expect(find.text('Active'), findsNothing);

@@ -10,11 +10,10 @@ class DuePolicy {
   /// Due today: its due moment has passed, or its due day is today (or
   /// earlier) and it has not been answered yet today. The second half lets the
   /// user review in the app before the notification slot, while an interval of
-  /// less than a day waits until its due moment. A suspended card is never
-  /// due.
+  /// less than a day waits until its due moment.
   bool isDueToday(Flashcard card, {required DateTime now}) {
     final dueAt = card.dueAt;
-    if (card.suspended || !card.isScheduled || dueAt == null) {
+    if (!card.isScheduled || dueAt == null) {
       return false;
     } else if (!dueAt.isAfter(now)) {
       return true;

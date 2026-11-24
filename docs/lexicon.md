@@ -70,7 +70,7 @@ Scheduling day, which starts at 4am rather than midnight (`SchedulingCalendar`).
 
 ### Due
 
-A card is due today when its due date has passed, or when it falls today and the card has not already been reviewed today (`DuePolicy`). A suspended card is never due.
+A card is due today when its due date has passed, or when it falls today and the card has not already been reviewed today (`DuePolicy`).
 
 ### Pause
 

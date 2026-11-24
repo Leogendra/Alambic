@@ -222,8 +222,8 @@ void main() {
     await target.services.groups.create('Intact');
     final before = await target.tables();
     final broken = await source.tables();
-    broken['flashcards']!.add({'id': 1, 'created_at': 0, 'suspended': 0});
-    broken['flashcards']!.add({'id': 1, 'created_at': 0, 'suspended': 0});
+    broken['flashcards']!.add({'id': 1, 'created_at': 0});
+    broken['flashcards']!.add({'id': 1, 'created_at': 0});
 
     await expectLater(
       DatabaseSnapshot(target.database).replaceAll(broken),

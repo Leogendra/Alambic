@@ -143,9 +143,9 @@ class _ReviewAllButton extends StatelessWidget {
 
 /// The cards of the group in their sections, each under a small title with
 /// its count; an empty section is left out. [reviewAll] sits beside the first
-/// title. The waiting cards do not say "waiting" (their section does) and
-/// only the suspended ones state where they stand; the next card is marked
-/// only while the group [distilling], otherwise nothing comes out.
+/// title. The waiting cards do not say "waiting" (their section does); the
+/// next card is marked only while the group [distilling], otherwise nothing
+/// comes out.
 class _CardSections extends ConsumerWidget {
   const _CardSections({
     required this.sections,
@@ -231,7 +231,7 @@ class _CardSections extends ConsumerWidget {
           formatter: formatter,
           showBack: showBack,
           mark: distilling && card.id == nextId ? nextMark : null,
-          showStanding: !waitingCards || card.suspended,
+          showStanding: !waitingCards,
           onTap: () => openCard(context, card.id),
         ),
     ],

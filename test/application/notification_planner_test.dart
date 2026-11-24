@@ -83,14 +83,6 @@ void main() {
     expect(harness.presenter.prompts, isEmpty);
   });
 
-  test('plans nothing for a suspended card', () async {
-    final cardId = await startedCard();
-    await harness
-        .read(cardServiceProvider)
-        .setSuspended(cardId, suspended: true);
-    expect(harness.alarms.scheduled, isEmpty);
-  });
-
   test('falls back to inexact alarms without the permission', () async {
     await startedCard();
     harness.alarms.exactAllowed = false;

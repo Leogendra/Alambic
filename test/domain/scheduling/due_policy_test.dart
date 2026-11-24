@@ -10,13 +10,11 @@ Flashcard card({
   CardState state = CardState.active,
   DateTime? dueAt,
   DateTime? lastReviewedAt,
-  bool suspended = false,
 }) => testCard(
   state: state,
   step: 0,
   dueAt: dueAt,
   lastReviewedAt: lastReviewedAt,
-  suspended: suspended,
 );
 
 void main() {
@@ -45,9 +43,8 @@ void main() {
     expect(isDue(waiting), isFalse);
   });
 
-  test('suspended, acquired or pending cards are never due', () {
+  test('acquired or pending cards are never due', () {
     final past = DateTime(2026, 11, 8);
-    expect(isDue(card(dueAt: past, suspended: true)), isFalse);
     expect(isDue(card(state: CardState.completed)), isFalse);
     expect(isDue(card(dueAt: past, state: CardState.pending)), isFalse);
   });

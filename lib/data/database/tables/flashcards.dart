@@ -16,7 +16,6 @@ class Flashcards extends Table {
   TextColumn get frontImagePath => text().nullable()();
   TextColumn get backText => text().nullable()();
   TextColumn get backImagePath => text().nullable()();
-  BoolColumn get suspended => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
   TextColumn get state => textEnum<CardState>()();
   IntColumn get step => integer().nullable()();

@@ -20,7 +20,7 @@ Each day lists its reminders card by card:
 - each card shows its front and its group, never its step; touching it opens its sheet;
 - on its right, in a pill, the time left before its reminder: in hours today, rounded up ("3H" at 15:00 for 17:30), in days afterwards ("1D" tomorrow, up to "6D"). A late card, or one whose moment has passed, has none.
 
-Late cards come first, then the others by moment. A card already answered today has left today, since its due date moved: today only shows what is left to do. Suspended and pending cards are not reminders.
+Late cards come first, then the others by moment. A card already answered today has left today, since its due date moved: today only shows what is left to do. Pending cards are not reminders.
 
 ### New cards
 
@@ -63,7 +63,7 @@ A card counts once notified: answered at least once, or introduced with its firs
 
 ## Test strategy
 
-- `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, suspended and pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, batch days taken by the reviews of the group, paused distillation and global pause, the time left before each reminder, the totals of the coming month and year at their bounds, and the cards notified (answered, or introduced with their first moment passed).
+- `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, batch days taken by the reviews of the group, paused distillation and global pause, the time left before each reminder, the totals of the coming month and year at their bounds, and the cards notified (answered, or introduced with their first moment passed).
 - The arrivals of a distillation are tested on `DistillationRhythm` ([Feature 8](8-distillation.md#test-strategy)).
 - The screen is covered by screen tests with a capture in light and dark theme, in French and during the global pause, on the sample data partly answered, with a reminder and a distilling group, by one of a distillation in progress, by one scrolled to the coming month and year, with a group distilling over several months, and by one pulled down on the cards learned.
 

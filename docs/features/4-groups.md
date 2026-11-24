@@ -36,7 +36,7 @@ The page opened at the end of the onboarding, on the sample group ([Feature 10](
 The order of the "Waiting" section is the order in which the distillation introduces the cards ([Feature 8](8-distillation.md#queue)), and the user changes it in two ways:
 
 - a long press on a waiting card lifts it, and dragging it drops it at another place; the page scrolls when the card nears its top or bottom edge. A plain touch still opens the card sheet, and a swipe still scrolls;
-- "Reorder", a round button with the icon of two arrows at the right of the "Waiting · N" title, shown from two waiting cards, opens the reordering mode. The rows become compact, the front alone, each with two buttons, "To the head" and "To the end", off where the card already is, and a handle that drags the card at once. A touch on a row opens nothing. The title then offers "Shuffle the queue", which draws a new order at random after a confirmation, and "Done", which leaves the mode; "Review all" is not shown there.
+- "Reorder", a round button with the icon of two arrows at the right of the "Waiting · N" title, shown from two waiting cards, opens the reordering mode. The rows become compact, the front alone, each with two buttons, "To the head" and "To the end", off where the card already is, and a handle that drags the card at once. A touch on a row opens nothing. The title then offers "Shuffle the queue", which draws a new order at random after a confirmation, and "Done", which leaves the mode; "Review all" is not shown there, and nor is the "+" button, which would cover the last rows.
 
 Each move is written at once; the list shows the new order before the database confirms it, and the "next" mark follows the new head. The card sheet moves a single card to the head or the end too ([Feature 3](3-cards.md#card-sheet)).
 
@@ -83,7 +83,7 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - [x] "In progress" is sorted soonest due first; "Waiting" follows the queue, and, while the group distills, its head reads "next"; no waiting card reads "waiting".
 - [x] The learned section is folded by default; an empty section is absent.
 - [x] A long press on a waiting card drags it to another place in the queue, written at once; a touch still opens the card sheet, and "next" follows the new head.
-- [x] "Reorder" turns the waiting rows compact, with a handle and "To the head" and "To the end", each off where the card already is; "Shuffle the queue" draws a new order once confirmed; "Done" leaves the mode. A queue of one card offers no "Reorder".
+- [x] "Reorder" turns the waiting rows compact, with a handle and "To the head" and "To the end", each off where the card already is, and takes the "+" button away; "Shuffle the queue" draws a new order once confirmed; "Done" leaves the mode. A queue of one card offers no "Reorder".
 - [x] On the waiting title, "Review all" and "Reorder" sit side by side without overlapping, down to a small phone.
 - [x] A group that does not distill shows a large "Distill" button; once activated, its tracking replaces it. A band of light glides once across the button on arrival.
 - [x] "Review all" asks the due cards first, then the other introduced cards, then the pending ones, all but the due ones as bonus reviews, and leaves acquired cards out.

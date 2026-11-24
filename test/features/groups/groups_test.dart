@@ -15,6 +15,7 @@ import 'package:alambic/domain/groups/remanence_interval.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
+import 'package:alambic/features/cards/add_cards_button.dart';
 import 'package:alambic/features/cards/bulk_add_screen.dart';
 import 'package:alambic/features/cards/card_editor_screen.dart';
 import 'package:alambic/features/cards/card_list_tile.dart';
@@ -599,6 +600,8 @@ void main() {
         expect(find.text(l10n.groupReorderDone), findsOneWidget);
         expect(find.byTooltip(l10n.groupReorder), findsNothing);
         expect(find.byIcon(Icons.drag_handle), findsNWidgets(4));
+        // The "+" button is gone, so it cannot cover the last rows.
+        expect(find.byType(AddCardsButton), findsNothing);
         await tester.ensureVisible(find.text('Oman'));
         await tester.pumpAndSettle();
         await captureShot(
@@ -628,6 +631,7 @@ void main() {
         await tester.tap(find.text(l10n.groupReorderDone));
         await tester.pumpAndSettle();
         expect(find.byIcon(Icons.drag_handle), findsNothing);
+        expect(find.byType(AddCardsButton), findsOneWidget);
         expect(find.text('next'), findsOneWidget);
         expect(
           find.descendant(

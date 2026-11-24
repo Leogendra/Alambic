@@ -25,7 +25,10 @@ class StepTrack extends StatelessWidget {
   /// Beyond this many steps, only the intervals of the first, the current
   /// and the last step are written, each free to spread over the empty
   /// columns beside it, so that none is cut.
-  static const int _maxLabels = 6;
+  static const int _maxLabels = 8;
+
+  /// Beyond this many steps, the intervals are written smaller to fit.
+  static const int _largeLabels = 6;
 
   static const double _barHeight = 8;
   static const double _dotSize = 12;
@@ -70,6 +73,7 @@ class StepTrack extends StatelessWidget {
                   : '',
               colors,
               isCurrent: step == currentStep,
+              fontSize: count > _largeLabels ? 9 : 11,
               spreads: sparse,
             ),
           ),
@@ -88,6 +92,7 @@ class StepTrack extends StatelessWidget {
               strings.intervalLabel(end.remanenceAfter(preset)),
               colors,
               isCurrent: remanenceReached,
+              fontSize: count > _largeLabels ? 9 : 11,
             ),
           ),
       ],
@@ -99,6 +104,7 @@ class StepTrack extends StatelessWidget {
     String label,
     AlambicColors colors, {
     required bool isCurrent,
+    required double fontSize,
     bool spreads = false,
   }) {
     final text = Text(
@@ -108,7 +114,7 @@ class StepTrack extends StatelessWidget {
       softWrap: !spreads,
       overflow: spreads ? TextOverflow.visible : TextOverflow.clip,
       style: TextStyle(
-        fontSize: 11,
+        fontSize: fontSize,
         fontWeight: isCurrent ? FontWeight.w700 : null,
         color: isCurrent ? colors.accentText : colors.textSecondary,
       ),

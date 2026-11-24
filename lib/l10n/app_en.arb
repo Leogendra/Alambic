@@ -202,7 +202,6 @@
   "presetEditorSteps": "Steps",
   "presetEditorAddStep": "Step",
   "presetEditorRemoveStep": "Remove this step",
-  "presetEditorAtLeastOneStep": "A sequence has at least one step.",
   "presetEditorNameRequired": "Give the preset a name.",
   "presetEditorOnFailure": "On failure",
   "presetFailureStepBack": "One step back",
@@ -462,7 +461,6 @@
   },
   "sessionCorrectLabel": "correct",
   "sessionAgainLabel": "again",
-  "sessionNextReminder": "Next reminder",
   "sessionBackHome": "Back to Home",
   "sessionReviewMissed": "{count, plural, =1{Review the missed card now} other{Review the {count} missed cards now}}",
   "@sessionReviewMissed": {
@@ -767,7 +765,6 @@
   "distillFewerCards": "Fewer cards",
   "distillMoreCards": "More cards",
   "distillPrioritizeReviews": "Prioritize reviews",
-  "distillPresetHint": "Each card follows these reminders once it arrives. A change to a preset applies to every group that follows it.",
   "distillPrioritizeReviewsHint": "Each day, each card of the group due for review takes the place of a new card.",
   "distillEstimate": "{count, plural, =1{1 card · arrives around {date}} other{{count} cards · last one arrives around {date}}}",
   "@distillEstimate": {

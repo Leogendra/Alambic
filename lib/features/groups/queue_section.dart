@@ -22,6 +22,8 @@ import 'section_title.dart';
 class QueueSection extends ConsumerStatefulWidget {
   const QueueSection({
     required this.cards,
+    required this.reordering,
+    required this.onReorderingChanged,
     required this.formatter,
     required this.showBack,
     required this.distilling,
@@ -31,6 +33,11 @@ class QueueSection extends ConsumerStatefulWidget {
 
   /// The waiting cards of the group, in queue order.
   final List<Flashcard> cards;
+
+  /// Whether the reordering mode is on; the page keeps it, to take its
+  /// "+" button away while it lasts.
+  final bool reordering;
+  final ValueChanged<bool> onReorderingChanged;
   final CardStatusFormatter formatter;
   final bool showBack;
 
@@ -46,8 +53,6 @@ class QueueSection extends ConsumerStatefulWidget {
 }
 
 class _QueueSectionState extends ConsumerState<QueueSection> {
-  bool _reordering = false;
-
   /// The order of the last move, by card id, until the database gives it.
   List<int>? _order;
 
@@ -109,7 +114,7 @@ class _QueueSectionState extends ConsumerState<QueueSection> {
   }
 
   List<Widget> _actions(AppLocalizations strings, List<Flashcard> cards) =>
-      _reordering
+      widget.reordering
       ? [
           SectionIconButton(
             icon: Icons.shuffle,
@@ -119,7 +124,7 @@ class _QueueSectionState extends ConsumerState<QueueSection> {
           SectionButton(
             icon: Icons.check,
             label: strings.groupReorderDone,
-            onPressed: () => setState(() => _reordering = false),
+            onPressed: () => widget.onReorderingChanged(false),
           ),
         ]
       : [
@@ -128,7 +133,7 @@ class _QueueSectionState extends ConsumerState<QueueSection> {
             SectionIconButton(
               icon: Icons.swap_vert,
               tooltip: strings.groupReorder,
-              onPressed: () => setState(() => _reordering = true),
+              onPressed: () => widget.onReorderingChanged(true),
             ),
         ];
 
@@ -147,7 +152,7 @@ class _QueueSectionState extends ConsumerState<QueueSection> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (index > 0) const Divider(height: 1),
-          if (_reordering)
+          if (widget.reordering)
             _CompactRow(
               card: card,
               index: index,

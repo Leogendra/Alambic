@@ -271,26 +271,48 @@ void main() {
     expect(card!.state, CardState.completed);
   });
 
+  /// Gives the group of [cardId] a preset of [steps] steps, one day longer
+  /// each.
+  Future<void> useLongPreset(WidgetTester tester, int cardId, int steps) =>
+      tester.runAsync(() async {
+        final presetId = await PresetRepository(database).insert(
+          Preset(
+            id: 0,
+            name: 'Long',
+            builtInKey: null,
+            intervals: [
+              for (var days = 1; days <= steps; days++)
+                PresetInterval(days, IntervalUnit.day),
+            ],
+            failureBehavior: FailureBehavior.stepBack,
+          ),
+        );
+        final card = await CardRepository(database).getCard(cardId);
+        await GroupRepository(database).setPreset(card.groupId, presetId);
+      });
+
+  testScreen('eight steps keep every interval on the track, written small', (
+    tester,
+  ) async {
+    final ids = await seedQueue(tester, count: 1);
+    await useLongPreset(tester, ids.single, 8);
+    await pumpSheet(tester, ids.single);
+    // Every interval is on the track, so the sheet's own is the last.
+    await tester.tap(find.byIcon(Icons.tune));
+    await tester.pumpAndSettle();
+    await tapAndSettle(tester, find.text('4\u00A0d').last);
+    for (var days = 1; days <= 8; days++) {
+      expect(find.text('$days\u00A0d'), findsOneWidget, reason: '$days d');
+    }
+    await captureShot(tester, find.byType(CardSheetScreen), 'card_sheet_eight');
+    await expectNoOverflow(tester);
+  });
+
   testScreen('a long preset keeps the intervals of its track apart', (
     tester,
   ) async {
     final ids = await seedQueue(tester, count: 1);
-    await tester.runAsync(() async {
-      final presetId = await PresetRepository(database).insert(
-        Preset(
-          id: 0,
-          name: 'Long',
-          builtInKey: null,
-          intervals: [
-            for (var days = 1; days <= 10; days++)
-              PresetInterval(days, IntervalUnit.day),
-          ],
-          failureBehavior: FailureBehavior.stepBack,
-        ),
-      );
-      final card = await CardRepository(database).getCard(ids.single);
-      await GroupRepository(database).setPreset(card.groupId, presetId);
-    });
+    await useLongPreset(tester, ids.single, 10);
     await pumpSheet(tester, ids.single);
     await chooseStep(tester, '4\u00A0d');
     // The first, the current and the last step keep their interval.

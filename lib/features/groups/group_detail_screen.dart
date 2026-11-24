@@ -30,15 +30,30 @@ import 'section_title.dart';
 /// that hides the backs, then its cards in three sections: in progress,
 /// waiting in queue order, which can be reordered, and learned, folded.
 /// "Review all" sits beside the first title.
-class GroupDetailScreen extends ConsumerWidget {
+class GroupDetailScreen extends ConsumerStatefulWidget {
   const GroupDetailScreen({required this.groupId, super.key});
 
   final int groupId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GroupDetailScreen> createState() => _GroupDetailScreenState();
+}
+
+class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
+  /// Whether the waiting section is being reordered; the "+" button leaves
+  /// then, as it would cover the handles of the last rows.
+  bool _reordering = false;
+
+  int get groupId => widget.groupId;
+
+  @override
+  Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final summary = ref.watch(groupSummaryProvider(groupId));
+    final waiting = GroupSections.of(
+      ref.watch(groupCardsProvider(groupId)).value ?? const [],
+    ).waiting;
+    final reordering = _reordering && waiting.isNotEmpty;
     return Scaffold(
       appBar: AppBar(
         title: Text(summary?.group.name ?? ''),
@@ -54,18 +69,31 @@ class GroupDetailScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: AddCardsButton(groupId: groupId),
+      floatingActionButton: reordering
+          ? null
+          : AddCardsButton(groupId: groupId),
       body: summary == null
           ? const SizedBox.shrink()
-          : _GroupBody(summary: summary),
+          : _GroupBody(
+              summary: summary,
+              reordering: reordering,
+              onReorderingChanged: (value) =>
+                  setState(() => _reordering = value),
+            ),
     );
   }
 }
 
 class _GroupBody extends ConsumerWidget {
-  const _GroupBody({required this.summary});
+  const _GroupBody({
+    required this.summary,
+    required this.reordering,
+    required this.onReorderingChanged,
+  });
 
   final GroupSummary summary;
+  final bool reordering;
+  final ValueChanged<bool> onReorderingChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -95,6 +123,8 @@ class _GroupBody extends ConsumerWidget {
               ),
               _CardSections(
                 sections: sections,
+                reordering: reordering,
+                onReorderingChanged: onReorderingChanged,
                 showBack: !summary.group.backHidden,
                 distilling:
                     ref.watch(groupDistillationProvider(summary.groupId)) !=
@@ -140,12 +170,16 @@ class _GroupBody extends ConsumerWidget {
 class _CardSections extends ConsumerWidget {
   const _CardSections({
     required this.sections,
+    required this.reordering,
+    required this.onReorderingChanged,
     required this.showBack,
     required this.distilling,
     required this.reviewAll,
   });
 
   final GroupSections sections;
+  final bool reordering;
+  final ValueChanged<bool> onReorderingChanged;
   final bool showBack;
   final bool distilling;
   final Widget? reviewAll;
@@ -182,6 +216,8 @@ class _CardSections extends ConsumerWidget {
         if (sections.waiting case final waiting when waiting.isNotEmpty)
           QueueSection(
             cards: waiting,
+            reordering: reordering,
+            onReorderingChanged: onReorderingChanged,
             formatter: formatter,
             showBack: showBack,
             distilling: distilling,

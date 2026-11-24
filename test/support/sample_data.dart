@@ -56,7 +56,10 @@ class SampleServices {
   SampleServices._(this.database, this.clock, this.images, this.distillations)
     : cards = CardService(
         cards: CardRepository(database),
+        presets: PresetRepository(database),
+        settings: NotificationSettingsRepository(database),
         images: images,
+        scheduler: const ReviewScheduler(SchedulingCalendar()),
         clock: clock.call,
         scheduleChangeListener: const IgnoredScheduleChanges(),
       ),

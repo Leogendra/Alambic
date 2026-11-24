@@ -10,6 +10,7 @@ import '../../application/presets/preset_providers.dart';
 import '../../domain/cards/card_face.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/presets/preset.dart';
+import '../../domain/scheduling/step_target.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../session/session_launcher.dart';
 import 'card_editor_screen.dart';
@@ -128,7 +129,9 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
       strings.cardSheetReset,
     );
     if (confirmed) {
-      await ref.read(cardServiceProvider).resetProgress(widget.cardId);
+      await ref
+          .read(cardServiceProvider)
+          .setStep(widget.cardId, const PendingTarget());
     }
   }
 

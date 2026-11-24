@@ -1,6 +1,10 @@
 import '../../data/images/image_store.dart';
 import '../../data/repositories/card_repository.dart';
+import '../../data/repositories/notification_settings_repository.dart';
+import '../../data/repositories/preset_repository.dart';
 import '../../domain/distillation/distillation_queue.dart';
+import '../../domain/scheduling/review_scheduler.dart';
+import '../../domain/scheduling/step_target.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
 import 'card_draft.dart';
@@ -12,13 +16,19 @@ import 'draft_image.dart';
 class CardService {
   const CardService({
     required this._cards,
+    required this._presets,
+    required this._settings,
     required this._images,
+    required this._scheduler,
     required this._clock,
     required this._scheduleChangeListener,
   });
 
   final CardRepository _cards;
+  final PresetRepository _presets;
+  final NotificationSettingsRepository _settings;
   final ImageStore _images;
+  final ReviewScheduler _scheduler;
   final Clock _clock;
   final ScheduleChangeListener _scheduleChangeListener;
 
@@ -81,14 +91,40 @@ class CardService {
     await _scheduleChangeListener.onSchedulesChanged();
   }
 
-  /// Forgets the progression of a card: it goes back to the end of the queue
-  /// of its group, waiting for the distillation. The history is kept.
-  Future<void> resetProgress(int cardId) async {
-    await _cards.transaction(() async {
+  /// Puts a card at [target] by hand, whatever its answers, and returns its
+  /// new due date. [PendingTarget] forgets its progression: it goes back to
+  /// the end of the queue of its group, waiting for the distillation. Any
+  /// other target schedules it as if an answer had brought it there now, a
+  /// pending card leaving its queue. Nothing enters the history, which is
+  /// kept.
+  Future<DateTime?> setStep(int cardId, StepTarget target) async {
+    final dueAt = await _cards.transaction(() async {
       final card = await _cards.getCard(cardId);
-      await _cards.enqueue(cardId, await _queueEnd(card.groupId));
+      final catalog = await _presets.loadCatalog();
+      final preset = catalog.presetForGroup(card.groupId);
+      final reached = switch (target) {
+        PendingTarget() => null,
+        StepIndexTarget() => target.reached(preset),
+        SequenceEndTarget() => target.reached(
+          preset,
+          catalog.sequenceEndForGroup(card.groupId),
+        ),
+      };
+      if (reached == null) {
+        await _cards.enqueue(cardId, await _queueEnd(card.groupId));
+        return null;
+      } else {
+        final schedule = _scheduler.atStep(
+          reached,
+          from: _clock(),
+          dailySlot: (await _settings.loadReminderSettings()).dailySlot,
+        );
+        await _cards.applySchedule(cardId, schedule);
+        return schedule.dueAt;
+      }
     });
     await _scheduleChangeListener.onSchedulesChanged();
+    return dueAt;
   }
 
   /// Deletes a card with its history and its images.

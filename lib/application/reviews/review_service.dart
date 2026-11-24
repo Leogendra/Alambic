@@ -69,7 +69,7 @@ class ReviewService {
   /// Records [outcome] for a card. The answer is a bonus review, kept in the
   /// history without any effect, when the card is not due (a pending card
   /// stays pending) or when [forceBonus] is set (reviewing the missed cards
-  /// again, extra reminder). With [raisesMissedPending] ("Review all" of a
+  /// again). With [raisesMissedPending] ("Review all" of a
   /// group), a pending card answered "Again" goes to the head of its queue.
   Future<ReviewResult> answer(
     int cardId,

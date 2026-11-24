@@ -8,8 +8,16 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/images/image_store.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/notification_settings_repository.dart';
+import 'package:alambic/data/repositories/preset_repository.dart';
+import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/card_state.dart';
+import 'package:alambic/domain/groups/after_last_step.dart';
+import 'package:alambic/domain/presets/built_in_preset_key.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
+import 'package:alambic/domain/scheduling/review_scheduler.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
+import 'package:alambic/domain/scheduling/step_target.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/recording_schedule_listener.dart';
@@ -34,7 +42,10 @@ void main() {
     images = openTestImageStore();
     service = CardService(
       cards: cards,
+      presets: PresetRepository(database),
+      settings: NotificationSettingsRepository(database),
       images: images,
+      scheduler: const ReviewScheduler(SchedulingCalendar()),
       clock: clock.call,
       scheduleChangeListener: listener,
     );
@@ -178,15 +189,144 @@ void main() {
     });
   });
 
-  test('resetting sends the card back to the end of its queue', () async {
-    final cardId = await service.create(draft());
-    await service.create(draft(front: 'Laos'));
-    await introduce(cardId);
-    await service.resetProgress(cardId);
-    final card = await cards.getCard(cardId);
-    expect(card.state, CardState.pending);
-    expect(card.step, isNull);
-    expect(card.dueAt, isNull);
-    expect(card.queuePosition, 2);
+  group('changing the step by hand', () {
+    /// A card of Capitals introduced at step 3 (1 month) of Standard.
+    Future<int> introduced() async {
+      final cardId = await service.create(draft());
+      await introduce(cardId);
+      return cardId;
+    }
+
+    Future<void> expectSchedule(
+      int cardId, {
+      required CardState state,
+      required int? step,
+      required DateTime? dueAt,
+    }) async {
+      final card = await cards.getCard(cardId);
+      expect(card.state, state);
+      expect(card.step, step);
+      expect(card.dueAt, dueAt);
+      expect(card.queuePosition, isNull);
+      expect(card.notifiedAt, isNull);
+    }
+
+    test(
+      'a lower step counts its interval from now, at the daily slot',
+      () async {
+        final cardId = await introduced();
+        await cards.markNotified(cardId, clock());
+        final dueAt = await service.setStep(cardId, const StepIndexTarget(1));
+        expect(dueAt, DateTime(2026, 11, 12, 12));
+        await expectSchedule(
+          cardId,
+          state: CardState.active,
+          step: 1,
+          dueAt: DateTime(2026, 11, 12, 12),
+        );
+      },
+    );
+
+    test('a higher step too', () async {
+      final cardId = await introduced();
+      await service.setStep(cardId, const StepIndexTarget(4));
+      await expectSchedule(
+        cardId,
+        state: CardState.active,
+        step: 4,
+        dueAt: DateTime(2027, 2, 8, 12),
+      );
+    });
+
+    test('a step of less than a day counts from the moment', () async {
+      final catalog = await PresetRepository(database).loadCatalog();
+      final intensive = catalog.presetsById.values.firstWhere(
+        (preset) => preset.builtInKey == BuiltInPresetKey.intensive,
+      );
+      await GroupRepository(database).setPreset(groupId, intensive.id);
+      final cardId = await introduced();
+      await service.setStep(cardId, const StepIndexTarget(0));
+      await expectSchedule(
+        cardId,
+        state: CardState.active,
+        step: 0,
+        dueAt: DateTime(2026, 11, 10, 10),
+      );
+    });
+
+    test('a pending card leaves its queue, introduced at the step', () async {
+      final cardId = await service.create(draft());
+      final laos = await service.create(draft(front: 'Laos'));
+      await service.setStep(cardId, const StepIndexTarget(0));
+      await expectSchedule(
+        cardId,
+        state: CardState.active,
+        step: 0,
+        dueAt: DateTime(2026, 11, 11, 12),
+      );
+      expect((await cards.getCard(laos)).isPending, isTrue);
+    });
+
+    test('the end of the sequence is the remanence of the group', () async {
+      final cardId = await introduced();
+      await service.setStep(cardId, const SequenceEndTarget());
+      await expectSchedule(
+        cardId,
+        state: CardState.completed,
+        step: null,
+        dueAt: DateTime(2027, 5, 9, 12),
+      );
+    });
+
+    test('or acquired, without a date, in a group that ends so', () async {
+      await GroupRepository(database)
+          .setAfterLastStep(groupId, AfterLastStep.acquired);
+      final cardId = await introduced();
+      final dueAt = await service.setStep(cardId, const SequenceEndTarget());
+      expect(dueAt, isNull);
+      await expectSchedule(
+        cardId,
+        state: CardState.completed,
+        step: null,
+        dueAt: null,
+      );
+    });
+
+    test('an acquired card comes back at the step', () async {
+      final cardId = await service.create(draft());
+      await cards.applySchedule(cardId, CardSchedule.acquired);
+      await service.setStep(cardId, const StepIndexTarget(2));
+      await expectSchedule(
+        cardId,
+        state: CardState.active,
+        step: 2,
+        dueAt: DateTime(2026, 11, 17, 12),
+      );
+    });
+
+    test('pending sends the card back to the end of its queue', () async {
+      final cardId = await service.create(draft());
+      await service.create(draft(front: 'Laos'));
+      await introduce(cardId);
+      final dueAt = await service.setStep(cardId, const PendingTarget());
+      expect(dueAt, isNull);
+      final card = await cards.getCard(cardId);
+      expect(card.state, CardState.pending);
+      expect(card.step, isNull);
+      expect(card.dueAt, isNull);
+      expect(card.queuePosition, 2);
+    });
+
+    test('records nothing in the history and tells the planning', () async {
+      final cardId = await introduced();
+      final changes = listener.changeCount;
+      await service.setStep(cardId, const StepIndexTarget(0));
+      await service.setStep(cardId, const PendingTarget());
+      expect(listener.changeCount, changes + 2);
+      expect(
+        await ReviewRepository(database).watchHistory(cardId).first,
+        isEmpty,
+      );
+    });
   });
 }

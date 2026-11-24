@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import '../groups/after_last_step.dart';
 import '../groups/sequence_end.dart';
 import '../presets/failure_behavior.dart';
 import '../presets/preset.dart';
 import '../reviews/review_outcome.dart';
 import 'card_progress.dart';
 import 'sequence_step.dart';
+import 'step_target.dart';
 
 /// Walks the fixed interval sequence of a preset, then the end its group
 /// chose.
@@ -41,15 +41,10 @@ abstract final class SequenceEngine {
       step + 1,
       preset,
     ),
-    SequenceProgress() || RemanenceProgress() => _afterLastStep(preset, end),
+    // Read at the answer, from the group in force at that moment.
+    SequenceProgress() ||
+    RemanenceProgress() => const SequenceEndTarget().reached(preset, end),
   };
-
-  /// Read at the answer, from the group in force at that moment.
-  static SequenceStep _afterLastStep(Preset preset, SequenceEnd end) =>
-      switch (end.afterLastStep) {
-        AfterLastStep.remanence => RemanenceReached(end.remanenceAfter(preset)),
-        AfterLastStep.acquired => const AcquiredReached(),
-      };
 
   static SequenceStep _afterFailure(
     CardProgress progress,
@@ -75,5 +70,5 @@ abstract final class SequenceEngine {
   };
 
   static SequenceStep _step(int step, Preset preset) =>
-      StepReached(step, preset.intervals[step]);
+      StepIndexTarget(step).reached(preset);
 }

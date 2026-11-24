@@ -7,6 +7,7 @@ import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
+import 'package:alambic/domain/scheduling/step_target.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/sample_data.dart';
@@ -80,7 +81,7 @@ void main() {
     test('a reset card joins the end', () async {
       await services.introduceAll(groupId);
       await services.card('Kenya', 'capitale', groupId: groupId);
-      await services.cards.resetProgress(ids['Peru']!);
+      await services.cards.setStep(ids['Peru']!, const PendingTarget());
       expect(await queue(), ['Kenya', 'Peru']);
     });
 

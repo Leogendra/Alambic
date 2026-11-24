@@ -30,21 +30,34 @@ class ReviewScheduler {
     required SequenceEnd end,
     required DateTime answeredAt,
     required ClockTime dailySlot,
-  }) => switch (SequenceEngine.answer(
-    progress: CardProgress.of(card, preset, end),
-    outcome: outcome,
-    preset: preset,
-    end: end,
-  )) {
+  }) => atStep(
+    SequenceEngine.answer(
+      progress: CardProgress.of(card, preset, end),
+      outcome: outcome,
+      preset: preset,
+      end: end,
+    ),
+    from: answeredAt,
+    dailySlot: dailySlot,
+  );
+
+  /// Schedule of a card that reaches [step] at the moment [from], whether by
+  /// an answer or because the user put it there: its interval counts from
+  /// [from].
+  CardSchedule atStep(
+    SequenceStep step, {
+    required DateTime from,
+    required ClockTime dailySlot,
+  }) => switch (step) {
     StepReached(:final step, :final interval) => CardSchedule(
       state: CardState.active,
       step: step,
-      dueAt: _dueAfter(interval, answeredAt, dailySlot),
+      dueAt: _dueAfter(interval, from, dailySlot),
     ),
     RemanenceReached(:final interval) => CardSchedule(
       state: CardState.completed,
       step: null,
-      dueAt: _dueAfter(interval, answeredAt, dailySlot),
+      dueAt: _dueAfter(interval, from, dailySlot),
     ),
     AcquiredReached() => CardSchedule.acquired,
   };

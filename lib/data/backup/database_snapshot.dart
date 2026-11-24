@@ -19,7 +19,6 @@ class DatabaseSnapshot {
     'distillations',
     'flashcards',
     'review_records',
-    'extra_reminders',
   ];
 
   final AlambicDatabase _database;

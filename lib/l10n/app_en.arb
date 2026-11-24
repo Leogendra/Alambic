@@ -487,7 +487,6 @@
   "cardSheetAcquired": "Learned: this card does not come back.",
   "cardSheetPending": "Waiting: the distillation of the group will bring it in.",
   "cardSheetSuspended": "Card suspended: it does not come back until it is resumed.",
-  "cardSheetReviewSoon": "Review soon",
   "cardSheetSuspend": "Suspend",
   "cardSheetResume": "Resume",
   "cardSheetReset": "Reset",
@@ -498,15 +497,6 @@
   "cardSheetEdit": "Edit",
   "cardSheetDelete": "Delete the card",
   "cardSheetDeleteConfirm": "Delete this card and its history?",
-  "cardSheetReminder": "Reminder planned {date}",
-  "@cardSheetReminder": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "cardSheetReminderRemove": "Remove the reminder",
   "cardSheetHistoryBonus": "bonus",
   "cardSheetHistoryTo": "→ {interval}",
   "@cardSheetHistoryTo": {
@@ -524,30 +514,6 @@
       }
     }
   },
-  "reviewSoonBody": "One more reminder for \"{front}\". The answer is kept in the history but does not change the schedule.",
-  "@reviewSoonBody": {
-    "placeholders": {
-      "front": {
-        "type": "String"
-      }
-    }
-  },
-  "reviewSoonDay": "Day",
-  "reviewSoonTomorrow": "Tomorrow",
-  "reviewSoonDayAfter": "Day after tomorrow",
-  "reviewSoonWeekend": "This weekend",
-  "reviewSoonOtherDate": "Other date",
-  "reviewSoonTime": "Time",
-  "reviewSoonAdd": "Add the reminder",
-  "reviewSoonAdded": "Reminder added: {date}",
-  "@reviewSoonAdded": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "reviewSoonPast": "This moment has already passed.",
   "homeTitle": "Coming up",
   "homeToday": "Today",
   "homeTodayEmpty": "Nothing planned today.",

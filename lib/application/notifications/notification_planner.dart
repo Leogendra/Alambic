@@ -4,7 +4,6 @@ import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/pause_repository.dart';
 import '../../data/repositories/preset_repository.dart';
-import '../../data/repositories/reminder_repository.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/notifications/delivery_planner.dart';
@@ -36,7 +35,6 @@ class NotificationPlanner implements ScheduleChangeListener {
     required this._presets,
     required this._settings,
     required this._pauses,
-    required this._reminders,
     required this._distillations,
     required this._rhythm,
     required this._alarms,
@@ -57,7 +55,6 @@ class NotificationPlanner implements ScheduleChangeListener {
   final PresetRepository _presets;
   final NotificationSettingsRepository _settings;
   final PauseRepository _pauses;
-  final ReminderRepository _reminders;
   final DistillationRepository _distillations;
   final DistillationRhythm _rhythm;
   final AlarmScheduler _alarms;
@@ -80,7 +77,6 @@ class NotificationPlanner implements ScheduleChangeListener {
   Future<void> replan({bool force = false}) async {
     final now = _clock();
     final cards = await _cards.getAll();
-    final reminders = await _reminders.getAllUpcoming();
     final candidates = deliveryCandidates(cards, await _presets.loadCatalog());
     final guards = await _settings.loadGuards();
     final reminderSettings = await _settings.loadReminderSettings();
@@ -102,7 +98,6 @@ class NotificationPlanner implements ScheduleChangeListener {
             reminders: reminderSettings,
             guards: guards,
           ),
-      for (final reminder in reminders) reminder.remindAt,
       ...await _distillationPasses(now),
       // A notification moved earlier than now, when a card sharing its time
       // range left it, is shown at once.
@@ -189,7 +184,7 @@ class NotificationPlanner implements ScheduleChangeListener {
     for (final key in await _presenter.shownPrompts()) {
       final card = cardsById[key.cardId];
       final stillDue = card != null && _duePolicy.isDueToday(card, now: now);
-      if (key.isExtraReminder || stillDue) {
+      if (stillDue) {
         continue;
       }
       final chain = key.chain;

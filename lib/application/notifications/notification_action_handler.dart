@@ -40,8 +40,7 @@ class NotificationActionHandler {
   /// the face opposite [askedSide], in its place and "Hide" asks the card
   /// again; neither records anything. A typed answer counts as "Correct"
   /// when it matches the expected one and as "Again" otherwise, then shows
-  /// its verdict. Answering an extra reminder is a bonus review. A card
-  /// deleted meanwhile only closes the notification.
+  /// its verdict. A card deleted meanwhile only closes the notification.
   ///
   /// In a grouped reminder whose cards are chained, the next card replaces
   /// the one answered, or the verdict once acknowledged.
@@ -72,7 +71,6 @@ class NotificationActionHandler {
         key.cardId,
         outcome,
         source: ReviewSource.notification,
-        forceBonus: key.isExtraReminder,
       );
       await _confirm(key, card, askedSide, outcome, result.schedule);
     }
@@ -154,7 +152,6 @@ class NotificationActionHandler {
       typed,
       askedSide: askedSide,
       source: ReviewSource.notification,
-      forceBonus: key.isExtraReminder,
     );
     final group = await _groups.find(card.groupId);
     if (group == null) {

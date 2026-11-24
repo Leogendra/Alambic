@@ -5,7 +5,6 @@ import 'package:alambic/application/cards/card_service.dart';
 import 'package:alambic/application/clock.dart';
 import 'package:alambic/application/distillation/distillation_service.dart';
 import 'package:alambic/application/groups/group_service.dart';
-import 'package:alambic/application/reminders/reminder_service.dart';
 import 'package:alambic/application/reviews/review_service.dart';
 import 'package:alambic/application/scheduling/ignored_schedule_changes.dart';
 import 'package:alambic/application/time/minute_ticker.dart';
@@ -19,7 +18,6 @@ import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/data/repositories/pause_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
-import 'package:alambic/data/repositories/reminder_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/scheduling/due_policy.dart';
 import 'package:alambic/domain/scheduling/review_scheduler.dart';
@@ -81,12 +79,6 @@ class SampleServices {
         duePolicy: const DuePolicy(SchedulingCalendar()),
         clock: clock.call,
         scheduleChangeListener: const IgnoredScheduleChanges(),
-      ),
-      reminders = ReminderService(
-        reminders: ReminderRepository(database),
-        calendar: const SchedulingCalendar(),
-        clock: clock.call,
-        scheduleChangeListener: const IgnoredScheduleChanges(),
       );
 
   final AlambicDatabase database;
@@ -96,7 +88,6 @@ class SampleServices {
   final CardService cards;
   final GroupService groups;
   final ReviewService reviews;
-  final ReminderService reminders;
 
   /// A new card of [groupId], pending in its queue.
   Future<int> card(String front, String back, {required int groupId}) => cards

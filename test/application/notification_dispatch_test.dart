@@ -113,47 +113,6 @@ void main() {
       await dispatchAt(DateTime(2026, 11, 11, 12, 30));
       expect(harness.presenter.prompts.keys, isNot(contains(mongolia)));
     });
-
-    test('shows a late Review soon reminder', () async {
-      final cardId = await mongoliaId();
-      await SampleServices(
-        database,
-        harness.clock,
-      ).reminders.add(cardId, DateTime(2026, 11, 10), const ClockTime(10, 0));
-      await dispatchAt(DateTime(2026, 11, 10, 15));
-      expect(
-        harness.presenter.prompts.keys.where((key) => key.isExtraReminder),
-        hasLength(1),
-      );
-    });
-
-    test('shows a Review soon reminder as a bonus', () async {
-      final cardId = await mongoliaId();
-      final reminderId = await SampleServices(
-        database,
-        harness.clock,
-      ).reminders.add(cardId, DateTime(2026, 11, 10), const ClockTime(18, 0));
-      await dispatchAt(DateTime(2026, 11, 10, 18));
-      final key = ReviewNotificationKey(
-        cardId: cardId,
-        extraReminderId: reminderId,
-      );
-      // The cards due at noon are late, and shown too.
-      expect(harness.presenter.prompts.keys, contains(key));
-      await harness
-          .read(notificationActionHandlerProvider)
-          .handle(key, NotificationAction.correct);
-      final history = await ReviewRepository(database)
-          .watchHistory(cardId)
-          .first;
-      expect(history.single.isBonus, isTrue);
-      expect(
-        harness.presenter.prompts.keys,
-        isNot(contains(key)),
-        reason: 'a bonus answer only closes the notification',
-      );
-      expect(harness.presenter.confirmations, isEmpty);
-    });
   });
 
   group('answering from the notification', () {

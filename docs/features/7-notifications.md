@@ -26,7 +26,7 @@ A due date is a moment, written when a card is answered, so changing the daily s
 
 ### Planning the wake-ups
 
-`NotificationPlanner` listens to every schedule change: an answer, an introduction, a reset, a suspension, a deletion, a reminder added or removed. Each time, it computes the next wake-ups from the [notification moments](../lexicon.md#notification-moment) of the scheduled, non-suspended cards and from the upcoming [extra reminders](../lexicon.md#extra-reminder), plus the start of the next day each running [distillation](8-distillation.md) has to process, and the slot of the next day for every card still due whose moment has passed, so that an ignored card is sent again even when nothing else wakes the app:
+`NotificationPlanner` listens to every schedule change: an answer, an introduction, a reset, a suspension, a deletion. Each time, it computes the next wake-ups from the [notification moments](../lexicon.md#notification-moment) of the scheduled, non-suspended cards, plus the start of the next day each running [distillation](8-distillation.md) has to process, and the slot of the next day for every card still due whose moment has passed, so that an ignored card is sent again even when nothing else wakes the app:
 
 - one wake-up per distinct minute, a due moment with seconds (after a sub-day interval) being rounded up to the next minute;
 - at most 48 wake-ups ahead, since each wake-up plans the next ones;
@@ -53,20 +53,20 @@ Home's timeline lists the same moments, so a range shows one line per notificati
 Three safeguards, set in Settings › Notifications › Safeguards, as the blocks of a single group, and stored in the database (`NotificationGuards`), apply to every group. `DeliveryPlanner` applies the first two to the notification moments, the dispatcher the third:
 
 - **Quiet hours** ("Do not disturb", on by default, 22:00 to 08:00): a notification falling inside is moved to their end, 23:10 to 08:00 the next morning. The hours may span midnight or stay within a day. A notification moved to the next morning keeps that moment even though its due day is over.
-- **Daily cap** (20 cards by default): each day, the cards beyond the cap are not notified; the ones waiting the longest interval of their sequence go last, a new card counting as the shortest. They are moved to the slot of the next day, where they compete again. The cards already notified that day count against the cap, through a counter of the day kept in `app_settings`, since a card answered loses the trace of its notification. A card in a grouped reminder counts as one card; "Review soon" reminders are not counted.
+- **Daily cap** (20 cards by default): each day, the cards beyond the cap are not notified; the ones waiting the longest interval of their sequence go last, a new card counting as the shortest. They are moved to the slot of the next day, where they compete again. The cards already notified that day count against the cap, through a counter of the day kept in `app_settings`, since a card answered loses the trace of its notification. A card in a grouped reminder counts as one card.
 - **Auto grouping** (on by default, beyond 5): when a wake-up has more notifications to show than the threshold, card notifications and grouped reminders together, a single notification replaces them, "12 cards to review", naming the groups and the estimated time. Touching it opens a session on every due card. Its count follows the answers given in the app: it counts the cards notified that day that are still due, and closes when none is left.
 
 The Garde-fous screen saves each change at once and plans the wake-ups again. Under the cap, it shows tomorrow's load: the cards due tomorrow, how many fit under the cap and how many would be moved to the day after.
 
 ### Pauses
 
-A pause, of a distillation or global, only holds back new cards ([Feature 8](8-distillation.md#pause)): every introduced card keeps being notified, "Review soon" reminders included, and no due date moves. The global pause only removes the wake-ups planned for the distillations.
+A pause, of a distillation or global, only holds back new cards ([Feature 8](8-distillation.md#pause)): every introduced card keeps being notified, and no due date moves. The global pause only removes the wake-ups planned for the distillations.
 
 ### Showing a card
 
 When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per card whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A notification that could not be shown at its moment, the phone being off or the alarm held back, is shown as soon as the app wakes up, whatever the delay. During the quiet hours it waits for their end; when that end falls on the next day, the card comes back at the slot of that day, like an ignored one.
 
-The notification shows the name of the group in its header, beside the name of the app, the asked face as its title ("What does this image show?" for a face that is an image alone), and three buttons, "Again", "Reveal" and "Correct": "Again" and "Correct" in the order of the answer buttons of a session, "Reveal" between them. It shows nothing else: neither the step, nor the asked side, nor whether it is an extra reminder. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
+The notification shows the name of the group in its header, beside the name of the app, the asked face as its title ("What does this image show?" for a face that is an image alone), and three buttons, "Again", "Reveal" and "Correct": "Again" and "Correct" in the order of the answer buttons of a session, "Reveal" between them. It shows nothing else: neither the step, nor the asked side. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
 
 With the [back option](../lexicon.md#back-option) of the group, the asked face is drawn when the notification is shown, one chance in two, and each chained card of a grouped reminder draws its own. The face drawn travels in the payload, so that the answer revealed and the typed answer are read against the other face.
 
@@ -80,7 +80,6 @@ The buttons are handled in a background isolate, app open or not, by `Notificati
 
 - "Correct" and "Again" record the answer and replace the notification in place, silently, with the delay it gave as the title: "Correct, next in 3 d", "To review, next in 10 min", or "Correct, card learned". The group stays in the header, and the answer face of the card (its text and its image) is shown under the title, whether "Reveal" was pressed or not. The delay is counted in [scheduling days](../lexicon.md#daily-slot) when the card comes back on a later day, else in minutes or hours. The notification closes by itself after 5 seconds. A chained card gives way to the next one instead;
 - "Reveal" replaces the notification in place, without sound or vibration, with the answer face (its text alone, "Lima", and its image) under the asked face, and the buttons "Again", "Hide" and "Correct", each in its place. "Again" and "Correct" then behave as above; "Hide" asks the card again in place, silently, with its first buttons. Nothing is recorded until "Again" or "Correct" is pressed: a revealed notification swiped away is an ignored one, and the card stays due;
-- answering an extra reminder is always a [bonus review](../lexicon.md#bonus-review), which only closes the notification;
 - a card deleted meanwhile only closes the notification.
 
 ### Touching a notification
@@ -92,7 +91,7 @@ Touching the body of a notification opens a session in the app ([Feature 5](5-se
 - A grouped reminder, or its "Open the app": the due cards of the group, then the others.
 - The digest, or its "Open the app", the verdict of a typed answer and the line left by an answer, whose card is already answered: every due card.
 
-The due cards are the ones a session counts as [due](../lexicon.md#due) today, earliest due first, each asked face drawn at the opening; the touched card is not asked twice. A card that is not due, such as the card of a "Review soon" reminder, is answered as a bonus review. The session opens above the root screen, closing the screens opened on it; when nothing is left to review, the app opens where it was, without a session.
+The due cards are the ones a session counts as [due](../lexicon.md#due) today, earliest due first, each asked face drawn at the opening; the touched card is not asked twice. A card that is not due is answered as a bonus review. The session opens above the root screen, closing the screens opened on it; when nothing is left to review, the app opens where it was, without a session.
 
 ### Typed answer
 
@@ -136,7 +135,6 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] A suspended card is never notified.
 - [x] A notification that could not be shown at its moment is shown when the phone is back on, whatever the delay, outside the quiet hours.
 - [x] A notification ignored or swiped is sent again the next day at the [daily slot](../lexicon.md#daily-slot), without any effect on the step.
-- [x] A "Review soon" reminder is notified at its moment, and its answer is a bonus review.
 - [x] Without the exact alarm permission, reminders are still planned as inexact alarms, and Settings offers to allow exact alarms.
 - [x] Wake-ups are planned again after a phone restart and at each launch.
 - [x] With the typed answer option, the card is answered in a field of the notification; the buttons are "Again", "Reveal" and "Answer"; the comparison ignores case, accents and spaces and forgives one typo, then the verdict is shown ("Correct, next in 1 d", "To review (Lima), next in 1 d") above the expected answer, and closes by itself.
@@ -179,7 +177,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 
 ## Technical details
 
-The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its card id; extra reminders use ids from 1,000,000,000 upwards so that they never replace the notification of a due card; the digest of a moment uses 2,000,000,000; the grouped reminder of a group uses the negative id `-1 - groupId`, and the cards chained in it take the same id, so that each one replaces the previous. A notification carries its key (card, extra reminder, chained group, prompt or answer, the [asked side](../lexicon.md#asked-side), or the group and count of a grouped reminder) in its payload, which is how the planner finds the notifications shown and how a pressed button finds what it answers.
+The alarm id of a wake-up is its minute since the epoch, so two plannings agree on the id of a moment without sharing state. The notification id of a card is its card id; the digest of a moment uses 2,000,000,000; the grouped reminder of a group uses the negative id `-1 - groupId`, and the cards chained in it take the same id, so that each one replaces the previous. A notification carries its key (card, chained group, prompt or answer, the [asked side](../lexicon.md#asked-side), or the group and count of a grouped reminder) in its payload, which is how the planner finds the notifications shown and how a pressed button finds what it answers.
 
 "Open the app" and touching a grouped reminder launch the app instead of a background isolate: the plugin hands the response to the running app, or to the launch details when the notification started it. `notificationTargetsProvider` turns both into a stream of `NotificationTarget`, read from the payload, which the main shell follows each time it is built (again after the onboarding is replayed): only its first listener gets the launch target; `NotificationSession` turns a target into the items of the session. The due cards are read from the database, not from the screens' providers, which are still loading when a notification launches the app.
 

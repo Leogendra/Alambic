@@ -206,8 +206,8 @@ class _DateBadge extends StatelessWidget {
   }
 }
 
-/// A card reminder: its front, its group with "late", the time of today's
-/// reminder or "Review soon", and the time left.
+/// A card reminder: its front, its group with "late" or the time of today's
+/// reminder, and the time left.
 class _CardRow extends StatelessWidget {
   const _CardRow({
     required this.entry,
@@ -264,11 +264,6 @@ class _CardRow extends StatelessWidget {
                           )
                         else if (isToday)
                           TextSpan(text: ' · ${_time()}', style: accent),
-                        if (entry.isExtraReminder)
-                          TextSpan(
-                            text: ' · ${strings.cardSheetReviewSoon}',
-                            style: accent,
-                          ),
                       ],
                     ),
                     maxLines: 1,

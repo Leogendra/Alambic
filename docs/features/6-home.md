@@ -8,16 +8,15 @@ Answer, on opening the app, the question "what is coming?": the cards of today, 
 
 ## Implementation overview
 
-The Home tab is a single timeline, `HomeTimeline`, computed by `TimelinePlanner` from every card, the upcoming [extra reminders](../lexicon.md#extra-reminder), the distillations and the global pause. It is recomputed whenever one of these changes and every minute, through the current moment.
+The Home tab is a single timeline, `HomeTimeline`, computed by `TimelinePlanner` from every card, the distillations and the global pause. It is recomputed whenever one of these changes and every minute, through the current moment.
 
 ### The timeline
 
-The timeline covers seven [days](../lexicon.md#day): today and the six next ones. Today always shows, with "Nothing planned today." when it is empty; a later day shows only when something falls on it. It reads as an agenda, with no panel: a hairline starts each day, whose date sits on the left as a weekday and a number ("TUE 24"), today's on a badge filled in the accent colour. Under the date, a thin trait runs down towards the next day; the last one fades out, towards [what lies further ahead](#further-ahead). Today and tomorrow are named in capitals above their content, "TODAY" and "TOMORROW"; the other days only have their date.
+The timeline covers seven [days](../lexicon.md#day): today and the six next ones. Today always shows, with "Nothing planned today." when it is empty; a later day shows only when something falls on it. It reads as an agenda, with no panel: a hairline starts each day, whose date sits on the left as a weekday and a number ("TUE 24"), today's on a badge filled in the accent colour. Under the date, a thin trait runs down towards the next day; the last one fades out, towards [what lies further ahead](#further-ahead). Today is named in capitals above its content, "TODAY"; the other days only have their date.
 
 Each day lists its reminders card by card:
 
 - an introduced card goes on the day of its [due date](../lexicon.md#due-date), or on today when it is [due](../lexicon.md#due), with "late" in red after its group when its due day is past; today's cards also give their time ("Capitals · 12:00");
-- a "Review soon" reminder goes on its day, with "Review soon" after its group;
 - each card shows its front and its group, never its step; touching it opens its sheet;
 - on its right, in a pill, the time left before its reminder: in hours today, rounded up ("3H" at 15:00 for 17:30), in days afterwards ("1D" tomorrow, up to "6D"). A late card, or one whose moment has passed, has none.
 
@@ -36,7 +35,7 @@ A paused distillation announces no future arrival, and neither does any distilla
 
 ### Further ahead
 
-After the detailed days, under a dashed rule titled "Further ahead", two figures side by side: the cards within a month, from the 8th to the 30th day, and those within a year, from the 31st to the 365th ("8 cards within a month", "28 cards within a year"). The two windows do not overlap: the second does not include the first. Each counts the reminders planned then (one per card, at its due date, and the "Review soon" reminders) and the new cards expected, introduced cards never answered and distillation arrivals alike. They do not react to touch.
+After the detailed days, under a dashed rule titled "Further ahead", two figures side by side: the cards within a month, from the 8th to the 30th day, and those within a year, from the 31st to the 365th ("8 cards within a month", "28 cards within a year"). The two windows do not overlap: the second does not include the first. Each counts the reminders planned then (one per card, at its due date) and the new cards expected, introduced cards never answered and distillation arrivals alike. They do not react to touch.
 
 ### Header
 
@@ -54,7 +53,7 @@ A card counts once notified: answered at least once, or introduced with its firs
 
 - [x] Today shows first, its date on an accent badge, with its late cards first, even when empty; the next six days follow when something falls on them.
 - [x] A thin trait runs down from each date towards the next day, the last one fading out.
-- [x] Each reminder shows its card's front and its group, without its step; a "Review soon" reminder shows on its day.
+- [x] Each reminder shows its card's front and its group, without its step.
 - [x] New cards show as one line per day listing its groups with their count, made of the introduced cards never answered and of the arrivals expected from the distillation; each group opens.
 - [x] A paused distillation, or any during the global pause, announces no arrival.
 - [x] Each reminder shows the time left before it, in hours today and in days afterwards, except when late or past.
@@ -64,7 +63,7 @@ A card counts once notified: answered at least once, or introduced with its firs
 
 ## Test strategy
 
-- `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, suspended and pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, batch days taken by the reviews of the group, paused distillation and global pause, "Review soon" reminders, the time left before each reminder, the totals of the coming month and year at their bounds, and the cards notified (answered, or introduced with their first moment passed).
+- `TimelinePlanner` is tested as pure logic with a fixed moment: late cards first, empty days left out but today kept, suspended and pending cards left out, new cards counted per group, today's batch owed until the daily pass ran, batch days taken by the reviews of the group, paused distillation and global pause, the time left before each reminder, the totals of the coming month and year at their bounds, and the cards notified (answered, or introduced with their first moment passed).
 - The arrivals of a distillation are tested on `DistillationRhythm` ([Feature 8](8-distillation.md#test-strategy)).
 - The screen is covered by screen tests with a capture in light and dark theme, in French and during the global pause, on the sample data partly answered, with a reminder and a distilling group, by one of a distillation in progress, by one scrolled to the coming month and year, with a group distilling over several months, and by one pulled down on the cards learned.
 

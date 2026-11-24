@@ -1,7 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/data_providers.dart';
-import '../../domain/reviews/extra_reminder.dart';
 import '../cards/card_providers.dart';
 import '../clock.dart';
 import '../distillation/distillation_providers.dart';
@@ -19,21 +17,14 @@ final todayStartProvider = Provider<DateTime?>((ref) {
   return now == null ? null : calendar.startOf(calendar.dayOf(now));
 });
 
-/// "Review soon" reminders not shown yet.
-final upcomingExtraRemindersProvider = StreamProvider<List<ExtraReminder>>(
-  (ref) => ref.watch(reminderRepositoryProvider).watchAllUpcoming(),
-);
-
 /// Home's timeline; `null` while loading.
 final homeTimelineProvider = Provider<HomeTimeline?>((ref) {
   final cards = ref.watch(allCardsProvider).value;
-  final reminders = ref.watch(upcomingExtraRemindersProvider).value;
   final distillations = ref.watch(distillationsProvider).value;
   final catalog = ref.watch(presetCatalogProvider).value;
   final globalPause = ref.watch(globalPauseProvider);
   final now = ref.watch(currentMomentProvider).value;
   if (cards == null ||
-      reminders == null ||
       distillations == null ||
       catalog == null ||
       !globalPause.hasValue ||
@@ -46,7 +37,6 @@ final homeTimelineProvider = Provider<HomeTimeline?>((ref) {
       rhythm: ref.watch(distillationRhythmProvider),
     ).build(
       cards: cards,
-      reminders: reminders,
       distillations: distillations,
       catalog: catalog,
       globallyPaused: globalPause.value != null,

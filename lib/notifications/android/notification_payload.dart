@@ -21,7 +21,6 @@ abstract final class NotificationPayload {
     return jsonEncode({
       'card': key.cardId,
       'side': askedSide.name,
-      'reminder': key.extraReminderId,
       'prompt': isPrompt,
       if (chain != null) ...{'chained': true, 'group': chain.groupId},
     });
@@ -122,7 +121,6 @@ abstract final class NotificationPayload {
   static ReviewNotificationKey _key(Map<String, dynamic> fields) =>
       ReviewNotificationKey(
         cardId: fields['card'] as int,
-        extraReminderId: fields['reminder'] as int?,
         chain: fields['chained'] == true
             ? GroupReminderKey(fields['group'] as int)
             : null,

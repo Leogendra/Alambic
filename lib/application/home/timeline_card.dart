@@ -6,21 +6,16 @@ class TimelineCard {
     required this.card,
     required this.at,
     this.isLate = false,
-    this.isExtraReminder = false,
     this.delay,
   });
 
   final Flashcard card;
 
-  /// Moment of the reminder: the due moment of the card, or the moment of
-  /// its "Review soon" reminder.
+  /// Moment of the reminder: the due moment of the card.
   final DateTime at;
 
   /// Due on an earlier day and still not answered.
   final bool isLate;
-
-  /// A "Review soon" reminder rather than a due review.
-  final bool isExtraReminder;
 
   /// Time left before the reminder; `null` once its moment has passed.
   final TimelineDelay? delay;

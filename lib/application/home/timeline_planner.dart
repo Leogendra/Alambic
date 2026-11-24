@@ -2,7 +2,6 @@ import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/presets/preset_catalog.dart';
-import '../../domain/reviews/extra_reminder.dart';
 import '../../domain/scheduling/due_policy.dart';
 import '../../domain/scheduling/scheduling_calendar.dart';
 import 'home_timeline.dart';
@@ -37,7 +36,6 @@ class TimelinePlanner {
 
   HomeTimeline build({
     required List<Flashcard> cards,
-    required List<ExtraReminder> reminders,
     required List<Distillation> distillations,
     required PresetCatalog catalog,
     required bool globallyPaused,
@@ -46,7 +44,6 @@ class TimelinePlanner {
     final today = calendar.dayOf(now);
     final days = _DayBuckets(calendar, today);
     _placeCards(days, cards, now);
-    _placeReminders(days, cards, reminders, now);
     if (!globallyPaused) {
       _placeDistillations(days, cards, distillations, catalog, now);
     }
@@ -97,29 +94,6 @@ class TimelinePlanner {
             at: dueAt,
             isLate: isLate,
             delay: isLate ? null : _delay(dueAt, now),
-          ),
-        );
-      }
-    }
-  }
-
-  void _placeReminders(
-    _DayBuckets days,
-    List<Flashcard> cards,
-    List<ExtraReminder> reminders,
-    DateTime now,
-  ) {
-    final cardsById = {for (final card in cards) card.id: card};
-    for (final reminder in reminders) {
-      final card = cardsById[reminder.cardId];
-      if (card != null && !card.suspended) {
-        days.addCard(
-          calendar.dayOf(reminder.remindAt),
-          TimelineCard(
-            card: card,
-            at: reminder.remindAt,
-            isExtraReminder: true,
-            delay: _delay(reminder.remindAt, now),
           ),
         );
       }

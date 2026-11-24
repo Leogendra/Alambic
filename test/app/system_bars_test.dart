@@ -11,12 +11,10 @@ import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/domain/cards/card_side.dart';
-import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/features/cards/bulk_add_screen.dart';
 import 'package:alambic/features/cards/card_editor_screen.dart';
 import 'package:alambic/features/cards/card_sheet_screen.dart';
 import 'package:alambic/features/cards/group_picker.dart';
-import 'package:alambic/features/cards/review_soon_sheet.dart';
 import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/groups/group_settings_screen.dart';
@@ -424,19 +422,6 @@ void main() {
           );
         }
       });
-      await expectClearOfSystemBars(tester);
-    });
-
-    testScreen('review soon', (tester) async {
-      await openSheet(
-        tester,
-        (context) => showReviewSoonSheet(
-          context,
-          cardId: firstCardId,
-          front: 'Mongolia',
-          defaultTime: const ClockTime(18, 0),
-        ),
-      );
       await expectClearOfSystemBars(tester);
     });
   });

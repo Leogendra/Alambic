@@ -26,11 +26,7 @@ class AndroidNotificationPresenter implements NotificationPresenter {
 
   static const String channelId = 'reviews';
 
-  /// Ids of extra reminders start here, above any card id, so that an
-  /// extra reminder never replaces the notification of a due card.
-  static const int _extraReminderIdBase = 1000000000;
-
-  /// The digest is a single notification, above any extra reminder.
+  /// The digest is a single notification, above any card id.
   static const int _digestId = 2000000000;
 
   /// The test notification of the onboarding is a single one too.
@@ -306,18 +302,10 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   /// A card chained in a grouped reminder takes the place of the reminder.
   static int _idOf(ReviewNotificationKey key) {
     final chain = key.chain;
-    final extraReminderId = key.extraReminderId;
-    if (chain != null) {
-      return _groupIdOf(chain);
-    } else if (extraReminderId != null) {
-      return _extraReminderIdBase + extraReminderId;
-    } else {
-      return key.cardId;
-    }
+    return chain == null ? key.cardId : _groupIdOf(chain);
   }
 
-  /// Grouped reminders use negative ids, which no card or extra reminder
-  /// uses.
+  /// Grouped reminders use negative ids, which no card uses.
   static int _groupIdOf(GroupReminderKey key) => -1 - key.groupId;
 
   /// The answer in the expanded notification: its image under [title] when

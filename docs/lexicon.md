@@ -72,10 +72,6 @@ Scheduling day, which starts at 4am rather than midnight (`SchedulingCalendar`).
 
 A card is due today when its due date has passed, or when it falls today and the card has not already been reviewed today (`DuePolicy`). A suspended card is never due.
 
-### Extra reminder
-
-A one-off reminder added to a card with "Review soon" (`ExtraReminder`). Answering it is a [bonus review](#bonus-review).
-
 ### Pause
 
 A period during which a [distillation](#distillation) introduces no card (`Distillation.pausedAt`): the pause of one distillation, or the global pause, which holds back every distillation. A pause never stops the notifications nor moves a [due date](#due-date); a group has no pause of its own.

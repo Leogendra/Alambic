@@ -8,7 +8,6 @@ import 'repositories/group_repository.dart';
 import 'repositories/notification_settings_repository.dart';
 import 'repositories/pause_repository.dart';
 import 'repositories/preset_repository.dart';
-import 'repositories/reminder_repository.dart';
 
 /// The open database. Always overridden: by the app entry point with the
 /// database file, by tests with an in-memory database.
@@ -31,10 +30,6 @@ final groupRepositoryProvider = Provider(
 
 final cardRepositoryProvider = Provider(
   (ref) => CardRepository(ref.watch(databaseProvider)),
-);
-
-final reminderRepositoryProvider = Provider(
-  (ref) => ReminderRepository(ref.watch(databaseProvider)),
 );
 
 final distillationRepositoryProvider = Provider(

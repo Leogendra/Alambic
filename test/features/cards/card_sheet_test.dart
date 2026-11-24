@@ -4,7 +4,6 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
-import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/features/cards/card_sheet_screen.dart';
 
 import '../../support/fixed_clock.dart';
@@ -43,11 +42,6 @@ void main() {
       await answer(DateTime(2026, 11, 11, 12, 1), ReviewOutcome.correct);
       await answer(DateTime(2026, 11, 12, 8), ReviewOutcome.again);
       clock.now = renderAt;
-      await samples.reminders.add(
-        cardId,
-        DateTime(2026, 11, 15),
-        const ClockTime(18, 0),
-      );
     });
     return cardId;
   }

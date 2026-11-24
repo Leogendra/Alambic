@@ -4,7 +4,6 @@ import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/preset_repository.dart';
-import '../../data/repositories/reminder_repository.dart';
 import '../../domain/cards/asked_side_draw.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/groups/card_group.dart';
@@ -23,10 +22,9 @@ import 'review_notification_key.dart';
 import 'review_prompt.dart';
 
 /// Runs when the app wakes up: runs the daily pass of the distillations,
-/// shows a notification for every card and every "Review soon" reminder
-/// whose moment has come, then plans the next wake-ups. In the grouped
-/// reminder mode, a card is announced by the reminder of its group
-/// instead. Beyond the auto grouping threshold, a single notification
+/// shows a notification for every card whose moment has come, then plans
+/// the next wake-ups. In the grouped reminder mode, a card is announced by
+/// the reminder of its group instead. Beyond the auto grouping threshold, a single notification
 /// replaces all of them. The cards notified count against the daily cap. The
 /// content is read from the database at that moment, never fixed when the
 /// wake-up was planned, and the asked face is drawn for each notification.
@@ -35,7 +33,6 @@ class NotificationDispatcher {
     required this._cards,
     required this._groups,
     required this._presets,
-    required this._reminders,
     required this._settings,
     required this._distillations,
     required this._groupedReminders,
@@ -49,7 +46,6 @@ class NotificationDispatcher {
   final CardRepository _cards;
   final GroupRepository _groups;
   final PresetRepository _presets;
-  final ReminderRepository _reminders;
   final NotificationSettingsRepository _settings;
   final DistillationService _distillations;
   final GroupedReminders _groupedReminders;
@@ -95,7 +91,7 @@ class NotificationDispatcher {
         if (reminderSettings.notificationMode == NotificationMode.grouped) {
           groupedReminders.add(GroupReminderKey(card.groupId));
         } else {
-          prompts.add(_prompt(card, groups, null));
+          prompts.add(_prompt(card, groups));
         }
         notifiedGroups.add(card.groupId);
         await _cards.markNotified(card.id, now);
@@ -116,41 +112,13 @@ class NotificationDispatcher {
     if (notifiedGroups.isNotEmpty) {
       await _settings.addNotified(today, notifiedGroups.length);
     }
-    await _dispatchExtraReminders(cards, groups, now);
     await _planner.replan();
   }
 
-  /// Shows the extra reminders whose moment has come, however long ago.
-  Future<void> _dispatchExtraReminders(
-    List<Flashcard> cards,
-    Map<int, CardGroup> groups,
-    DateTime now,
-  ) async {
-    for (final reminder in await _reminders.getAllUpcoming()) {
-      if (reminder.remindAt.isAfter(now)) {
-        continue;
-      }
-      final card = cards
-          .where((card) => card.id == reminder.cardId)
-          .firstOrNull;
-      if (card != null) {
-        await _presenter.showPrompt(_prompt(card, groups, reminder.id));
-      }
-      await _reminders.markNotified(reminder.id, now);
-    }
-  }
-
-  ReviewPrompt _prompt(
-    Flashcard card,
-    Map<int, CardGroup> groups,
-    int? extraReminderId,
-  ) {
+  ReviewPrompt _prompt(Flashcard card, Map<int, CardGroup> groups) {
     final group = groups[card.groupId]!;
     return ReviewPrompt.of(
-      key: ReviewNotificationKey(
-        cardId: card.id,
-        extraReminderId: extraReminderId,
-      ),
+      key: ReviewNotificationKey(cardId: card.id),
       card: card,
       askedSide: AskedSideDraw.draw(group, _random),
       group: group,

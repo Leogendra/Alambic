@@ -6,7 +6,6 @@ import 'package:alambic/data/repositories/pause_repository.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
-import 'package:alambic/domain/scheduling/clock_time.dart';
 import 'package:alambic/features/home/home_screen.dart';
 
 import '../../support/fixed_clock.dart';
@@ -22,8 +21,8 @@ void main() {
   setUp(() => database = openTestDatabase());
   tearDown(() => closeTestDatabase(database));
 
-  /// Sample data answered in part at 12:05, a "Review soon" reminder at 18:00
-  /// and a "Japanese" group distilling one card a day.
+  /// Sample data answered in part at 12:05 and a "Japanese" group distilling
+  /// one card a day.
   Future<void> seed(WidgetTester tester) async {
     await tester.runAsync(() async {
       final samples = SampleServices(database, FixedClock(sampleNow));
@@ -44,11 +43,6 @@ void main() {
           source: ReviewSource.notification,
         );
       }
-      await samples.reminders.add(
-        cards.last.id,
-        DateTime(2026, 11, 10),
-        const ClockTime(18, 0),
-      );
     });
   }
 
@@ -63,7 +57,7 @@ void main() {
       );
       expect(find.text('Japanese 1'), findsNWidgets(2));
       expect(find.text('Capitals 2'), findsOneWidget);
-      expect(find.text('TOMORROW'), findsOneWidget);
+      expect(find.text('TODAY'), findsOneWidget);
       // The global pause is started from Settings, not from Home.
       expect(find.byIcon(Icons.pause), findsNothing);
       await captureShot(
@@ -83,7 +77,7 @@ void main() {
       locale: const Locale('fr'),
       overrides: screenOverrides(database, renderAt),
     );
-    expect(find.text('DEMAIN'), findsOneWidget);
+    expect(find.text("AUJOURD'HUI"), findsOneWidget);
     await captureShot(tester, find.byType(HomeScreen), 'home_french');
     await expectNoOverflow(tester);
   });

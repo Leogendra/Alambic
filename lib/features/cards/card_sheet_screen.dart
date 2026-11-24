@@ -1,16 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../app/formatting/date_labels.dart';
 import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/section_label.dart';
-import '../../app/widgets/surface_panel.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
-import '../../application/notifications/guard_providers.dart';
 import '../../application/presets/preset_providers.dart';
-import '../../application/reminders/reminder_providers.dart';
 import '../../domain/cards/card_face.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/presets/preset.dart';
@@ -21,10 +17,9 @@ import 'card_image.dart';
 import 'card_progress_panel.dart';
 import 'card_status_formatter_provider.dart';
 import 'review_history_list.dart';
-import 'review_soon_sheet.dart';
 
-/// Card sheet: both faces, then its step, next review, reminders and
-/// history, with the actions on the card.
+/// Card sheet: both faces, then its step, next review and history, with the
+/// actions on the card.
 class CardSheetScreen extends ConsumerStatefulWidget {
   const CardSheetScreen({required this.cardId, super.key});
 
@@ -98,7 +93,6 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
           ),
           const SizedBox(height: 14),
           _actions(card, preset),
-          _Reminders(cardId: card.id),
           const SizedBox(height: 24),
           SectionLabel(strings.cardSheetHistory),
           ReviewHistoryList(cardId: card.id, preset: preset, end: end),
@@ -113,12 +107,6 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
     return Row(
       spacing: 8,
       children: [
-        _ActionButton(
-          icon: Icons.schedule,
-          label: strings.cardSheetReviewSoon,
-          isAccent: true,
-          onPressed: card.isPending ? null : () => _reviewSoon(card),
-        ),
         _ActionButton(
           icon: suspended ? Icons.play_arrow : Icons.pause,
           label: suspended ? strings.cardSheetResume : strings.cardSheetSuspend,
@@ -142,29 +130,6 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
       return;
     }
     await openSession(context, ref, [card.id]);
-  }
-
-  /// The reminder time of the app is offered first.
-  Future<void> _reviewSoon(Flashcard card) async {
-    final strings = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final reminders = await ref.read(reminderSettingsProvider.future);
-    if (!mounted) {
-      return;
-    }
-    final remindAt = await showReviewSoonSheet(
-      context,
-      cardId: card.id,
-      front: card.frontText ?? strings.cardImageOnly,
-      defaultTime: reminders.dailySlot,
-    );
-    if (remindAt != null) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(strings.reviewSoonAdded(strings.dayDateTime(remindAt))),
-        ),
-      );
-    }
   }
 
   Future<void> _confirmReset() async {
@@ -292,23 +257,19 @@ class _ActionButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onPressed,
-    this.isAccent = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
-  final bool isAccent;
 
   @override
   Widget build(BuildContext context) {
     final colors = AlambicColors.of(context);
     final enabled = onPressed != null;
-    final foreground = !enabled
-        ? colors.textSecondary.withValues(alpha: 0.5)
-        : isAccent
-        ? colors.accentText
-        : colors.textPrimary;
+    final foreground = enabled
+        ? colors.textPrimary
+        : colors.textSecondary.withValues(alpha: 0.5);
     return Expanded(
       child: Material(
         color: colors.surface,
@@ -338,55 +299,6 @@ class _ActionButton extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Upcoming "Review soon" reminders of a card, each removable.
-class _Reminders extends ConsumerWidget {
-  const _Reminders({required this.cardId});
-
-  final int cardId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final strings = AppLocalizations.of(context);
-    final reminders =
-        ref.watch(upcomingRemindersProvider(cardId)).value ?? const [];
-    if (reminders.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return Padding(
-      padding: const EdgeInsets.only(top: 14),
-      child: SurfacePanel(
-        children: [
-          for (final reminder in reminders)
-            Row(
-              children: [
-                Icon(
-                  Icons.notifications_none,
-                  size: 18,
-                  color: AlambicColors.of(context).textSecondary,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    strings.cardSheetReminder(
-                      strings.dayDateTime(reminder.remindAt),
-                    ),
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ),
-                IconButton(
-                  tooltip: strings.cardSheetReminderRemove,
-                  icon: const Icon(Icons.close, size: 20),
-                  onPressed: () =>
-                      ref.read(reminderServiceProvider).remove(reminder.id),
-                ),
-              ],
-            ),
-        ],
       ),
     );
   }

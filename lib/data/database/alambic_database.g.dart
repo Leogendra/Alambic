@@ -2949,208 +2949,6 @@ class ReviewRecordsCompanion extends UpdateCompanion<ReviewRecord> {
   }
 }
 
-class $ExtraRemindersTable extends ExtraReminders
-    with TableInfo<$ExtraRemindersTable, ExtraReminder> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $ExtraRemindersTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
-  @override
-  late final GeneratedColumn<int> cardId = GeneratedColumn<int>(
-    'card_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES flashcards (id) ON DELETE CASCADE',
-    ),
-  );
-  static const VerificationMeta _remindAtMeta = const VerificationMeta(
-    'remindAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> remindAt = GeneratedColumn<DateTime>(
-    'remind_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _notifiedAtMeta = const VerificationMeta(
-    'notifiedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> notifiedAt = GeneratedColumn<DateTime>(
-    'notified_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [id, cardId, remindAt, notifiedAt];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'extra_reminders';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<ExtraReminder> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('card_id')) {
-      context.handle(
-        _cardIdMeta,
-        cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_cardIdMeta);
-    }
-    if (data.containsKey('remind_at')) {
-      context.handle(
-        _remindAtMeta,
-        remindAt.isAcceptableOrUnknown(data['remind_at']!, _remindAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_remindAtMeta);
-    }
-    if (data.containsKey('notified_at')) {
-      context.handle(
-        _notifiedAtMeta,
-        notifiedAt.isAcceptableOrUnknown(data['notified_at']!, _notifiedAtMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  ExtraReminder map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ExtraReminder(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      cardId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}card_id'],
-      )!,
-      remindAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}remind_at'],
-      )!,
-      notifiedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}notified_at'],
-      ),
-    );
-  }
-
-  @override
-  $ExtraRemindersTable createAlias(String alias) {
-    return $ExtraRemindersTable(attachedDatabase, alias);
-  }
-}
-
-class ExtraRemindersCompanion extends UpdateCompanion<ExtraReminder> {
-  final Value<int> id;
-  final Value<int> cardId;
-  final Value<DateTime> remindAt;
-  final Value<DateTime?> notifiedAt;
-  const ExtraRemindersCompanion({
-    this.id = const Value.absent(),
-    this.cardId = const Value.absent(),
-    this.remindAt = const Value.absent(),
-    this.notifiedAt = const Value.absent(),
-  });
-  ExtraRemindersCompanion.insert({
-    this.id = const Value.absent(),
-    required int cardId,
-    required DateTime remindAt,
-    this.notifiedAt = const Value.absent(),
-  }) : cardId = Value(cardId),
-       remindAt = Value(remindAt);
-  static Insertable<ExtraReminder> custom({
-    Expression<int>? id,
-    Expression<int>? cardId,
-    Expression<DateTime>? remindAt,
-    Expression<DateTime>? notifiedAt,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (cardId != null) 'card_id': cardId,
-      if (remindAt != null) 'remind_at': remindAt,
-      if (notifiedAt != null) 'notified_at': notifiedAt,
-    });
-  }
-
-  ExtraRemindersCompanion copyWith({
-    Value<int>? id,
-    Value<int>? cardId,
-    Value<DateTime>? remindAt,
-    Value<DateTime?>? notifiedAt,
-  }) {
-    return ExtraRemindersCompanion(
-      id: id ?? this.id,
-      cardId: cardId ?? this.cardId,
-      remindAt: remindAt ?? this.remindAt,
-      notifiedAt: notifiedAt ?? this.notifiedAt,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (cardId.present) {
-      map['card_id'] = Variable<int>(cardId.value);
-    }
-    if (remindAt.present) {
-      map['remind_at'] = Variable<DateTime>(remindAt.value);
-    }
-    if (notifiedAt.present) {
-      map['notified_at'] = Variable<DateTime>(notifiedAt.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ExtraRemindersCompanion(')
-          ..write('id: $id, ')
-          ..write('cardId: $cardId, ')
-          ..write('remindAt: $remindAt, ')
-          ..write('notifiedAt: $notifiedAt')
-          ..write(')'))
-        .toString();
-  }
-}
-
 abstract class _$AlambicDatabase extends GeneratedDatabase {
   _$AlambicDatabase(QueryExecutor e) : super(e);
   $AlambicDatabaseManager get managers => $AlambicDatabaseManager(this);
@@ -3160,7 +2958,6 @@ abstract class _$AlambicDatabase extends GeneratedDatabase {
   late final $DistillationsTable distillations = $DistillationsTable(this);
   late final $FlashcardsTable flashcards = $FlashcardsTable(this);
   late final $ReviewRecordsTable reviewRecords = $ReviewRecordsTable(this);
-  late final $ExtraRemindersTable extraReminders = $ExtraRemindersTable(this);
   late final Index flashcardsDueAt = Index(
     'flashcards_due_at',
     'CREATE INDEX flashcards_due_at ON flashcards (due_at)',
@@ -3180,7 +2977,6 @@ abstract class _$AlambicDatabase extends GeneratedDatabase {
     distillations,
     flashcards,
     reviewRecords,
-    extraReminders,
     flashcardsDueAt,
     reviewRecordsReviewedAt,
   ];
@@ -3206,13 +3002,6 @@ abstract class _$AlambicDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('review_records', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'flashcards',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [TableUpdate('extra_reminders', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -5223,25 +5012,6 @@ final class $$FlashcardsTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
-
-  static MultiTypedResultKey<$ExtraRemindersTable, List<ExtraReminder>>
-  _extraRemindersRefsTable(_$AlambicDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.extraReminders,
-        aliasName: 'flashcards__id__extra_reminders__card_id',
-      );
-
-  $$ExtraRemindersTableProcessedTableManager get extraRemindersRefs {
-    final manager = $$ExtraRemindersTableTableManager(
-      $_db,
-      $_db.extraReminders,
-    ).filter((f) => f.cardId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_extraRemindersRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
 }
 
 class $$FlashcardsTableFilterComposer
@@ -5358,31 +5128,6 @@ class $$FlashcardsTableFilterComposer
           }) => $$ReviewRecordsTableFilterComposer(
             $db: $db,
             $table: $db.reviewRecords,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> extraRemindersRefs(
-    Expression<bool> Function($$ExtraRemindersTableFilterComposer f) f,
-  ) {
-    final $$ExtraRemindersTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.extraReminders,
-      getReferencedColumn: (t) => t.cardId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ExtraRemindersTableFilterComposer(
-            $db: $db,
-            $table: $db.extraReminders,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -5596,31 +5341,6 @@ class $$FlashcardsTableAnnotationComposer
     );
     return f(composer);
   }
-
-  Expression<T> extraRemindersRefs<T extends Object>(
-    Expression<T> Function($$ExtraRemindersTableAnnotationComposer a) f,
-  ) {
-    final $$ExtraRemindersTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.extraReminders,
-      getReferencedColumn: (t) => t.cardId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ExtraRemindersTableAnnotationComposer(
-            $db: $db,
-            $table: $db.extraReminders,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$FlashcardsTableTableManager
@@ -5636,11 +5356,7 @@ class $$FlashcardsTableTableManager
           $$FlashcardsTableUpdateCompanionBuilder,
           (Flashcard, $$FlashcardsTableReferences),
           Flashcard,
-          PrefetchHooks Function({
-            bool groupId,
-            bool reviewRecordsRefs,
-            bool extraRemindersRefs,
-          })
+          PrefetchHooks Function({bool groupId, bool reviewRecordsRefs})
         > {
   $$FlashcardsTableTableManager(_$AlambicDatabase db, $FlashcardsTable table)
     : super(
@@ -5726,16 +5442,11 @@ class $$FlashcardsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({
-                groupId = false,
-                reviewRecordsRefs = false,
-                extraRemindersRefs = false,
-              }) {
+              ({groupId = false, reviewRecordsRefs = false}) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (reviewRecordsRefs) db.reviewRecords,
-                    if (extraRemindersRefs) db.extraReminders,
                   ],
                   addJoins:
                       <
@@ -5789,26 +5500,6 @@ class $$FlashcardsTableTableManager
                           referencedColumn: 'card_id',
                           typedResults: items,
                         ),
-                      if (extraRemindersRefs)
-                        await $_getPrefetchedDataByColumns<
-                          Flashcard,
-                          $FlashcardsTable,
-                          ExtraReminder,
-                          $ExtraRemindersTable
-                        >(
-                          currentTable: table,
-                          referencedTable: $$FlashcardsTableReferences
-                              ._extraRemindersRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$FlashcardsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).extraRemindersRefs,
-                          currentColumn: 'id',
-                          referencedColumn: 'card_id',
-                          typedResults: items,
-                        ),
                     ];
                   },
                 );
@@ -5829,11 +5520,7 @@ typedef $$FlashcardsTableProcessedTableManager =
       $$FlashcardsTableUpdateCompanionBuilder,
       (Flashcard, $$FlashcardsTableReferences),
       Flashcard,
-      PrefetchHooks Function({
-        bool groupId,
-        bool reviewRecordsRefs,
-        bool extraRemindersRefs,
-      })
+      PrefetchHooks Function({bool groupId, bool reviewRecordsRefs})
     >;
 typedef $$ReviewRecordsTableCreateCompanionBuilder =
     ReviewRecordsCompanion Function({
@@ -6258,305 +5945,6 @@ typedef $$ReviewRecordsTableProcessedTableManager =
       ReviewRecord,
       PrefetchHooks Function({bool cardId})
     >;
-typedef $$ExtraRemindersTableCreateCompanionBuilder =
-    ExtraRemindersCompanion Function({
-      Value<int> id,
-      required int cardId,
-      required DateTime remindAt,
-      Value<DateTime?> notifiedAt,
-    });
-typedef $$ExtraRemindersTableUpdateCompanionBuilder =
-    ExtraRemindersCompanion Function({
-      Value<int> id,
-      Value<int> cardId,
-      Value<DateTime> remindAt,
-      Value<DateTime?> notifiedAt,
-    });
-
-final class $$ExtraRemindersTableReferences
-    extends
-        BaseReferences<_$AlambicDatabase, $ExtraRemindersTable, ExtraReminder> {
-  $$ExtraRemindersTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $FlashcardsTable _cardIdTable(_$AlambicDatabase db) =>
-      db.flashcards.createAlias('extra_reminders__card_id__flashcards__id');
-
-  $$FlashcardsTableProcessedTableManager get cardId {
-    final $_column = $_itemColumn<int>('card_id')!;
-
-    final manager = $$FlashcardsTableTableManager(
-      $_db,
-      $_db.flashcards,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_cardIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$ExtraRemindersTableFilterComposer
-    extends Composer<_$AlambicDatabase, $ExtraRemindersTable> {
-  $$ExtraRemindersTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get remindAt => $composableBuilder(
-    column: $table.remindAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get notifiedAt => $composableBuilder(
-    column: $table.notifiedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$FlashcardsTableFilterComposer get cardId {
-    final $$FlashcardsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.flashcards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FlashcardsTableFilterComposer(
-            $db: $db,
-            $table: $db.flashcards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$ExtraRemindersTableOrderingComposer
-    extends Composer<_$AlambicDatabase, $ExtraRemindersTable> {
-  $$ExtraRemindersTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get remindAt => $composableBuilder(
-    column: $table.remindAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get notifiedAt => $composableBuilder(
-    column: $table.notifiedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$FlashcardsTableOrderingComposer get cardId {
-    final $$FlashcardsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.flashcards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FlashcardsTableOrderingComposer(
-            $db: $db,
-            $table: $db.flashcards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$ExtraRemindersTableAnnotationComposer
-    extends Composer<_$AlambicDatabase, $ExtraRemindersTable> {
-  $$ExtraRemindersTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get remindAt =>
-      $composableBuilder(column: $table.remindAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get notifiedAt => $composableBuilder(
-    column: $table.notifiedAt,
-    builder: (column) => column,
-  );
-
-  $$FlashcardsTableAnnotationComposer get cardId {
-    final $$FlashcardsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.flashcards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$FlashcardsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.flashcards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$ExtraRemindersTableTableManager
-    extends
-        RootTableManager<
-          _$AlambicDatabase,
-          $ExtraRemindersTable,
-          ExtraReminder,
-          $$ExtraRemindersTableFilterComposer,
-          $$ExtraRemindersTableOrderingComposer,
-          $$ExtraRemindersTableAnnotationComposer,
-          $$ExtraRemindersTableCreateCompanionBuilder,
-          $$ExtraRemindersTableUpdateCompanionBuilder,
-          (ExtraReminder, $$ExtraRemindersTableReferences),
-          ExtraReminder,
-          PrefetchHooks Function({bool cardId})
-        > {
-  $$ExtraRemindersTableTableManager(
-    _$AlambicDatabase db,
-    $ExtraRemindersTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$ExtraRemindersTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ExtraRemindersTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ExtraRemindersTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<int> cardId = const Value.absent(),
-                Value<DateTime> remindAt = const Value.absent(),
-                Value<DateTime?> notifiedAt = const Value.absent(),
-              }) => ExtraRemindersCompanion(
-                id: id,
-                cardId: cardId,
-                remindAt: remindAt,
-                notifiedAt: notifiedAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required int cardId,
-                required DateTime remindAt,
-                Value<DateTime?> notifiedAt = const Value.absent(),
-              }) => ExtraRemindersCompanion.insert(
-                id: id,
-                cardId: cardId,
-                remindAt: remindAt,
-                notifiedAt: notifiedAt,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<$ExtraRemindersTable, ExtraReminder>(table),
-                  $$ExtraRemindersTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({cardId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (cardId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.cardId,
-                        referencedTable: $$ExtraRemindersTableReferences
-                            ._cardIdTable(db),
-                        referencedColumn: $$ExtraRemindersTableReferences
-                            ._cardIdTable(db)
-                            .id,
-                      ) as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$ExtraRemindersTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AlambicDatabase,
-      $ExtraRemindersTable,
-      ExtraReminder,
-      $$ExtraRemindersTableFilterComposer,
-      $$ExtraRemindersTableOrderingComposer,
-      $$ExtraRemindersTableAnnotationComposer,
-      $$ExtraRemindersTableCreateCompanionBuilder,
-      $$ExtraRemindersTableUpdateCompanionBuilder,
-      (ExtraReminder, $$ExtraRemindersTableReferences),
-      ExtraReminder,
-      PrefetchHooks Function({bool cardId})
-    >;
 
 class $AlambicDatabaseManager {
   final _$AlambicDatabase _db;
@@ -6573,6 +5961,4 @@ class $AlambicDatabaseManager {
       $$FlashcardsTableTableManager(_db, _db.flashcards);
   $$ReviewRecordsTableTableManager get reviewRecords =>
       $$ReviewRecordsTableTableManager(_db, _db.reviewRecords);
-  $$ExtraRemindersTableTableManager get extraReminders =>
-      $$ExtraRemindersTableTableManager(_db, _db.extraReminders);
 }

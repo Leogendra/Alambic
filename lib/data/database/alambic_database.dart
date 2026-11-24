@@ -15,7 +15,6 @@ import '../../domain/presets/built_in_presets.dart';
 import '../../domain/presets/failure_behavior.dart';
 import '../../domain/presets/preset.dart';
 import '../../domain/presets/preset_interval.dart';
-import '../../domain/reviews/extra_reminder.dart';
 import '../../domain/reviews/review_outcome.dart';
 import '../../domain/reviews/review_record.dart';
 import '../../domain/reviews/review_source.dart';
@@ -26,7 +25,6 @@ import 'preset_companions.dart';
 import 'tables/app_settings.dart';
 import 'tables/card_groups.dart';
 import 'tables/distillations.dart';
-import 'tables/extra_reminders.dart';
 import 'tables/flashcards.dart';
 import 'tables/presets.dart';
 import 'tables/review_records.dart';
@@ -42,7 +40,6 @@ part 'alambic_database.g.dart';
     Distillations,
     Flashcards,
     ReviewRecords,
-    ExtraReminders,
   ],
 )
 class AlambicDatabase extends _$AlambicDatabase {

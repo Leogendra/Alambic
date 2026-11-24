@@ -74,13 +74,6 @@ void main() {
       'Capitals',
       reason: 'the asked side is not named',
     );
-    expect(
-      texts.promptHeader(
-        prompt(key: const ReviewNotificationKey(cardId: 7, extraReminderId: 1)),
-      ),
-      'Capitals',
-      reason: 'an extra reminder is not named',
-    );
   });
 
   test('the test notification asks the capital of Peru, of the sample '
@@ -221,7 +214,7 @@ void main() {
   });
 
   test('the payload carries the key, and tells prompts from answers', () {
-    const extra = ReviewNotificationKey(cardId: 7, extraReminderId: 3);
+    const extra = ReviewNotificationKey(cardId: 7);
     final prompt = NotificationPayload.encode(
       extra,
       isPrompt: true,

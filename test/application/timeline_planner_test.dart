@@ -7,7 +7,6 @@ import 'package:alambic/domain/cards/flashcard.dart';
 import 'package:alambic/domain/distillation/distillation.dart';
 import 'package:alambic/domain/distillation/distillation_rhythm.dart';
 import 'package:alambic/domain/presets/preset_catalog.dart';
-import 'package:alambic/domain/reviews/extra_reminder.dart';
 import 'package:alambic/domain/scheduling/due_policy.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
@@ -52,12 +51,10 @@ void main() {
 
   HomeTimeline build(
     List<Flashcard> cards, {
-    List<ExtraReminder> reminders = const [],
     List<Distillation> distillations = const [],
     bool globallyPaused = false,
   }) => planner.build(
     cards: cards,
-    reminders: reminders,
     distillations: distillations,
     catalog: catalog,
     globallyPaused: globallyPaused,
@@ -173,34 +170,20 @@ void main() {
 
   test('each reminder gives the time left: hours today, rounded up, days '
       'afterwards, nothing once its moment has passed', () {
-    final timeline = build(
-      [
-        answered(1, DateTime(2026, 11, 10, 12)),
-        answered(2, DateTime(2026, 11, 10, 9, 20)),
-        answered(3, DateTime(2026, 11, 10, 8)),
-        answered(4, DateTime(2026, 11, 8, 12)),
-        answered(5, DateTime(2026, 11, 12, 12)),
-      ],
-      reminders: [
-        ExtraReminder(
-          id: 1,
-          cardId: 5,
-          remindAt: DateTime(2026, 11, 10, 18),
-          notifiedAt: null,
-        ),
-      ],
-    );
+    final timeline = build([
+      answered(1, DateTime(2026, 11, 10, 12)),
+      answered(2, DateTime(2026, 11, 10, 9, 20)),
+      answered(3, DateTime(2026, 11, 10, 8)),
+      answered(4, DateTime(2026, 11, 8, 12)),
+      answered(5, DateTime(2026, 11, 12, 12)),
+    ]);
     expect(
+      {for (final entry in timeline.today.cards) entry.card.id: entry.delay},
       {
-        for (final entry in timeline.today.cards)
-          (entry.card.id, entry.isExtraReminder): entry.delay,
-      },
-      {
-        (4, false): null,
-        (3, false): null,
-        (2, false): const TimelineDelay.hours(1),
-        (1, false): const TimelineDelay.hours(3),
-        (5, true): const TimelineDelay.hours(9),
+        4: null,
+        3: null,
+        2: const TimelineDelay.hours(1),
+        1: const TimelineDelay.hours(3),
       },
     );
     expect(timeline.days[1].cards.single.delay, const TimelineDelay.days(2));
@@ -227,23 +210,6 @@ void main() {
     expect(timeline.days.last.day, DateTime(2026, 11, 16));
     expect(timeline.comingMonth, 2 + 14);
     expect(timeline.comingYear, 1);
-  });
-
-  test('a "Review soon" reminder falls on its day', () {
-    final timeline = build(
-      [answered(1, DateTime(2026, 11, 20, 12))],
-      reminders: [
-        ExtraReminder(
-          id: 1,
-          cardId: 1,
-          remindAt: DateTime(2026, 11, 10, 18),
-          notifiedAt: null,
-        ),
-      ],
-    );
-    final reminder = timeline.today.cards.single;
-    expect(reminder.isExtraReminder, isTrue);
-    expect(reminder.at, DateTime(2026, 11, 10, 18));
   });
 
   test('a card is learned once notified: answered, or introduced with its '

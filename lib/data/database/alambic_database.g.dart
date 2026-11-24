@@ -1361,6 +1361,21 @@ class $CardGroupsTable extends CardGroups
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _backHiddenMeta = const VerificationMeta(
+    'backHidden',
+  );
+  @override
+  late final GeneratedColumn<bool> backHidden = GeneratedColumn<bool>(
+    'back_hidden',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("back_hidden" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1371,6 +1386,7 @@ class $CardGroupsTable extends CardGroups
     afterLastStep,
     remanenceInterval,
     typedAnswer,
+    backHidden,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1429,6 +1445,12 @@ class $CardGroupsTable extends CardGroups
         ),
       );
     }
+    if (data.containsKey('back_hidden')) {
+      context.handle(
+        _backHiddenMeta,
+        backHidden.isAcceptableOrUnknown(data['back_hidden']!, _backHiddenMeta),
+      );
+    }
     return context;
   }
 
@@ -1474,6 +1496,10 @@ class $CardGroupsTable extends CardGroups
         DriftSqlType.bool,
         data['${effectivePrefix}typed_answer'],
       )!,
+      backHidden: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}back_hidden'],
+      )!,
     );
   }
 
@@ -1501,6 +1527,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
   final Value<AfterLastStep> afterLastStep;
   final Value<RemanenceInterval> remanenceInterval;
   final Value<bool> typedAnswer;
+  final Value<bool> backHidden;
   const CardGroupsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -1510,6 +1537,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     this.afterLastStep = const Value.absent(),
     this.remanenceInterval = const Value.absent(),
     this.typedAnswer = const Value.absent(),
+    this.backHidden = const Value.absent(),
   });
   CardGroupsCompanion.insert({
     this.id = const Value.absent(),
@@ -1520,6 +1548,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     this.afterLastStep = const Value.absent(),
     this.remanenceInterval = const Value.absent(),
     this.typedAnswer = const Value.absent(),
+    this.backHidden = const Value.absent(),
   }) : name = Value(name),
        presetId = Value(presetId),
        createdAt = Value(createdAt);
@@ -1532,6 +1561,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Expression<String>? afterLastStep,
     Expression<String>? remanenceInterval,
     Expression<bool>? typedAnswer,
+    Expression<bool>? backHidden,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1542,6 +1572,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
       if (afterLastStep != null) 'after_last_step': afterLastStep,
       if (remanenceInterval != null) 'remanence_interval': remanenceInterval,
       if (typedAnswer != null) 'typed_answer': typedAnswer,
+      if (backHidden != null) 'back_hidden': backHidden,
     });
   }
 
@@ -1554,6 +1585,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Value<AfterLastStep>? afterLastStep,
     Value<RemanenceInterval>? remanenceInterval,
     Value<bool>? typedAnswer,
+    Value<bool>? backHidden,
   }) {
     return CardGroupsCompanion(
       id: id ?? this.id,
@@ -1564,6 +1596,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
       afterLastStep: afterLastStep ?? this.afterLastStep,
       remanenceInterval: remanenceInterval ?? this.remanenceInterval,
       typedAnswer: typedAnswer ?? this.typedAnswer,
+      backHidden: backHidden ?? this.backHidden,
     );
   }
 
@@ -1600,6 +1633,9 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     if (typedAnswer.present) {
       map['typed_answer'] = Variable<bool>(typedAnswer.value);
     }
+    if (backHidden.present) {
+      map['back_hidden'] = Variable<bool>(backHidden.value);
+    }
     return map;
   }
 
@@ -1613,7 +1649,8 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
           ..write('reverseEnabled: $reverseEnabled, ')
           ..write('afterLastStep: $afterLastStep, ')
           ..write('remanenceInterval: $remanenceInterval, ')
-          ..write('typedAnswer: $typedAnswer')
+          ..write('typedAnswer: $typedAnswer, ')
+          ..write('backHidden: $backHidden')
           ..write(')'))
         .toString();
   }
@@ -4168,6 +4205,7 @@ typedef $$CardGroupsTableCreateCompanionBuilder = CardGroupsCompanion Function({
   Value<AfterLastStep> afterLastStep,
   Value<RemanenceInterval> remanenceInterval,
   Value<bool> typedAnswer,
+  Value<bool> backHidden,
 });
 typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
   Value<int> id,
@@ -4178,6 +4216,7 @@ typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
   Value<AfterLastStep> afterLastStep,
   Value<RemanenceInterval> remanenceInterval,
   Value<bool> typedAnswer,
+  Value<bool> backHidden,
 });
 
 final class $$CardGroupsTableReferences
@@ -4282,6 +4321,11 @@ class $$CardGroupsTableFilterComposer
 
   ColumnFilters<bool> get typedAnswer => $composableBuilder(
     column: $table.typedAnswer,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get backHidden => $composableBuilder(
+    column: $table.backHidden,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4403,6 +4447,11 @@ class $$CardGroupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get backHidden => $composableBuilder(
+    column: $table.backHidden,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$PresetsTableOrderingComposer get presetId {
     final $$PresetsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4464,6 +4513,11 @@ class $$CardGroupsTableAnnotationComposer
 
   GeneratedColumn<bool> get typedAnswer => $composableBuilder(
     column: $table.typedAnswer,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get backHidden => $composableBuilder(
+    column: $table.backHidden,
     builder: (column) => column,
   );
 
@@ -4582,6 +4636,7 @@ class $$CardGroupsTableTableManager
                 Value<RemanenceInterval> remanenceInterval =
                     const Value.absent(),
                 Value<bool> typedAnswer = const Value.absent(),
+                Value<bool> backHidden = const Value.absent(),
               }) => CardGroupsCompanion(
                 id: id,
                 name: name,
@@ -4591,6 +4646,7 @@ class $$CardGroupsTableTableManager
                 afterLastStep: afterLastStep,
                 remanenceInterval: remanenceInterval,
                 typedAnswer: typedAnswer,
+                backHidden: backHidden,
               ),
           createCompanionCallback:
               ({
@@ -4603,6 +4659,7 @@ class $$CardGroupsTableTableManager
                 Value<RemanenceInterval> remanenceInterval =
                     const Value.absent(),
                 Value<bool> typedAnswer = const Value.absent(),
+                Value<bool> backHidden = const Value.absent(),
               }) => CardGroupsCompanion.insert(
                 id: id,
                 name: name,
@@ -4612,6 +4669,7 @@ class $$CardGroupsTableTableManager
                 afterLastStep: afterLastStep,
                 remanenceInterval: remanenceInterval,
                 typedAnswer: typedAnswer,
+                backHidden: backHidden,
               ),
           withReferenceMapper: (p0) => p0
               .map(

@@ -60,6 +60,11 @@ class GroupService {
   Future<void> setReverseEnabled(int groupId, {required bool enabled}) =>
       _groups.setReverseEnabled(groupId, enabled: enabled);
 
+  /// The lists of the group show the front of its cards alone; sessions and
+  /// notifications are unchanged.
+  Future<void> setBackHidden(int groupId, {required bool hidden}) =>
+      _groups.setBackHidden(groupId, hidden: hidden);
+
   /// Applies at once to the cards past their last step. Switched to
   /// "acquired", they lose their due date. Switched back to remanence, each
   /// is due one remanence interval after its last review, or after today

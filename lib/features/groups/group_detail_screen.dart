@@ -21,11 +21,11 @@ import '../cards/card_status_formatter.dart';
 import '../cards/card_status_formatter_provider.dart';
 import '../distillation/group_distillation_section.dart';
 import '../session/session_launcher.dart';
+import 'back_visibility_button.dart';
 import 'group_settings_screen.dart';
-import 'reverse_button.dart';
 
-/// A group page: "Distill" or the tracking of its distillation, the back
-/// option, then its cards in three sections: in progress, waiting in queue
+/// A group page: "Distill" or the tracking of its distillation, the button
+/// that hides the backs, then its cards in three sections: in progress, waiting in queue
 /// order, and learned, folded. "Review all" sits beside the first title.
 class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({required this.groupId, super.key});
@@ -75,10 +75,11 @@ class _GroupBody extends ConsumerWidget {
         const SizedBox(height: 8),
         GroupDistillationSection(groupId: summary.groupId),
         const SizedBox(height: 16),
-        ReverseButton(group: summary.group),
+        BackVisibilityButton(group: summary.group),
         const SizedBox(height: 24),
         _CardSections(
           sections: sections,
+          showBack: !summary.group.backHidden,
           distilling:
               ref.watch(groupDistillationProvider(summary.groupId)) != null,
           reviewAll: sections.ongoing.isNotEmpty || sections.waiting.isNotEmpty
@@ -148,11 +149,13 @@ class _ReviewAllButton extends StatelessWidget {
 class _CardSections extends ConsumerWidget {
   const _CardSections({
     required this.sections,
+    required this.showBack,
     required this.distilling,
     required this.reviewAll,
   });
 
   final GroupSections sections;
+  final bool showBack;
   final bool distilling;
   final Widget? reviewAll;
 
@@ -226,6 +229,7 @@ class _CardSections extends ConsumerWidget {
         CardListTile(
           card: card,
           formatter: formatter,
+          showBack: showBack,
           mark: distilling && card.id == nextId ? nextMark : null,
           showStanding: !waitingCards || card.suspended,
           onTap: () => openCard(context, card.id),

@@ -25,6 +25,7 @@ CardGroup testGroup({
   AfterLastStep afterLastStep = AfterLastStep.remanence,
   RemanenceInterval remanenceInterval = RemanenceInterval.sixMonths,
   bool typedAnswer = false,
+  bool backHidden = false,
 }) => CardGroup(
   id: id,
   name: name,
@@ -34,4 +35,5 @@ CardGroup testGroup({
   afterLastStep: afterLastStep,
   remanenceInterval: remanenceInterval,
   typedAnswer: typedAnswer,
+  backHidden: backHidden,
 );

@@ -39,7 +39,11 @@ The session is also a pre-test of the [queue](../lexicon.md#queue): a pending ca
 
 ### Back option
 
-With the back enabled, each display of a card of the group (session, notification, typed answer) asks its front or its back, one chance in two, drawn again at every display. The progression of the card is the same whichever face is asked. The option is a button on the group page and a "Back" switch in the group settings.
+With the back enabled, each display of a card of the group (session, notification, typed answer) asks its front or its back, one chance in two, drawn again at every display. The progression of the card is the same whichever face is asked. The option is a "Back" switch in the group settings.
+
+### Hiding the backs
+
+The group page has a "Hide the back" button, which becomes "Show the back" once pressed (`CardGroup.backHidden`, stored with the group). While the backs are hidden, the card lists of the group page show the front of each card alone. Nothing else changes: the card sheet, the search results, sessions and notifications still show the backs, the stored cards are untouched, and the [back option](#back-option) is independent.
 
 ### Sequence end and typed answer
 
@@ -72,7 +76,8 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - [x] A group that does not distill shows a large "Distill" button; once activated, its tracking replaces it. A band of light glides once across the button on arrival.
 - [x] "Review all" asks the due cards first, then the other introduced cards, then the pending ones, all but the due ones as bonus reviews, and leaves suspended and acquired cards out.
 - [x] In "Review all", a pending card answered "Again" goes to the head of the queue at once, the last one missed first.
-- [x] The back option is switched from the group page or its settings.
+- [x] The back option is switched from the group settings.
+- [x] "Hide the back" on a group page hides the back line of every card of its lists, and "Show the back" brings it back; the card sheet, the search and the sessions are unchanged.
 - [x] A group is created, renamed, changes preset; a new group follows the global preset of the moment.
 - [x] Deleting a group deletes its cards and their history.
 - [x] A suspended card does not count as due.
@@ -86,7 +91,7 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the [daily slot](../lexicon.md#daily-slot), with a suspended card.
 - The order of "Review all" is tested as pure logic (due, introduced, pending, suspended, acquired), then on the group page, down to the session it opens.
 - Raising a missed pending card is tested on an in-memory database with the queue as the distillation reads it: one card, several, a correct answer, a forced bonus, a card added afterwards, the next introduction; and through a session left after one answer.
-- The group service is tested for creation, renaming, refusal of an empty name, the back option, the end of sequence (the cards past their last step, switched in both directions) and deletion with its cards.
+- The group service is tested for creation, renaming, refusal of an empty name, the back option, the hiding of the backs, the end of sequence (the cards past their last step, switched in both directions) and deletion with its cards.
 - The tab (list with a distilled group, with a paused distillation, and search), the group page and its settings are covered by screen tests with a capture on a sample data set, with a fixed clock; the group page (all three sections, a suspended card in progress and at the head of the queue) and its settings in light and dark theme. The section titles and the "next" mark are checked on the page, and the acquired section is unfolded and folded again by touch. The settings screen is driven to change the remanence interval, the typed answer and the end of sequence, read back from the database.
 
 ## File mapping

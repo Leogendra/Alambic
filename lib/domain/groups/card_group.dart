@@ -15,6 +15,7 @@ class CardGroup {
     required this.afterLastStep,
     required this.remanenceInterval,
     required this.typedAnswer,
+    required this.backHidden,
   });
 
   final int id;
@@ -37,6 +38,10 @@ class CardGroup {
   /// The cards whose answer face has text are answered by typing it, in a
   /// notification as in a session.
   final bool typedAnswer;
+
+  /// The lists of the group show the front of its cards alone. Display only:
+  /// sessions and notifications still ask and reveal the back.
+  final bool backHidden;
 
   /// Whether [card], asking [askedSide], is answered by typing: with the
   /// typed answer option, unless its answer face has no text to compare

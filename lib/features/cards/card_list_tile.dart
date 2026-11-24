@@ -5,9 +5,9 @@ import '../../domain/cards/flashcard.dart';
 import 'card_image.dart';
 import 'card_status_formatter.dart';
 
-/// A card in a list: its front, its back, and where it stands ("4 d",
-/// "suspended"), in accent when it is a date. A front image shows as a
-/// thumbnail; a face without text reads "Image".
+/// A card in a list: its front, its back unless [showBack] is off, and where
+/// it stands ("4 d", "suspended"), in accent when it is a date. A front image
+/// shows as a thumbnail; a face without text reads "Image".
 class CardListTile extends StatelessWidget {
   const CardListTile({
     required this.card,
@@ -15,12 +15,16 @@ class CardListTile extends StatelessWidget {
     required this.onTap,
     this.mark,
     this.showStanding = true,
+    this.showBack = true,
     super.key,
   });
 
   final Flashcard card;
   final CardStatusFormatter formatter;
   final VoidCallback onTap;
+
+  /// Whether to show the back under the front.
+  final bool showBack;
 
   /// Whether to say where the card stands; a [mark] is shown regardless.
   final bool showStanding;
@@ -66,12 +70,16 @@ class CardListTile extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
-                    back,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 13, color: colors.textSecondary),
-                  ),
+                  if (showBack)
+                    Text(
+                      back,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: colors.textSecondary,
+                      ),
+                    ),
                 ],
               ),
             ),

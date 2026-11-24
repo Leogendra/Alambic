@@ -400,25 +400,34 @@ void main() {
     expect(find.text(l10n.presetNewName), findsOne);
   });
 
-  testScreen('"Enable the back" switches the option of the group', (
-    tester,
-  ) async {
+  testScreen('"Hide the back" hides the backs of the list and "Show" brings '
+      'them back', (tester) async {
     await seed(tester);
     await pumpScreen(
       tester,
       GroupDetailScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
     );
+    expect(find.text('Lima'), findsOneWidget);
     await tester.runAsync(() async {
-      await tester.tap(find.text(l10n.groupReverseEnable));
+      await tester.tap(find.text(l10n.groupBackHide));
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
     await tester.pumpAndSettle();
     final group = await tester.runAsync(
       () => GroupRepository(database).find(capitalsId),
     );
-    expect(group!.reverseEnabled, isTrue);
-    expect(find.text('Disable the back'), findsOneWidget);
+    expect(group!.backHidden, isTrue);
+    expect(group.reverseEnabled, isFalse);
+    expect(find.text('Peru'), findsOneWidget);
+    expect(find.text('Lima'), findsNothing);
+    expect(find.text('Show the back'), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(find.text(l10n.groupBackShow));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pumpAndSettle();
+    expect(find.text('Lima'), findsOneWidget);
   });
 
   testScreen('"Distill" opens the activation of the distillation', (

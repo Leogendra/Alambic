@@ -77,6 +77,12 @@ class GroupRepository {
             ..where((group) => group.id.equals(groupId)))
           .write(CardGroupsCompanion(afterLastStep: Value(afterLastStep)));
 
+  /// Display only: the stored backs are untouched.
+  Future<void> setBackHidden(int groupId, {required bool hidden}) =>
+      (_database.update(_database.cardGroups)
+            ..where((group) => group.id.equals(groupId)))
+          .write(CardGroupsCompanion(backHidden: Value(hidden)));
+
   /// Moves no due date: the new interval applies from the next answer.
   Future<void> setRemanenceInterval(int groupId, RemanenceInterval interval) =>
       (_database.update(_database.cardGroups)

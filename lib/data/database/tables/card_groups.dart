@@ -20,4 +20,5 @@ class CardGroups extends Table {
     Constant(RemanenceInterval.sixMonths.name),
   )();
   BoolColumn get typedAnswer => boolean().withDefault(const Constant(false))();
+  BoolColumn get backHidden => boolean().withDefault(const Constant(false))();
 }

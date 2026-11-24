@@ -40,4 +40,29 @@ void main() {
     expect(label(french, 730), '2 ans');
     expect(label(french, 365), '1 an');
   });
+
+  test('the sheet says tomorrow, then "in" the rounded delay', () {
+    String next(AppLocalizations strings, int days) => strings.nextDueLabel(
+      DateTime(2026, 11, 10 + days, 12),
+      now: now,
+      calendar: calendar,
+    );
+    expect(next(english, 0), 'at 12:00');
+    expect(next(english, 1), 'tomorrow');
+    expect(next(english, 3), 'in 3\u00A0d');
+    expect(next(english, 180), 'in 6\u00A0mo');
+    expect(next(french, 180), 'dans 6\u00A0mois');
+  });
+
+  test('an answer is "today", then so long ago, rounded the same', () {
+    String ago(AppLocalizations strings, int days) => strings.agoLabelOf(
+      DateTime(2026, 11, 10 - days, 18),
+      now: now,
+      calendar: calendar,
+    );
+    expect(ago(english, 0), 'today');
+    expect(ago(english, 3), '3\u00A0d ago');
+    expect(ago(english, 60), '2\u00A0mo ago');
+    expect(ago(french, 3), 'il y a 3\u00A0j');
+  });
 }

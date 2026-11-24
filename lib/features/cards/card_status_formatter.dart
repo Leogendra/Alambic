@@ -38,6 +38,10 @@ class CardStatusFormatter {
 
   bool isDue(Flashcard card) => duePolicy.isDueToday(card, now: now);
 
+  /// "Due", "at 15:17", "tomorrow", then "in 3 d" or "in 6 mo".
+  String nextDueLabel(DateTime dueAt) =>
+      strings.nextDueLabel(dueAt, now: now, calendar: calendar);
+
   /// "Due", "at 15:17", "tomorrow" or "in 3 d" for a future due date.
   String dueDateLabel(DateTime dueAt) =>
       strings.dueDateLabel(dueAt, now: now, calendar: calendar);

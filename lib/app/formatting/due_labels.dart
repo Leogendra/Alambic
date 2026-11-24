@@ -40,7 +40,38 @@ extension DueLabels on AppLocalizations {
       return dueNow;
     } else if (days <= 0) {
       return dueAtTime(ClockTime(dueAt.hour, dueAt.minute).toString());
-    } else if (days >= IntervalUnit.year.daysPerUnit) {
+    } else {
+      return _daysAmount(days);
+    }
+  }
+
+  /// When a card comes back, for its sheet: "Due", "at 15:17", "tomorrow",
+  /// then "in 3 d", "in 6 mo", rounded as [dueInLabel].
+  String nextDueLabel(
+    DateTime dueAt, {
+    required DateTime now,
+    required SchedulingCalendar calendar,
+  }) {
+    final days = _daysBetween(calendar.dayOf(now), calendar.dayOf(dueAt));
+    return days <= 1 || !dueAt.isAfter(now)
+        ? dueDateLabel(dueAt, now: now, calendar: calendar)
+        : dueInAmount(_daysAmount(days));
+  }
+
+  /// How long ago [at] was, with the days of [dueInLabel]: "today", then
+  /// "3 d ago", "2 mo ago", "1 yr ago".
+  String agoLabelOf(
+    DateTime at, {
+    required DateTime now,
+    required SchedulingCalendar calendar,
+  }) {
+    final days = _daysBetween(calendar.dayOf(at), calendar.dayOf(now));
+    return days <= 0 ? agoToday : agoLabel(_daysAmount(days));
+  }
+
+  /// [days], rounded to the month from 30 days and to the year from 365.
+  String _daysAmount(int days) {
+    if (days >= IntervalUnit.year.daysPerUnit) {
       return intervalAmount(
         (days / IntervalUnit.year.daysPerUnit).round(),
         IntervalUnit.year,

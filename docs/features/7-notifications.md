@@ -1,6 +1,6 @@
 # Feature 7 — Notifications
 
-Status: in progress (2026-11-20)
+Status: in progress (2026-11-24)
 
 ## Goal
 
@@ -26,7 +26,7 @@ A due date is a moment, written when a card is answered, so changing the daily s
 
 ### Planning the wake-ups
 
-`NotificationPlanner` listens to every schedule change: an answer, an introduction, a reset, a deletion. Each time, it computes the next wake-ups from the [notification moments](../lexicon.md#notification-moment) of the scheduled cards, plus the start of the next day each running [distillation](8-distillation.md) has to process, and the slot of the next day for every card still due whose moment has passed, so that an ignored card is sent again even when nothing else wakes the app:
+`NotificationPlanner` listens to every schedule change: an answer, an introduction, a step changed by hand, a move in a queue, a deletion. Each time, it computes the next wake-ups from the [notification moments](../lexicon.md#notification-moment) of the scheduled cards, plus the start of the next day each running [distillation](8-distillation.md) has to process, and the slot of the next day for every card still due whose moment has passed, so that an ignored card is sent again even when nothing else wakes the app:
 
 - one wake-up per distinct minute, a due moment with seconds (after a sub-day interval) being rounded up to the next minute;
 - at most 48 wake-ups ahead, since each wake-up plans the next ones;

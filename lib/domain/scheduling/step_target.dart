@@ -29,6 +29,15 @@ sealed class StepTarget {
         (CardState.active, final step?) => StepIndexTarget(step),
         (CardState.active, null) => null,
       };
+
+  /// The position this target puts a card at in a group following [preset]
+  /// and ending with [end], as if an answer had brought it there; `null`
+  /// for the queue.
+  SequenceStep? reachedIn(Preset preset, SequenceEnd end) => switch (this) {
+    PendingTarget() => null,
+    final StepIndexTarget target => target.reached(preset),
+    final SequenceEndTarget target => target.reached(preset, end),
+  };
 }
 
 /// Back in the queue of the group, as a new card.

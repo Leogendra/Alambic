@@ -15,6 +15,10 @@ import 'package:alambic/features/cards/bulk_add_screen.dart';
 import 'package:alambic/features/cards/card_editor_screen.dart';
 import 'package:alambic/features/cards/card_sheet_screen.dart';
 import 'package:alambic/features/cards/group_picker.dart';
+import 'package:alambic/domain/scheduling/step_target.dart';
+import 'package:alambic/domain/groups/sequence_end.dart';
+import 'package:alambic/domain/presets/built_in_presets.dart';
+import 'package:alambic/features/cards/step_sheet.dart';
 import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/groups/group_settings_screen.dart';
@@ -408,6 +412,21 @@ void main() {
           );
         }
       });
+      await expectClearOfSystemBars(tester);
+    });
+
+    testScreen('step sheet', (tester) async {
+      await openSheet(
+        tester,
+        (context) => showStepSheet(
+          context,
+          preset: BuiltInPresets.standard,
+          end: SequenceEnd.standard,
+          current: const StepIndexTarget(1),
+          offersQueue: true,
+          dueAtOf: (target) => sampleNow,
+        ),
+      );
       await expectClearOfSystemBars(tester);
     });
 

@@ -1,6 +1,6 @@
 # Feature 0 — Technical foundation
 
-Status: in progress (2026-11-20)
+Status: in progress (2026-11-24)
 
 ## Goal
 

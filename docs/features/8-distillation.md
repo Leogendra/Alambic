@@ -1,6 +1,6 @@
 # Feature 8 — Distillation
 
-Status: implemented (2026-11-20)
+Status: implemented (2026-11-24)
 
 ## Goal
 
@@ -14,9 +14,9 @@ A distillation is a permanent setting of a group, at most one per group. The gro
 
 ### Queue
 
-The [queue](../lexicon.md#queue) of a group is its pending cards in a fixed order, and the distillation takes its cards from the head of it. That order is the only one: the distillation has no order setting, and the user never reorders the queue by hand.
+The [queue](../lexicon.md#queue) of a group is its pending cards in a fixed order, and the distillation takes its cards from the head of it. That order is the only one: the distillation has no order setting. The user moves a card to the head or the end of the queue from its sheet ([Feature 3](3-cards.md#card-sheet)); each move writes the ranks of the whole queue again, from 0, so that the order stored is the order shown.
 
-A card created in the group, moved into it while pending, or reset joins the end of the queue, and a pending card missed in "Review all" goes to its head ([Feature 4](4-groups.md#review-all)); a bulk add joins it as a whole batch, in the order chosen on its screen ([Feature 3](3-cards.md#bulk-add)). A card moved out of the group leaves it, keeping its progression if it was introduced.
+A card created in the group, moved into it while pending, or put back in the queue from its sheet joins the end of the queue, and a pending card missed in "Review all" goes to its head ([Feature 4](4-groups.md#review-all)); a bulk add joins it as a whole batch, in the order chosen on its screen ([Feature 3](3-cards.md#bulk-add)). A card moved out of the group leaves it, keeping its progression if it was introduced.
 
 ### Rhythm
 
@@ -66,12 +66,14 @@ With it, each day gives up a place for every review of the group falling that da
 - A card not introduced yet follows the same sequence from its arrival day: it is answered that day, and its first review falls one interval later. Its reviews take places on the days after, so each new card pushes the last arrival back.
 - An interval of less than a day brings the next review back the same day: it is not counted again.
 
-Failures are not played, nor lateness: an announced arrival can slip, which is why the screens say "around". The estimate looks two years ahead. A queue that does not fit, because the reviews take every place or the rhythm is too slow, is announced as "more than 2 years"; Home keeps its own limit of a year.
+Failures are not played, nor lateness: an announced arrival can slip, which is why the screens say "around". The estimate looks two years ahead.
+
+The sheet of a pending card gives its own arrival from the same forecast: the day by which as many cards came out as its rank in the queue. A paused distillation, the global pause or a group that does not distill give no date, and say so. A queue that does not fit, because the reviews take every place or the rhythm is too slow, is announced as "more than 2 years"; Home keeps its own limit of a year.
 
 ## Acceptance criteria
 
 - [x] A group does not distill until activated; activating introduces the first batch the same day.
-- [x] The distillation takes the head of the queue; it has no order setting.
+- [x] The distillation takes the head of the queue; it has no order setting. A card moved to the head or the end of the queue from its sheet comes out in that order.
 - [x] A batch of N cards comes out every day, one at most per pass, the day starting at 4am, with the app closed; missed batches are not caught up.
 - [x] A card added to the group joins the end of the queue, even when the queue was empty; a card moved out of the group leaves it.
 - [x] One distillation per group; it is adjusted, paused and resumed, never stopped.
@@ -82,14 +84,16 @@ Failures are not played, nor lateness: an announced arrival can slip, which is w
 - [x] The group page follows the distillation (pause, waiting cards, rhythm) with a single settings button.
 - [x] A paused distillation, and every distillation during the global pause, introduces nothing; the reminders go on and no due date moves. Resuming brings a single batch at most; the global pause leaves each distillation's own pause alone.
 - [x] A missed 4am wake-up runs the pass at restart, or at the opening of the app.
+- [x] The sheet of a pending card estimates its own arrival with the same rules, or says why it has none.
 
 ## Test strategy
 
 - The rhythm (`DistillationRhythm`) is tested as pure functions: batch owed the day after the last one, new cards with and without "Prioritize reviews", next introduction day, and the forecast of arrivals: batches until the queue is empty, places taken by the reviews of the group (late ones today, not a reminder of less than a day already answered) and by those of the cards to come, a day fully taken, a forecast bounded to two years, saturated by the reviews.
 - The review load (`ReviewLoad`) is tested on its own: sequence then remanence, acquired cards, a card resumed at its step, late cards, pending cards, new cards, intervals of less than a day, the limit of the period.
 - The progress of a distillation is tested on the count of waiting cards.
+- The moves in a queue are tested on an in-memory database: to the head, to the end, to a place in the middle and shuffled with a seeded generator, each read back with ranks from 0 and the next card following. The arrival of a card is tested as pure logic: one card a day, with "Prioritize reviews", paused, without distillation, beyond two years.
 - The two examples of "Prioritize reviews" are replayed on an in-memory database, with late and unanswered cards counted and reminders left in place.
-- The service is tested on an in-memory database filled through the services, moving a fixed clock across days: activation, first batch, next days, 4am boundary, a week without pass (one batch, then one a day), an empty queue, a change of cards per day before and after the day's pass, pause, suspension.
+- The service is tested on an in-memory database filled through the services, moving a fixed clock across days: activation, first batch, next days, 4am boundary, a week without pass (one batch, then one a day), an empty queue, a change of cards per day before and after the day's pass, pause.
 - The "Distill" screen, the group page and Home are covered by screen tests with a capture; widget tests activate a distillation and adjust it from their screens, and check the waiting cards shown instead of the estimate during the global pause.
 - The pauses are tested with the notification fakes: a paused distillation keeps its cards notified and their due dates, a pause of a week brings one batch on resume, the global pause holds every distillation and plans no wake-up for them, and leaves alone a distillation paused on its own.
 - The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, the introduction done by the wake-up, and a wake-up firing late at restart, which notifies the batch at once.
@@ -99,7 +103,7 @@ Failures are not played, nor lateness: an announced arrival can slip, which is w
 ## File mapping
 
 - `lib/domain/distillation/` — the distillation, its settings, the rhythm and the queue rules.
-- `lib/application/distillation/` — `DistillationService`, the progress of a distillation (`DistillationProgress`) and their providers.
+- `lib/application/distillation/` — `DistillationService`, the progress of a distillation (`DistillationProgress`), the moves in a queue (`QueueService`), where a pending card stands (`QueueStanding`) and their providers.
 - `lib/features/distillation/` — the "Distill" screen, its preset section, the tile and the section of a group page.
 - `lib/features/pauses/` — the global pause: its confirmation and Home's banner.
 - `lib/data/repositories/distillation_repository.dart` — storage of the distillations; the queue itself is stored on the cards (`CardRepository`).
@@ -111,7 +115,7 @@ The queue is not a table: a card is in the queue of its group when it is pending
 
 A distillation is paused by the start of its pause (`pausedAt`), shown on its page; `null` means running. A distillation row keeps only two days of progress: the last day processed (`lastAdvancedDay`) and the last day a batch came out (`lastBatchDay`, empty until the first batch). The next batch day is the day after the latter, which is why a change of settings needs no rewrite.
 
-The estimates replay the rhythm without touching the database (`DistillationRhythm.forecast`): it walks the days until the queue is empty or the end of the period asked for (two years by default). With "Prioritize reviews", a `ReviewLoad` holds the reviews of the group by day: it starts with the cards already introduced, and takes in the reviews of each batch as it comes out. It walks each card through `SequenceEngine` with "Correct" answers, so the estimate follows the same sequence and remanence rules as a real answer. It needs the preset and the end of sequence of the group, which both screens read from the preset catalog.
+The estimates replay the rhythm without touching the database (`DistillationRhythm.forecast`): it walks the days until the queue is empty or the end of the period asked for (two years by default). With "Prioritize reviews", a `ReviewLoad` holds the reviews of the group by day: it starts with the cards already introduced, and takes in the reviews of each batch as it comes out. It walks each card through `SequenceEngine` with "Correct" answers, so the estimate follows the same sequence and remanence rules as a real answer. It needs the preset and the end of sequence of the group, which the screens read from the preset catalog.
 
 A pause records nothing about the days it covers: the pass simply skips a paused distillation, so the day of the last batch decides alone what the first pass after the pause owes: a single batch.
 

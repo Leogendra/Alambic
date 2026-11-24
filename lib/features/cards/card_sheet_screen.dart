@@ -1,26 +1,33 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../app/formatting/date_labels.dart';
 import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
-import '../../app/widgets/section_label.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
+import '../../application/notifications/guard_providers.dart';
 import '../../application/presets/preset_providers.dart';
+import '../../application/scheduling/scheduling_providers.dart';
 import '../../domain/cards/card_face.dart';
 import '../../domain/cards/flashcard.dart';
+import '../../domain/groups/sequence_end.dart';
 import '../../domain/presets/preset.dart';
+import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/step_target.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../session/session_launcher.dart';
 import 'card_editor_screen.dart';
 import 'card_image.dart';
 import 'card_progress_panel.dart';
+import 'card_status_formatter.dart';
 import 'card_status_formatter_provider.dart';
-import 'review_history_list.dart';
+import 'last_answers.dart';
+import 'step_sheet.dart';
 
-/// Card sheet: both faces, then its step, next review and history, with the
-/// actions on the card.
+/// Card sheet: its front, its back once revealed, where it stands with the
+/// track of its steps, and its last answers; "Review now" stays at the
+/// bottom.
 class CardSheetScreen extends ConsumerStatefulWidget {
   const CardSheetScreen({required this.cardId, super.key});
 
@@ -31,13 +38,20 @@ class CardSheetScreen extends ConsumerStatefulWidget {
 }
 
 class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
+  /// The back shows once asked, until the sheet is left.
+  bool _backRevealed = false;
+
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final card = ref.watch(cardProvider(widget.cardId)).value;
     final catalog = ref.watch(presetCatalogProvider).value;
     final formatter = watchCardStatusFormatter(context, ref);
-    if (card == null || catalog == null || formatter == null) {
+    final dailySlot = ref.watch(reminderSettingsProvider).value?.dailySlot;
+    if (card == null ||
+        catalog == null ||
+        formatter == null ||
+        dailySlot == null) {
       return Scaffold(appBar: AppBar());
     }
     final groupName = ref.watch(groupProvider(card.groupId)).value?.name ?? '';
@@ -76,62 +90,102 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
       body: ListView(
         padding: scrollPadding(
           context,
-          const EdgeInsets.fromLTRB(20, 0, 20, 32),
+          const EdgeInsets.fromLTRB(20, 0, 20, 24),
         ),
         children: [
-          _FacesPanel(card: card, onTap: () => _review(card)),
-          _hint(strings.cardSheetTapToReview),
+          _FacesPanel(
+            card: card,
+            backRevealed: _backRevealed,
+            onReveal: () => setState(() => _backRevealed = true),
+          ),
           const SizedBox(height: 14),
           CardProgressPanel(
             card: card,
             preset: preset,
             end: end,
-            isDue: formatter.duePolicy.isDueToday(card, now: formatter.now),
+            formatter: formatter,
+            onChangeStep: () =>
+                _changeStep(card, preset, end, formatter, dailySlot),
           ),
           const SizedBox(height: 14),
-          _actions(card, preset),
-          const SizedBox(height: 24),
-          SectionLabel(strings.cardSheetHistory),
-          ReviewHistoryList(cardId: card.id, preset: preset, end: end),
+          LastAnswers(cardId: card.id, formatter: formatter),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          child: FilledButton.icon(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(52),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            onPressed: () => openSession(context, ref, [card.id]),
+            icon: const Icon(Icons.play_arrow),
+            label: Text(
+              strings.cardSheetReviewNow,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _actions(Flashcard card, Preset preset) {
+  /// Offers every step with the date it would give. The queue asks for a
+  /// confirmation, since the card loses its progression; any other step
+  /// applies at once and tells its date.
+  Future<void> _changeStep(
+    Flashcard card,
+    Preset preset,
+    SequenceEnd end,
+    CardStatusFormatter formatter,
+    ClockTime dailySlot,
+  ) async {
     final strings = AppLocalizations.of(context);
-    return Row(
-      spacing: 8,
-      children: [
-        _ActionButton(
-          icon: Icons.restart_alt,
-          label: strings.cardSheetReset,
-          onPressed: _confirmReset,
-        ),
-      ],
+    final messenger = ScaffoldMessenger.of(context);
+    final scheduler = ref.read(reviewSchedulerProvider);
+    final current = StepTarget.of(card, preset);
+    final target = await showStepSheet(
+      context,
+      preset: preset,
+      end: end,
+      current: current,
+      offersQueue: !card.isPending,
+      dueAtOf: (target) => switch (target.reachedIn(preset, end)) {
+        null => null,
+        final reached =>
+          scheduler
+              .atStep(reached, from: formatter.now, dailySlot: dailySlot)
+              .dueAt,
+      },
     );
-  }
-
-  /// Reviews the card now; the answer is a bonus review unless the card is
-  /// due. A pending card waits for its distillation.
-  Future<void> _review(Flashcard card) async {
-    if (card.isPending) {
+    if (target == null || target == current) {
       return;
-    }
-    await openSession(context, ref, [card.id]);
-  }
-
-  Future<void> _confirmReset() async {
-    final strings = AppLocalizations.of(context);
-    final confirmed = await _confirm(
-      strings.cardSheetResetConfirmTitle,
-      strings.cardSheetResetConfirmBody,
-      strings.cardSheetReset,
-    );
-    if (confirmed) {
-      await ref
+    } else if (target is PendingTarget) {
+      final confirmed = await _confirm(
+        strings.stepSheetPendingConfirmTitle,
+        strings.stepSheetPendingConfirmBody,
+        strings.stepSheetPendingConfirm,
+      );
+      if (confirmed) {
+        await ref.read(cardServiceProvider).setStep(card.id, target);
+      }
+    } else {
+      final dueAt = await ref
           .read(cardServiceProvider)
-          .setStep(widget.cardId, const PendingTarget());
+          .setStep(card.id, target);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            dueAt == null
+                ? strings.nextReviewLearned
+                : strings.cardSheetNextReviewIn(strings.dayDateTime(dueAt)),
+          ),
+        ),
+      );
     }
   }
 
@@ -168,25 +222,20 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
         ),
       ) ??
       false;
-
-  Widget _hint(String text) => Padding(
-    padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
-    child: Text(
-      text,
-      style: TextStyle(
-        fontSize: 13,
-        color: AlambicColors.of(context).textSecondary,
-      ),
-    ),
-  );
 }
 
-/// Front above back, separated by a dashed line as in the mockup.
+/// The front, then the back under a divider, hidden behind "Show the
+/// answer" until [backRevealed].
 class _FacesPanel extends StatelessWidget {
-  const _FacesPanel({required this.card, required this.onTap});
+  const _FacesPanel({
+    required this.card,
+    required this.backRevealed,
+    required this.onReveal,
+  });
 
   final Flashcard card;
-  final VoidCallback onTap;
+  final bool backRevealed;
+  final VoidCallback onReveal;
 
   @override
   Widget build(BuildContext context) {
@@ -199,16 +248,51 @@ class _FacesPanel extends StatelessWidget {
         side: BorderSide(color: colors.border),
       ),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _face(strings.cardFront, card.front, colors),
-            Divider(height: 1, color: colors.divider),
-            _face(strings.cardBack, card.back, colors),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _face(strings.cardFront, card.front, colors),
+          Divider(height: 1, color: colors.divider),
+          if (backRevealed)
+            _face(strings.cardBack, card.back, colors)
+          else
+            InkWell(
+              onTap: onReveal,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    _label(strings.cardBack, colors),
+                    Row(
+                      spacing: 8,
+                      children: [
+                        Icon(
+                          Icons.visibility_outlined,
+                          size: 20,
+                          color: colors.accentText,
+                        ),
+                        Flexible(
+                          child: Text(
+                            strings.sessionShowAnswer,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: colors.accentText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -219,15 +303,7 @@ class _FacesPanel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 4,
       children: [
-        Text(
-          label.toUpperCase(),
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.7,
-            color: colors.textSecondary,
-          ),
-        ),
+        _label(label, colors),
         if (face.hasText)
           Text(
             face.text!,
@@ -241,56 +317,14 @@ class _FacesPanel extends StatelessWidget {
       ],
     ),
   );
-}
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = AlambicColors.of(context);
-    final enabled = onPressed != null;
-    final foreground = enabled
-        ? colors.textPrimary
-        : colors.textSecondary.withValues(alpha: 0.5);
-    return Expanded(
-      child: Material(
-        color: colors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: colors.border),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onPressed,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-            child: Column(
-              spacing: 6,
-              children: [
-                Icon(icon, size: 20, color: foreground),
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: foreground,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _label(String label, AlambicColors colors) => Text(
+    label.toUpperCase(),
+    style: TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.7,
+      color: colors.textSecondary,
+    ),
+  );
 }

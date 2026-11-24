@@ -355,6 +355,14 @@
       }
     }
   },
+  "dueInAmount": "in {amount}",
+  "@dueInAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "bulkTitle": "Bulk add",
   "bulkSeparator": "Separator",
   "bulkSeparatorHint": "Between front and back, on each line",
@@ -434,7 +442,6 @@
   },
   "sessionReverseBadge": "back → front",
   "reviewAcquired": "learned",
-  "reviewNoEffect": "no effect",
   "sessionFinished": "Session finished",
   "sessionSummary": "{count, plural, =1{1 card in {duration}} other{{count} cards in {duration}}}",
   "@sessionSummary": {
@@ -480,36 +487,70 @@
       }
     }
   },
-  "cardSheetTapToReview": "Tap the card to review it now.",
-  "cardSheetNextReview": "Next review",
   "cardSheetDueNow": "Due now",
-  "cardSheetAcquired": "Learned: this card does not come back.",
-  "cardSheetPending": "Waiting: the distillation of the group will bring it in.",
-  "cardSheetReset": "Reset",
-  "cardSheetResetConfirmTitle": "Reset the progression?",
-  "cardSheetResetConfirmBody": "The card goes back to the queue of its group until the distillation brings it out. The history is kept.",
-  "cardSheetHistory": "History",
-  "cardSheetHistoryEmpty": "No review yet.",
   "cardSheetEdit": "Edit",
   "cardSheetDelete": "Delete the card",
   "cardSheetDeleteConfirm": "Delete this card and its history?",
-  "cardSheetHistoryBonus": "bonus",
-  "cardSheetHistoryTo": "→ {interval}",
-  "@cardSheetHistoryTo": {
+  "cardSheetReviewNow": "Review now",
+  "cardSheetNextReviewIn": "Next review {when}",
+  "@cardSheetNextReviewIn": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "cardSheetLearned": "Learned",
+  "cardSheetLearnedDetail": "This card does not come back.",
+  "cardSheetQueueStanding": "Waiting · {rank} of {size}",
+  "@cardSheetQueueStanding": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "cardSheetArrivesAround": "Comes out around {date}",
+  "@cardSheetArrivesAround": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cardSheetArrivesFar": "Comes out in more than 2 years",
+  "cardSheetQueuePaused": "The distillation is paused: nothing comes out.",
+  "cardSheetNotDistilling": "The group does not distill: nothing comes out.",
+  "cardSheetToHead": "To the head",
+  "cardSheetToEnd": "To the end",
+  "cardSheetLastCorrect": "Last correct",
+  "cardSheetLastAgain": "Last again",
+  "cardSheetNever": "never",
+  "agoLabel": "{amount} ago",
+  "@agoLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "agoToday": "today",
+  "stepSheetTitle": "Change the step",
+  "stepSheetPending": "Waiting in the queue",
+  "stepSheetRemanence": "Remanence · {interval}",
+  "@stepSheetRemanence": {
     "placeholders": {
       "interval": {
         "type": "String"
       }
     }
   },
-  "cardSheetHistoryBackTo": "back to {interval}",
-  "@cardSheetHistoryBackTo": {
-    "placeholders": {
-      "interval": {
-        "type": "String"
-      }
-    }
-  },
+  "stepSheetPendingConfirmTitle": "Put the card back in the queue?",
+  "stepSheetPendingConfirmBody": "The card goes back to the end of the queue of its group until the distillation brings it out. The history is kept.",
+  "stepSheetPendingConfirm": "Put back",
   "homeTitle": "Coming up",
   "homeToday": "Today",
   "homeTodayEmpty": "Nothing planned today.",

@@ -1,6 +1,6 @@
 # Feature 6 — Home
 
-Status: implemented (2026-11-20)
+Status: implemented (2026-11-24)
 
 ## Goal
 

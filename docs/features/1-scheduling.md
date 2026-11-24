@@ -1,6 +1,6 @@
 # Feature 1 — Review scheduling
 
-Status: implemented (2026-11-20)
+Status: implemented (2026-11-24)
 
 ## Goal
 
@@ -52,14 +52,14 @@ Changing the remanence interval moves no due date; it applies from the next answ
 "Again" on a due card applies the failure behaviour of the preset (`FailureBehavior`), then waits the interval of the step reached:
 
 - **step back** (the default) moves from step k to step k − 1, and stays at the first step; from the remanence, it goes back to the last step;
-- **restart** goes back to the first step; the card stays introduced, unlike "Reset", which sends it back to the queue;
+- **restart** goes back to the first step; the card stays introduced, unlike "Waiting in the queue" on its sheet, which sends it back to the queue;
 - **stay** keeps the step, so the card waits its interval again; a card in remanence stays in remanence.
 
 The behaviour is read at each answer, from the preset in force at that moment: editing it moves no due date. A [bonus review](../lexicon.md#bonus-review) never applies it.
 
 ### Introducing a card
 
-A new card is never scheduled by itself: it is [pending](../lexicon.md#pending) in the [queue](../lexicon.md#queue) of its group until the group's [distillation](8-distillation.md) introduces it. Introduced, it is due today at the [daily slot](../lexicon.md#daily-slot), even when that slot has already passed: the card is due at once. Resetting its progress sends it back to the end of the queue.
+A new card is never scheduled by itself: it is [pending](../lexicon.md#pending) in the [queue](../lexicon.md#queue) of its group until the group's [distillation](8-distillation.md) introduces it. Introduced, it is due today at the [daily slot](../lexicon.md#daily-slot), even when that slot has already passed: the card is due at once. Putting it back in the queue from its sheet forgets its progress and sends it to the end of the queue; putting it at a step schedules it as if an answer had brought it there at that moment ([Feature 3](3-cards.md#card-management)).
 
 ### Due
 

@@ -14,7 +14,7 @@ State of a card never introduced (`CardState.pending`; "waiting"). Every new car
 
 ### Queue
 
-The pending cards of a group, in a fixed order that is the only one (`queuePosition`): the [distillation](#distillation) takes its head. A card created in the group, moved into it while pending, or reset, joins its end, and so does a bulk add, as a whole batch. A pending card missed in "Review all" goes to its head.
+The pending cards of a group, in a fixed order that is the only one (`queuePosition`): the [distillation](#distillation) takes its head. A card created in the group, moved into it while pending, or put back in the queue, joins its end, and so does a bulk add, as a whole batch. A pending card missed in "Review all" goes to its head. The user can also move a card to the head or the end of its queue.
 
 ### Distillation
 
@@ -38,7 +38,7 @@ The rhythm of the reviews (`Preset`): interval sequence and behaviour on failure
 
 ### Step
 
-Position of a card in its preset's sequence (`step`): the index of the interval currently waited. A card never answered has no step.
+Position of a card in its preset's sequence (`step`): the index of the interval currently waited. A card never answered has no step. The user can put a card at any step from its sheet (`StepTarget`): it is then scheduled as if an answer had brought it there.
 
 ### Remanence
 

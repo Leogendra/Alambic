@@ -1,37 +1,46 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/formatting/date_labels.dart';
-import '../../app/formatting/interval_labels.dart';
 import '../../app/theme/alambic_colors.dart';
+import '../../application/distillation/distillation_providers.dart';
+import '../../application/distillation/queue_standing.dart';
 import '../../domain/cards/flashcard.dart';
-import '../../domain/groups/after_last_step.dart';
 import '../../domain/groups/sequence_end.dart';
 import '../../domain/presets/preset.dart';
-import '../../domain/scheduling/card_progress.dart';
+import '../../domain/scheduling/step_target.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'card_status_formatter.dart';
+import 'step_track.dart';
 
-/// Where a card stands: its position in the sequence of its preset, the
-/// remanence of its group as a last step, and its next review; or why it is
-/// not scheduled.
-class CardProgressPanel extends StatelessWidget {
+/// Where a card stands: when it comes back, or where it waits in the queue
+/// of its group with the buttons that move it there, or that it is learned;
+/// then the track of its steps, which [onChangeStep] opens to change them.
+class CardProgressPanel extends ConsumerWidget {
   const CardProgressPanel({
     required this.card,
     required this.preset,
     required this.end,
-    required this.isDue,
+    required this.formatter,
+    required this.onChangeStep,
     super.key,
   });
 
   final Flashcard card;
   final Preset preset;
   final SequenceEnd end;
-  final bool isDue;
+  final CardStatusFormatter formatter;
+  final VoidCallback onChangeStep;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = formatter.strings;
     final colors = AlambicColors.of(context);
+    final standing = card.isPending
+        ? ref.watch(queueStandingProvider(card.id))
+        : null;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(20),
@@ -40,133 +49,158 @@ class CardProgressPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 12,
-        children: _content(context, colors),
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: _header(strings, colors, standing),
+          ),
+          if (standing != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _queueButtons(ref, strings, standing),
+            ),
+          Tooltip(
+            message: strings.stepSheetTitle,
+            child: InkWell(
+              onTap: onChangeStep,
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  spacing: 4,
+                  children: [
+                    Expanded(
+                      child: StepTrack(
+                        preset: preset,
+                        end: end,
+                        current: StepTarget.of(card, preset),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 40,
+                      child: Icon(
+                        Icons.tune,
+                        size: 20,
+                        color: colors.accentText,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  List<Widget> _content(BuildContext context, AlambicColors colors) {
-    final strings = AppLocalizations.of(context);
-    if (card.isPending) {
-      return [_message(strings.cardSheetPending, colors)];
-    } else if (card.isAcquired) {
-      return [
-        _sequence(strings, colors, preset.lastStep),
-        _message(strings.cardSheetAcquired, colors),
-      ];
-    } else {
-      return [
-        _sequence(strings, colors, switch (CardProgress.of(card, preset, end)) {
-          NewProgress() => null,
-          SequenceProgress(:final step) => step,
-          RemanenceProgress(:final sequenceLength) => sequenceLength,
-        }),
-        _nextReview(context, colors, card.dueAt!),
-      ];
-    }
-  }
-
-  /// The steps of the preset, then the remanence when the group has one,
-  /// each over its interval; filled up to [position], bold at it.
-  Widget _sequence(
+  Widget _header(
     AppLocalizations strings,
     AlambicColors colors,
-    int? position,
+    QueueStanding? standing,
   ) {
-    final intervals = [
-      ...preset.intervals,
-      if (end.afterLastStep == AfterLastStep.remanence)
-        end.remanenceAfter(preset),
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 6,
-      children: [
-        Row(
-          spacing: 4,
-          children: [
-            for (var index = 0; index < intervals.length; index++)
-              Expanded(
-                child: Container(
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: position != null && index <= position
-                        ? colors.accent
-                        : colors.well,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        Row(
-          spacing: 4,
-          children: [
-            for (var index = 0; index < intervals.length; index++)
-              Expanded(
-                child: Text(
-                  strings.intervalLabel(intervals[index]),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: index == position ? FontWeight.w700 : null,
-                    color: index == position
-                        ? colors.accentText
-                        : colors.textSecondary,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _nextReview(
-    BuildContext context,
-    AlambicColors colors,
-    DateTime dueAt,
-  ) {
-    final strings = AppLocalizations.of(context);
+    final dueAt = card.dueAt;
+    final (icon, title, detail, isAccent) = switch (card) {
+      Flashcard(isPending: true) => (
+        Icons.hourglass_empty,
+        standing == null
+            ? ''
+            : strings.cardSheetQueueStanding(standing.rank, standing.size),
+        standing == null ? null : _arrival(strings, standing.arrival),
+        false,
+      ),
+      Flashcard(isAcquired: true) => (
+        Icons.check_circle_outline,
+        strings.cardSheetLearned,
+        strings.cardSheetLearnedDetail,
+        false,
+      ),
+      _ when formatter.isDue(card) => (
+        Icons.notifications_active_outlined,
+        strings.cardSheetDueNow,
+        null,
+        true,
+      ),
+      _ => (
+        Icons.calendar_today_outlined,
+        strings.cardSheetNextReviewIn(formatter.nextDueLabel(dueAt!)),
+        strings.dayDateTime(dueAt),
+        false,
+      ),
+    };
     return Row(
-      spacing: 10,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 12,
       children: [
         Icon(
-          Icons.calendar_today_outlined,
-          size: 18,
-          color: colors.textSecondary,
+          icon,
+          size: 20,
+          color: isAccent ? colors.accentText : colors.textSecondary,
         ),
         Expanded(
-          child: isDue
-              ? Text(
-                  strings.cardSheetDueNow,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: colors.accentText,
-                  ),
-                )
-              : Text.rich(
-                  TextSpan(
-                    style: const TextStyle(fontSize: 15),
-                    children: [
-                      TextSpan(text: '${strings.cardSheetNextReview} '),
-                      TextSpan(
-                        text: strings.dayDateTime(dueAt),
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ],
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 2,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: isAccent ? colors.accentText : colors.textPrimary,
                 ),
+              ),
+              if (detail != null)
+                Text(
+                  detail,
+                  style: TextStyle(fontSize: 14, color: colors.textSecondary),
+                ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _message(String text, AlambicColors colors) => Text(
-    text,
-    style: TextStyle(fontSize: 15, height: 1.4, color: colors.textSecondary),
-  );
+  String _arrival(AppLocalizations strings, QueueArrival arrival) =>
+      switch (arrival) {
+        ExpectedArrival(:final day) => strings.cardSheetArrivesAround(
+          strings.longDate(day),
+        ),
+        ArrivalBeyondHorizon() => strings.cardSheetArrivesFar,
+        DistillationPaused() => strings.cardSheetQueuePaused,
+        NoDistillation() => strings.cardSheetNotDistilling,
+      };
+
+  /// "To the head" and "To the end", each off where the card already is.
+  Widget _queueButtons(
+    WidgetRef ref,
+    AppLocalizations strings,
+    QueueStanding standing,
+  ) {
+    final queue = ref.read(queueServiceProvider);
+    return Row(
+      spacing: 8,
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: standing.rank == 1
+                ? null
+                : () => queue.moveToHead(card.id),
+            icon: const Icon(Icons.vertical_align_top, size: 18),
+            label: Text(strings.cardSheetToHead),
+          ),
+        ),
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: standing.rank == standing.size
+                ? null
+                : () => queue.moveToEnd(card.id),
+            icon: const Icon(Icons.vertical_align_bottom, size: 18),
+            label: Text(strings.cardSheetToEnd),
+          ),
+        ),
+      ],
+    );
+  }
 }

@@ -101,15 +101,10 @@ class CardService {
     final dueAt = await _cards.transaction(() async {
       final card = await _cards.getCard(cardId);
       final catalog = await _presets.loadCatalog();
-      final preset = catalog.presetForGroup(card.groupId);
-      final reached = switch (target) {
-        PendingTarget() => null,
-        StepIndexTarget() => target.reached(preset),
-        SequenceEndTarget() => target.reached(
-          preset,
-          catalog.sequenceEndForGroup(card.groupId),
-        ),
-      };
+      final reached = target.reachedIn(
+        catalog.presetForGroup(card.groupId),
+        catalog.sequenceEndForGroup(card.groupId),
+      );
       if (reached == null) {
         await _cards.enqueue(cardId, await _queueEnd(card.groupId));
         return null;

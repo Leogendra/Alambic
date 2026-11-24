@@ -291,6 +291,12 @@
     }
   },
   "groupReviewAll": "Review all",
+  "groupReorder": "Reorder the queue",
+  "groupReorderDone": "Done",
+  "groupShuffleQueue": "Shuffle the queue",
+  "groupShuffleConfirmTitle": "Shuffle the queue?",
+  "groupShuffleConfirmBody": "The waiting cards come out in a new order, drawn at random. The current order is lost.",
+  "groupShuffleConfirm": "Shuffle",
   "groupEmpty": "No card yet. Add some with the + button or with bulk add.",
   "groupSettingsTitle": "Group settings",
   "groupSettingsRepetition": "Repetition",

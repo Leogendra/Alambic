@@ -23,10 +23,13 @@ import '../distillation/group_distillation_section.dart';
 import '../session/session_launcher.dart';
 import 'back_visibility_button.dart';
 import 'group_settings_screen.dart';
+import 'queue_section.dart';
+import 'section_title.dart';
 
 /// A group page: "Distill" or the tracking of its distillation, the button
-/// that hides the backs, then its cards in three sections: in progress, waiting in queue
-/// order, and learned, folded. "Review all" sits beside the first title.
+/// that hides the backs, then its cards in three sections: in progress,
+/// waiting in queue order, which can be reordered, and learned, folded.
+/// "Review all" sits beside the first title.
 class GroupDetailScreen extends ConsumerWidget {
   const GroupDetailScreen({required this.groupId, super.key});
 
@@ -69,24 +72,44 @@ class _GroupBody extends ConsumerWidget {
     final cards =
         ref.watch(groupCardsProvider(summary.groupId)).value ?? const [];
     final sections = GroupSections.of(cards);
-    return ListView(
-      padding: scrollPadding(context, const EdgeInsets.fromLTRB(20, 0, 20, 96)),
-      children: [
-        const SizedBox(height: 8),
-        GroupDistillationSection(groupId: summary.groupId),
-        const SizedBox(height: 16),
-        BackVisibilityButton(group: summary.group),
-        const SizedBox(height: 24),
-        _CardSections(
-          sections: sections,
-          showBack: !summary.group.backHidden,
-          distilling:
-              ref.watch(groupDistillationProvider(summary.groupId)) != null,
-          reviewAll: sections.ongoing.isNotEmpty || sections.waiting.isNotEmpty
-              ? _ReviewAllButton(
-                  onPressed: () => _reviewAll(context, ref, cards),
-                )
-              : null,
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: scrollPadding(
+            context,
+            const EdgeInsets.fromLTRB(20, 0, 20, 96),
+          ),
+          sliver: SliverMainAxisGroup(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 8),
+                    GroupDistillationSection(groupId: summary.groupId),
+                    const SizedBox(height: 16),
+                    BackVisibilityButton(group: summary.group),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+              _CardSections(
+                sections: sections,
+                showBack: !summary.group.backHidden,
+                distilling:
+                    ref.watch(groupDistillationProvider(summary.groupId)) !=
+                    null,
+                reviewAll:
+                    sections.ongoing.isNotEmpty || sections.waiting.isNotEmpty
+                    ? SectionButton(
+                        icon: Icons.play_arrow,
+                        label: AppLocalizations.of(context).groupReviewAll,
+                        onPressed: () => _reviewAll(context, ref, cards),
+                      )
+                    : null,
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -110,42 +133,10 @@ class _GroupBody extends ConsumerWidget {
   }
 }
 
-/// "Review all", a small button at the right of the first section title.
-class _ReviewAllButton extends StatelessWidget {
-  const _ReviewAllButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = AlambicColors.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: OutlinedButton.icon(
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size(0, 36),
-          padding: const EdgeInsetsDirectional.fromSTEB(8, 0, 12, 0),
-          backgroundColor: colors.surface,
-          foregroundColor: colors.accentText,
-          side: BorderSide(color: colors.border),
-          shape: const StadiumBorder(),
-        ),
-        icon: const Icon(Icons.play_arrow, size: 18),
-        label: Text(
-          AppLocalizations.of(context).groupReviewAll,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        ),
-        onPressed: onPressed,
-      ),
-    );
-  }
-}
-
-/// The cards of the group in their sections, each under a small title with
-/// its count; an empty section is left out. [reviewAll] sits beside the first
-/// title. The waiting cards do not say "waiting" (their section does); the
-/// next card is marked only while the group [distilling], otherwise nothing
-/// comes out.
+/// The cards of the group in their sections, as slivers, each under a small
+/// title with its count; an empty section is left out. [reviewAll] sits
+/// beside the first title. The waiting cards do not say "waiting" (their
+/// section does).
 class _CardSections extends ConsumerWidget {
   const _CardSections({
     required this.sections,
@@ -164,53 +155,53 @@ class _CardSections extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final formatter = watchCardStatusFormatter(context, ref);
     if (sections.isEmpty || formatter == null) {
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text(
-          strings.groupEmpty,
-          style: TextStyle(color: AlambicColors.of(context).textSecondary),
+      return SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            strings.groupEmpty,
+            style: TextStyle(color: AlambicColors.of(context).textSecondary),
+          ),
         ),
       );
     } else {
-      final nextId = sections.nextId;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [
-          if (sections.ongoing case final ongoing when ongoing.isNotEmpty)
-            Column(
+      final present = [
+        if (sections.ongoing case final ongoing when ongoing.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _SubsectionLabel(
+                SectionTitle(
                   strings.groupOngoingSection(ongoing.length),
-                  trailing: reviewAll,
+                  actions: [?reviewAll],
                 ),
                 _panel(context, ongoing, formatter),
               ],
             ),
-          if (sections.waiting case final waiting when waiting.isNotEmpty)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _SubsectionLabel(
-                  strings.groupWaitingSection(waiting.length),
-                  trailing: sections.ongoing.isEmpty ? reviewAll : null,
-                ),
-                _panel(
-                  context,
-                  waiting,
-                  formatter,
-                  waitingCards: true,
-                  nextId: nextId,
-                  nextMark: strings.groupNextCard,
-                ),
-              ],
-            ),
-          if (sections.acquired case final acquired when acquired.isNotEmpty)
-            _AcquiredSection(
+          ),
+        if (sections.waiting case final waiting when waiting.isNotEmpty)
+          QueueSection(
+            cards: waiting,
+            formatter: formatter,
+            showBack: showBack,
+            distilling: distilling,
+            reviewAll: sections.ongoing.isEmpty ? reviewAll : null,
+          ),
+        if (sections.acquired case final acquired when acquired.isNotEmpty)
+          SliverToBoxAdapter(
+            child: _AcquiredSection(
               count: acquired.length,
               panel: _panel(context, acquired, formatter),
             ),
+          ),
+      ];
+      return SliverMainAxisGroup(
+        slivers: [
+          for (final (index, section) in present.indexed) ...[
+            if (index > 0)
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            section,
+          ],
         ],
       );
     }
@@ -219,19 +210,14 @@ class _CardSections extends ConsumerWidget {
   Widget _panel(
     BuildContext context,
     List<Flashcard> cards,
-    CardStatusFormatter formatter, {
-    bool waitingCards = false,
-    int? nextId,
-    String? nextMark,
-  }) => SurfacePanel(
+    CardStatusFormatter formatter,
+  ) => SurfacePanel(
     children: [
       for (final card in cards)
         CardListTile(
           card: card,
           formatter: formatter,
           showBack: showBack,
-          mark: distilling && card.id == nextId ? nextMark : null,
-          showStanding: !waitingCards,
           onTap: () => openCard(context, card.id),
         ),
     ],
@@ -268,7 +254,7 @@ class _AcquiredSectionState extends State<_AcquiredSection> {
               child: Row(
                 children: [
                   Expanded(
-                    child: _SubsectionLabel(
+                    child: SectionTitle(
                       AppLocalizations.of(context)
                           .groupAcquiredSection(widget.count),
                     ),
@@ -288,38 +274,5 @@ class _AcquiredSectionState extends State<_AcquiredSection> {
         if (_expanded) widget.panel,
       ],
     );
-  }
-}
-
-/// Title of a section of cards: small, not in capitals, with an optional
-/// widget at its right; the title sits at the bottom of that widget.
-class _SubsectionLabel extends StatelessWidget {
-  const _SubsectionLabel(this.text, {this.trailing});
-
-  final String text;
-  final Widget? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    final label = Padding(
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: AlambicColors.of(context).textSecondary,
-        ),
-      ),
-    );
-    return trailing == null
-        ? label
-        : Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(child: label),
-              trailing!,
-            ],
-          );
   }
 }

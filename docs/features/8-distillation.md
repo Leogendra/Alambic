@@ -14,7 +14,7 @@ A distillation is a permanent setting of a group, at most one per group. The gro
 
 ### Queue
 
-The [queue](../lexicon.md#queue) of a group is its pending cards in a fixed order, and the distillation takes its cards from the head of it. That order is the only one: the distillation has no order setting. The user moves a card to the head or the end of the queue from its sheet ([Feature 3](3-cards.md#card-sheet)); each move writes the ranks of the whole queue again, from 0, so that the order stored is the order shown.
+The [queue](../lexicon.md#queue) of a group is its pending cards in a fixed order, and the distillation takes its cards from the head of it. That order is the only one: the distillation has no order setting. The user changes it by hand: a card goes to the head or the end of the queue from its sheet ([Feature 3](3-cards.md#card-sheet)); on the group page, a card is dragged to any place, sent to the head or the end, or the whole queue is shuffled ([Feature 4](4-groups.md#reordering-the-queue)). Each move writes the ranks of the whole queue again, from 0, so that the order stored is the order shown.
 
 A card created in the group, moved into it while pending, or put back in the queue from its sheet joins the end of the queue, and a pending card missed in "Review all" goes to its head ([Feature 4](4-groups.md#review-all)); a bulk add joins it as a whole batch, in the order chosen on its screen ([Feature 3](3-cards.md#bulk-add)). A card moved out of the group leaves it, keeping its progression if it was introduced.
 
@@ -73,7 +73,7 @@ The sheet of a pending card gives its own arrival from the same forecast: the da
 ## Acceptance criteria
 
 - [x] A group does not distill until activated; activating introduces the first batch the same day.
-- [x] The distillation takes the head of the queue; it has no order setting. A card moved to the head or the end of the queue from its sheet comes out in that order.
+- [x] The distillation takes the head of the queue; it has no order setting. A card moved by hand, from its sheet or from the group page, dragged, sent to the head or the end, or a shuffled queue, comes out in that order.
 - [x] A batch of N cards comes out every day, one at most per pass, the day starting at 4am, with the app closed; missed batches are not caught up.
 - [x] A card added to the group joins the end of the queue, even when the queue was empty; a card moved out of the group leaves it.
 - [x] One distillation per group; it is adjusted, paused and resumed, never stopped.

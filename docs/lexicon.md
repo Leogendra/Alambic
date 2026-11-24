@@ -14,7 +14,7 @@ State of a card never introduced (`CardState.pending`; "waiting"). Every new car
 
 ### Queue
 
-The pending cards of a group, in a fixed order that is the only one (`queuePosition`): the [distillation](#distillation) takes its head. A card created in the group, moved into it while pending, or put back in the queue, joins its end, and so does a bulk add, as a whole batch. A pending card missed in "Review all" goes to its head. The user can also move a card to the head or the end of its queue.
+The pending cards of a group, in a fixed order that is the only one (`queuePosition`): the [distillation](#distillation) takes its head. A card created in the group, moved into it while pending, or put back in the queue, joins its end, and so does a bulk add, as a whole batch. A pending card missed in "Review all" goes to its head. The user can also reorder it by hand: a card dragged to another place or sent to the head or the end, or the whole queue shuffled.
 
 ### Distillation
 

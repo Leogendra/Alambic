@@ -48,7 +48,6 @@ class _DripLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
     return Row(
       spacing: 12,

@@ -14,6 +14,7 @@ import 'package:alambic/domain/presets/preset_interval.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
+import 'package:alambic/domain/scheduling/step_target.dart';
 import 'package:alambic/features/cards/card_sheet_screen.dart';
 import 'package:alambic/features/session/session_screen.dart';
 
@@ -83,12 +84,17 @@ void main() {
     return ids;
   }
 
-  Future<void> pumpSheet(WidgetTester tester, int cardId, {DateTime? at}) =>
-      pumpScreen(
-        tester,
-        CardSheetScreen(cardId: cardId),
-        overrides: screenOverrides(database, at ?? sampleNow),
-      );
+  Future<void> pumpSheet(
+    WidgetTester tester,
+    int cardId, {
+    DateTime? at,
+    Brightness brightness = Brightness.light,
+  }) => pumpScreen(
+    tester,
+    CardSheetScreen(cardId: cardId),
+    brightness: brightness,
+    overrides: screenOverrides(database, at ?? sampleNow),
+  );
 
   /// Taps [finder] and lets the database answer before settling.
   Future<void> tapAndSettle(WidgetTester tester, Finder finder) async {
@@ -142,12 +148,71 @@ void main() {
     });
   }
 
-  testScreen('a due card says so', (tester) async {
-    final renderAt = DateTime(2026, 11, 13, 12, 30);
-    final cardId = await seedReviewedCard(tester, renderAt);
-    await pumpSheet(tester, cardId, at: renderAt);
-    expect(find.text('Due now'), findsOneWidget);
-  });
+  for (final (brightness, suffix) in [
+    (Brightness.light, ''),
+    (Brightness.dark, '_dark'),
+  ]) {
+    testScreen('a due card says so, ${brightness.name} theme', (tester) async {
+      final renderAt = DateTime(2026, 11, 13, 12, 30);
+      final cardId = await seedReviewedCard(tester, renderAt);
+      await pumpSheet(tester, cardId, at: renderAt, brightness: brightness);
+      expect(find.text('Due now'), findsOneWidget);
+      await captureShot(
+        tester,
+        find.byType(CardSheetScreen),
+        'card_sheet_due$suffix',
+      );
+    });
+
+    testScreen('a learned card says it does not come back, '
+        '${brightness.name} theme', (tester) async {
+      final ids = await seedQueue(tester, count: 1);
+      await tester.runAsync(() async {
+        final cards = CardRepository(database);
+        final card = await cards.getCard(ids.single);
+        await GroupRepository(database)
+            .setAfterLastStep(card.groupId, AfterLastStep.acquired);
+        await cards.applySchedule(card.id, CardSchedule.acquired);
+      });
+      await pumpSheet(tester, ids.single, brightness: brightness);
+      expect(find.text('Learned'), findsWidgets);
+      expect(find.text('This card does not come back.'), findsOneWidget);
+      await captureShot(
+        tester,
+        find.byType(CardSheetScreen),
+        'card_sheet_learned$suffix',
+      );
+    });
+
+    testScreen('a waiting card, ${brightness.name} theme', (tester) async {
+      final ids = await seedQueue(tester, count: 4, distilling: true);
+      await pumpSheet(tester, ids[2], brightness: brightness);
+      expect(find.text('Waiting · 2 of 3'), findsOneWidget);
+      await captureShot(
+        tester,
+        find.byType(CardSheetScreen),
+        'card_sheet_pending$suffix',
+      );
+    });
+
+    testScreen('a card in remanence, ${brightness.name} theme', (tester) async {
+      final renderAt = DateTime(2026, 11, 12, 9);
+      final cardId = await seedReviewedCard(tester, renderAt);
+      await tester.runAsync(
+        () => SampleServices(
+          database,
+          FixedClock(renderAt),
+        ).cards.setStep(cardId, const SequenceEndTarget()),
+      );
+      await pumpSheet(tester, cardId, at: renderAt, brightness: brightness);
+      expect(find.text('Next review in 6\u00A0mo'), findsOneWidget);
+      await captureShot(
+        tester,
+        find.byType(CardSheetScreen),
+        'card_sheet_remanence$suffix',
+      );
+    });
+  }
 
   testScreen('a waiting card tells its rank and when it comes out, and '
       'moves in its queue', (tester) async {
@@ -156,11 +221,6 @@ void main() {
     // Laos came out on activation; Chile comes tomorrow, Kenya after.
     expect(find.text('Waiting · 2 of 3'), findsOneWidget);
     expect(find.text('Comes out around November 12'), findsOneWidget);
-    await captureShot(
-      tester,
-      find.byType(CardSheetScreen),
-      'card_sheet_pending',
-    );
     await expectNoOverflow(tester);
     await tapAndSettle(tester, find.text('To the head'));
     expect(find.text('Waiting · 1 of 3'), findsOneWidget);
@@ -189,25 +249,6 @@ void main() {
     }
   });
 
-  testScreen('a learned card says it does not come back', (tester) async {
-    final ids = await seedQueue(tester, count: 1);
-    await tester.runAsync(() async {
-      final cards = CardRepository(database);
-      final card = await cards.getCard(ids.single);
-      await GroupRepository(database)
-          .setAfterLastStep(card.groupId, AfterLastStep.acquired);
-      await cards.applySchedule(card.id, CardSchedule.acquired);
-    });
-    await pumpSheet(tester, ids.single);
-    expect(find.text('Learned'), findsWidgets);
-    expect(find.text('This card does not come back.'), findsOneWidget);
-    await captureShot(
-      tester,
-      find.byType(CardSheetScreen),
-      'card_sheet_learned',
-    );
-  });
-
   testScreen('the track opens the steps; a step applies at once and tells '
       'its date', (tester) async {
     final renderAt = DateTime(2026, 11, 12, 9);
@@ -228,11 +269,6 @@ void main() {
       () => CardRepository(database).getCard(cardId),
     );
     expect(card!.state, CardState.completed);
-    await captureShot(
-      tester,
-      find.byType(CardSheetScreen),
-      'card_sheet_remanence',
-    );
   });
 
   testScreen('a long preset keeps the intervals of its track apart', (

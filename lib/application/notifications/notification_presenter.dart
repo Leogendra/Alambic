@@ -31,9 +31,10 @@ abstract interface class NotificationPresenter {
   /// closes by itself after a few seconds.
   Future<void> showConfirmation(AnswerConfirmation confirmation);
 
-  /// Shows the test notification of the onboarding, a sample card tied to
-  /// no card, with the buttons of a card notification; [isRevealed] shows its
-  /// answer. Without [alert], it changes in place silently.
+  /// Shows the test notification of the onboarding and of Settings, a sample
+  /// card tied to no card, with the buttons of a card notification;
+  /// [isRevealed] shows its answer. Without [alert], it changes in place
+  /// silently.
   Future<void> showTestPrompt({bool isRevealed = false, bool alert = true});
 
   /// Replaces the test notification, silently, with what [outcome] would
@@ -70,4 +71,14 @@ abstract interface class NotificationPresenter {
 
   /// Count shown by the digest, `null` when it is not on screen.
   Future<int?> shownDigestCount();
+}
+
+extension TestNotification on NotificationPresenter {
+  /// Shows the test notification, asking for notifications first where
+  /// needed: without them, it would show nothing.
+  Future<void> sendTest() async {
+    if (await requestPermission()) {
+      await showTestPrompt();
+    }
+  }
 }

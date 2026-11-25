@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/theme/alambic_colors.dart';
 import '../../application/notifications/guard_providers.dart';
+import '../../application/notifications/notification_presenter.dart';
 import '../../application/notifications/notification_providers.dart';
 import '../../domain/notifications/reminder_settings.dart';
 import '../../domain/scheduling/clock_time.dart';
@@ -43,15 +44,6 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
     await ref.read(notificationSettingsServiceProvider).setFixedTime(time);
   }
 
-  /// Asks for notifications first, where needed: without them, the test
-  /// shows nothing.
-  Future<void> _sendTest() async {
-    final presenter = ref.read(notificationPresenterProvider);
-    if (await presenter.requestPermission()) {
-      await presenter.showTestPrompt();
-    }
-  }
-
   Future<void> _allow() async {
     setState(() => _isAsking = true);
     await ref.read(notificationPresenterProvider).requestPermission();
@@ -88,9 +80,9 @@ class _PermissionsPageState extends ConsumerState<PermissionsPage> {
             onTap: _pickTime,
           ),
           _ActionRow(
-            title: strings.onboardingTestNotification,
+            title: strings.testNotification,
             hint: strings.onboardingTestNotificationHint,
-            onTap: _sendTest,
+            onTap: () => ref.read(notificationPresenterProvider).sendTest(),
           ),
         ],
       ),

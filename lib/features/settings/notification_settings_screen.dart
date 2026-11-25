@@ -3,10 +3,12 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/formatting/reminder_settings_labels.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
 import '../../app/widgets/settings_group.dart';
 import '../../application/distillation/distillation_providers.dart';
 import '../../application/notifications/guard_providers.dart';
+import '../../application/notifications/notification_presenter.dart';
 import '../../application/notifications/notification_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../pauses/global_pause_dialog.dart';
@@ -87,6 +89,15 @@ class _NotificationsPanel extends ConsumerWidget {
           ),
         ),
         if (exactAlarmsKnown) const ExactAlarmsRow(),
+        PanelRow(
+          title: strings.testNotification,
+          subtitle: strings.settingsTestNotificationHint,
+          trailing: Icon(
+            Icons.notifications_active_outlined,
+            color: AlambicColors.of(context).textSecondary,
+          ),
+          onTap: () => ref.read(notificationPresenterProvider).sendTest(),
+        ),
       ],
     );
   }

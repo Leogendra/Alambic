@@ -204,7 +204,7 @@ void main() {
       'asking for notifications', (tester) async {
     await pumpApp(tester);
     await reachPermissions(tester);
-    await tapAndSettle(tester, find.text(l10n.onboardingTestNotification));
+    await tapAndSettle(tester, find.text(l10n.testNotification));
 
     expect(presenter.notificationPermissionRequests, 1);
     expect(presenter.testPrompt, (isRevealed: false, alert: true));
@@ -218,7 +218,7 @@ void main() {
     presenter.notificationsAllowed = false;
     await pumpApp(tester);
     await reachPermissions(tester);
-    await tapAndSettle(tester, find.text(l10n.onboardingTestNotification));
+    await tapAndSettle(tester, find.text(l10n.testNotification));
 
     expect(presenter.testPrompt, isNull);
   });

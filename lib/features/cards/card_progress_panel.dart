@@ -15,7 +15,8 @@ import 'step_track.dart';
 
 /// Where a card stands: when it comes back, or where it waits in the queue
 /// of its group with the buttons that move it there, or that it is learned;
-/// then the track of its steps, which [onChangeStep] opens to change them.
+/// then the track of its steps. The settings button of the header and the
+/// track both call [onChangeStep] to change them.
 class CardProgressPanel extends ConsumerWidget {
   const CardProgressPanel({
     required this.card,
@@ -32,6 +33,11 @@ class CardProgressPanel extends ConsumerWidget {
   final CardStatusFormatter formatter;
   final VoidCallback onChangeStep;
 
+  static const double _buttonSize = 40;
+
+  /// Height of the title line of the header, which the button centres on.
+  static const double _titleHeight = 22;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = formatter.strings;
@@ -39,7 +45,7 @@ class CardProgressPanel extends ConsumerWidget {
     final standing = card.isPending
         ? ref.watch(queueStandingProvider(card.id))
         : null;
-    return Container(
+    final panel = Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
       decoration: BoxDecoration(
         color: colors.surface,
@@ -51,7 +57,7 @@ class CardProgressPanel extends ConsumerWidget {
         spacing: 12,
         children: [
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: _buttonSize),
             child: _header(strings, colors, standing),
           ),
           if (standing != null)
@@ -65,32 +71,38 @@ class CardProgressPanel extends ConsumerWidget {
               onTap: onChangeStep,
               borderRadius: BorderRadius.circular(12),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  spacing: 4,
-                  children: [
-                    Expanded(
-                      child: StepTrack(
-                        preset: preset,
-                        end: end,
-                        current: StepTarget.of(card, preset),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 40,
-                      child: Icon(
-                        Icons.tune,
-                        size: 20,
-                        color: colors.accentText,
-                      ),
-                    ),
-                  ],
+                padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+                child: StepTrack(
+                  preset: preset,
+                  end: end,
+                  current: StepTarget.of(card, preset),
                 ),
               ),
             ),
           ),
         ],
       ),
+    );
+    // The settings button sits on the line of the title, outside the flow
+    // so that it neither makes the header taller nor narrows the track.
+    return Stack(
+      children: [
+        panel,
+        Positioned(
+          top: 16 + _titleHeight / 2 - _buttonSize / 2,
+          right: 8,
+          child: IconButton(
+            onPressed: onChangeStep,
+            tooltip: strings.stepSheetTitle,
+            icon: Icon(Icons.tune, size: 20, color: colors.accentText),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(
+              width: _buttonSize,
+              height: _buttonSize,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

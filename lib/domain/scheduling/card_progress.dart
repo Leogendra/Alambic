@@ -28,18 +28,11 @@ sealed class CardProgress {
             interval: preset.intervals[step],
           );
   }
-
-  /// Interval the card currently waits, used to rank cards; zero for a card
-  /// never answered.
-  Duration get waitedInterval;
 }
 
 /// Never answered.
 final class NewProgress extends CardProgress {
   const NewProgress();
-
-  @override
-  Duration get waitedInterval => Duration.zero;
 }
 
 /// At [step] of a sequence of [sequenceLength] steps, waiting [interval].
@@ -53,9 +46,6 @@ final class SequenceProgress extends CardProgress {
   final int step;
   final int sequenceLength;
   final PresetInterval interval;
-
-  @override
-  Duration get waitedInterval => interval.length;
 }
 
 /// Past the [sequenceLength] steps of the sequence, coming back every
@@ -68,7 +58,4 @@ final class RemanenceProgress extends CardProgress {
 
   final int sequenceLength;
   final PresetInterval interval;
-
-  @override
-  Duration get waitedInterval => interval.length;
 }

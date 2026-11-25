@@ -25,7 +25,7 @@ void main() {
     progress as SequenceProgress;
     expect(progress.step, 3);
     expect(progress.sequenceLength, 6);
-    expect(progress.waitedInterval, const Duration(days: 30));
+    expect(progress.interval.length, const Duration(days: 30));
   });
 
   test('a step beyond a shorter sequence counts as its last step', () {
@@ -37,10 +37,9 @@ void main() {
     expect((clamped as SequenceProgress).step, 2);
   });
 
-  test('a card never answered is new and waits nothing', () {
+  test('a card never answered is new', () {
     final progress = CardProgress.of(answered(), standardPreset, remanence());
     expect(progress, isA<NewProgress>());
-    expect(progress.waitedInterval, Duration.zero);
   });
 
   test('a card in remanence stays in remanence whatever the sequence', () {
@@ -51,7 +50,10 @@ void main() {
     for (final preset in [shortSequence(), standardPreset, intensivePreset]) {
       final progress = CardProgress.of(card, preset, remanence());
       expect(progress, isA<RemanenceProgress>());
-      expect(progress.waitedInterval, const Duration(days: 180));
+      expect(
+        (progress as RemanenceProgress).interval.length,
+        const Duration(days: 180),
+      );
     }
   });
 }

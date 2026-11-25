@@ -1,6 +1,6 @@
 # Feature 1 — Review scheduling
 
-Status: implemented (2026-11-24)
+Status: implemented (2026-11-25)
 
 ## Goal
 
@@ -13,7 +13,7 @@ There is no adaptive engine (FSRS or other). With two answers and parameters not
 Scheduling lives entirely in the domain and works in two stages.
 
 1. The sequence engine (`SequenceEngine`) computes the interval to wait: from where the card stands (`CardProgress`) and the answer, it reaches a [step](../lexicon.md#step) or the remanence, or reports that the card is acquired.
-2. The scheduler (`ReviewScheduler`) turns that interval into a [due date](../lexicon.md#due-date), depending on whether the interval counts in days or in minutes.
+2. The scheduler (`ReviewScheduler`) turns that interval into a [due date](../lexicon.md#due-date), depending on whether the interval counts in days or in minutes. When the smoothing is on, it may move the due day of a long interval to a less busy day nearby.
 
 A card has a single progression, whichever face is asked: the [back option](../lexicon.md#back-option) of a group changes what a display asks, never what the scheduler reads.
 
@@ -27,7 +27,7 @@ The step is the index, in the preset sequence, of the interval currently waited.
 
 No screen and no notification names the step: a card only shows its next date, and its sheet shows its position on a bar of the sequence ([Feature 3](3-cards.md#card-sheet)).
 
-If the sequence was shortened, or the card moved to a shorter preset, the engine clamps the step to the last existing step before computing. The stored step is only corrected at the next answer. `CardProgress` gives, for any card, its preset and the end of sequence of its group, the clamped step and the interval it waits, the remanence and its interval, or "new": the card sheet and the priority of the daily cap read it.
+If the sequence was shortened, or the card moved to a shorter preset, the engine clamps the step to the last existing step before computing. The stored step is only corrected at the next answer. `CardProgress` gives, for any card, its preset and the end of sequence of its group, the clamped step and the interval it waits, the remanence and its interval, or "new": the card sheet reads it.
 
 ### After the last step
 
@@ -56,6 +56,22 @@ Changing the remanence interval moves no due date; it applies from the next answ
 - **stay** keeps the step, so the card waits its interval again; a card in remanence stays in remanence.
 
 The behaviour is read at each answer, from the preset in force at that moment: editing it moves no due date. A [bonus review](../lexicon.md#bonus-review) never applies it.
+
+### Smoothing long intervals
+
+Long intervals computed from different days can land on the same day, and that day then brings far more reviews than its neighbours. A day or two of difference matters little to a card that waits a month, so the scheduler may move it to a quieter day. The option is "Smooth due dates", in Settings › Notifications › Safeguards ([Feature 7](7-notifications.md#safeguards)), off by default.
+
+It applies only to an answer whose interval is 15 days or more. The due day may then move within a window that widens with the interval:
+
+- 15 to 29 days: 1 day before or after;
+- 30 to 89 days: 2 days;
+- 90 days and more: 3 days.
+
+The load of a day is the number of cards scheduled on it, every group together, the answered card left out. A due day with no card is kept. Otherwise the card lands on the day of the window with the fewest cards. A tie keeps the due day, then the nearest day, then the earliest, since a review one day early costs less than one day late.
+
+With a 12:00 slot, a card answered correctly on 1 November reaches 1 month, due 1 December 12:00. Two cards are already due that day, one on 30 November and none on 2 December: it lands on 2 December 12:00.
+
+The answer preview reads the same load as the answer, so the date shown on the buttons is the one recorded. A step set by hand from the card sheet, an introduction and a group switched back to remanence are never smoothed: the date they show is the date they keep. `DueSmoothing` holds the rule; the review service counts the cards and gives it to the scheduler.
 
 ### Introducing a card
 
@@ -101,6 +117,8 @@ Intensive preset (1 h, 3 h, …): a first correct answer at 15:07 gives a due da
 - [x] After a failure, the due date is the interval of the step reached: never the same day for a day-based sequence.
 - [x] The day starts at 4am.
 - [x] A step beyond a shortened sequence is clamped to the last step.
+- [x] With the smoothing on, an answer giving 15 days or more lands on the least busy day of its window (1, 2 or 3 days around the due day), the due day winning a tie; a step set by hand is never moved.
+- [x] With the smoothing on, the answer preview shows the date the answer then records.
 
 ## Test strategy
 
@@ -108,10 +126,11 @@ Intensive preset (1 h, 3 h, …): a first correct answer at 15:07 gives a due da
 - The failure behaviours and the end of sequence are proven again through the services on stored cards, so that the step, the due date, the state and the queue position are read back from the database. This covers a preset edited between two answers, and a group switched between remanence and acquired in both directions, with a last review recent or older than the remanence interval.
 - Dates are fixed in the tests (November 2026): no test reads the clock or waits.
 - The day boundaries (3:59am and 4am, end of month, slot before 4am) are tested explicitly on the calendar.
+- The smoothing window and its tie order are proven as pure domain logic on given loads; the review service proves on stored cards that it applies only when turned on, and that the preview and the answer agree.
 
 ## File mapping
 
-- `lib/domain/scheduling/` — 4am calendar, sequence engine, scheduler, "due" rule and `CardProgress`.
+- `lib/domain/scheduling/` — 4am calendar, sequence engine, scheduler, "due" rule, smoothing and `CardProgress`.
 - `lib/domain/groups/sequence_end.dart` — the end of sequence of a group and the remanence interval it gives after a preset.
 - `lib/domain/presets/preset_interval.dart` — an interval and its unit; a unit of a day or more counts in days.
 

@@ -5,9 +5,12 @@ import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
+import 'package:alambic/domain/cards/card_state.dart';
 import 'package:alambic/domain/cards/flashcard.dart';
+import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
+import 'package:alambic/domain/scheduling/card_schedule.dart';
 import 'package:alambic/domain/scheduling/due_policy.dart';
 import 'package:alambic/domain/scheduling/review_scheduler.dart';
 import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
@@ -142,6 +145,35 @@ void main() {
       source: ReviewSource.session,
     );
     expect((await reviews.preview(directionId)).isBonus, isTrue);
+  });
+
+  test('the smoothing moves a long interval off a busy day', () async {
+    final cardId = await dueCard();
+    final groupId = (await front(cardId)).groupId;
+    final today = DateTime(2026, 11, 10, 12);
+    await cards.applySchedule(
+      cardId,
+      CardSchedule(state: CardState.active, step: 2, dueAt: today),
+    );
+    // Correct reaches 1 month: due on December 10th, where a card waits.
+    final busy = DateTime(2026, 12, 10, 12);
+    await cards.applySchedule(
+      await samples.card('Peru', 'Lima', groupId: groupId),
+      CardSchedule(state: CardState.active, step: 3, dueAt: busy),
+    );
+    expect((await reviews.preview(cardId)).correct!.dueAt, busy);
+    final settings = NotificationSettingsRepository(database);
+    await settings.saveGuards(
+      NotificationGuards.defaults.copyWith(smoothDueDates: true),
+    );
+    final smoothed = DateTime(2026, 12, 9, 12);
+    expect((await reviews.preview(cardId)).correct!.dueAt, smoothed);
+    await reviews.answer(
+      cardId,
+      ReviewOutcome.correct,
+      source: ReviewSource.session,
+    );
+    expect((await front(cardId)).dueAt, smoothed);
   });
 
   test('answering a pending card is a bonus that leaves it pending', () async {

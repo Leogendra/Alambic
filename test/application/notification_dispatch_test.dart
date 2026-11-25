@@ -412,26 +412,6 @@ void main() {
       },
     );
 
-    test('holds the cards beyond the daily cap until the next day', () async {
-      await setGuards(
-        NotificationGuards.defaults.copyWith(
-          dailyCap: 4,
-          autoGroupEnabled: false,
-        ),
-      );
-      await dispatchAt(DateTime(2026, 11, 10, 12));
-      expect(harness.presenter.prompts, hasLength(4));
-      expect(
-        await NotificationSettingsRepository(database)
-            .notifiedOn(DateTime(2026, 11, 10)),
-        4,
-      );
-      harness.presenter.prompts.clear();
-      await dispatchAt(DateTime(2026, 11, 11, 12));
-      // The three held back compete with the four ignored the day before.
-      expect(harness.presenter.prompts, hasLength(4));
-    });
-
     test('moves a notification out of the quiet hours', () async {
       await setGuards(
         NotificationGuards.defaults.copyWith(

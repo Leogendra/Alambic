@@ -3,7 +3,6 @@ import 'dart:math';
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
-import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/asked_side_draw.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/groups/card_group.dart';
@@ -12,7 +11,6 @@ import '../../domain/notifications/notification_timing.dart';
 import '../../domain/notifications/notification_mode.dart';
 import '../clock.dart';
 import '../distillation/distillation_service.dart';
-import 'delivery_candidates.dart';
 import 'group_reminder_key.dart';
 import 'grouped_reminders.dart';
 import 'notification_digest.dart';
@@ -32,7 +30,6 @@ class NotificationDispatcher {
   const NotificationDispatcher({
     required this._cards,
     required this._groups,
-    required this._presets,
     required this._settings,
     required this._distillations,
     required this._groupedReminders,
@@ -45,7 +42,6 @@ class NotificationDispatcher {
 
   final CardRepository _cards;
   final GroupRepository _groups;
-  final PresetRepository _presets;
   final NotificationSettingsRepository _settings;
   final DistillationService _distillations;
   final GroupedReminders _groupedReminders;
@@ -58,7 +54,6 @@ class NotificationDispatcher {
   Future<void> dispatchDue() async {
     await _distillations.advance();
     final now = _clock();
-    final catalog = await _presets.loadCatalog();
     final groups = {
       for (final group in await _groups.watchAll().first) group.id: group,
     };
@@ -68,13 +63,11 @@ class NotificationDispatcher {
     final cards = await _cards.getAll();
     final guards = await _settings.loadGuards();
     final reminderSettings = await _settings.loadReminderSettings();
-    final today = _deliveryPlanner.calendar.dayOf(now);
     final deliveries = _deliveryPlanner.plan(
-      deliveryCandidates(cards, catalog),
+      cards,
       now: now,
       reminders: reminderSettings,
       guards: guards,
-      notifiedToday: await _settings.notifiedOn(today),
     );
     final prompts = <ReviewPrompt>[];
     final groupedReminders = <GroupReminderKey>{};
@@ -108,9 +101,6 @@ class NotificationDispatcher {
       for (final key in groupedReminders) {
         await _groupedReminders.show(key, alert: true);
       }
-    }
-    if (notifiedGroups.isNotEmpty) {
-      await _settings.addNotified(today, notifiedGroups.length);
     }
     await _planner.replan();
   }

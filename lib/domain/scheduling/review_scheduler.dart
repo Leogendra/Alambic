@@ -7,6 +7,7 @@ import '../reviews/review_outcome.dart';
 import 'card_progress.dart';
 import 'card_schedule.dart';
 import 'clock_time.dart';
+import 'due_smoothing.dart';
 import 'scheduling_calendar.dart';
 import 'sequence_engine.dart';
 import 'sequence_step.dart';
@@ -17,12 +18,15 @@ import 'sequence_step.dart';
 /// - the sequence of the preset gives the interval of the step reached, and
 ///   the group the interval of the remanence;
 /// - an interval of a day or more counts from the answer day and lands on the
-///   daily slot of the app; a shorter one counts from the answer moment.
+///   daily slot of the app; a shorter one counts from the answer moment;
+/// - with a [DueSmoothing], an answer may move a due day of 15 days or more
+///   to a less busy day nearby; a step set by hand never moves.
 class ReviewScheduler {
   const ReviewScheduler(this.calendar);
 
   final SchedulingCalendar calendar;
 
+  /// [smoothing], when given, moves the due day of a long interval.
   CardSchedule afterAnswer({
     required Flashcard card,
     required ReviewOutcome outcome,
@@ -30,34 +34,42 @@ class ReviewScheduler {
     required SequenceEnd end,
     required DateTime answeredAt,
     required ClockTime dailySlot,
-  }) => atStep(
+    DueSmoothing? smoothing,
+  }) => _reached(
     SequenceEngine.answer(
       progress: CardProgress.of(card, preset, end),
       outcome: outcome,
       preset: preset,
       end: end,
     ),
-    from: answeredAt,
-    dailySlot: dailySlot,
+    answeredAt,
+    dailySlot,
+    smoothing,
   );
 
-  /// Schedule of a card that reaches [step] at the moment [from], whether by
-  /// an answer or because the user put it there: its interval counts from
-  /// [from].
+  /// Schedule of a card that reaches [step] at the moment [from] because the
+  /// user put it there: its interval counts from [from].
   CardSchedule atStep(
     SequenceStep step, {
     required DateTime from,
     required ClockTime dailySlot,
-  }) => switch (step) {
+  }) => _reached(step, from, dailySlot, null);
+
+  CardSchedule _reached(
+    SequenceStep step,
+    DateTime from,
+    ClockTime dailySlot,
+    DueSmoothing? smoothing,
+  ) => switch (step) {
     StepReached(:final step, :final interval) => CardSchedule(
       state: CardState.active,
       step: step,
-      dueAt: _dueAfter(interval, from, dailySlot),
+      dueAt: _dueAfter(interval, from, dailySlot, smoothing),
     ),
     RemanenceReached(:final interval) => CardSchedule(
       state: CardState.completed,
       step: null,
-      dueAt: _dueAfter(interval, from, dailySlot),
+      dueAt: _dueAfter(interval, from, dailySlot, smoothing),
     ),
     AcquiredReached() => CardSchedule.acquired,
   };
@@ -74,14 +86,21 @@ class ReviewScheduler {
     required ClockTime dailySlot,
   }) {
     final interval = end.remanenceAfter(preset);
-    final afterLastReview = _dueAfter(interval, lastReviewedAt, dailySlot);
+    final afterLastReview = _dueAfter(
+      interval,
+      lastReviewedAt,
+      dailySlot,
+      null,
+    );
     final overdue = calendar
         .dayOf(afterLastReview)
         .isBefore(calendar.dayOf(now));
     return CardSchedule(
       state: CardState.completed,
       step: null,
-      dueAt: overdue ? _dueAfter(interval, now, dailySlot) : afterLastReview,
+      dueAt: overdue
+          ? _dueAfter(interval, now, dailySlot, null)
+          : afterLastReview,
     );
   }
 
@@ -101,13 +120,17 @@ class ReviewScheduler {
     PresetInterval interval,
     DateTime answeredAt,
     ClockTime dailySlot,
+    DueSmoothing? smoothing,
   ) {
     if (interval.isDayBased) {
       final dueDay = calendar.addDays(
         calendar.dayOf(answeredAt),
         interval.days,
       );
-      return calendar.momentAt(dueDay, dailySlot);
+      return calendar.momentAt(
+        smoothing?.dayFor(dueDay, intervalDays: interval.days) ?? dueDay,
+        dailySlot,
+      );
     } else {
       return answeredAt.add(interval.subDayDuration);
     }

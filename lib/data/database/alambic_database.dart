@@ -57,7 +57,7 @@ class AlambicDatabase extends _$AlambicDatabase {
 
   /// Raised at every schema change.
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

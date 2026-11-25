@@ -36,7 +36,7 @@ With "Prioritize reviews" (on by default), a day brings max(0, N − the cards o
 
 Reminders always arrive on their due date: the distillation never moves them. With 3 cards a day, day 1 brings three new cards; one is missed (due the next day) and two are answered (due in three days), so day 2 brings the missed card and two new ones. With 1 card a day, a card planned a week ago and a card missed yesterday both fall today: both arrive, without a new card.
 
-Without the option, the N new cards of a day arrive whatever is due. The global daily cap of notifications ([Feature 7](7-notifications.md)) applies on top.
+Without the option, the N new cards of a day arrive whatever is due.
 
 ### Pause
 

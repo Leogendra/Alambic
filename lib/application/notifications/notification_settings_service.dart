@@ -53,8 +53,8 @@ class NotificationSettingsService {
   }
 
   Future<void> saveGuards(NotificationGuards guards) async {
-    if (guards.dailyCap < 1 || guards.autoGroupThreshold < 1) {
-      throw ArgumentError('A cap and a threshold count at least one card');
+    if (guards.autoGroupThreshold < 1) {
+      throw ArgumentError('A threshold counts at least one card');
     }
     await _settings.saveGuards(guards);
     await _scheduleChangeListener.onSchedulesChanged();

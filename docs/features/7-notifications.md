@@ -4,7 +4,7 @@ Status: in progress (2026-11-25)
 
 ## Goal
 
-Make the notification the main way to review: a card arrives at the [daily slot](../lexicon.md#daily-slot), is answered with "Correct" or "Again", after revealing its answer or not, or with a typed answer, without opening the app, and the next review is planned at once. The app can instead gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the whole within a daily cap, outside quiet hours, and gather the notifications of a busy moment into one. A group, or everything, can be paused.
+Make the notification the main way to review: a card arrives at the [daily slot](../lexicon.md#daily-slot), is answered with "Correct" or "Again", after revealing its answer or not, or with a typed answer, without opening the app, and the next review is planned at once. The app can instead gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the notifications outside quiet hours, gather those of a busy moment into one, and can spread the long intervals over the days around their due day. A group, or everything, can be paused.
 
 ## Implementation overview
 
@@ -50,13 +50,13 @@ Home's timeline lists the same moments, so a range shows one line per notificati
 
 ### Safeguards
 
-Three safeguards, set in Settings › Notifications › Safeguards, as the blocks of a single group, and stored in the database (`NotificationGuards`), apply to every group. `DeliveryPlanner` applies the first two to the notification moments, the dispatcher the third:
+Three safeguards, set in Settings › Notifications › Safeguards, as the blocks of a single group, and stored in the database (`NotificationGuards`), apply to every group. The scheduler applies the first one to the due dates, `DeliveryPlanner` the second to the notification moments, the dispatcher the third:
 
+- **Smooth due dates** (off by default): an answer giving an interval of 15 days or more may move its due day by 1 to 3 days, to the least busy day around it. The rule belongs to the scheduling ([Feature 1](1-scheduling.md#smoothing-long-intervals)). It lowers the peaks of long intervals, but bounds nothing: a day can still bring many cards, from short intervals, from cards missed earlier or from distillations, and auto grouping gathers them.
 - **Quiet hours** ("Do not disturb", on by default, 22:00 to 08:00): a notification falling inside is moved to their end, 23:10 to 08:00 the next morning. The hours may span midnight or stay within a day. A notification moved to the next morning keeps that moment even though its due day is over.
-- **Daily cap** (20 cards by default): each day, the cards beyond the cap are not notified; the ones waiting the longest interval of their sequence go last, a new card counting as the shortest. They are moved to the slot of the next day, where they compete again. The cards already notified that day count against the cap, through a counter of the day kept in `app_settings`, since a card answered loses the trace of its notification. A card in a grouped reminder counts as one card.
 - **Auto grouping** (on by default, beyond 5): when a wake-up has more notifications to show than the threshold, card notifications and grouped reminders together, a single notification replaces them, "12 cards to review", naming the groups and the estimated time. Touching it opens a session on every due card. Its count follows the answers given in the app: it counts the cards notified that day that are still due, and closes when none is left.
 
-The Garde-fous screen saves each change at once and plans the wake-ups again. Under the cap, it shows tomorrow's load: the cards due tomorrow, how many fit under the cap and how many would be moved to the day after.
+The Garde-fous screen saves each change at once and plans the wake-ups again. Turning the smoothing on or off moves no due date already set: it applies from the next answer.
 
 ### Pauses
 
@@ -143,11 +143,10 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] A grouped reminder follows the answers given in the app, and closes when no card is left.
 - [x] With a time range, the cards of the day are notified one by one, spread evenly over the range; a grouped reminder arrives at the start of the range.
 - [x] A time range whose end would precede its start cannot be entered.
-- [x] Beyond the daily cap, the cards waiting the longest intervals are not notified that day and come back the next day.
 - [x] A notification falling in the quiet hours arrives at their end.
 - [x] Beyond the auto grouping threshold, the notifications of a moment are replaced by a single one.
 - [x] Touching a notification opens a session: its card, or the due cards of its group, first, then every due card.
-- [x] The safeguards are set in Settings, with tomorrow's load shown against the cap.
+- [x] The safeguards are set in Settings; the smoothing of the due dates is off by default.
 - [x] The schedule and the notification mode are set once in Settings and apply to every group; a new daily slot moves the due dates set at the old one.
 - [x] A pause, of a distillation or global, changes no notification and moves no due date.
 
@@ -170,7 +169,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - `lib/notifications/` — notification texts and the store of planned wake-ups.
 - `lib/notifications/android/` — Android implementations, wiring and background entry points.
 - `lib/features/settings/` — the Notifications screen, with the exact alarm and test notification rows, the schedule, notification mode and safeguards screens.
-- `lib/data/repositories/notification_settings_repository.dart` — the schedule, the mode, the safeguards and the count of cards notified today.
+- `lib/data/repositories/notification_settings_repository.dart` — the schedule, the mode and the safeguards.
 - `lib/app/shell/main_shell.dart` — opens the session of a touched notification.
 - `lib/main.dart` — initialisation and planning at launch.
 

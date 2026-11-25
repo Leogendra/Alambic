@@ -12,8 +12,8 @@ import '../../domain/notifications/notification_guards.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// "Garde-fous": the daily cap with tomorrow's load, the quiet hours and the
-/// auto grouping. Each change is saved at once.
+/// "Garde-fous": the smoothing of the due dates, the quiet hours and the auto
+/// grouping. Each change is saved at once.
 class NotificationGuardsScreen extends ConsumerWidget {
   const NotificationGuardsScreen({super.key});
 
@@ -33,7 +33,7 @@ class NotificationGuardsScreen extends ConsumerWidget {
               children: [
                 SettingsGroup(
                   children: [
-                    _DailyCapSetting(guards: guards),
+                    _SmoothDueDatesSetting(guards: guards),
                     _QuietHoursSetting(guards: guards),
                     _AutoGroupSetting(guards: guards),
                     if (guards.autoGroupEnabled)
@@ -49,104 +49,21 @@ class NotificationGuardsScreen extends ConsumerWidget {
 Future<void> _save(WidgetRef ref, NotificationGuards guards) =>
     ref.read(notificationSettingsServiceProvider).saveGuards(guards);
 
-class _DailyCapSetting extends ConsumerWidget {
-  const _DailyCapSetting({required this.guards});
+class _SmoothDueDatesSetting extends ConsumerWidget {
+  const _SmoothDueDatesSetting({required this.guards});
 
   final NotificationGuards guards;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final tomorrow = ref.watch(tomorrowDueCountProvider);
-    return Column(
-      children: [
-        PanelRow(
-          title: strings.guardsDailyCap,
-          subtitle: strings.guardsDailyCapHint,
-          trailing: CountStepper(
-            value: guards.dailyCap,
-            label: '${guards.dailyCap}',
-            decreaseTooltip: strings.guardsDecrease,
-            increaseTooltip: strings.guardsIncrease,
-            onChanged: (cap) => _save(ref, guards.copyWith(dailyCap: cap)),
-          ),
-        ),
-        if (tomorrow != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: _TomorrowLoad(due: tomorrow, cap: guards.dailyCap),
-          ),
-      ],
-    );
-  }
-}
-
-/// Tomorrow's due cards against the cap: those sent, those moved to the day
-/// after.
-class _TomorrowLoad extends StatelessWidget {
-  const _TomorrowLoad({required this.due, required this.cap});
-
-  final int due;
-  final int cap;
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
-    final colors = AlambicColors.of(context);
-    final sent = due < cap ? due : cap;
-    final postponed = due - sent;
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colors.well,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 8,
-        children: [
-          Text(
-            strings.guardsTomorrow(due),
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: colors.textPrimary,
-            ),
-          ),
-          if (due > 0)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(5),
-              child: SizedBox(
-                height: 10,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 2,
-                  children: [
-                    Expanded(
-                      flex: sent,
-                      child: ColoredBox(color: colors.accent),
-                    ),
-                    if (postponed > 0)
-                      Expanded(
-                        flex: postponed,
-                        child: ColoredBox(color: colors.border),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          if (due > 0)
-            Text(
-              postponed == 0
-                  ? strings.guardsTomorrowAllSent
-                  : strings.guardsTomorrowSplit(sent, postponed),
-              style: TextStyle(
-                fontSize: 13,
-                height: 1.4,
-                color: colors.textSecondary,
-              ),
-            ),
-        ],
+    return PanelRow(
+      title: strings.guardsSmoothDueDates,
+      subtitle: strings.guardsSmoothDueDatesHint,
+      trailing: Switch(
+        value: guards.smoothDueDates,
+        onChanged: (enabled) =>
+            _save(ref, guards.copyWith(smoothDueDates: enabled)),
       ),
     );
   }

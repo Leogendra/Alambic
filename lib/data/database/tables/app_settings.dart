@@ -35,8 +35,8 @@ class AppSettings extends Table {
   )();
 
   /// Notification safeguards, see `NotificationGuards`.
-  IntColumn get dailyNotificationCap =>
-      integer().withDefault(const Constant(20))();
+  BoolColumn get smoothDueDates =>
+      boolean().withDefault(const Constant(false))();
   BoolColumn get quietHoursEnabled =>
       boolean().withDefault(const Constant(true))();
   IntColumn get quietStart => integer()
@@ -49,10 +49,6 @@ class AppSettings extends Table {
       boolean().withDefault(const Constant(true))();
   IntColumn get autoGroupThreshold =>
       integer().withDefault(const Constant(5))();
-
-  /// Cards notified on [notifiedDay], counted against the daily cap.
-  DateTimeColumn get notifiedDay => dateTime().nullable()();
-  IntColumn get notifiedCount => integer().withDefault(const Constant(0))();
 
   /// Start of the global pause, `null` when it is off. It holds every
   /// distillation back; the reminders go on.

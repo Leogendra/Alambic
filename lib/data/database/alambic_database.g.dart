@@ -335,16 +335,20 @@ class $AppSettingsTable extends AppSettings
       ).withConverter<GroupedReminderAction>(
         $AppSettingsTable.$convertergroupedAction,
       );
-  static const VerificationMeta _dailyNotificationCapMeta =
-      const VerificationMeta('dailyNotificationCap');
+  static const VerificationMeta _smoothDueDatesMeta = const VerificationMeta(
+    'smoothDueDates',
+  );
   @override
-  late final GeneratedColumn<int> dailyNotificationCap = GeneratedColumn<int>(
-    'daily_notification_cap',
+  late final GeneratedColumn<bool> smoothDueDates = GeneratedColumn<bool>(
+    'smooth_due_dates',
     aliasedName,
     false,
-    type: DriftSqlType.int,
+    type: DriftSqlType.bool,
     requiredDuringInsert: false,
-    defaultValue: const Constant(20),
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("smooth_due_dates" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
   );
   static const VerificationMeta _quietHoursEnabledMeta = const VerificationMeta(
     'quietHoursEnabled',
@@ -407,29 +411,6 @@ class $AppSettingsTable extends AppSettings
     requiredDuringInsert: false,
     defaultValue: const Constant(5),
   );
-  static const VerificationMeta _notifiedDayMeta = const VerificationMeta(
-    'notifiedDay',
-  );
-  @override
-  late final GeneratedColumn<DateTime> notifiedDay = GeneratedColumn<DateTime>(
-    'notified_day',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _notifiedCountMeta = const VerificationMeta(
-    'notifiedCount',
-  );
-  @override
-  late final GeneratedColumn<int> notifiedCount = GeneratedColumn<int>(
-    'notified_count',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
   static const VerificationMeta _pausedAtMeta = const VerificationMeta(
     'pausedAt',
   );
@@ -451,14 +432,12 @@ class $AppSettingsTable extends AppSettings
     rangeEnd,
     notificationMode,
     groupedAction,
-    dailyNotificationCap,
+    smoothDueDates,
     quietHoursEnabled,
     quietStart,
     quietEnd,
     autoGroupEnabled,
     autoGroupThreshold,
-    notifiedDay,
-    notifiedCount,
     pausedAt,
   ];
   @override
@@ -487,12 +466,12 @@ class $AppSettingsTable extends AppSettings
     } else if (isInserting) {
       context.missing(_globalPresetIdMeta);
     }
-    if (data.containsKey('daily_notification_cap')) {
+    if (data.containsKey('smooth_due_dates')) {
       context.handle(
-        _dailyNotificationCapMeta,
-        dailyNotificationCap.isAcceptableOrUnknown(
-          data['daily_notification_cap']!,
-          _dailyNotificationCapMeta,
+        _smoothDueDatesMeta,
+        smoothDueDates.isAcceptableOrUnknown(
+          data['smooth_due_dates']!,
+          _smoothDueDatesMeta,
         ),
       );
     }
@@ -520,24 +499,6 @@ class $AppSettingsTable extends AppSettings
         autoGroupThreshold.isAcceptableOrUnknown(
           data['auto_group_threshold']!,
           _autoGroupThresholdMeta,
-        ),
-      );
-    }
-    if (data.containsKey('notified_day')) {
-      context.handle(
-        _notifiedDayMeta,
-        notifiedDay.isAcceptableOrUnknown(
-          data['notified_day']!,
-          _notifiedDayMeta,
-        ),
-      );
-    }
-    if (data.containsKey('notified_count')) {
-      context.handle(
-        _notifiedCountMeta,
-        notifiedCount.isAcceptableOrUnknown(
-          data['notified_count']!,
-          _notifiedCountMeta,
         ),
       );
     }
@@ -600,9 +561,9 @@ class $AppSettingsTable extends AppSettings
           data['${effectivePrefix}grouped_action'],
         )!,
       ),
-      dailyNotificationCap: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}daily_notification_cap'],
+      smoothDueDates: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}smooth_due_dates'],
       )!,
       quietHoursEnabled: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
@@ -627,14 +588,6 @@ class $AppSettingsTable extends AppSettings
       autoGroupThreshold: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}auto_group_threshold'],
-      )!,
-      notifiedDay: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}notified_day'],
-      ),
-      notifiedCount: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}notified_count'],
       )!,
       pausedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -686,16 +639,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   final GroupedReminderAction groupedAction;
 
   /// Notification safeguards, see `NotificationGuards`.
-  final int dailyNotificationCap;
+  final bool smoothDueDates;
   final bool quietHoursEnabled;
   final ClockTime quietStart;
   final ClockTime quietEnd;
   final bool autoGroupEnabled;
   final int autoGroupThreshold;
-
-  /// Cards notified on [notifiedDay], counted against the daily cap.
-  final DateTime? notifiedDay;
-  final int notifiedCount;
 
   /// Start of the global pause, `null` when it is off. It holds every
   /// distillation back; the reminders go on.
@@ -709,14 +658,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     required this.rangeEnd,
     required this.notificationMode,
     required this.groupedAction,
-    required this.dailyNotificationCap,
+    required this.smoothDueDates,
     required this.quietHoursEnabled,
     required this.quietStart,
     required this.quietEnd,
     required this.autoGroupEnabled,
     required this.autoGroupThreshold,
-    this.notifiedDay,
-    required this.notifiedCount,
     this.pausedAt,
   });
   @override
@@ -754,7 +701,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
         $AppSettingsTable.$convertergroupedAction.toSql(groupedAction),
       );
     }
-    map['daily_notification_cap'] = Variable<int>(dailyNotificationCap);
+    map['smooth_due_dates'] = Variable<bool>(smoothDueDates);
     map['quiet_hours_enabled'] = Variable<bool>(quietHoursEnabled);
     {
       map['quiet_start'] = Variable<int>(
@@ -768,10 +715,6 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     }
     map['auto_group_enabled'] = Variable<bool>(autoGroupEnabled);
     map['auto_group_threshold'] = Variable<int>(autoGroupThreshold);
-    if (!nullToAbsent || notifiedDay != null) {
-      map['notified_day'] = Variable<DateTime>(notifiedDay);
-    }
-    map['notified_count'] = Variable<int>(notifiedCount);
     if (!nullToAbsent || pausedAt != null) {
       map['paused_at'] = Variable<DateTime>(pausedAt);
     }
@@ -788,16 +731,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       rangeEnd: Value(rangeEnd),
       notificationMode: Value(notificationMode),
       groupedAction: Value(groupedAction),
-      dailyNotificationCap: Value(dailyNotificationCap),
+      smoothDueDates: Value(smoothDueDates),
       quietHoursEnabled: Value(quietHoursEnabled),
       quietStart: Value(quietStart),
       quietEnd: Value(quietEnd),
       autoGroupEnabled: Value(autoGroupEnabled),
       autoGroupThreshold: Value(autoGroupThreshold),
-      notifiedDay: notifiedDay == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notifiedDay),
-      notifiedCount: Value(notifiedCount),
       pausedAt: pausedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(pausedAt),
@@ -824,16 +763,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       groupedAction: $AppSettingsTable.$convertergroupedAction.fromJson(
         serializer.fromJson<String>(json['groupedAction']),
       ),
-      dailyNotificationCap: serializer.fromJson<int>(
-        json['dailyNotificationCap'],
-      ),
+      smoothDueDates: serializer.fromJson<bool>(json['smoothDueDates']),
       quietHoursEnabled: serializer.fromJson<bool>(json['quietHoursEnabled']),
       quietStart: serializer.fromJson<ClockTime>(json['quietStart']),
       quietEnd: serializer.fromJson<ClockTime>(json['quietEnd']),
       autoGroupEnabled: serializer.fromJson<bool>(json['autoGroupEnabled']),
       autoGroupThreshold: serializer.fromJson<int>(json['autoGroupThreshold']),
-      notifiedDay: serializer.fromJson<DateTime?>(json['notifiedDay']),
-      notifiedCount: serializer.fromJson<int>(json['notifiedCount']),
       pausedAt: serializer.fromJson<DateTime?>(json['pausedAt']),
     );
   }
@@ -855,14 +790,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       'groupedAction': serializer.toJson<String>(
         $AppSettingsTable.$convertergroupedAction.toJson(groupedAction),
       ),
-      'dailyNotificationCap': serializer.toJson<int>(dailyNotificationCap),
+      'smoothDueDates': serializer.toJson<bool>(smoothDueDates),
       'quietHoursEnabled': serializer.toJson<bool>(quietHoursEnabled),
       'quietStart': serializer.toJson<ClockTime>(quietStart),
       'quietEnd': serializer.toJson<ClockTime>(quietEnd),
       'autoGroupEnabled': serializer.toJson<bool>(autoGroupEnabled),
       'autoGroupThreshold': serializer.toJson<int>(autoGroupThreshold),
-      'notifiedDay': serializer.toJson<DateTime?>(notifiedDay),
-      'notifiedCount': serializer.toJson<int>(notifiedCount),
       'pausedAt': serializer.toJson<DateTime?>(pausedAt),
     };
   }
@@ -876,14 +809,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     ClockTime? rangeEnd,
     NotificationMode? notificationMode,
     GroupedReminderAction? groupedAction,
-    int? dailyNotificationCap,
+    bool? smoothDueDates,
     bool? quietHoursEnabled,
     ClockTime? quietStart,
     ClockTime? quietEnd,
     bool? autoGroupEnabled,
     int? autoGroupThreshold,
-    Value<DateTime?> notifiedDay = const Value.absent(),
-    int? notifiedCount,
     Value<DateTime?> pausedAt = const Value.absent(),
   }) => AppSettingsRow(
     id: id ?? this.id,
@@ -894,14 +825,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     rangeEnd: rangeEnd ?? this.rangeEnd,
     notificationMode: notificationMode ?? this.notificationMode,
     groupedAction: groupedAction ?? this.groupedAction,
-    dailyNotificationCap: dailyNotificationCap ?? this.dailyNotificationCap,
+    smoothDueDates: smoothDueDates ?? this.smoothDueDates,
     quietHoursEnabled: quietHoursEnabled ?? this.quietHoursEnabled,
     quietStart: quietStart ?? this.quietStart,
     quietEnd: quietEnd ?? this.quietEnd,
     autoGroupEnabled: autoGroupEnabled ?? this.autoGroupEnabled,
     autoGroupThreshold: autoGroupThreshold ?? this.autoGroupThreshold,
-    notifiedDay: notifiedDay.present ? notifiedDay.value : this.notifiedDay,
-    notifiedCount: notifiedCount ?? this.notifiedCount,
     pausedAt: pausedAt.present ? pausedAt.value : this.pausedAt,
   );
   AppSettingsRow copyWithCompanion(AppSettingsCompanion data) {
@@ -924,9 +853,9 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       groupedAction: data.groupedAction.present
           ? data.groupedAction.value
           : this.groupedAction,
-      dailyNotificationCap: data.dailyNotificationCap.present
-          ? data.dailyNotificationCap.value
-          : this.dailyNotificationCap,
+      smoothDueDates: data.smoothDueDates.present
+          ? data.smoothDueDates.value
+          : this.smoothDueDates,
       quietHoursEnabled: data.quietHoursEnabled.present
           ? data.quietHoursEnabled.value
           : this.quietHoursEnabled,
@@ -940,12 +869,6 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       autoGroupThreshold: data.autoGroupThreshold.present
           ? data.autoGroupThreshold.value
           : this.autoGroupThreshold,
-      notifiedDay: data.notifiedDay.present
-          ? data.notifiedDay.value
-          : this.notifiedDay,
-      notifiedCount: data.notifiedCount.present
-          ? data.notifiedCount.value
-          : this.notifiedCount,
       pausedAt: data.pausedAt.present ? data.pausedAt.value : this.pausedAt,
     );
   }
@@ -961,14 +884,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
           ..write('rangeEnd: $rangeEnd, ')
           ..write('notificationMode: $notificationMode, ')
           ..write('groupedAction: $groupedAction, ')
-          ..write('dailyNotificationCap: $dailyNotificationCap, ')
+          ..write('smoothDueDates: $smoothDueDates, ')
           ..write('quietHoursEnabled: $quietHoursEnabled, ')
           ..write('quietStart: $quietStart, ')
           ..write('quietEnd: $quietEnd, ')
           ..write('autoGroupEnabled: $autoGroupEnabled, ')
           ..write('autoGroupThreshold: $autoGroupThreshold, ')
-          ..write('notifiedDay: $notifiedDay, ')
-          ..write('notifiedCount: $notifiedCount, ')
           ..write('pausedAt: $pausedAt')
           ..write(')'))
         .toString();
@@ -984,14 +905,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     rangeEnd,
     notificationMode,
     groupedAction,
-    dailyNotificationCap,
+    smoothDueDates,
     quietHoursEnabled,
     quietStart,
     quietEnd,
     autoGroupEnabled,
     autoGroupThreshold,
-    notifiedDay,
-    notifiedCount,
     pausedAt,
   );
   @override
@@ -1006,14 +925,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
           other.rangeEnd == this.rangeEnd &&
           other.notificationMode == this.notificationMode &&
           other.groupedAction == this.groupedAction &&
-          other.dailyNotificationCap == this.dailyNotificationCap &&
+          other.smoothDueDates == this.smoothDueDates &&
           other.quietHoursEnabled == this.quietHoursEnabled &&
           other.quietStart == this.quietStart &&
           other.quietEnd == this.quietEnd &&
           other.autoGroupEnabled == this.autoGroupEnabled &&
           other.autoGroupThreshold == this.autoGroupThreshold &&
-          other.notifiedDay == this.notifiedDay &&
-          other.notifiedCount == this.notifiedCount &&
           other.pausedAt == this.pausedAt);
 }
 
@@ -1026,14 +943,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
   final Value<ClockTime> rangeEnd;
   final Value<NotificationMode> notificationMode;
   final Value<GroupedReminderAction> groupedAction;
-  final Value<int> dailyNotificationCap;
+  final Value<bool> smoothDueDates;
   final Value<bool> quietHoursEnabled;
   final Value<ClockTime> quietStart;
   final Value<ClockTime> quietEnd;
   final Value<bool> autoGroupEnabled;
   final Value<int> autoGroupThreshold;
-  final Value<DateTime?> notifiedDay;
-  final Value<int> notifiedCount;
   final Value<DateTime?> pausedAt;
   const AppSettingsCompanion({
     this.id = const Value.absent(),
@@ -1044,14 +959,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     this.rangeEnd = const Value.absent(),
     this.notificationMode = const Value.absent(),
     this.groupedAction = const Value.absent(),
-    this.dailyNotificationCap = const Value.absent(),
+    this.smoothDueDates = const Value.absent(),
     this.quietHoursEnabled = const Value.absent(),
     this.quietStart = const Value.absent(),
     this.quietEnd = const Value.absent(),
     this.autoGroupEnabled = const Value.absent(),
     this.autoGroupThreshold = const Value.absent(),
-    this.notifiedDay = const Value.absent(),
-    this.notifiedCount = const Value.absent(),
     this.pausedAt = const Value.absent(),
   });
   AppSettingsCompanion.insert({
@@ -1063,14 +976,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     this.rangeEnd = const Value.absent(),
     this.notificationMode = const Value.absent(),
     this.groupedAction = const Value.absent(),
-    this.dailyNotificationCap = const Value.absent(),
+    this.smoothDueDates = const Value.absent(),
     this.quietHoursEnabled = const Value.absent(),
     this.quietStart = const Value.absent(),
     this.quietEnd = const Value.absent(),
     this.autoGroupEnabled = const Value.absent(),
     this.autoGroupThreshold = const Value.absent(),
-    this.notifiedDay = const Value.absent(),
-    this.notifiedCount = const Value.absent(),
     this.pausedAt = const Value.absent(),
   }) : globalPresetId = Value(globalPresetId);
   static Insertable<AppSettingsRow> custom({
@@ -1082,14 +993,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     Expression<int>? rangeEnd,
     Expression<String>? notificationMode,
     Expression<String>? groupedAction,
-    Expression<int>? dailyNotificationCap,
+    Expression<bool>? smoothDueDates,
     Expression<bool>? quietHoursEnabled,
     Expression<int>? quietStart,
     Expression<int>? quietEnd,
     Expression<bool>? autoGroupEnabled,
     Expression<int>? autoGroupThreshold,
-    Expression<DateTime>? notifiedDay,
-    Expression<int>? notifiedCount,
     Expression<DateTime>? pausedAt,
   }) {
     return RawValuesInsertable({
@@ -1101,16 +1010,13 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
       if (rangeEnd != null) 'range_end': rangeEnd,
       if (notificationMode != null) 'notification_mode': notificationMode,
       if (groupedAction != null) 'grouped_action': groupedAction,
-      if (dailyNotificationCap != null)
-        'daily_notification_cap': dailyNotificationCap,
+      if (smoothDueDates != null) 'smooth_due_dates': smoothDueDates,
       if (quietHoursEnabled != null) 'quiet_hours_enabled': quietHoursEnabled,
       if (quietStart != null) 'quiet_start': quietStart,
       if (quietEnd != null) 'quiet_end': quietEnd,
       if (autoGroupEnabled != null) 'auto_group_enabled': autoGroupEnabled,
       if (autoGroupThreshold != null)
         'auto_group_threshold': autoGroupThreshold,
-      if (notifiedDay != null) 'notified_day': notifiedDay,
-      if (notifiedCount != null) 'notified_count': notifiedCount,
       if (pausedAt != null) 'paused_at': pausedAt,
     });
   }
@@ -1124,14 +1030,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     Value<ClockTime>? rangeEnd,
     Value<NotificationMode>? notificationMode,
     Value<GroupedReminderAction>? groupedAction,
-    Value<int>? dailyNotificationCap,
+    Value<bool>? smoothDueDates,
     Value<bool>? quietHoursEnabled,
     Value<ClockTime>? quietStart,
     Value<ClockTime>? quietEnd,
     Value<bool>? autoGroupEnabled,
     Value<int>? autoGroupThreshold,
-    Value<DateTime?>? notifiedDay,
-    Value<int>? notifiedCount,
     Value<DateTime?>? pausedAt,
   }) {
     return AppSettingsCompanion(
@@ -1143,14 +1047,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
       rangeEnd: rangeEnd ?? this.rangeEnd,
       notificationMode: notificationMode ?? this.notificationMode,
       groupedAction: groupedAction ?? this.groupedAction,
-      dailyNotificationCap: dailyNotificationCap ?? this.dailyNotificationCap,
+      smoothDueDates: smoothDueDates ?? this.smoothDueDates,
       quietHoursEnabled: quietHoursEnabled ?? this.quietHoursEnabled,
       quietStart: quietStart ?? this.quietStart,
       quietEnd: quietEnd ?? this.quietEnd,
       autoGroupEnabled: autoGroupEnabled ?? this.autoGroupEnabled,
       autoGroupThreshold: autoGroupThreshold ?? this.autoGroupThreshold,
-      notifiedDay: notifiedDay ?? this.notifiedDay,
-      notifiedCount: notifiedCount ?? this.notifiedCount,
       pausedAt: pausedAt ?? this.pausedAt,
     );
   }
@@ -1196,8 +1098,8 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
         $AppSettingsTable.$convertergroupedAction.toSql(groupedAction.value),
       );
     }
-    if (dailyNotificationCap.present) {
-      map['daily_notification_cap'] = Variable<int>(dailyNotificationCap.value);
+    if (smoothDueDates.present) {
+      map['smooth_due_dates'] = Variable<bool>(smoothDueDates.value);
     }
     if (quietHoursEnabled.present) {
       map['quiet_hours_enabled'] = Variable<bool>(quietHoursEnabled.value);
@@ -1218,12 +1120,6 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     if (autoGroupThreshold.present) {
       map['auto_group_threshold'] = Variable<int>(autoGroupThreshold.value);
     }
-    if (notifiedDay.present) {
-      map['notified_day'] = Variable<DateTime>(notifiedDay.value);
-    }
-    if (notifiedCount.present) {
-      map['notified_count'] = Variable<int>(notifiedCount.value);
-    }
     if (pausedAt.present) {
       map['paused_at'] = Variable<DateTime>(pausedAt.value);
     }
@@ -1241,14 +1137,12 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
           ..write('rangeEnd: $rangeEnd, ')
           ..write('notificationMode: $notificationMode, ')
           ..write('groupedAction: $groupedAction, ')
-          ..write('dailyNotificationCap: $dailyNotificationCap, ')
+          ..write('smoothDueDates: $smoothDueDates, ')
           ..write('quietHoursEnabled: $quietHoursEnabled, ')
           ..write('quietStart: $quietStart, ')
           ..write('quietEnd: $quietEnd, ')
           ..write('autoGroupEnabled: $autoGroupEnabled, ')
           ..write('autoGroupThreshold: $autoGroupThreshold, ')
-          ..write('notifiedDay: $notifiedDay, ')
-          ..write('notifiedCount: $notifiedCount, ')
           ..write('pausedAt: $pausedAt')
           ..write(')'))
         .toString();
@@ -3379,14 +3273,12 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
       Value<ClockTime> rangeEnd,
       Value<NotificationMode> notificationMode,
       Value<GroupedReminderAction> groupedAction,
-      Value<int> dailyNotificationCap,
+      Value<bool> smoothDueDates,
       Value<bool> quietHoursEnabled,
       Value<ClockTime> quietStart,
       Value<ClockTime> quietEnd,
       Value<bool> autoGroupEnabled,
       Value<int> autoGroupThreshold,
-      Value<DateTime?> notifiedDay,
-      Value<int> notifiedCount,
       Value<DateTime?> pausedAt,
     });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
@@ -3399,14 +3291,12 @@ typedef $$AppSettingsTableUpdateCompanionBuilder =
       Value<ClockTime> rangeEnd,
       Value<NotificationMode> notificationMode,
       Value<GroupedReminderAction> groupedAction,
-      Value<int> dailyNotificationCap,
+      Value<bool> smoothDueDates,
       Value<bool> quietHoursEnabled,
       Value<ClockTime> quietStart,
       Value<ClockTime> quietEnd,
       Value<bool> autoGroupEnabled,
       Value<int> autoGroupThreshold,
-      Value<DateTime?> notifiedDay,
-      Value<int> notifiedCount,
       Value<DateTime?> pausedAt,
     });
 
@@ -3487,8 +3377,8 @@ class $$AppSettingsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  ColumnFilters<int> get dailyNotificationCap => $composableBuilder(
-    column: $table.dailyNotificationCap,
+  ColumnFilters<bool> get smoothDueDates => $composableBuilder(
+    column: $table.smoothDueDates,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3516,16 +3406,6 @@ class $$AppSettingsTableFilterComposer
 
   ColumnFilters<int> get autoGroupThreshold => $composableBuilder(
     column: $table.autoGroupThreshold,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get notifiedDay => $composableBuilder(
-    column: $table.notifiedDay,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get notifiedCount => $composableBuilder(
-    column: $table.notifiedCount,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3602,8 +3482,8 @@ class $$AppSettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get dailyNotificationCap => $composableBuilder(
-    column: $table.dailyNotificationCap,
+  ColumnOrderings<bool> get smoothDueDates => $composableBuilder(
+    column: $table.smoothDueDates,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3629,16 +3509,6 @@ class $$AppSettingsTableOrderingComposer
 
   ColumnOrderings<int> get autoGroupThreshold => $composableBuilder(
     column: $table.autoGroupThreshold,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get notifiedDay => $composableBuilder(
-    column: $table.notifiedDay,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get notifiedCount => $composableBuilder(
-    column: $table.notifiedCount,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3713,8 +3583,8 @@ class $$AppSettingsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get dailyNotificationCap => $composableBuilder(
-    column: $table.dailyNotificationCap,
+  GeneratedColumn<bool> get smoothDueDates => $composableBuilder(
+    column: $table.smoothDueDates,
     builder: (column) => column,
   );
 
@@ -3739,16 +3609,6 @@ class $$AppSettingsTableAnnotationComposer
 
   GeneratedColumn<int> get autoGroupThreshold => $composableBuilder(
     column: $table.autoGroupThreshold,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get notifiedDay => $composableBuilder(
-    column: $table.notifiedDay,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get notifiedCount => $composableBuilder(
-    column: $table.notifiedCount,
     builder: (column) => column,
   );
 
@@ -3816,14 +3676,12 @@ class $$AppSettingsTableTableManager
                 Value<NotificationMode> notificationMode = const Value.absent(),
                 Value<GroupedReminderAction> groupedAction =
                     const Value.absent(),
-                Value<int> dailyNotificationCap = const Value.absent(),
+                Value<bool> smoothDueDates = const Value.absent(),
                 Value<bool> quietHoursEnabled = const Value.absent(),
                 Value<ClockTime> quietStart = const Value.absent(),
                 Value<ClockTime> quietEnd = const Value.absent(),
                 Value<bool> autoGroupEnabled = const Value.absent(),
                 Value<int> autoGroupThreshold = const Value.absent(),
-                Value<DateTime?> notifiedDay = const Value.absent(),
-                Value<int> notifiedCount = const Value.absent(),
                 Value<DateTime?> pausedAt = const Value.absent(),
               }) => AppSettingsCompanion(
                 id: id,
@@ -3834,14 +3692,12 @@ class $$AppSettingsTableTableManager
                 rangeEnd: rangeEnd,
                 notificationMode: notificationMode,
                 groupedAction: groupedAction,
-                dailyNotificationCap: dailyNotificationCap,
+                smoothDueDates: smoothDueDates,
                 quietHoursEnabled: quietHoursEnabled,
                 quietStart: quietStart,
                 quietEnd: quietEnd,
                 autoGroupEnabled: autoGroupEnabled,
                 autoGroupThreshold: autoGroupThreshold,
-                notifiedDay: notifiedDay,
-                notifiedCount: notifiedCount,
                 pausedAt: pausedAt,
               ),
           createCompanionCallback:
@@ -3855,14 +3711,12 @@ class $$AppSettingsTableTableManager
                 Value<NotificationMode> notificationMode = const Value.absent(),
                 Value<GroupedReminderAction> groupedAction =
                     const Value.absent(),
-                Value<int> dailyNotificationCap = const Value.absent(),
+                Value<bool> smoothDueDates = const Value.absent(),
                 Value<bool> quietHoursEnabled = const Value.absent(),
                 Value<ClockTime> quietStart = const Value.absent(),
                 Value<ClockTime> quietEnd = const Value.absent(),
                 Value<bool> autoGroupEnabled = const Value.absent(),
                 Value<int> autoGroupThreshold = const Value.absent(),
-                Value<DateTime?> notifiedDay = const Value.absent(),
-                Value<int> notifiedCount = const Value.absent(),
                 Value<DateTime?> pausedAt = const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 id: id,
@@ -3873,14 +3727,12 @@ class $$AppSettingsTableTableManager
                 rangeEnd: rangeEnd,
                 notificationMode: notificationMode,
                 groupedAction: groupedAction,
-                dailyNotificationCap: dailyNotificationCap,
+                smoothDueDates: smoothDueDates,
                 quietHoursEnabled: quietHoursEnabled,
                 quietStart: quietStart,
                 quietEnd: quietEnd,
                 autoGroupEnabled: autoGroupEnabled,
                 autoGroupThreshold: autoGroupThreshold,
-                notifiedDay: notifiedDay,
-                notifiedCount: notifiedCount,
                 pausedAt: pausedAt,
               ),
           withReferenceMapper: (p0) => p0

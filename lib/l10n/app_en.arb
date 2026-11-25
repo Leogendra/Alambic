@@ -72,12 +72,9 @@
   "settingsPresets": "Presets",
   "settingsNotifications": "Notifications",
   "settingsGuards": "Safeguards",
-  "settingsGuardsSummary": "{cap} a day max · quiet {start} to {end}",
+  "settingsGuardsSummary": "Quiet {start} to {end}",
   "@settingsGuardsSummary": {
     "placeholders": {
-      "cap": {
-        "type": "int"
-      },
       "start": {
         "type": "String"
       },
@@ -86,39 +83,12 @@
       }
     }
   },
-  "settingsGuardsSummaryNoQuiet": "{cap} a day max",
-  "@settingsGuardsSummaryNoQuiet": {
-    "placeholders": {
-      "cap": {
-        "type": "int"
-      }
-    }
-  },
+  "settingsGuardsSummaryNoQuiet": "No quiet hours",
   "guardsTitle": "Safeguards",
-  "guardsDailyCap": "Daily cap",
-  "guardsDailyCapHint": "Card notifications, all groups",
+  "guardsSmoothDueDates": "Smooth due dates",
+  "guardsSmoothDueDatesHint": "From 15 days, a review may move by 1 to 3 days to a less busy day",
   "guardsDecrease": "Decrease",
   "guardsIncrease": "Increase",
-  "guardsTomorrow": "{count, plural, =0{Tomorrow: no card due} =1{Tomorrow: 1 card due} other{Tomorrow: {count} cards due}}",
-  "@guardsTomorrow": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "guardsTomorrowAllSent": "All notified.",
-  "guardsTomorrowSplit": "{sent} notified. {postponed} moved to the next day: the longest intervals go last.",
-  "@guardsTomorrowSplit": {
-    "placeholders": {
-      "sent": {
-        "type": "int"
-      },
-      "postponed": {
-        "type": "int"
-      }
-    }
-  },
   "guardsQuietHours": "Do not disturb",
   "guardsQuietHoursHint": "Notifications moved to the end of the range",
   "guardsQuietFrom": "From",

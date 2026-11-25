@@ -3,7 +3,7 @@ import '../scheduling/clock_time.dart';
 /// Limits set on the notifications of every group, in Settings.
 class NotificationGuards {
   const NotificationGuards({
-    required this.dailyCap,
+    required this.smoothDueDates,
     required this.quietHoursEnabled,
     required this.quietStart,
     required this.quietEnd,
@@ -12,7 +12,7 @@ class NotificationGuards {
   });
 
   static const NotificationGuards defaults = NotificationGuards(
-    dailyCap: 20,
+    smoothDueDates: false,
     quietHoursEnabled: true,
     quietStart: ClockTime(22, 0),
     quietEnd: ClockTime(8, 0),
@@ -20,8 +20,9 @@ class NotificationGuards {
     autoGroupThreshold: 5,
   );
 
-  /// Cards notified per day at most.
-  final int dailyCap;
+  /// Whether an answer giving an interval of 15 days or more may move the due
+  /// day to a less busy day nearby, see `DueSmoothing`.
+  final bool smoothDueDates;
 
   /// "Do not disturb": notifications falling between [quietStart] and
   /// [quietEnd] are moved to [quietEnd].
@@ -50,14 +51,14 @@ class NotificationGuards {
       autoGroupEnabled && count > autoGroupThreshold;
 
   NotificationGuards copyWith({
-    int? dailyCap,
+    bool? smoothDueDates,
     bool? quietHoursEnabled,
     ClockTime? quietStart,
     ClockTime? quietEnd,
     bool? autoGroupEnabled,
     int? autoGroupThreshold,
   }) => NotificationGuards(
-    dailyCap: dailyCap ?? this.dailyCap,
+    smoothDueDates: smoothDueDates ?? this.smoothDueDates,
     quietHoursEnabled: quietHoursEnabled ?? this.quietHoursEnabled,
     quietStart: quietStart ?? this.quietStart,
     quietEnd: quietEnd ?? this.quietEnd,

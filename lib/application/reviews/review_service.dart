@@ -11,6 +11,7 @@ import '../../domain/reviews/typed_answer_match.dart';
 import '../../domain/scheduling/card_schedule.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../domain/scheduling/due_policy.dart';
+import '../../domain/scheduling/due_smoothing.dart';
 import '../../domain/scheduling/review_scheduler.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
@@ -99,6 +100,7 @@ class ReviewService {
           end: catalog.sequenceEndForGroup(card.groupId),
           answeredAt: now,
           dailySlot: await _dailySlot(),
+          smoothing: await _smoothing(card),
         );
         await _cards.applySchedule(card.id, schedule, reviewedAt: now);
         await _reviews.insert(
@@ -131,6 +133,7 @@ class ReviewService {
     } else {
       final catalog = await _presets.loadCatalog();
       final dailySlot = await _dailySlot();
+      final smoothing = await _smoothing(card);
       CardSchedule after(ReviewOutcome outcome) => _scheduler.afterAnswer(
         card: card,
         outcome: outcome,
@@ -138,6 +141,7 @@ class ReviewService {
         end: catalog.sequenceEndForGroup(card.groupId),
         answeredAt: now,
         dailySlot: dailySlot,
+        smoothing: smoothing,
       );
       return AnswerPreview(
         correct: after(ReviewOutcome.correct),
@@ -172,4 +176,15 @@ class ReviewService {
 
   Future<ClockTime> _dailySlot() async =>
       (await _settings.loadReminderSettings()).dailySlot;
+
+  /// The days [card] may move to after an answer, against every other card
+  /// due; `null` when the smoothing is turned off in Settings.
+  Future<DueSmoothing?> _smoothing(Flashcard card) async =>
+      (await _settings.loadGuards()).smoothDueDates
+      ? DueSmoothing.of(
+          await _cards.getAll(),
+          _scheduler.calendar,
+          excluded: card.id,
+        )
+      : null;
 }

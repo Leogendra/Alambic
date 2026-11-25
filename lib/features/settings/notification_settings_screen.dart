@@ -65,13 +65,10 @@ class _NotificationsPanel extends ConsumerWidget {
             null => null,
             final guards when guards.quietHoursEnabled =>
               strings.settingsGuardsSummary(
-                guards.dailyCap,
                 '${guards.quietStart}',
                 '${guards.quietEnd}',
               ),
-            final guards => strings.settingsGuardsSummaryNoQuiet(
-              guards.dailyCap,
-            ),
+            _ => strings.settingsGuardsSummaryNoQuiet,
           },
           onTap: () =>
               openSettingsScreen(context, const NotificationGuardsScreen()),

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
-import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/features/settings/notification_guards_screen.dart';
 
 import '../../support/fixed_clock.dart';
@@ -20,16 +20,7 @@ void main() {
 
   tearDown(() => closeTestDatabase(database));
 
-  testScreen('shows the cap against tomorrow, quiet hours and grouping', (
-    tester,
-  ) async {
-    // The reverse of "Peru" is due tomorrow: a cap of one card shows it
-    // sent, and lowering nothing else keeps the defaults on screen.
-    await tester.runAsync(
-      () =>
-          NotificationSettingsRepository(database)
-              .saveGuards(NotificationGuards.defaults.copyWith(dailyCap: 1)),
-    );
+  testScreen('shows the smoothing, quiet hours and grouping', (tester) async {
     await pumpScreen(
       tester,
       const NotificationGuardsScreen(),
@@ -41,14 +32,15 @@ void main() {
       'notification_guards',
     );
     await expectNoOverflow(tester);
+    expect(find.text(l10n.guardsSmoothDueDates), findsOneWidget);
     await tester.runAsync(() async {
-      await tester.tap(find.byTooltip(l10n.guardsIncrease).first);
+      await tester.tap(find.byType(Switch).first);
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
     await tester.pumpAndSettle();
     final guards = await tester.runAsync(
       () => NotificationSettingsRepository(database).loadGuards(),
     );
-    expect(guards!.dailyCap, 2);
+    expect(guards!.smoothDueDates, isTrue);
   });
 }

@@ -3,14 +3,12 @@ import 'dart:math';
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
-import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/asked_side_draw.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/notifications/delivery_planner.dart';
 import '../../domain/notifications/grouped_reminder_action.dart';
 import '../../domain/notifications/notification_mode.dart';
 import '../clock.dart';
-import 'delivery_candidates.dart';
 import 'group_reminder.dart';
 import 'group_reminder_key.dart';
 import 'notification_presenter.dart';
@@ -25,7 +23,6 @@ class GroupedReminders {
   const GroupedReminders({
     required this._cards,
     required this._groups,
-    required this._presets,
     required this._settings,
     required this._presenter,
     required this._deliveryPlanner,
@@ -35,7 +32,6 @@ class GroupedReminders {
 
   final CardRepository _cards;
   final GroupRepository _groups;
-  final PresetRepository _presets;
   final NotificationSettingsRepository _settings;
   final NotificationPresenter _presenter;
   final DeliveryPlanner _deliveryPlanner;
@@ -99,8 +95,7 @@ class GroupedReminders {
       (await _waiting(key)).length;
 
   /// Cards of the group whose notification moment has come, the earliest due
-  /// first; none outside the grouped reminder mode. Cards held back by the
-  /// daily cap are left out.
+  /// first; none outside the grouped reminder mode.
   Future<List<Flashcard>> _waiting(GroupReminderKey key) async {
     final reminderSettings = await _settings.loadReminderSettings();
     if (reminderSettings.notificationMode != NotificationMode.grouped) {
@@ -108,15 +103,11 @@ class GroupedReminders {
     }
     final now = _clock();
     final cards = await _cards.getCardsOfGroup(key.groupId);
-    final catalog = await _presets.loadCatalog();
     final deliveries = _deliveryPlanner.plan(
-      deliveryCandidates(cards, catalog),
+      cards,
       now: now,
       reminders: reminderSettings,
       guards: await _settings.loadGuards(),
-      notifiedToday: await _settings.notifiedOn(
-        _deliveryPlanner.calendar.dayOf(now),
-      ),
     );
     final waiting = [
       for (final card in cards)

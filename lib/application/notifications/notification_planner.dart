@@ -3,7 +3,6 @@ import '../../data/repositories/distillation_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/pause_repository.dart';
-import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/distillation/distillation_rhythm.dart';
 import '../../domain/notifications/delivery_planner.dart';
@@ -12,7 +11,6 @@ import '../../domain/scheduling/due_policy.dart';
 import '../clock.dart';
 import '../scheduling/schedule_change_listener.dart';
 import 'alarm_scheduler.dart';
-import 'delivery_candidates.dart';
 import 'grouped_reminders.dart';
 import 'notification_digest.dart';
 import 'notification_presenter.dart';
@@ -32,7 +30,6 @@ class NotificationPlanner implements ScheduleChangeListener {
   const NotificationPlanner({
     required this._cards,
     required this._groups,
-    required this._presets,
     required this._settings,
     required this._pauses,
     required this._distillations,
@@ -52,7 +49,6 @@ class NotificationPlanner implements ScheduleChangeListener {
 
   final CardRepository _cards;
   final GroupRepository _groups;
-  final PresetRepository _presets;
   final NotificationSettingsRepository _settings;
   final PauseRepository _pauses;
   final DistillationRepository _distillations;
@@ -77,22 +73,18 @@ class NotificationPlanner implements ScheduleChangeListener {
   Future<void> replan({bool force = false}) async {
     final now = _clock();
     final cards = await _cards.getAll();
-    final candidates = deliveryCandidates(cards, await _presets.loadCatalog());
     final guards = await _settings.loadGuards();
     final reminderSettings = await _settings.loadReminderSettings();
     final deliveries = _deliveryPlanner.plan(
-      candidates,
+      cards,
       now: now,
       reminders: reminderSettings,
       guards: guards,
-      notifiedToday: await _settings.notifiedOn(
-        _deliveryPlanner.calendar.dayOf(now),
-      ),
     );
     final moments = [
       ...deliveries.values,
-      for (final candidate in candidates)
-        if (!deliveries[candidate.card.id]!.isAfter(now))
+      for (final deliverAt in deliveries.values)
+        if (!deliverAt.isAfter(now))
           _deliveryPlanner.nextDayRetry(
             now: now,
             reminders: reminderSettings,
@@ -101,13 +93,16 @@ class NotificationPlanner implements ScheduleChangeListener {
       ...await _distillationPasses(now),
       // A notification moved earlier than now, when a card sharing its time
       // range left it, is shown at once.
-      if (candidates.any(
-        (candidate) => NotificationTiming.shouldNotify(
-          candidate.card,
-          deliverAt: deliveries[candidate.card.id]!,
-          now: now,
-          calendar: _deliveryPlanner.calendar,
-        ),
+      if (cards.any(
+        (card) => switch (deliveries[card.id]) {
+          final deliverAt? => NotificationTiming.shouldNotify(
+            card,
+            deliverAt: deliverAt,
+            now: now,
+            calendar: _deliveryPlanner.calendar,
+          ),
+          null => false,
+        },
       ))
         now.add(const Duration(seconds: 1)),
     ];

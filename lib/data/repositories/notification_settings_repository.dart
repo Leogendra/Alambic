@@ -4,8 +4,7 @@ import '../../domain/notifications/notification_guards.dart';
 import '../../domain/notifications/reminder_settings.dart';
 import '../database/alambic_database.dart';
 
-/// The schedule and mode of the notifications, the safeguards, and the count
-/// of cards notified today that the daily cap is checked against.
+/// The schedule and mode of the notifications, and the safeguards.
 class NotificationSettingsRepository {
   const NotificationSettingsRepository(this._database);
 
@@ -32,24 +31,19 @@ class NotificationSettingsRepository {
         ),
       );
 
-  Stream<NotificationGuards> watchGuards() => _settings().watchSingle().map(
-    (settings) => NotificationGuards(
-      dailyCap: settings.dailyNotificationCap,
-      quietHoursEnabled: settings.quietHoursEnabled,
-      quietStart: settings.quietStart,
-      quietEnd: settings.quietEnd,
-      autoGroupEnabled: settings.autoGroupEnabled,
-      autoGroupThreshold: settings.autoGroupThreshold,
-    ),
-  );
+  Stream<NotificationGuards> watchGuards() =>
+      _settings().watchSingle().map(_guards);
 
-  Future<NotificationGuards> loadGuards() => watchGuards().first;
+  /// A plain read, like [loadReminderSettings]: an answer reads it inside a
+  /// transaction.
+  Future<NotificationGuards> loadGuards() =>
+      _settings().getSingle().then(_guards);
 
   Future<void> saveGuards(NotificationGuards guards) => _database
       .update(_database.appSettings)
       .write(
         AppSettingsCompanion(
-          dailyNotificationCap: Value(guards.dailyCap),
+          smoothDueDates: Value(guards.smoothDueDates),
           quietHoursEnabled: Value(guards.quietHoursEnabled),
           quietStart: Value(guards.quietStart),
           quietEnd: Value(guards.quietEnd),
@@ -58,26 +52,15 @@ class NotificationSettingsRepository {
         ),
       );
 
-  /// Cards notified on the scheduling [day].
-  Stream<int> watchNotifiedOn(DateTime day) => _settings().watchSingle().map(
-    (settings) => settings.notifiedDay == day ? settings.notifiedCount : 0,
-  );
-
-  Future<int> notifiedOn(DateTime day) => watchNotifiedOn(day).first;
-
-  /// Counts [count] more cards notified on the scheduling [day].
-  Future<void> addNotified(DateTime day, int count) =>
-      _database.transaction(() async {
-        final already = await notifiedOn(day);
-        await _database
-            .update(_database.appSettings)
-            .write(
-              AppSettingsCompanion(
-                notifiedDay: Value(day),
-                notifiedCount: Value(already + count),
-              ),
-            );
-      });
+  static NotificationGuards _guards(AppSettingsRow settings) =>
+      NotificationGuards(
+        smoothDueDates: settings.smoothDueDates,
+        quietHoursEnabled: settings.quietHoursEnabled,
+        quietStart: settings.quietStart,
+        quietEnd: settings.quietEnd,
+        autoGroupEnabled: settings.autoGroupEnabled,
+        autoGroupThreshold: settings.autoGroupThreshold,
+      );
 
   static ReminderSettings _reminderSettings(AppSettingsRow settings) =>
       ReminderSettings(

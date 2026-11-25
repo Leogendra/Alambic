@@ -23,16 +23,16 @@ class BackupScreen extends ConsumerWidget {
         SettingsGroup(
           children: [
             PanelRow(
-              title: strings.backupExport,
-              subtitle: strings.backupExportHint,
-              trailing: const Icon(Icons.upload_file_outlined),
-              onTap: () => _export(context, ref),
-            ),
-            PanelRow(
               title: strings.backupImport,
               subtitle: strings.backupImportHint,
-              trailing: const Icon(Icons.download_outlined),
+              trailing: const Icon(Icons.upload_file_outlined),
               onTap: () => _import(context, ref),
+            ),
+            PanelRow(
+              title: strings.backupExport,
+              subtitle: strings.backupExportHint,
+              trailing: const Icon(Icons.download_outlined),
+              onTap: () => _export(context, ref),
             ),
           ],
         ),

@@ -834,6 +834,7 @@
   "settingsDisplay": "Display",
   "settingsLanguage": "Language",
   "settingsTheme": "Theme",
+  "settingsPermissionsSection": "Permissions",
   "settingsAboutSection": "About",
   "settingsGithub": "GitHub repository",
   "settingsVersion": "Alambic v{version}",

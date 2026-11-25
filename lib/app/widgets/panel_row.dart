@@ -38,6 +38,9 @@ class PanelRow extends StatelessWidget {
   /// Overrides the default rule of the chevron when not `null`.
   final bool? showsChevron;
 
+  /// Largest share of the screen width the value may take.
+  static const _maxValueShare = 0.45;
+
   bool get _hasChevron => showsChevron ?? (onTap != null && trailing == null);
 
   @override
@@ -58,7 +61,12 @@ class PanelRow extends StatelessWidget {
               Expanded(child: _texts(colors)),
               if (value != null) ...[
                 const SizedBox(width: 12),
-                Flexible(
+                // Not a Flexible: next to the Expanded title it would only get
+                // half of the free space and leave a gap before the chevron.
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.sizeOf(context).width * _maxValueShare,
+                  ),
                   child: Text(
                     value!,
                     textAlign: TextAlign.end,

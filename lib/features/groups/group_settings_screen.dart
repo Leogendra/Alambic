@@ -121,8 +121,8 @@ class GroupSettingsScreen extends ConsumerWidget {
       children: [
         SegmentedChoice<AfterLastStep>(
           options: [
-            SegmentOption(AfterLastStep.remanence, strings.groupRemanence),
             SegmentOption(AfterLastStep.acquired, strings.groupAcquired),
+            SegmentOption(AfterLastStep.remanence, strings.groupRemanence),
           ],
           selected: group.afterLastStep,
           onSelected: (value) => service.setAfterLastStep(group.id, value),

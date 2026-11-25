@@ -72,25 +72,15 @@
   "settingsPresets": "Presets",
   "settingsNotifications": "Notifications",
   "settingsGuards": "Safeguards",
-  "settingsGuardsSummary": "Quiet {start} to {end}",
-  "@settingsGuardsSummary": {
-    "placeholders": {
-      "start": {
-        "type": "String"
-      },
-      "end": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsGuardsSummaryNoQuiet": "No quiet hours",
+  "settingsGuardsSmoothed": "Due dates smoothed",
+  "settingsGuardsNotSmoothed": "Due dates not smoothed",
   "guardsTitle": "Safeguards",
   "guardsSmoothDueDates": "Smooth due dates",
   "guardsSmoothDueDatesHint": "From 15 days, a review may move by 1 to 3 days to a less busy day",
   "guardsDecrease": "Decrease",
   "guardsIncrease": "Increase",
   "guardsQuietHours": "Do not disturb",
-  "guardsQuietHoursHint": "Notifications moved to the end of the range",
+  "guardsQuietHoursHint": "Notifications moved to the end of these hours",
   "guardsQuietFrom": "From",
   "guardsQuietTo": "To",
   "guardsAutoGroup": "Auto grouping",

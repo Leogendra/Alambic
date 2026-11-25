@@ -61,14 +61,10 @@ class _NotificationsPanel extends ConsumerWidget {
         ),
         PanelRow(
           title: strings.settingsGuards,
-          subtitle: switch (guards) {
+          subtitle: switch (guards?.smoothDueDates) {
             null => null,
-            final guards when guards.quietHoursEnabled =>
-              strings.settingsGuardsSummary(
-                '${guards.quietStart}',
-                '${guards.quietEnd}',
-              ),
-            _ => strings.settingsGuardsSummaryNoQuiet,
+            true => strings.settingsGuardsSmoothed,
+            false => strings.settingsGuardsNotSmoothed,
           },
           onTap: () =>
               openSettingsScreen(context, const NotificationGuardsScreen()),

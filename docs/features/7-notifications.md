@@ -50,13 +50,13 @@ Home's timeline lists the same moments, so a range shows one line per notificati
 
 ### Safeguards
 
-Three safeguards, set in Settings › Notifications › Safeguards, as the blocks of a single group, and stored in the database (`NotificationGuards`), apply to every group. The scheduler applies the first one to the due dates, `DeliveryPlanner` the second to the notification moments, the dispatcher the third:
+Three safeguards, stored together in the database (`NotificationGuards`), apply to every group. Each is set in Settings next to what it acts on: the smoothing in Settings › Notifications › Safeguards, the quiet hours at the end of the Schedule screen, the auto grouping at the end of the Notification mode screen. The scheduler applies the first one to the due dates, `DeliveryPlanner` the second to the notification moments, the dispatcher the third:
 
 - **Smooth due dates** (off by default): an answer giving an interval of 15 days or more may move its due day by 1 to 3 days, to the least busy day around it. The rule belongs to the scheduling ([Feature 1](1-scheduling.md#smoothing-long-intervals)). It lowers the peaks of long intervals, but bounds nothing: a day can still bring many cards, from short intervals, from cards missed earlier or from distillations, and auto grouping gathers them.
 - **Quiet hours** ("Do not disturb", on by default, 22:00 to 08:00): a notification falling inside is moved to their end, 23:10 to 08:00 the next morning. The hours may span midnight or stay within a day. A notification moved to the next morning keeps that moment even though its due day is over.
 - **Auto grouping** (on by default, beyond 5): when a wake-up has more notifications to show than the threshold, card notifications and grouped reminders together, a single notification replaces them, "12 cards to review", naming the groups and the estimated time. Touching it opens a session on every due card. Its count follows the answers given in the app: it counts the cards notified that day that are still due, and closes when none is left.
 
-The Garde-fous screen saves each change at once and plans the wake-ups again. Turning the smoothing on or off moves no due date already set: it applies from the next answer.
+Each of these screens saves a change of a safeguard at once and plans the wake-ups again. Turning the smoothing on or off moves no due date already set: it applies from the next answer.
 
 ### Pauses
 
@@ -146,7 +146,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] A notification falling in the quiet hours arrives at their end.
 - [x] Beyond the auto grouping threshold, the notifications of a moment are replaced by a single one.
 - [x] Touching a notification opens a session: its card, or the due cards of its group, first, then every due card.
-- [x] The safeguards are set in Settings; the smoothing of the due dates is off by default.
+- [x] The safeguards are set in Settings, the quiet hours with the schedule and the auto grouping with the notification mode; the smoothing of the due dates is off by default.
 - [x] The schedule and the notification mode are set once in Settings and apply to every group; a new daily slot moves the due dates set at the old one.
 - [x] A pause, of a distillation or global, changes no notification and moves no due date.
 

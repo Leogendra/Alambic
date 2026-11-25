@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/domain/notifications/grouped_reminder_action.dart';
+import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/domain/notifications/notification_mode.dart';
 import 'package:alambic/domain/notifications/reminder_settings.dart';
 import 'package:alambic/domain/notifications/schedule_kind.dart';
@@ -24,6 +25,9 @@ void main() {
   Future<ReminderSettings?> stored(WidgetTester tester) => tester.runAsync(
     () => NotificationSettingsRepository(database).loadReminderSettings(),
   );
+
+  Future<NotificationGuards?> storedGuards(WidgetTester tester) => tester
+      .runAsync(() => NotificationSettingsRepository(database).loadGuards());
 
   testScreen('the schedule switches to a time range, dark theme', (
     tester,
@@ -94,6 +98,42 @@ void main() {
 
     await pickEnd('11');
     expect((await stored(tester))!.rangeEnd, const ClockTime(11, 0));
+  });
+
+  testScreen('the quiet hours are turned off from the schedule', (
+    tester,
+  ) async {
+    await pumpScreen(
+      tester,
+      const ReminderScheduleScreen(),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    expect(find.text(l10n.guardsQuietFrom), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(find.byType(Switch));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pumpAndSettle();
+    expect((await storedGuards(tester))!.quietHoursEnabled, isFalse);
+    expect(find.text(l10n.guardsQuietFrom), findsNothing);
+  });
+
+  testScreen('the auto grouping is turned off from the notification mode', (
+    tester,
+  ) async {
+    await pumpScreen(
+      tester,
+      const NotificationModeScreen(),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    expect(find.text(l10n.guardsAutoGroupThreshold), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(find.byType(Switch));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pumpAndSettle();
+    expect((await storedGuards(tester))!.autoGroupEnabled, isFalse);
+    expect(find.text(l10n.guardsAutoGroupThreshold), findsNothing);
   });
 
   testScreen('the grouped reminder offers to open the app or chain', (

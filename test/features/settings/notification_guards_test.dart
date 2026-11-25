@@ -20,7 +20,7 @@ void main() {
 
   tearDown(() => closeTestDatabase(database));
 
-  testScreen('shows the smoothing, quiet hours and grouping', (tester) async {
+  testScreen('shows the smoothing of the due dates', (tester) async {
     await pumpScreen(
       tester,
       const NotificationGuardsScreen(),

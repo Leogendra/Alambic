@@ -9,14 +9,15 @@ import '../../app/widgets/segment_option.dart';
 import '../../app/widgets/segmented_choice.dart';
 import '../../app/widgets/settings_group.dart';
 import '../../application/notifications/guard_providers.dart';
+import '../../domain/notifications/notification_guards.dart';
 import '../../domain/notifications/reminder_settings.dart';
 import '../../domain/notifications/schedule_kind.dart';
 import '../../domain/scheduling/clock_time.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// "Horaire": a fixed time or a time range, for every group. Each change is
-/// saved at once, except a range whose end would precede its start: it is
-/// refused with a message.
+/// "Horaire": a fixed time or a time range, for every group, then the quiet
+/// hours. Each change is saved at once, except a range whose end would precede
+/// its start: it is refused with a message.
 class ReminderScheduleScreen extends ConsumerWidget {
   const ReminderScheduleScreen({super.key});
 
@@ -67,6 +68,8 @@ class ReminderScheduleScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 24),
+                const _QuietHoursSetting(),
               ],
             ),
     );
@@ -106,25 +109,6 @@ class ReminderScheduleScreen extends ConsumerWidget {
     };
   }
 
-  Widget _timeRow(
-    BuildContext context,
-    String title,
-    ClockTime time,
-    ValueChanged<ClockTime> onPicked,
-  ) => PanelRow(
-    title: title,
-    value: time.toString(),
-    onTap: () async {
-      final picked = await showTimePicker(
-        context: context,
-        initialTime: time.toTimeOfDay(),
-      );
-      if (picked != null) {
-        onPicked(picked.toClockTime());
-      }
-    },
-  );
-
   Future<void> _saveRange(
     BuildContext context,
     WidgetRef ref,
@@ -144,4 +128,67 @@ class ReminderScheduleScreen extends ConsumerWidget {
   Future<void> _save(WidgetRef ref, ReminderSettings reminders) => ref
       .read(notificationSettingsServiceProvider)
       .saveReminderSettings(reminders);
+}
+
+Widget _timeRow(
+  BuildContext context,
+  String title,
+  ClockTime time,
+  ValueChanged<ClockTime> onPicked,
+) => PanelRow(
+  title: title,
+  value: time.toString(),
+  onTap: () async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: time.toTimeOfDay(),
+    );
+    if (picked != null) {
+      onPicked(picked.toClockTime());
+    }
+  },
+);
+
+/// "Ne pas déranger": the quiet hours, which move a notification falling
+/// inside to their end. They may span midnight, unlike a range.
+class _QuietHoursSetting extends ConsumerWidget {
+  const _QuietHoursSetting();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    final guards = ref.watch(notificationGuardsProvider).value;
+    if (guards == null) {
+      return const SizedBox.shrink();
+    }
+    Future<void> save(NotificationGuards guards) =>
+        ref.read(notificationSettingsServiceProvider).saveGuards(guards);
+    return SettingsGroup(
+      children: [
+        PanelRow(
+          title: strings.guardsQuietHours,
+          subtitle: strings.guardsQuietHoursHint,
+          trailing: Switch(
+            value: guards.quietHoursEnabled,
+            onChanged: (enabled) =>
+                save(guards.copyWith(quietHoursEnabled: enabled)),
+          ),
+        ),
+        if (guards.quietHoursEnabled) ...[
+          _timeRow(
+            context,
+            strings.guardsQuietFrom,
+            guards.quietStart,
+            (time) => save(guards.copyWith(quietStart: time)),
+          ),
+          _timeRow(
+            context,
+            strings.guardsQuietTo,
+            guards.quietEnd,
+            (time) => save(guards.copyWith(quietEnd: time)),
+          ),
+        ],
+      ],
+    );
+  }
 }

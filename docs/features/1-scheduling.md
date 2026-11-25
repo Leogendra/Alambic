@@ -59,7 +59,7 @@ The behaviour is read at each answer, from the preset in force at that moment: e
 
 ### Smoothing long intervals
 
-Long intervals computed from different days can land on the same day, and that day then brings far more reviews than its neighbours. A day or two of difference matters little to a card that waits a month, so the scheduler may move it to a quieter day. The option is "Smooth due dates", in Settings › Notifications › Safeguards ([Feature 7](7-notifications.md#safeguards)), off by default.
+Long intervals computed from different days can land on the same day, and that day then brings far more reviews than its neighbours. A day or two of difference matters little to a card that waits a month, so the scheduler may move it to a quieter day. The option is "Smooth due dates", at the top of Settings › Presets ([Feature 2](2-presets.md#preset-management)), for every preset, off by default. It is stored with the notification safeguards ([Feature 7](7-notifications.md#safeguards)).
 
 It applies only to an answer whose interval is 15 days or more. The due day may then move within a window that widens with the interval:
 

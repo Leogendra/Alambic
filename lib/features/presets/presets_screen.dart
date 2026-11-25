@@ -6,13 +6,16 @@ import '../../app/layout/scroll_padding.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/badge_label.dart';
 import '../../app/widgets/compact_button.dart';
+import '../../app/widgets/panel_row.dart';
+import '../../app/widgets/settings_group.dart';
+import '../../application/notifications/guard_providers.dart';
 import '../../application/presets/preset_providers.dart';
 import '../../domain/presets/preset.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'preset_editor_screen.dart';
 
-/// Every preset as a tile, reached from Settings, with "New preset" at the
-/// end of the list.
+/// Every preset as a tile, reached from Settings, under the smoothing of the
+/// due dates and with "New preset" at the end of the list.
 class PresetsScreen extends ConsumerWidget {
   const PresetsScreen({super.key});
 
@@ -29,6 +32,8 @@ class PresetsScreen extends ConsumerWidget {
           const EdgeInsets.fromLTRB(20, 8, 20, 24),
         ),
         children: [
+          const _SmoothDueDatesSetting(),
+          const SizedBox(height: 20),
           for (final preset in presets) ...[
             _PresetTile(
               preset: preset,
@@ -47,6 +52,35 @@ class PresetsScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// "Lisser les échéances", for every preset: a long interval may move by a
+/// few days to a less busy day.
+class _SmoothDueDatesSetting extends ConsumerWidget {
+  const _SmoothDueDatesSetting();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    final guards = ref.watch(notificationGuardsProvider).value;
+    if (guards == null) {
+      return const SizedBox.shrink();
+    }
+    return SettingsGroup(
+      children: [
+        PanelRow(
+          title: strings.guardsSmoothDueDates,
+          subtitle: strings.guardsSmoothDueDatesHint,
+          trailing: Switch(
+            value: guards.smoothDueDates,
+            onChanged: (enabled) => ref
+                .read(notificationSettingsServiceProvider)
+                .saveGuards(guards.copyWith(smoothDueDates: enabled)),
+          ),
+        ),
+      ],
     );
   }
 }

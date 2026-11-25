@@ -50,7 +50,7 @@ Home's timeline lists the same moments, so a range shows one line per notificati
 
 ### Safeguards
 
-Three safeguards, stored together in the database (`NotificationGuards`), apply to every group. Each is set in Settings next to what it acts on: the smoothing in Settings › Notifications › Safeguards, the quiet hours at the end of the Schedule screen, the auto grouping at the end of the Notification mode screen. The scheduler applies the first one to the due dates, `DeliveryPlanner` the second to the notification moments, the dispatcher the third:
+Three safeguards, stored together in the database (`NotificationGuards`), apply to every group. Each is set in Settings next to what it acts on: the smoothing at the top of the Presets screen, the quiet hours at the end of the Schedule screen, the auto grouping at the end of the Notification mode screen. The scheduler applies the first one to the due dates, `DeliveryPlanner` the second to the notification moments, the dispatcher the third:
 
 - **Smooth due dates** (off by default): an answer giving an interval of 15 days or more may move its due day by 1 to 3 days, to the least busy day around it. The rule belongs to the scheduling ([Feature 1](1-scheduling.md#smoothing-long-intervals)). It lowers the peaks of long intervals, but bounds nothing: a day can still bring many cards, from short intervals, from cards missed earlier or from distillations, and auto grouping gathers them.
 - **Quiet hours** ("Do not disturb", on by default, 22:00 to 08:00): a notification falling inside is moved to their end, 23:10 to 08:00 the next morning. The hours may span midnight or stay within a day. A notification moved to the next morning keeps that moment even though its due day is over.
@@ -146,7 +146,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] A notification falling in the quiet hours arrives at their end.
 - [x] Beyond the auto grouping threshold, the notifications of a moment are replaced by a single one.
 - [x] Touching a notification opens a session: its card, or the due cards of its group, first, then every due card.
-- [x] The safeguards are set in Settings, the quiet hours with the schedule and the auto grouping with the notification mode; the smoothing of the due dates is off by default.
+- [x] The safeguards are set in Settings, the quiet hours with the schedule, the auto grouping with the notification mode and the smoothing of the due dates with the presets; the smoothing is off by default.
 - [x] The schedule and the notification mode are set once in Settings and apply to every group; a new daily slot moves the due dates set at the old one.
 - [x] A pause, of a distillation or global, changes no notification and moves no due date.
 
@@ -157,7 +157,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - Each button is tested through the action handler: "Correct" and "Again" record and leave the answer and the next review, a bonus review closes; "Reveal" and "Hide" show and hide the answer silently and record nothing, then "Correct" or "Again"; the typed answer with its verdict, "Again", "Reveal" and "Hide"; "Reveal", "Hide" and "Again" on a chained card; the buttons of the test notification, which record nothing.
 - The notification texts and the payload carried by a notification, including what a touched notification opens, are tested without a device.
 - The content of the session opened by each kind of notification is tested on an in-memory database with a fixed clock: its card or group first, then every due card, earliest first, without repeating the touched card.
-- The exact alarm row is tested on screen, with a capture of the refused state, and so is the test notification row, allowed and refused; the safeguards, schedule and notification mode screens have captures too, and their changes are checked in the database.
+- The exact alarm row is tested on screen, with a capture of the refused state, and so is the test notification row, allowed and refused; the schedule and notification mode screens have captures too, and their changes, the quiet hours and the auto grouping included, are checked in the database.
 - Moving the due dates to a new slot is tested as pure domain logic, then through the settings service on an in-memory database.
 - The Android implementation itself (alarm plugin, notification plugin, background isolates) is not covered by automated tests: it is checked on a phone.
 
@@ -168,7 +168,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - `lib/application/notifications/` — the platform interfaces, the planner, the dispatcher, the grouped reminders, the action handler and their providers.
 - `lib/notifications/` — notification texts and the store of planned wake-ups.
 - `lib/notifications/android/` — Android implementations, wiring and background entry points.
-- `lib/features/settings/` — the Notifications screen, with the exact alarm and test notification rows, the schedule, notification mode and safeguards screens.
+- `lib/features/settings/` — the Notifications screen, with the exact alarm and test notification rows, the schedule and notification mode screens, with the quiet hours and the auto grouping.
 - `lib/data/repositories/notification_settings_repository.dart` — the schedule, the mode and the safeguards.
 - `lib/app/shell/main_shell.dart` — opens the session of a touched notification.
 - `lib/main.dart` — initialisation and planning at launch.

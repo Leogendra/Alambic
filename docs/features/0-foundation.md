@@ -46,7 +46,7 @@ The app draws edge to edge, under transparent status and navigation bars whose i
 
 The Settings tab is a short list with no subtitle and no value, so that it reads at a glance. Its first group holds one row per category, each with an icon and a chevron, and each opening a screen of its own that groups the settings of the category in a single group, one rounded block per setting with a thin gap between two blocks:
 
-- **Notifications**: the schedule, the notification mode, the safeguards, the global pause of the distillations, the exact alarms and a test notification ([Feature 7](7-notifications.md)).
+- **Notifications**: the schedule with the quiet hours, the notification mode with the auto grouping, the global pause of the distillations, the exact alarms and a test notification ([Feature 7](7-notifications.md)).
 - **Presets**: opens the Presets screen directly ([Feature 2](2-presets.md)).
 - **Display**: the language and the theme, see below.
 - **Backup & restore**: the export and the import ([Feature 9](9-backup.md)).

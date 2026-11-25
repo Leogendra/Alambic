@@ -4,6 +4,7 @@ import 'package:alambic/app/widgets/choice_tile.dart';
 import 'package:alambic/data/data_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
+import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/app/formatting/interval_labels.dart';
 import 'package:alambic/domain/presets/built_in_preset_key.dart';
@@ -12,6 +13,7 @@ import 'package:alambic/domain/presets/preset_interval.dart';
 import 'package:alambic/features/presets/preset_editor_screen.dart';
 import 'package:alambic/features/presets/presets_screen.dart';
 
+import '../../support/sample_data.dart';
 import '../../support/screen_harness.dart';
 import '../../support/test_database.dart';
 import '../../support/test_screen.dart';
@@ -44,6 +46,26 @@ void main() {
       await expectNoOverflow(tester);
     });
   }
+
+  testScreen('the smoothing of the due dates is turned on above the presets', (
+    tester,
+  ) async {
+    await pumpScreen(
+      tester,
+      const PresetsScreen(),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    expect(find.text(l10n.guardsSmoothDueDates), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(find.byType(Switch));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pumpAndSettle();
+    final guards = await tester.runAsync(
+      () => NotificationSettingsRepository(database).loadGuards(),
+    );
+    expect(guards!.smoothDueDates, isTrue);
+  });
 
   testScreen('"Make default" makes a preset the global one', (tester) async {
     await pumpScreen(

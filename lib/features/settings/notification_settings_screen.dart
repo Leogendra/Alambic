@@ -13,15 +13,14 @@ import '../../application/notifications/notification_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../pauses/global_pause_dialog.dart';
 import 'exact_alarms_row.dart';
-import 'notification_guards_screen.dart';
 import 'notification_mode_screen.dart';
 import 'open_settings_screen.dart';
 import 'reminder_schedule_screen.dart';
 import 'settings_page.dart';
 
 /// Everything that decides when and how the app notifies: the schedule, the
-/// notification mode, the safeguards, the exact alarms, and the global pause
-/// of the distillations.
+/// notification mode, the exact alarms, and the global pause of the
+/// distillations.
 class NotificationSettingsScreen extends StatelessWidget {
   const NotificationSettingsScreen({super.key});
 
@@ -39,7 +38,6 @@ class _NotificationsPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final reminders = ref.watch(reminderSettingsProvider).value;
-    final guards = ref.watch(notificationGuardsProvider).value;
     final pausedAt = ref.watch(globalPauseProvider).value;
     final exactAlarmsKnown =
         ref.watch(exactAlarmsAllowedProvider).value != null;
@@ -58,16 +56,6 @@ class _NotificationsPanel extends ConsumerWidget {
               : strings.notificationModeLabel(reminders),
           onTap: () =>
               openSettingsScreen(context, const NotificationModeScreen()),
-        ),
-        PanelRow(
-          title: strings.settingsGuards,
-          subtitle: switch (guards?.smoothDueDates) {
-            null => null,
-            true => strings.settingsGuardsSmoothed,
-            false => strings.settingsGuardsNotSmoothed,
-          },
-          onTap: () =>
-              openSettingsScreen(context, const NotificationGuardsScreen()),
         ),
         PanelRow(
           title: strings.pauseGlobal,

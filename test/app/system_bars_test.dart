@@ -29,7 +29,6 @@ import 'package:alambic/features/presets/presets_screen.dart';
 import 'package:alambic/features/session/session_screen.dart';
 import 'package:alambic/features/settings/backup_screen.dart';
 import 'package:alambic/features/settings/display_settings_screen.dart';
-import 'package:alambic/features/settings/notification_guards_screen.dart';
 import 'package:alambic/features/settings/notification_mode_screen.dart';
 import 'package:alambic/features/settings/notification_settings_screen.dart';
 import 'package:alambic/features/settings/reminder_schedule_screen.dart';
@@ -328,10 +327,6 @@ void main() {
 
     testScreen('backup', (tester) async {
       await checkScreen(tester, const BackupScreen());
-    });
-
-    testScreen('notification guards', (tester) async {
-      await checkScreen(tester, const NotificationGuardsScreen());
     });
 
     testScreen('schedule', (tester) async {

@@ -27,7 +27,7 @@ Screens and services go through `PresetCatalog`, a snapshot of all presets and o
 
 ### Preset management
 
-A single "Presets" row of Settings opens the Presets screen, one tile per preset. A tile shows the name, the steps ("1 d · 2 d · 1 wk · 1 mo · 3 mo · 6 mo") and the failure behaviour ("On failure: one step back"). Two buttons act on it: "Edit" opens the editor, "Make default" makes it the global preset. The global preset shows a "Default" badge in place of that button. "New preset", at the end of the list, opens the editor on a draft with the Standard values. The tile's menu holds "Duplicate", which stores a copy named "<name> (copy)" right away, and "Delete", except on the global preset: another preset must be made the default first.
+A single "Presets" row of Settings opens the Presets screen, one tile per preset. Above the tiles, the "Smooth due dates" switch applies to every preset ([Feature 1](1-scheduling.md#smoothing-long-intervals)). A tile shows the name, the steps ("1 d · 2 d · 1 wk · 1 mo · 3 mo · 6 mo") and the failure behaviour ("On failure: one step back"). Two buttons act on it: "Edit" opens the editor, "Make default" makes it the global preset. The global preset shows a "Default" badge in place of that button. "New preset", at the end of the list, opens the editor on a draft with the Standard values. The tile's menu holds "Duplicate", which stores a copy named "<name> (copy)" right away, and "Delete", except on the global preset: another preset must be made the default first.
 
 Deleting a preset first says how many groups follow it ("2 groups use it: they will move to the default preset, Standard, keeping their steps and due dates."). Once confirmed, those groups move to the global preset and the preset is deleted. Making another preset the default moves no group: the global preset only serves new groups and the groups of a deleted preset. Their cards keep their steps and due dates, as for any preset change; a step beyond the shorter sequence counts as its last step.
 
@@ -62,7 +62,7 @@ Changing the preset of a group or the steps of a preset rewrites no card: the st
 - The order of the sequence is pure logic on `Preset.withStep` and `withoutStep` (insertion at the right rank, units mixed, a sequence not sorted at first); the editor test adds then removes a step and reads the order on screen.
 - Creation, editing, duplication and refusal of an invalid preset are tested through the service, on an in-memory database.
 - Deletion is tested through the service on groups and cards read back from the database: the groups that follow the preset move to the global one, the others keep theirs, the cards keep their steps and due dates, and the global preset is refused. The screen test checks that the global preset offers no "Delete" and that the confirmation counts the groups.
-- The Presets screen and the editor are covered by screen tests with a capture on the shipped presets, in light and dark theme; "Make default" and "Duplicate" are exercised on the screen and checked in the database.
+- The Presets screen and the editor are covered by screen tests with a capture on the shipped presets, in light and dark theme; "Make default", "Duplicate" and the smoothing switch are exercised on the screen and checked in the database.
 
 ## File mapping
 

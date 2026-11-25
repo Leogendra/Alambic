@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../app/formatting/sample_group_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/theme/alambic_theme.dart';
+import '../../application/groups/sample_group_providers.dart';
 import '../../application/onboarding/onboarding_providers.dart';
 import '../../application/preferences/interface_settings_providers.dart';
+import '../../data/samples/sample_group.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'distillation_page.dart';
 import 'permissions_page.dart';
@@ -22,6 +25,9 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
   static const int pageCount = 4;
 
+  /// The sample group the onboarding presents and creates.
+  static const SampleGroup sample = SampleGroup.capitals;
+
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
@@ -34,16 +40,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   void _back() => setState(() => _page--);
 
+  /// The sample group in the language of the app.
+  SampleEdition get _edition => (
+    sample: OnboardingScreen.sample,
+    languageCode: Localizations.localeOf(context).languageCode,
+  );
+
   /// Creates the sample group, or finds the one a previous onboarding made,
   /// to be opened by the tabs when [openGroup].
   Future<void> _finish({required bool openGroup}) async {
     setState(() => _isFinishing = true);
     final groupId = await ref
         .read(sampleGroupServiceProvider)
-        .createOrFind(
-          AppLocalizations.of(context).onboardingSampleGroupName,
-          Localizations.localeOf(context).languageCode,
-        );
+        .createOrFind(_edition, name: editionGroupName(_edition));
     if (openGroup) {
       ref.read(firstGroupProvider.notifier).remember(groupId);
     }
@@ -53,11 +62,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     // Read from the first screen, so that the next ones show them at once.
-    final sampleCards = ref
-        .watch(
-          sampleCardsProvider(Localizations.localeOf(context).languageCode),
-        )
-        .value;
+    final sampleCards = ref.watch(sampleCardsProvider(_edition)).value;
     return PopScope(
       // The system back goes to the previous screen, and leaves the app from
       // the first one.
@@ -85,6 +90,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   2 => PermissionsPage(onNext: _next),
                   _ => SampleGroupPage(
+                    name: editionGroupName(_edition),
                     cards: sampleCards,
                     onStart: _isFinishing
                         ? null

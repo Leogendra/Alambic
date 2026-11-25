@@ -264,6 +264,9 @@
   },
   "newGroupTitle": "New group",
   "groupNameLabel": "Name",
+  "newGroupEmpty": "Empty group",
+  "newGroupEmptyHint": "Name it, then add your cards.",
+  "newGroupFromExample": "From an example",
   "groupOngoingSection": "In progress · {count}",
   "@groupOngoingSection": {
     "placeholders": {
@@ -868,7 +871,6 @@
     }
   },
   "onboardingSampleFirstCard": "First card",
-  "onboardingSampleGroupName": "Capitals",
   "onboardingGetStarted": "Open the group",
   "onboardingSkip": "Skip",
   "presetNameStandard": "Standard",
@@ -891,6 +893,14 @@
   "languageSystem": "Phone language",
   "languageFrench": "Français",
   "languageEnglish": "English",
+  "languageName": "English",
+  "@languageName": {
+    "description": "The name of the language of this file, written in this language."
+  },
+  "sampleGroupCapitals": "Capitals",
+  "@sampleGroupCapitals": {
+    "description": "Name of the sample group of the capitals of the world."
+  },
   "themeSystem": "Same as the phone",
   "themeLight": "Light",
   "themeDark": "Dark"

@@ -1,18 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../app/formatting/sample_group_labels.dart';
 import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../app/widgets/text_input_dialog.dart';
 import '../../application/cards/card_providers.dart';
 import '../../application/groups/group_providers.dart';
-import '../../application/groups/group_summary.dart';
+import '../../application/groups/sample_group_providers.dart';
+import '../../data/samples/sample_group.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../cards/card_list_tile.dart';
 import '../cards/card_navigation.dart';
 import '../cards/card_status_formatter_provider.dart';
 import 'group_detail_screen.dart';
 import 'group_summary_tile.dart';
+import 'new_group_dialog.dart';
 
 /// Groups tab: card search on top, then the groups.
 class GroupsScreen extends ConsumerStatefulWidget {
@@ -63,7 +66,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
               for (final summary in summaries)
                 GroupSummaryTile(
                   summary: summary,
-                  onTap: () => _openGroup(summary),
+                  onTap: () => _openGroup(summary.groupId),
                 ),
             ],
           ),
@@ -103,13 +106,28 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     }
   }
 
-  void _openGroup(GroupSummary summary) => Navigator.of(context).push(
+  void _openGroup(int groupId) => Navigator.of(context).push(
     MaterialPageRoute<void>(
-      builder: (context) => GroupDetailScreen(groupId: summary.groupId),
+      builder: (context) => GroupDetailScreen(groupId: groupId),
     ),
   );
 
   Future<void> _createGroup() async {
+    final choice = await showNewGroupDialog(context);
+    if (!mounted) {
+      return;
+    }
+    switch (choice) {
+      case null:
+        return;
+      case EmptyGroupChoice():
+        await _createEmptyGroup();
+      case SampleGroupChoice(:final edition):
+        await _createSampleGroup(edition);
+    }
+  }
+
+  Future<void> _createEmptyGroup() async {
     final strings = AppLocalizations.of(context);
     final name = await showTextInputDialog(
       context,
@@ -118,6 +136,17 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     );
     if (name != null) {
       await ref.read(groupServiceProvider).create(name);
+    }
+  }
+
+  /// Creates the sample group, named in its own language, or finds the one
+  /// already named so, then opens it.
+  Future<void> _createSampleGroup(SampleEdition edition) async {
+    final groupId = await ref
+        .read(sampleGroupServiceProvider)
+        .createOrFind(edition, name: editionGroupName(edition));
+    if (mounted) {
+      _openGroup(groupId);
     }
   }
 }

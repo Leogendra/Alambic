@@ -1,6 +1,6 @@
 # Feature 4 — Groups
 
-Status: in progress (2026-11-24)
+Status: in progress (2026-11-25)
 
 ## Goal
 
@@ -12,7 +12,12 @@ Every card is in a group: a group is created from the Groups tab, or on the fly 
 
 ### Groups tab
 
-The tab shows a search field, then the groups in alphabetical order, one row each in a single panel. Each row gives the name and the number of cards, followed by "distillation" once the group's distillation is activated ("48 cards · distillation"), and a badge with the number of [due](../lexicon.md#due) cards when there are any. While its distillation is paused, the row is greyed and reads "Paused" instead ("64 cards · Paused"), with a pause icon when no card is due. "New", under the last group, creates a group after asking for its name; it gives way to the search results like the list.
+The tab shows a search field, then the groups in alphabetical order, one row each in a single panel. Each row gives the name and the number of cards, followed by "distillation" once the group's distillation is activated ("48 cards · distillation"), and a badge with the number of [due](../lexicon.md#due) cards when there are any. While its distillation is paused, the row is greyed and reads "Paused" instead ("64 cards · Paused"), with a pause icon when no card is due. "New", under the last group, opens a dialog with two kinds of group:
+
+- "Empty group" asks for a name, then creates the group.
+- Under "From an example", each [sample group](10-onboarding.md#sample-group) is offered in each of its languages, whatever the language of the app. A tile gives the name of the group in that language, then the language and its number of cards ("Capitales", "Français · 197 cards"). Touching one creates the group with its cards waiting, then opens its page. When a group already bears that name, its page opens instead and nothing is created, so that touching an example twice makes no duplicate.
+
+"New" gives way to the search results like the list.
 
 As soon as some text is typed, the group list gives way to the cards whose front or back contains that text, case-insensitively, across all groups (at most 100 results).
 
@@ -28,8 +33,6 @@ The page of a group is titled with its name; from top to bottom:
   - "Learned · N": the [acquired](../lexicon.md#acquired) cards, folded by default; touching its title unfolds or folds it.
 
 The "+" button opens the two floating buttons of the app, "Add a card" and "Add several cards", both starting in the group ([Feature 0](0-foundation.md#implementation-overview)). The toolbar opens the group settings.
-
-The page opened at the end of the onboarding, on the sample group ([Feature 10](10-onboarding.md#sample-group)), points out "Distill" with a line above it: "Its cards are waiting. Distill the group to receive them."
 
 ### Reordering the queue
 
@@ -89,6 +92,7 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - [x] The back option is switched from the group settings.
 - [x] "Hide the back" on a group page hides the back line of every card of its lists, and "Show the back" brings it back; the card sheet, the search and the sessions are unchanged.
 - [x] A group is created, renamed, changes preset; a new group follows the global preset of the moment.
+- [x] "New" creates an empty group named by the user, or a sample group in any of its languages, whatever the language of the app, then opens it; a sample group whose name is already taken opens that group unchanged.
 - [x] Deleting a group deletes its cards and their history.
 - [x] A group whose distillation is paused is shown as such in the tab.
 - [x] A new group comes back in remanence every 6 months after the last step, without typed answer.
@@ -101,15 +105,15 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - The order of "Review all" is tested as pure logic (due, introduced, pending, acquired), then on the group page, down to the session it opens.
 - Raising a missed pending card is tested on an in-memory database with the queue as the distillation reads it: one card, several, a correct answer, a forced bonus, a card added afterwards, the next introduction; and through a session left after one answer.
 - The group service is tested for creation, renaming, refusal of an empty name, the back option, the hiding of the backs, the end of sequence (the cards past their last step, switched in both directions) and deletion with its cards.
-- The tab (list with a distilled group, with a paused distillation, and search), the group page and its settings are covered by screen tests with a capture on a sample data set, with a fixed clock; the group page (all three sections) and its settings in light and dark theme. The section titles and the "next" mark are checked on the page, and the acquired section is unfolded and folded again by touch. The queue is driven by touch, read back from the database each time: a long press dragged to the head, the head and end buttons of the reordering mode (captured in light and dark theme), a shuffle cancelled then confirmed with a seeded random generator, the "next" mark after each move, and the place of the title buttons on a group without card in progress. The settings screen is driven to change the typed answer, read back from the database.
+- The tab (list with a distilled group, with a paused distillation, and search), the group page and its settings are covered by screen tests with a capture on a sample data set, with a fixed clock; the group page (all three sections) and its settings in light and dark theme. The section titles and the "next" mark are checked on the page, and the acquired section is unfolded and folded again by touch. The queue is driven by touch, read back from the database each time: a long press dragged to the head, the head and end buttons of the reordering mode (captured in light and dark theme), a shuffle cancelled then confirmed with a seeded random generator, the "next" mark after each move, and the place of the title buttons on a group without card in progress. The settings screen is driven to change the typed answer, read back from the database. "New" is driven on the tab, read back from the database: the choices offered (captured), an empty group named, a sample group in another language than the app created and opened, and a sample group whose name is taken opened unchanged.
 
 ## File mapping
 
-- `lib/application/groups/` — group service, counts (`GroupOverview`), sections of a group page (`GroupSections`) and providers.
+- `lib/application/groups/` — group service, creation of the sample groups, counts (`GroupOverview`), sections of a group page (`GroupSections`) and providers.
 - `lib/application/reviews/whole_group_review.dart` — the order of "Review all".
 - `lib/application/time/minute_ticker.dart` — current moment republished every minute.
 - `lib/data/repositories/group_repository.dart` — group storage.
-- `lib/features/groups/` — tab, group page, back button and group settings.
+- `lib/features/groups/` — tab with its "New" dialog, group page, back button and group settings.
 - `lib/features/groups/queue_section.dart` — the reorderable "Waiting" section and its reordering mode.
 - `lib/features/cards/card_list_tile.dart` — card row shared by the group page and the search; its texts come from `card_status_formatter.dart`.
 

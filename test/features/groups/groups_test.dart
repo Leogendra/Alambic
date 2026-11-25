@@ -117,6 +117,119 @@ void main() {
     await expectNoOverflow(tester);
   });
 
+  group('"New"', () {
+    Future<void> openNew(WidgetTester tester) async {
+      await seed(tester);
+      await pumpScreen(
+        tester,
+        const Scaffold(body: SafeArea(child: GroupsScreen())),
+        overrides: screenOverrides(database, sampleNow),
+      );
+      await tester.tap(find.text(l10n.commonNew));
+      await tester.pumpAndSettle();
+      // The sample cards are read from the assets.
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Finder inDialog(String text) => find.descendant(
+      of: find.byType(SimpleDialog),
+      matching: find.text(text),
+    );
+
+    /// Touches [text] in the dialog and waits for the group page it opens.
+    Future<void> pickSample(WidgetTester tester, String text) async {
+      await tester.tap(inDialog(text));
+      for (
+        var wait = 0;
+        wait < 100 && find.byType(GroupDetailScreen).evaluate().isEmpty;
+        wait++
+      ) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 10)),
+        );
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+    }
+
+    Future<Map<String, int>> groupIds(WidgetTester tester) async {
+      final groups = await tester.runAsync(
+        () => GroupRepository(database).watchAll().first,
+      );
+      return {for (final group in groups!) group.name: group.id};
+    }
+
+    testScreen('offers an empty group or a sample group in every language', (
+      tester,
+    ) async {
+      await openNew(tester);
+      expect(inDialog(l10n.newGroupEmpty), findsOneWidget);
+      expect(inDialog('Capitals'), findsOneWidget);
+      expect(inDialog('English · 197 cards'), findsOneWidget);
+      expect(inDialog('Capitales'), findsOneWidget);
+      expect(inDialog('Français · 197 cards'), findsOneWidget);
+      await captureShot(tester, find.byType(SimpleDialog), 'groups_new');
+      await expectNoOverflow(tester);
+    });
+
+    testScreen('"Empty group" asks for its name, then creates it', (
+      tester,
+    ) async {
+      await openNew(tester);
+      await tester.tap(inDialog(l10n.newGroupEmpty));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).last, 'History');
+      await tester.tap(find.text(l10n.commonOk));
+      await tester.pumpAndSettle();
+      expect((await groupIds(tester)).keys, contains('History'));
+    });
+
+    testScreen('a sample group in another language than the app is created '
+        'in its language, then opened', (tester) async {
+      await openNew(tester);
+      await pickSample(tester, 'Capitales');
+
+      final groupId = (await groupIds(tester))['Capitales'];
+      expect(groupId, isNotNull);
+      final cards = await tester.runAsync(
+        () => CardRepository(database).getCardsOfGroup(groupId!),
+      );
+      expect(cards, hasLength(197));
+      expect(cards!.every((card) => card.isPending), isTrue);
+      expect(cards.map((card) => card.backText), contains('Kaboul'));
+      expect(
+        tester
+            .widget<GroupDetailScreen>(find.byType(GroupDetailScreen))
+            .groupId,
+        groupId,
+      );
+    });
+
+    testScreen('a sample group already named so is opened, not created '
+        'again', (tester) async {
+      await openNew(tester);
+      await pickSample(tester, 'Capitals');
+
+      expect(
+        (await groupIds(tester)).keys.where((name) => name == 'Capitals'),
+        hasLength(1),
+      );
+      final cards = await tester.runAsync(
+        () => CardRepository(database).getCardsOfGroup(capitalsId),
+      );
+      expect(cards, hasLength(4));
+      expect(
+        tester
+            .widget<GroupDetailScreen>(find.byType(GroupDetailScreen))
+            .groupId,
+        capitalsId,
+      );
+    });
+  });
+
   for (final (brightness, suffix) in [
     (Brightness.light, ''),
     (Brightness.dark, '_dark'),

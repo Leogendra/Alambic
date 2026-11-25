@@ -10,10 +10,13 @@ import 'onboarding_page.dart';
 /// its page; "Skip", at the top of the screen, the tabs.
 class SampleGroupPage extends StatelessWidget {
   const SampleGroupPage({
+    required this.name,
     required this.cards,
     required this.onStart,
     super.key,
   });
+
+  final String name;
 
   /// `null` while they are being read.
   final List<BulkCardDraft>? cards;
@@ -33,10 +36,7 @@ class SampleGroupPage extends StatelessWidget {
       ),
       illustration: cards == null || cards.isEmpty
           ? null
-          : _SampleGroupTile(
-              name: strings.onboardingSampleGroupName,
-              cards: cards,
-            ),
+          : _SampleGroupTile(name: name, cards: cards),
     );
   }
 }

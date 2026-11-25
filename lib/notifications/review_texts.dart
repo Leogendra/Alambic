@@ -104,7 +104,7 @@ class ReviewTexts {
       };
 
   /// The sample card of the test notification, from the onboarding.
-  String get testGroupName => strings.onboardingSampleGroupName;
+  String get testGroupName => strings.sampleGroupCapitals;
 
   String get testQuestion => strings.onboardingNotificationQuestion;
 

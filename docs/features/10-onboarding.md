@@ -1,6 +1,6 @@
 # Feature 10 — Onboarding
 
-Status: implemented (2026-11-20)
+Status: implemented (2026-11-25)
 
 ## Goal
 
@@ -21,15 +21,20 @@ The four screens follow each other with a button at the bottom, under a row of d
    The button of the screen, "Allow notifications", asks for the notification permission (the Android 13 dialog), then opens the system page of exact alarms when they are refused, and moves on to the next screen without waiting for the user to come back from it. Both can be refused: the app still works, with Settings offering exact alarms again ([Feature 7](7-notifications.md#exact-alarms-restarts-and-permissions)).
 4. **A group to get started**: the sample group, with its number of cards and its first card ("Afghanistan → Kabul"), and "197 capitals are waiting".
 
-"Get started" on the last screen, or "Skip" on any screen, creates the sample group, marks the onboarding as done and opens the tabs. "Skip" leaves the user on Home, without asking the permissions when they were not reached. "Get started" opens the page of the group above the tabs, with "Distill" pointed out by a line: "Its cards are waiting. Distill the group to receive them." Activating the distillation introduces its first card the same day, at the [daily slot](../lexicon.md#daily-slot) or right away when the slot has passed ([Feature 8](8-distillation.md)). The group to open is handed to the tabs by a notifier (`firstGroupProvider`), which forgets it once opened.
+"Get started" on the last screen, or "Skip" on any screen, creates the sample group, marks the onboarding as done and opens the tabs. "Skip" leaves the user on Home, without asking the permissions when they were not reached. "Get started" opens the page of the group above the tabs. Activating the distillation introduces its first card the same day, at the [daily slot](../lexicon.md#daily-slot) or right away when the slot has passed ([Feature 8](8-distillation.md)). The group to open is handed to the tabs by a notifier (`firstGroupProvider`), which forgets it once opened.
 
 ### Sample group
 
-The sample group is the capitals of the world: 197 cards, the country on the front and its capital on the back ("Afghanistan" → "Kabul"), all [pending](../lexicon.md#pending) in alphabetical order of the country. Its name and its cards are in the language of the app at that moment: "Capitals" with English country names, "Capitales" with French ones. They do not follow a later change of language. It follows the global preset of the moment, its back is off and it does not distill.
+A sample group is a group of example cards shipped with the app. There is one so far, the capitals of the world: 197 cards, the country on the front and its capital on the back ("Afghanistan" → "Kabul"), all [pending](../lexicon.md#pending) in alphabetical order of the country. It exists in English and in French: "Capitals" with English country names, "Capitales" with French ones. A sample group follows the global preset of the moment, its back is off and it does not distill.
 
-It is created when the onboarding ends, and so once per installation: never again after it is deleted, nor after an import. It is then an ordinary group, which can be renamed or deleted.
+Two places create one:
 
-Its cards are a text file in the app's assets, `assets/samples/capitals_en.txt` and `assets/samples/capitals_fr.txt`, one per language of the app, in the format of the bulk add (`front;back`, one card per line), read by the bulk add's parser ([Feature 3](3-cards.md)). The file of the language is read without the asset cache: it is only needed during the onboarding.
+- the end of the onboarding, which creates the capitals in the language of the app at that moment. A later change of language does not translate them. The onboarding being done once per installation, so is this creation: a later launch does not create the group again, even after its deletion.
+- "New" in the Groups tab, which offers every sample group in each of its languages, whatever the language of the app ([Feature 4](4-groups.md#groups-tab)). This is how a user gets a sample group back after deleting it, or gets it in another language.
+
+A sample group is named in its own language. When a group already bears that name, it is opened as it is, cards untouched, instead of being created a second time. Once created, it is an ordinary group, which can be renamed or deleted.
+
+The cards of each language are a text file in the app's assets (`assets/samples/capitals_en.txt`, `assets/samples/capitals_fr.txt`), in the format of the bulk add (`front;back`, one card per line), read by the bulk add's parser ([Feature 3](3-cards.md)). A catalog of the sample groups lists the languages each one is written in. A file is read without the asset cache: it is only needed to show the group or to create it.
 
 ### Interface preferences
 
@@ -37,7 +42,7 @@ The preferences of the interface on this phone (whether the onboarding was done,
 
 ### Replay
 
-A debug build shows a "Development" panel at the end of Settings, whose "Replay the onboarding" row shows the four screens again, in place of the tabs. It only clears the preference above: finishing opens the group already named like the sample group, if there is one, instead of creating it again, and creates it otherwise, as the first launch does. A release build has no such row.
+A debug build shows a "Development" panel at the end of Settings, whose "Replay the onboarding" row shows the four screens again, in place of the tabs. It only clears the preference above: finishing opens the group already named like the sample group, if there is one, as any creation of a sample group does, and creates it otherwise. A release build has no such row.
 
 ## Acceptance criteria
 
@@ -54,7 +59,7 @@ A debug build shows a "Development" panel at the end of Settings, whose "Replay 
 ## Test strategy
 
 - The whole path is driven on the real app widget, over an in-memory database and in-memory replacements of the notification permissions and of the preferences: first launch versus later launch, both permission requests, the test notification allowed and refused, the sample group created with the group page opened, skip from the first and the last screen, back, the French name, no new group at a later launch after its deletion, and the preference saved at the end.
-- The sample group's cards and what its creation stores (order, pending, preset, back, no distillation) are tested on the service, over the asset file itself.
+- The sample group's cards and what its creation stores (order, pending, preset, back, no distillation) are tested on the service, over the asset files themselves, every language of the catalog included.
 - The time given to the presets is tested on the preset service: fixed-time presets move, time-range presets do not.
 - Each screen is covered by a screen test with a capture in English, the first one in dark theme too and the reminders screen in French too.
 - The Android notification itself is not covered by a test: it is checked on a device.
@@ -62,8 +67,9 @@ A debug build shows a "Development" panel at the end of Settings, whose "Replay 
 ## File mapping
 
 - `lib/features/onboarding/` — the four screens and their shared layout.
-- `lib/application/onboarding/` — the creation of the sample group, and the group to open once the tabs show.
-- `lib/data/samples/` and `assets/samples/` — the cards of the sample group.
+- `lib/application/onboarding/` — the group to open once the tabs show.
+- `lib/application/groups/sample_group_service.dart` — the creation of a sample group, shared with the Groups tab.
+- `lib/data/samples/` and `assets/samples/` — the catalog of the sample groups and their cards.
 - `lib/data/preferences/` — interface preferences and their shared_preferences store.
 - `lib/application/preferences/` — the notifier holding the preferences, and its providers.
 - `lib/app/alambic_app.dart` — chooses between the welcome screens and the tabs.

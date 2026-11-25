@@ -55,14 +55,14 @@ void main() {
   });
 
   test('an answer is "today", then so long ago, rounded the same', () {
-    String ago(AppLocalizations strings, int days) => strings.agoLabelOf(
+    String ago(AppLocalizations strings, int days) => strings.elapsedLabelOf(
       DateTime(2026, 11, 10 - days, 18),
       now: now,
       calendar: calendar,
     );
     expect(ago(english, 0), 'today');
-    expect(ago(english, 3), '3\u00A0d ago');
-    expect(ago(english, 60), '2\u00A0mo ago');
-    expect(ago(french, 3), 'il y a 3\u00A0j');
+    expect(ago(english, 3), '3\u00A0d');
+    expect(ago(english, 60), '2\u00A0mo');
+    expect(ago(french, 3), '3\u00A0j');
   });
 }

@@ -66,7 +66,7 @@ The second panel says where the card stands, in one line and a detail:
 
 Under it, the track of the steps: one segment per step of the preset, its interval below. The steps passed are filled, the current one is outlined with its interval in bold, the next ones are left empty. When the group ends in remanence, a dot follows the last segment with the remanence interval: grey, then filled once the card reaches it. From seven steps, the intervals are written smaller; beyond eight, only those of the first, the current and the last step are written, so that none is cut. A settings button, at the right of the line that says where the card stands, opens the step sheet; the track, which takes the whole width of the panel, opens it too.
 
-The third panel gives the last answer "Correct" and the last answer "Again", [bonus reviews](../lexicon.md#bonus-review) included, as "3 d ago" (rounded as in the lists), "today", or "never". The full history stays in the database and in the backups.
+Under the panels, straight on the page, two columns of large figures give how long ago the card was last answered "Again", on the left, and last answered "Correct", [bonus reviews](../lexicon.md#bonus-review) included: "3 d" (rounded as in the lists), "today", or "never". The full history stays in the database and in the backups.
 
 "Review now" opens a one-card session, whatever the card: an answer to a card that is not due, pending cards included, is a bonus review, and a pending card keeps its place in the queue.
 

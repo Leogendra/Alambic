@@ -16,6 +16,7 @@ import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
 import 'package:alambic/domain/scheduling/step_target.dart';
 import 'package:alambic/features/cards/card_sheet_screen.dart';
+import 'package:alambic/features/cards/last_answers.dart';
 import 'package:alambic/features/session/session_screen.dart';
 
 import '../../support/fixed_clock.dart';
@@ -128,8 +129,15 @@ void main() {
       expect(find.text('Fri, Nov 13, 12:00'), findsOneWidget);
       // The remanence dot follows the last step of Standard, both 6 months.
       expect(find.text('6\u00A0mo'), findsNWidgets(2));
-      expect(find.text('1\u00A0d ago'), findsOneWidget);
-      expect(find.text('today'), findsOneWidget);
+      final lastAnswers = find.byType(LastAnswers);
+      expect(
+        find.descendant(of: lastAnswers, matching: find.text('1\u00A0d')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: lastAnswers, matching: find.text('today')),
+        findsOneWidget,
+      );
       expect(find.text('Lima'), findsNothing);
       await captureShot(
         tester,

@@ -59,14 +59,14 @@ extension DueLabels on AppLocalizations {
   }
 
   /// How long ago [at] was, with the days of [dueInLabel]: "today", then
-  /// "3 d ago", "2 mo ago", "1 yr ago".
-  String agoLabelOf(
+  /// "3 d", "2 mo", "1 yr".
+  String elapsedLabelOf(
     DateTime at, {
     required DateTime now,
     required SchedulingCalendar calendar,
   }) {
     final days = _daysBetween(calendar.dayOf(at), calendar.dayOf(now));
-    return days <= 0 ? agoToday : agoLabel(_daysAmount(days));
+    return days <= 0 ? agoToday : _daysAmount(days);
   }
 
   /// [days], rounded to the month from 30 days and to the year from 365.

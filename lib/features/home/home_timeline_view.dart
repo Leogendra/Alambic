@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/formatting/date_labels.dart';
 import '../../app/theme/alambic_colors.dart';
+import '../../app/widgets/big_figure.dart';
 import '../../app/widgets/dashed_divider.dart';
 import '../../application/groups/group_providers.dart';
 import '../../application/home/home_timeline.dart';
@@ -397,6 +398,7 @@ class _FurtherAhead extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final colors = AlambicColors.of(context);
+    final count = NumberFormat.decimalPattern(strings.localeName);
     return Padding(
       padding: const EdgeInsets.only(top: 14),
       child: Column(
@@ -426,8 +428,8 @@ class _FurtherAhead extends StatelessWidget {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsetsDirectional.only(end: 16),
-                    child: _Total(
-                      total: month,
+                    child: BigFigure(
+                      value: count.format(month),
                       caption: strings.homeCardsWithinMonth(month),
                       color: colors.textPrimary,
                     ),
@@ -437,57 +439,14 @@ class _FurtherAhead extends StatelessWidget {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsetsDirectional.only(start: 20),
-                    child: _Total(
-                      total: year,
+                    child: BigFigure(
+                      value: count.format(year),
                       caption: strings.homeCardsWithinYear(year),
                       color: colors.textPrimary,
                     ),
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A total in large figures, with what it counts under it.
-class _Total extends StatelessWidget {
-  const _Total({
-    required this.total,
-    required this.caption,
-    required this.color,
-  });
-
-  final int total;
-  final String caption;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
-    return MergeSemantics(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 6,
-        children: [
-          Text(
-            NumberFormat.decimalPattern(strings.localeName).format(total),
-            style: TextStyle(
-              fontSize: 40,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -1,
-              height: 1,
-              color: color,
-            ),
-          ),
-          Text(
-            caption,
-            style: TextStyle(
-              fontSize: 13,
-              color: AlambicColors.of(context).textSecondary,
             ),
           ),
         ],

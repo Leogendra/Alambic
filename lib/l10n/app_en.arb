@@ -531,14 +531,6 @@
   "cardSheetLastCorrect": "Last correct",
   "cardSheetLastAgain": "Last again",
   "cardSheetNever": "never",
-  "agoLabel": "{amount} ago",
-  "@agoLabel": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "agoToday": "today",
   "stepSheetTitle": "Change the step",
   "stepSheetPending": "Waiting in the queue",

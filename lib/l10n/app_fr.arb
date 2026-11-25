@@ -207,7 +207,6 @@
   "cardSheetLastCorrect": "Dernier correct",
   "cardSheetLastAgain": "Dernier à revoir",
   "cardSheetNever": "jamais",
-  "agoLabel": "il y a {amount}",
   "agoToday": "aujourd'hui",
   "stepSheetTitle": "Changer le cran",
   "stepSheetPending": "En attente dans la file",

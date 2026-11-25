@@ -107,7 +107,7 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
             onChangeStep: () =>
                 _changeStep(card, preset, end, formatter, dailySlot),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 28),
           LastAnswers(cardId: card.id, formatter: formatter),
         ],
       ),

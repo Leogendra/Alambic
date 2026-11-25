@@ -45,6 +45,8 @@ Once submitted, the answer is compared and recorded at once, Correct when accept
 
 The end screen gives the number of cards, the duration, and the number of correct and Again answers. If cards were missed, "Review the N missed now" opens a bonus session on them, their asked side drawn again: their answers are written to the history but their due dates do not move. "Back to home" closes the session.
 
+The one-card session of the card sheet has no end screen: its answer closes the session back to the sheet ([Feature 3](3-cards.md#card-sheet)).
+
 ## Acceptance criteria
 
 - [x] The answer appears only after a tap on the card or on "Show answer", the only button before the reveal.

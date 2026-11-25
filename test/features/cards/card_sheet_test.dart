@@ -364,7 +364,7 @@ void main() {
   });
 
   testScreen('"Review now" opens a session on a waiting card, which stays '
-      'in its place', (tester) async {
+      'in its place, and comes back to the sheet', (tester) async {
     final ids = await seedQueue(tester);
     await pumpSheet(tester, ids[1]);
     await tapAndSettle(tester, find.text('Review now'));
@@ -372,6 +372,8 @@ void main() {
     await tester.tap(find.text('Show the answer'));
     await tester.pumpAndSettle();
     await tapAndSettle(tester, find.text('Again'));
+    expect(find.byType(SessionScreen), findsNothing);
+    expect(find.text('Review now'), findsOneWidget);
     final card = await tester.runAsync(
       () => CardRepository(database).getCard(ids[1]),
     );

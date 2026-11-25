@@ -122,7 +122,8 @@ class _CardSheetScreenState extends ConsumerState<CardSheetScreen> {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            onPressed: () => openSession(context, ref, [card.id]),
+            onPressed: () =>
+                openSession(context, ref, [card.id], closesWhenDone: true),
             icon: const Icon(Icons.play_arrow),
             label: Text(
               strings.cardSheetReviewNow,

@@ -68,7 +68,7 @@ Under it, the track of the steps: one segment per step of the preset, its interv
 
 Under the panels, straight on the page, two columns of large figures give how long ago the card was last answered "Again", on the left, and last answered "Correct", [bonus reviews](../lexicon.md#bonus-review) included: "3 d" (rounded as in the lists), "today", or "never". The full history stays in the database and in the backups.
 
-"Review now" opens a one-card session, whatever the card: an answer to a card that is not due, pending cards included, is a bonus review, and a pending card keeps its place in the queue.
+"Review now" opens a one-card session, whatever the card: an answer to a card that is not due, pending cards included, is a bonus review, and a pending card keeps its place in the queue. The answer closes the session back to the sheet, without the end screen.
 
 ### Card management
 
@@ -94,7 +94,7 @@ Every operation that touches due dates or the queue notifies the notification pl
 - [x] Lists show the time left in days, months or years, in accent, or "waiting", "learned": no status and no step.
 - [x] The card sheet hides the back until "Show the answer", says when the card comes back or why it does not, shows the track of its steps with the remanence as a dot, and its last "Correct" and "Again".
 - [x] A pending card shows its rank in the queue and when it should come out, or why no date can be given, and moves to the head or the end of the queue.
-- [x] "Review now" stays at the bottom and opens a one-card session, a bonus review when the card is not due; a pending card keeps its place.
+- [x] "Review now" stays at the bottom and opens a one-card session, a bonus review when the card is not due; a pending card keeps its place; the answer comes back to the sheet without the end screen.
 
 ## Test strategy
 

@@ -22,12 +22,13 @@ import 'typed_answer_field.dart';
 /// Reviews [items] one by one: the prompt, "Show answer" (or a tap on the
 /// card) to reveal the answer, then "Again" or "Correct". A card of a group
 /// with the typed answer option is answered in a field instead, recorded at
-/// once with its verdict, then "Next". Ends on a summary.
+/// once with its verdict, then "Next". Ends on a summary, or closes.
 class SessionScreen extends ConsumerStatefulWidget {
   const SessionScreen({
     required this.items,
     this.isBonus = false,
     this.raisesMissedPending = false,
+    this.closesWhenDone = false,
     super.key,
   });
 
@@ -39,6 +40,10 @@ class SessionScreen extends ConsumerStatefulWidget {
   /// "Review all" of a group: a pending card answered "Again" goes to the
   /// head of the queue, at once, so leaving the session keeps it there.
   final bool raisesMissedPending;
+
+  /// "Review now" of the card sheet: the session closes on its last answer,
+  /// back to the sheet, without the summary.
+  final bool closesWhenDone;
 
   @override
   ConsumerState<SessionScreen> createState() => _SessionScreenState();
@@ -326,10 +331,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen>
     }
   }
 
-  /// Counts [outcome] for the current card and moves to the next one.
+  /// Counts [outcome] for the current card and moves to the next one. After
+  /// the last one, closes the session when [SessionScreen.closesWhenDone].
   void _next(ReviewOutcome outcome) {
+    _session.record(outcome);
+    if (_session.current == null && widget.closesWhenDone) {
+      Navigator.of(context).pop();
+      return;
+    }
     setState(() {
-      _session.record(outcome);
       _isRevealed = false;
       _isAnswering = false;
       _typedAnswer = null;

@@ -189,7 +189,7 @@
   "sessionBonusBadge": "Bonus",
   "durationMinutesSeconds": "{minutes} min {seconds}",
   "durationSeconds": "{seconds} s",
-  "cardSheetDueNow": "À réviser maintenant",
+  "cardSheetDueToday": "À réviser aujourd'hui",
   "cardSheetEdit": "Modifier",
   "cardSheetDelete": "Supprimer la carte",
   "cardSheetDeleteConfirm": "Supprimer cette carte et son historique ?",

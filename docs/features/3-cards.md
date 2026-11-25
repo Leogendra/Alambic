@@ -59,7 +59,7 @@ The first panel shows the front. The back is hidden behind "Show the answer", so
 
 The second panel says where the card stands, in one line and a detail:
 
-- a card due today: "Due now";
+- a card due today: "Due today";
 - a scheduled card, in its sequence or in [remanence](../lexicon.md#remanence): "Next review tomorrow", "in 3 d" or "in 6 mo", rounded as in the lists, then its date and time ("Fri, Nov 13, 12:00");
 - a [learned](../lexicon.md#acquired) card: "Learned", "This card does not come back.";
 - a [pending](../lexicon.md#pending) card: its rank in the [queue](../lexicon.md#queue) of its group ("Waiting · 3 of 44"), then when it should come out ("Comes out around November 26"), or why no date can be given: the distillation is paused, the group does not distill, or the card lies more than two years away. "To the head" and "To the end" move it there at once, each off when the card is already there.

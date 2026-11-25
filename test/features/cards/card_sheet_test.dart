@@ -164,7 +164,7 @@ void main() {
       final renderAt = DateTime(2026, 11, 13, 12, 30);
       final cardId = await seedReviewedCard(tester, renderAt);
       await pumpSheet(tester, cardId, at: renderAt, brightness: brightness);
-      expect(find.text('Due now'), findsOneWidget);
+      expect(find.text('Due today'), findsOneWidget);
       await captureShot(
         tester,
         find.byType(CardSheetScreen),

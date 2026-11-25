@@ -489,7 +489,7 @@
       }
     }
   },
-  "cardSheetDueNow": "Due now",
+  "cardSheetDueToday": "Due today",
   "cardSheetEdit": "Edit",
   "cardSheetDelete": "Delete the card",
   "cardSheetDeleteConfirm": "Delete this card and its history?",

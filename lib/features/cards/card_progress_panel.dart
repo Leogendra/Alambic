@@ -129,7 +129,7 @@ class CardProgressPanel extends ConsumerWidget {
       ),
       _ when formatter.isDue(card) => (
         Icons.notifications_active_outlined,
-        strings.cardSheetDueNow,
+        strings.cardSheetDueToday,
         null,
         true,
       ),

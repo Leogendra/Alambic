@@ -5,9 +5,12 @@ import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/domain/presets/built_in_presets.dart';
+import 'package:alambic/domain/groups/after_last_step.dart';
 import 'package:alambic/domain/groups/card_group.dart';
+import 'package:alambic/domain/groups/remanence_interval.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/app/formatting/interval_labels.dart';
+import 'package:alambic/app/widgets/interval_chip.dart';
 import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/home/home_screen.dart';
@@ -59,10 +62,9 @@ void main() {
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(
-      find.text('6 cards · last one arrives around November 23'),
-      findsOne,
-    );
+    final estimate = find.text('6 cards · last one arrives around November 23');
+    await tester.scrollUntilVisible(estimate, 200);
+    expect(estimate, findsOne);
     await captureShot(tester, find.byType(DistillScreen), 'distill_activate');
     await expectNoOverflow(tester);
   });
@@ -81,7 +83,9 @@ void main() {
       DistillScreen(groupId: japaneseId),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(find.text('6 cards waiting · paused', findRichText: true), findsOne);
+    final waiting = find.text('6 cards waiting · paused', findRichText: true);
+    await tester.scrollUntilVisible(waiting, 200);
+    expect(waiting, findsOne);
   });
 
   testScreen('distillation followed on the group page', (tester) async {
@@ -136,7 +140,13 @@ void main() {
     expect(find.text('Standard'), findsOne);
     expect(find.text('Default'), findsNothing);
     for (final step in BuiltInPresets.standard.intervals) {
-      expect(find.text(l10n.intervalLabel(step)), findsOne);
+      expect(
+        find.descendant(
+          of: find.byType(IntervalChip),
+          matching: find.text(l10n.intervalLabel(step)),
+        ),
+        findsOne,
+      );
     }
     expect(find.text('On failure: one step back'), findsOne);
     await captureShot(tester, find.byType(DistillScreen), 'distill_preset');
@@ -206,6 +216,49 @@ void main() {
     expect(find.text('Default'), findsNothing);
   });
 
+  testScreen('the end of sequence is set from the screen, at once', (
+    tester,
+  ) async {
+    await seed(tester, activate: false);
+    await pumpScreen(
+      tester,
+      DistillScreen(groupId: japaneseId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    Future<CardGroup> tapThenRead(Finder finder) async {
+      await tester.ensureVisible(finder);
+      await tester.pumpAndSettle();
+      await tester.tap(finder);
+      await settle(tester);
+      return japanese(tester);
+    }
+
+    expect(
+      find.text(
+        'The card stays in the cycle and always comes back after 6 mo.',
+      ),
+      findsOneWidget,
+    );
+    var group = await tapThenRead(find.text(l10n.intervalYears(1)));
+    expect(group.remanenceInterval, RemanenceInterval.oneYear);
+    expect(
+      find.text(
+        'The card stays in the cycle and always comes back after 1 yr.',
+      ),
+      findsOneWidget,
+    );
+    group = await tapThenRead(find.text(l10n.groupAcquired));
+    expect(group.afterLastStep, AfterLastStep.acquired);
+    expect(find.text('Comes back every'), findsNothing);
+    expect(
+      find.text(
+        'Once the last step is passed, the card is learned: it never comes '
+        'back.',
+      ),
+      findsOneWidget,
+    );
+  });
+
   testScreen('activates the distillation from the screen', (tester) async {
     await seed(tester, activate: false);
     await pumpScreen(
@@ -215,10 +268,9 @@ void main() {
     );
     await tester.tap(find.byTooltip(l10n.distillMoreCards));
     await tester.pumpAndSettle();
-    expect(
-      find.text('6 cards · last one arrives around November 14'),
-      findsOne,
-    );
+    final estimate = find.text('6 cards · last one arrives around November 14');
+    await tester.scrollUntilVisible(estimate, 200);
+    expect(estimate, findsOne);
     await tester.tap(find.text(l10n.distillActivate));
     await tester.pumpAndSettle();
     final distillations = await tester.runAsync(
@@ -229,9 +281,8 @@ void main() {
     expect(find.byType(DistillScreen), findsNothing);
   });
 
-  testScreen('"Adjust" opens the current settings and saves new ones', (
-    tester,
-  ) async {
+  testScreen('"Adjust" opens the current settings and saves a change at '
+      'once', (tester) async {
     await seed(tester);
     await pumpScreen(
       tester,
@@ -243,27 +294,17 @@ void main() {
     expect(find.text('Adjust the distillation'), findsOneWidget);
     expect(find.text('1'), findsOneWidget, reason: 'one card per batch');
     await tester.tap(find.byTooltip(l10n.distillMoreCards));
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text(l10n.commonSave), 200);
-    await tester.ensureVisible(find.text(l10n.commonSave));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(l10n.commonSave));
-    // The save runs on the database, then the screen closes.
-    for (
-      var wait = 0;
-      wait < 100 && find.byType(DistillScreen).evaluate().isNotEmpty;
-      wait++
-    ) {
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 10)),
-      );
-      await tester.pump();
-    }
-    await tester.pumpAndSettle();
+    await settle(tester);
     final distillation = await tester.runAsync(
       () => DistillationRepository(database).find(japaneseId),
     );
     expect(distillation!.cardsPerBatch, 2);
+    expect(find.byType(DistillScreen), findsOne);
+    await tester.scrollUntilVisible(find.text(l10n.distillPause), 200);
+    expect(find.text(l10n.commonSave), findsNothing);
+    expect(find.text(l10n.distillActivate), findsNothing);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
     expect(find.text('2 cards a day'), findsOne);
   });
 
@@ -305,12 +346,11 @@ void main() {
       ),
       overrides: screenOverrides(database, sampleNow),
     );
-    expect(
-      find.text(
-        'Paused since November 10: no new card comes out, reminders go on.',
-      ),
-      findsOne,
+    final paused = find.text(
+      'Paused since November 10: no new card comes out, reminders go on.',
     );
+    await tester.scrollUntilVisible(paused, 200);
+    expect(paused, findsOne);
     await captureShot(
       tester,
       find.byType(DistillScreen),

@@ -298,8 +298,6 @@
   "groupShuffleConfirm": "Shuffle",
   "groupEmpty": "No card yet. Add some with the + button or with bulk add.",
   "groupSettingsTitle": "Group settings",
-  "groupSettingsRepetition": "Repetition",
-  "groupSettingsPresetHint": "The group follows the whole preset. To adjust it, duplicate it in Settings › Presets.",
   "groupBackHide": "Hide the back",
   "groupBackShow": "Show the back",
   "groupReverse": "Back",

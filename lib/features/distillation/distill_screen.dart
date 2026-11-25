@@ -21,11 +21,12 @@ import '../../domain/distillation/distillation_queue.dart';
 import '../../domain/distillation/distillation_settings.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'distillation_preset_section.dart';
+import 'sequence_end_section.dart';
 
 /// "Distill": settings of the distillation of a group, with an estimate of
 /// the last arrival of its queue. Activates the distillation, or adjusts it
-/// when [currentSettings] are given; it is then paused and resumed here, at
-/// once, without "Save".
+/// when [currentSettings] are given: every change then applies at once,
+/// without "Save", and the distillation is paused and resumed here too.
 class DistillScreen extends ConsumerStatefulWidget {
   const DistillScreen({required this.groupId, this.currentSettings, super.key});
 
@@ -43,10 +44,15 @@ class DistillScreen extends ConsumerStatefulWidget {
 class _DistillScreenState extends ConsumerState<DistillScreen> {
   late DistillationSettings _settings =
       widget.currentSettings ?? const DistillationSettings();
-  bool _saving = false;
+  bool _activating = false;
 
-  void _update(DistillationSettings Function(DistillationSettings) change) =>
-      setState(() => _settings = change(_settings));
+  /// Takes the change in; once activated, saves it at once.
+  void _update(DistillationSettings Function(DistillationSettings) change) {
+    setState(() => _settings = change(_settings));
+    if (widget.isAdjusting) {
+      ref.read(distillationServiceProvider).adjust(widget.groupId, _settings);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +109,8 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
           _prioritizePanel(strings),
           const SizedBox(height: 16),
           DistillationPresetSection(groupId: widget.groupId),
+          const SizedBox(height: 16),
+          SequenceEndSection(groupId: widget.groupId),
           if (widget.isAdjusting) ...[
             const SizedBox(height: 16),
             _pauseButton(strings, colors, pausedAt),
@@ -118,7 +126,7 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     SectionLabel(strings.distillRhythm),
     DistillationRhythmPanel(
       settings: _settings,
-      onChanged: (settings) => setState(() => _settings = settings),
+      onChanged: (settings) => _update((_) => settings),
     ),
   ];
 
@@ -186,7 +194,8 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
   }
 
   /// The estimate of the last arrival with the settings picked, or the
-  /// waiting cards while paused on its own or globally.
+  /// waiting cards while paused on its own or globally, then "Start
+  /// distilling" before activation.
   Widget _footer(
     AppLocalizations strings,
     AlambicColors colors,
@@ -227,12 +236,11 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
             ),
           ],
         ),
-        FilledButton(
-          onPressed: _saving ? null : _save,
-          child: Text(
-            widget.isAdjusting ? strings.commonSave : strings.distillActivate,
+        if (!widget.isAdjusting)
+          FilledButton(
+            onPressed: _activating ? null : _activate,
+            child: Text(strings.distillActivate),
           ),
-        ),
       ],
     );
   }
@@ -288,15 +296,12 @@ class _DistillScreenState extends ConsumerState<DistillScreen> {
     );
   }
 
-  Future<void> _save() async {
+  Future<void> _activate() async {
     final navigator = Navigator.of(context);
-    final service = ref.read(distillationServiceProvider);
-    setState(() => _saving = true);
-    if (widget.isAdjusting) {
-      await service.adjust(widget.groupId, _settings);
-    } else {
-      await service.activate(widget.groupId, _settings);
-    }
+    setState(() => _activating = true);
+    await ref
+        .read(distillationServiceProvider)
+        .activate(widget.groupId, _settings);
     navigator.pop();
   }
 }

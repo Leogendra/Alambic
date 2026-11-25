@@ -4,7 +4,7 @@ Status: in progress (2026-11-24)
 
 ## Goal
 
-Sort cards into flat [groups](../lexicon.md#group), find a card by search, see at a glance what is due in each group, distill a group, review it all, and set a group's name, preset, end of sequence, [typed answer](../lexicon.md#typed-answer) and [back option](../lexicon.md#back-option).
+Sort cards into flat [groups](../lexicon.md#group), find a card by search, see at a glance what is due in each group, distill a group, review it all, and set a group's name, [typed answer](../lexicon.md#typed-answer) and [back option](../lexicon.md#back-option). Its preset and end of sequence are set from its distillation ([Feature 8](8-distillation.md#screens)).
 
 ## Implementation overview
 
@@ -56,16 +56,14 @@ The group page has a "Hide the back" button, which becomes "Show the back" once 
 
 ### Sequence end and typed answer
 
-A group carries two more options, set in its settings:
+A group carries two more options:
 
-- After the last step: [remanence](../lexicon.md#remanence) (the default) at an interval of 3 months, 6 months (the default) or 1 year, or [acquired](../lexicon.md#acquired). They belong to the group rather than to the preset, so that two groups can share a rhythm and end it differently. Their effect on the cards, including switching from one to the other, is in [Feature 1](1-scheduling.md#after-the-last-step).
-- The [typed answer](../lexicon.md#typed-answer), off by default: the cards of the group whose answer face has text are answered by typing it, in the notification ([Feature 7](7-notifications.md#typed-answer)) as in a session ([Feature 5](5-session.md#typed-answer)), with the same comparison.
+- After the last step, set from the "Distill" screen ([Feature 8](8-distillation.md#screens)): [remanence](../lexicon.md#remanence) (the default) at an interval of 3 months, 6 months (the default) or 1 year, or [acquired](../lexicon.md#acquired). They belong to the group rather than to the preset, so that two groups can share a rhythm and end it differently. Their effect on the cards, including switching from one to the other, is in [Feature 1](1-scheduling.md#after-the-last-step).
+- The [typed answer](../lexicon.md#typed-answer), set in its settings, off by default: the cards of the group whose answer face has text are answered by typing it, in the notification ([Feature 7](7-notifications.md#typed-answer)) as in a session ([Feature 5](5-session.md#typed-answer)), with the same comparison.
 
 ### Group settings
 
-A group's settings are, from top to bottom: its name; its preset, picked from the preset list; what comes after the last step; the typed answer and the back option, as two switches; its deletion. A group has no pause of its own: only its distillation is paused ([Feature 8](8-distillation.md#pause)). The group always follows a whole preset: the screen reminds the user to duplicate a preset to adjust it.
-
-"After the last step" is a segmented control, "Remanence" / "Learned". With remanence, a second one picks its interval (3 months, 6 months, 1 year). A line under them says what the choice does: the interval the cards will actually come back at, which is the last step of the preset when it is longer than the one chosen, or that an acquired card never comes back. Every change is saved at once, and switching applies at once to the cards past their last step ([Feature 1](1-scheduling.md#after-the-last-step)).
+A group's settings are, from top to bottom: its name; the typed answer and the back option, as two switches; its deletion. They hold neither the preset nor the end of sequence: both are set from the "Distill" screen, next to the estimate they change ([Feature 8](8-distillation.md#screens)). A group has no pause of its own: only its distillation is paused ([Feature 8](8-distillation.md#pause)).
 
 Deleting a group asks for confirmation, announcing how many cards go with it, then deletes the group with its cards, their history and its distillation.
 
@@ -94,7 +92,7 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - [x] Deleting a group deletes its cards and their history.
 - [x] A group whose distillation is paused is shown as such in the tab.
 - [x] A new group comes back in remanence every 6 months after the last step, without typed answer.
-- [x] The group settings set the end of sequence and the typed answer.
+- [x] The group settings set the typed answer; they show neither the preset nor the end of sequence.
 
 ## Test strategy
 
@@ -103,7 +101,7 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - The order of "Review all" is tested as pure logic (due, introduced, pending, acquired), then on the group page, down to the session it opens.
 - Raising a missed pending card is tested on an in-memory database with the queue as the distillation reads it: one card, several, a correct answer, a forced bonus, a card added afterwards, the next introduction; and through a session left after one answer.
 - The group service is tested for creation, renaming, refusal of an empty name, the back option, the hiding of the backs, the end of sequence (the cards past their last step, switched in both directions) and deletion with its cards.
-- The tab (list with a distilled group, with a paused distillation, and search), the group page and its settings are covered by screen tests with a capture on a sample data set, with a fixed clock; the group page (all three sections) and its settings in light and dark theme. The section titles and the "next" mark are checked on the page, and the acquired section is unfolded and folded again by touch. The queue is driven by touch, read back from the database each time: a long press dragged to the head, the head and end buttons of the reordering mode (captured in light and dark theme), a shuffle cancelled then confirmed with a seeded random generator, the "next" mark after each move, and the place of the title buttons on a group without card in progress. The settings screen is driven to change the remanence interval, the typed answer and the end of sequence, read back from the database.
+- The tab (list with a distilled group, with a paused distillation, and search), the group page and its settings are covered by screen tests with a capture on a sample data set, with a fixed clock; the group page (all three sections) and its settings in light and dark theme. The section titles and the "next" mark are checked on the page, and the acquired section is unfolded and folded again by touch. The queue is driven by touch, read back from the database each time: a long press dragged to the head, the head and end buttons of the reordering mode (captured in light and dark theme), a shuffle cancelled then confirmed with a seeded random generator, the "next" mark after each move, and the place of the title buttons on a group without card in progress. The settings screen is driven to change the typed answer, read back from the database.
 
 ## File mapping
 

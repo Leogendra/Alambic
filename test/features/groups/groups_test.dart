@@ -5,13 +5,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
-import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/application/randomness.dart';
 import 'package:alambic/domain/distillation/distillation_queue.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
-import 'package:alambic/domain/groups/after_last_step.dart';
-import 'package:alambic/domain/groups/card_group.dart';
-import 'package:alambic/domain/groups/remanence_interval.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
@@ -24,7 +20,6 @@ import 'package:alambic/features/distillation/distill_screen.dart';
 import 'package:alambic/features/groups/group_detail_screen.dart';
 import 'package:alambic/features/groups/group_settings_screen.dart';
 import 'package:alambic/features/groups/groups_screen.dart';
-import 'package:alambic/features/presets/preset_editor_screen.dart';
 import 'package:alambic/features/session/session_screen.dart';
 
 import '../../support/fixed_clock.dart';
@@ -318,12 +313,8 @@ void main() {
         brightness: brightness,
         overrides: screenOverrides(database, sampleNow),
       );
-      expect(
-        find.text(
-          'The card stays in the cycle and always comes back after 6\u00A0mo.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text(l10n.cardPreset), findsNothing);
+      expect(find.text(l10n.groupAfterLastStep), findsNothing);
       await captureShot(
         tester,
         find.byType(GroupSettingsScreen),
@@ -333,71 +324,22 @@ void main() {
     });
   }
 
-  testScreen('the group settings set the end of sequence and the typed '
-      'answer', (tester) async {
+  testScreen('the group settings set the typed answer', (tester) async {
     await seed(tester);
     await pumpScreen(
       tester,
       GroupSettingsScreen(groupId: capitalsId),
       overrides: screenOverrides(database, sampleNow),
     );
-    Future<CardGroup> tapThenRead(Finder finder) async {
-      await tester.runAsync(() async {
-        await tester.tap(finder);
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      });
-      await tester.pumpAndSettle();
-      return (await tester.runAsync(
-        () => GroupRepository(database).find(capitalsId),
-      ))!;
-    }
-
-    var group = await tapThenRead(find.text(l10n.intervalYears(1)));
-    expect(group.remanenceInterval, RemanenceInterval.oneYear);
-    expect(
-      find.text(
-        'The card stays in the cycle and always comes back after 1\u00A0yr.',
-      ),
-      findsOneWidget,
-    );
-    group = await tapThenRead(find.byType(Switch).first);
-    expect(group.typedAnswer, isTrue);
-    group = await tapThenRead(find.text(l10n.groupAcquired));
-    expect(group.afterLastStep, AfterLastStep.acquired);
-    expect(find.text('Comes back every'), findsNothing);
-    expect(
-      find.text(
-        'Once the last step is passed, the card is learned: it never comes '
-        'back.',
-      ),
-      findsOneWidget,
-    );
-  });
-
-  testScreen('"New preset" of the picker is followed by the group once saved', (
-    tester,
-  ) async {
-    await seed(tester);
-    await pumpScreen(
-      tester,
-      GroupSettingsScreen(groupId: capitalsId),
-      overrides: screenOverrides(database, sampleNow),
-    );
-    await tester.tap(find.text(l10n.cardPreset));
+    await tester.runAsync(() async {
+      await tester.tap(find.byType(Switch).first);
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l10n.presetsNew));
-    await tester.pumpAndSettle();
-    expect(find.byType(PresetEditorScreen), findsOne);
-    await tester.tap(find.text(l10n.commonSave));
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    final group = await tester.runAsync(
+      () => GroupRepository(database).find(capitalsId),
     );
-    await tester.pumpAndSettle();
-    final catalog = await tester.runAsync(
-      () => PresetRepository(database).loadCatalog(),
-    );
-    expect(catalog!.presetForGroup(capitalsId).name, l10n.presetNewName);
-    expect(find.text(l10n.presetNewName), findsOne);
+    expect(group!.typedAnswer, isTrue);
   });
 
   testScreen('"Hide the back" hides the backs of the list and "Show" brings '
@@ -441,8 +383,9 @@ void main() {
     );
     await tester.tap(find.widgetWithText(FilledButton, l10n.distillTitle));
     await tester.pumpAndSettle();
-    expect(find.text('Start distilling'), findsOneWidget);
     expect(find.byType(DistillScreen), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Start distilling'), 200);
+    expect(find.text('Start distilling'), findsOneWidget);
   });
 
   testScreen('"Review all" asks the due cards, then the others, then the '

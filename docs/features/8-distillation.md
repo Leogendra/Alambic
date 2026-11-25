@@ -28,7 +28,7 @@ At most one batch comes out per pass, and missed batches are never caught up: af
 
 ### Adjusting
 
-The settings stay editable: "Cards per day" and "Prioritize reviews". The next batch comes out at the earliest today, with the new settings. When today's pass already ran, the new settings apply from the next pass.
+The settings stay editable: "Cards per day" and "Prioritize reviews". Each change is saved at once, without "Save": a few taps on the stepper save each value in turn. The next batch comes out at the earliest today, with the new settings. When today's pass already ran, the new settings apply from the next pass.
 
 ### Prioritizing reviews
 
@@ -50,7 +50,7 @@ Resuming, from either pause, processes the current day if it was not processed y
 
 While the group does not distill, its page shows a large "Distill" button ([Feature 4](4-groups.md#group-page)). Once activated, a tile takes its place, with no title above it: a "Distillation" tag, or "Paused since Nov 3" with a pause icon, a settings button that opens the "Distill" screen, then, aligned left, the rhythm ("1 card a day", "3 cards a day").
 
-The "Distill" screen shows the [schedule](../lexicon.md#schedule) of the app, then the settings: "Cards per day" (1 by default) and "Prioritize reviews" (on, explaining that each card due takes the place of a new card). A "Preset" section follows them: the preset the group follows, with its reminders as chips (1 d, 2 d, 1 wk…) and its failure behaviour. The name opens the preset picker of the group settings, which ends on "New preset": the editor on a new preset, which the group follows once saved. "Edit" opens the preset editor ([Feature 2](2-presets.md)). These apply at once, without "Save", and a preset edited here changes for every group that follows it. An estimate of the last arrival follows, with the settings being chosen ("44 cards · last one arrives around December 23", see [Estimates](#estimates)), or a line saying no card waits. It ends on "Start distilling"; opened from the group page, it is titled "Adjust the distillation", starts from the current settings and ends on "Save". There, a "Pause" or "Resume" button follows the settings, with a line saying that no new card comes out while the reminders go on ("Paused since November 3: …" while paused); a paused distillation shows "13 cards waiting · paused" instead of its estimate, and so does any distillation during the global pause.
+The "Distill" screen shows the [schedule](../lexicon.md#schedule) of the app, then the settings: "Cards per day" (1 by default) and "Prioritize reviews" (on, explaining that each card due takes the place of a new card). A "Preset" section follows them: the preset the group follows, with its reminders as chips (1 d, 2 d, 1 wk…) and its failure behaviour. The name opens the preset picker of the group, which ends on "New preset": the editor on a new preset, which the group follows once saved. "Edit" opens the preset editor ([Feature 2](2-presets.md)). An "After the last step" section follows: a segmented control "Remanence" / "Learned", with remanence a second one for its interval (3 months, 6 months, 1 year), and a line saying what the choice does: the interval the cards will actually come back at, which is the last step of the preset when it is longer than the one chosen, or that an acquired card never comes back ([Feature 4](4-groups.md#sequence-end-and-typed-answer)). This is the only place where the preset and the end of sequence of a group are set: both change the estimate below. They apply at once, without "Save", and switching the end of sequence applies at once to the cards past their last step ([Feature 1](1-scheduling.md#after-the-last-step)); a preset edited here changes for every group that follows it. An estimate of the last arrival follows, with the settings being chosen ("44 cards · last one arrives around December 23", see [Estimates](#estimates)), or a line saying no card waits. It ends on "Start distilling"; opened from the group page, it is titled "Adjust the distillation", starts from the current settings, saves each change at once and has no button at the end. There, a "Pause" or "Resume" button follows the settings, with a line saying that no new card comes out while the reminders go on ("Paused since November 3: …" while paused); a paused distillation shows "13 cards waiting · paused" instead of its estimate, and so does any distillation during the global pause.
 
 On Home, the new cards of a group have one line per day ([Feature 6](6-home.md#new-cards)), and count in the totals of the coming month and year.
 
@@ -77,10 +77,11 @@ The sheet of a pending card gives its own arrival from the same forecast: the da
 - [x] A batch of N cards comes out every day, one at most per pass, the day starting at 4am, with the app closed; missed batches are not caught up.
 - [x] A card added to the group joins the end of the queue, even when the queue was empty; a card moved out of the group leaves it.
 - [x] One distillation per group; it is adjusted, paused and resumed, never stopped.
-- [x] Adjusting changes the number of cards per day and "Prioritize reviews"; the new settings apply from today's pass, or the next one when it already ran.
+- [x] Adjusting changes the number of cards per day and "Prioritize reviews", each saved at once, without "Save"; the new settings apply from today's pass, or the next one when it already ran.
 - [x] Prioritizing reviews: a day brings N new cards minus the cards of the group due at the pass, late and unanswered ones included; reminders are never moved.
 - [x] The "Distill" screen activates or adjusts, with an estimate of the last arrival: N cards a day, or, with "Prioritize reviews", the days left free by the reviews of the group, those of the cards to come played as always answered "Correct", within two years.
 - [x] The "Distill" screen shows the preset of the group with its reminders, and edits it, swaps it or creates another at once.
+- [x] The "Distill" screen sets what comes after the last step at once, remanence with its interval or learned, and says what the choice does.
 - [x] The group page follows the distillation (pause, waiting cards, rhythm) with a single settings button.
 - [x] A paused distillation, and every distillation during the global pause, introduces nothing; the reminders go on and no due date moves. Resuming brings a single batch at most; the global pause leaves each distillation's own pause alone.
 - [x] A missed 4am wake-up runs the pass at restart, or at the opening of the app.
@@ -97,14 +98,14 @@ The sheet of a pending card gives its own arrival from the same forecast: the da
 - The "Distill" screen, the group page and Home are covered by screen tests with a capture; widget tests activate a distillation and adjust it from their screens, and check the waiting cards shown instead of the estimate during the global pause.
 - The pauses are tested with the notification fakes: a paused distillation keeps its cards notified and their due dates, a pause of a week brings one batch on resume, the global pause holds every distillation and plans no wake-up for them, and leaves alone a distillation paused on its own.
 - The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, the introduction done by the wake-up, and a wake-up firing late at restart, which notifies the batch at once.
-- The preset section of the "Distill" screen is covered by screen tests: the default preset and its reminders, "Edit", the picker opened from the name and "New preset" with the choice read back from the database.
+- The preset section of the "Distill" screen is covered by screen tests: the default preset and its reminders, "Edit", the picker opened from the name and "New preset" with the choice read back from the database. Its end of sequence section is driven to change the remanence interval, then to learned, read back from the database with the line under it.
 - The group page and the "Distill" screen of a paused distillation have captures; resuming from the screen is checked in the database.
 
 ## File mapping
 
 - `lib/domain/distillation/` — the distillation, its settings, the rhythm and the queue rules.
 - `lib/application/distillation/` — `DistillationService`, the progress of a distillation (`DistillationProgress`), the moves in a queue (`QueueService`), where a pending card stands (`QueueStanding`) and their providers.
-- `lib/features/distillation/` — the "Distill" screen, its preset section, the tile and the section of a group page.
+- `lib/features/distillation/` — the "Distill" screen, its preset and end of sequence sections, the tile and the section of a group page.
 - `lib/features/pauses/` — the global pause: its confirmation and Home's banner.
 - `lib/data/repositories/distillation_repository.dart` — storage of the distillations; the queue itself is stored on the cards (`CardRepository`).
 - `lib/data/repositories/pause_repository.dart` — the start of the global pause (`app_settings.paused_at`).

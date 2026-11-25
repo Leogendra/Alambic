@@ -129,8 +129,6 @@
   "groupShuffleConfirm": "Mélanger",
   "groupEmpty": "Aucune carte. Ajoute-en avec le bouton + ou l'ajout en masse.",
   "groupSettingsTitle": "Réglages du groupe",
-  "groupSettingsRepetition": "Répétition",
-  "groupSettingsPresetHint": "Le groupe suit le preset en entier. Pour l'ajuster, duplique-le dans Réglages › Presets.",
   "groupBackHide": "Cacher la face verso",
   "groupBackShow": "Afficher la face verso",
   "groupReverse": "Verso",

@@ -245,7 +245,7 @@ void main() {
     expect(
       NotificationPayload.isTest(
         NotificationPayload.encodeDigest(
-          const NotificationDigest(count: 2, groupNames: [], alert: true),
+          const NotificationDigest(count: 2, groups: [], alert: true),
         ),
       ),
       isFalse,
@@ -325,7 +325,7 @@ void main() {
       for (final target in [
         NotificationPayload.target(
           NotificationPayload.encodeDigest(
-            const NotificationDigest(count: 12, groupNames: [], alert: true),
+            const NotificationDigest(count: 12, groups: [], alert: true),
           ),
         ),
         targetOf(key, isPrompt: false),
@@ -350,7 +350,6 @@ void main() {
       alert: true,
     );
     expect(texts.groupReminderTitle(reminder), 'Capitals: 5 cards to review');
-    expect(texts.groupReminderDetail(reminder), 'About 3 min');
     expect(
       texts.promptHeader(
         prompt(
@@ -363,5 +362,15 @@ void main() {
       ),
       'Capitals · 3 to review',
     );
+  });
+
+  test('a digest tells the cards of each group', () {
+    final digest = NotificationDigest.of(
+      [1, 2, 1, 2, 2],
+      {1: 'Capitals', 2: 'Spanish'},
+      alert: true,
+    );
+    expect(texts.digestTitle(digest), '5 cards to review');
+    expect(texts.digestDetail(digest), 'Capitals (2), Spanish (3)');
   });
 }

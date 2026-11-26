@@ -398,7 +398,11 @@ void main() {
         expect(harness.presenter.prompts, isEmpty);
         final digest = harness.presenter.digest!;
         expect(digest.count, 7);
-        expect(digest.groupNames, ['Capitals', 'Spanish', 'Biology']);
+        expect(digest.groups, [
+          (name: 'Capitals', count: 4),
+          (name: 'Spanish', count: 2),
+          (name: 'Biology', count: 1),
+        ]);
         // Answered in the app, the cards leave the digest.
         await harness
             .read(reviewServiceProvider)

@@ -1,7 +1,6 @@
 import '../../l10n/generated/app_localizations.dart';
 
-/// "Environ 3 min": the rough time needed to review some cards. Shared by
-/// Home and the grouped reminders.
+/// "Environ 3 min": the rough time needed to review some cards, on Home.
 extension ReviewDurationLabels on AppLocalizations {
   /// Rough time per card used for the estimate.
   static const Duration timePerCard = Duration(seconds: 30);

@@ -1,5 +1,4 @@
 import '../app/formatting/due_labels.dart';
-import '../app/formatting/review_duration_labels.dart';
 import '../application/notifications/answer_confirmation.dart';
 import '../application/notifications/group_reminder.dart';
 import '../application/notifications/notification_digest.dart';
@@ -32,19 +31,14 @@ class ReviewTexts {
   String groupReminderTitle(GroupReminder reminder) =>
       strings.notificationGroupTitle(reminder.groupName, reminder.count);
 
-  /// "About 3 min".
-  String groupReminderDetail(GroupReminder reminder) =>
-      strings.reviewDuration(reminder.count);
-
   /// "12 cards to review".
   String digestTitle(NotificationDigest digest) =>
       strings.notificationDigestTitle(digest.count);
 
-  /// "Capitals, Spanish · About 6 min".
-  String digestDetail(NotificationDigest digest) {
-    final groups = digest.groupNames.join(', ');
-    return '$groups · ${strings.reviewDuration(digest.count)}';
-  }
+  /// "Capitals (2), Spanish (5)".
+  String digestDetail(NotificationDigest digest) =>
+      [for (final group in digest.groups) '${group.name} (${group.count})']
+          .join(', ');
 
   /// Whether the typed answer was accepted, with the expected answer when
   /// it was not, then what the answer did: "Correct, next in 3 d", "To

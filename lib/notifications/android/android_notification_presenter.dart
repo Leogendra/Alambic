@@ -245,7 +245,6 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   Future<void> showGroupReminder(GroupReminder reminder) => _plugin.show(
     id: _groupIdOf(reminder.key),
     title: _texts.groupReminderTitle(reminder),
-    body: _texts.groupReminderDetail(reminder),
     payload: NotificationPayload.encodeGroup(reminder),
     notificationDetails: _details(
       onlyAlertOnce: !reminder.alert,

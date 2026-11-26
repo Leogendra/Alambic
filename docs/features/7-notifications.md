@@ -54,7 +54,7 @@ Three safeguards, stored together in the database (`NotificationGuards`), apply 
 
 - **Smooth due dates** (off by default): an answer giving an interval of 15 days or more may move its due day by 1 to 3 days, to the least busy day around it. The rule belongs to the scheduling ([Feature 1](1-scheduling.md#smoothing-long-intervals)). It lowers the peaks of long intervals, but bounds nothing: a day can still bring many cards, from short intervals, from cards missed earlier or from distillations, and auto grouping gathers them.
 - **Quiet hours** ("Do not disturb", on by default, 22:00 to 08:00): a notification falling inside is moved to their end, 23:10 to 08:00 the next morning. The hours may span midnight or stay within a day. A notification moved to the next morning keeps that moment even though its due day is over.
-- **Auto grouping** (on by default, beyond 5): when a wake-up has more notifications to show than the threshold, card notifications and grouped reminders together, a single notification replaces them, "12 cards to review", naming the groups and the estimated time. Touching it opens a session on every due card. Its count follows the answers given in the app: it counts the cards notified that day that are still due, and closes when none is left.
+- **Auto grouping** (on by default, beyond 5): when a wake-up has more notifications to show than the threshold, card notifications and grouped reminders together, a single notification replaces them, "12 cards to review", naming each group with its number of cards: "Capitals (2), Spanish (5)". Touching it opens a session on every due card. Its count follows the answers given in the app: it counts the cards notified that day that are still due, and closes when none is left.
 
 Each of these screens saves a change of a safeguard at once and plans the wake-ups again. Turning the smoothing on or off moves no due date already set: it applies from the next answer.
 
@@ -107,7 +107,7 @@ An accepted answer is recorded as "Correct", a refused one as "Again". In both c
 
 ### Grouped reminder
 
-In grouped reminder mode, every group announces its due cards with a single notification, "Capitals: 5 cards to review", with the estimated time ("About 3 min"). `GroupedReminders` builds it: the dispatcher marks each due card as notified, as usual, then shows the reminder of its group instead of a notification of its own.
+In grouped reminder mode, every group announces its due cards with a single notification, "Capitals: 5 cards to review", with no text under the title. `GroupedReminders` builds it: the dispatcher marks each due card as notified, as usual, then shows the reminder of its group instead of a notification of its own.
 
 The count is the number of cards of the group whose due moment has passed. When it changes because a card was answered in the app, the planner refreshes it without ringing again, and closes the reminder once no card is left.
 

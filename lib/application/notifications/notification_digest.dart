@@ -3,7 +3,7 @@
 class NotificationDigest {
   const NotificationDigest({
     required this.count,
-    required this.groupNames,
+    required this.groups,
     required this.alert,
   });
 
@@ -12,18 +12,26 @@ class NotificationDigest {
     Iterable<int> groupIds,
     Map<int, String> groupNames, {
     required bool alert,
-  }) => NotificationDigest(
-    count: groupIds.length,
-    groupNames: [
-      for (final groupId in groupIds.toSet()) groupNames[groupId] ?? '',
-    ],
-    alert: alert,
-  );
+  }) {
+    final counts = <int, int>{};
+    for (final groupId in groupIds) {
+      counts.update(groupId, (count) => count + 1, ifAbsent: () => 1);
+    }
+    return NotificationDigest(
+      count: groupIds.length,
+      groups: [
+        for (final MapEntry(key: groupId, value: count) in counts.entries)
+          (name: groupNames[groupId] ?? '', count: count),
+      ],
+      alert: alert,
+    );
+  }
 
   final int count;
 
-  /// Groups of the cards, in the order they come.
-  final List<String> groupNames;
+  /// Groups of the cards with their number of cards, in the order they
+  /// come.
+  final List<({String name, int count})> groups;
 
   /// Rings and vibrates; `false` when only the count is refreshed.
   final bool alert;

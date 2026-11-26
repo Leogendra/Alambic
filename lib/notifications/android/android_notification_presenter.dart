@@ -45,6 +45,13 @@ class AndroidNotificationPresenter implements NotificationPresenter {
       await _plugin.requestNotificationsPermission() ?? false;
 
   @override
+  Future<bool> canNotify() async =>
+      await _plugin.areNotificationsEnabled() ?? false;
+
+  @override
+  Future<void> openSystemSettings() => _plugin.openAppNotificationSettings();
+
+  @override
   Future<void> showPrompt(ReviewPrompt prompt) {
     final title = _textOf(prompt.prompt);
     final answer = _textOf(prompt.answer);

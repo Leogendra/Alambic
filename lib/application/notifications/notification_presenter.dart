@@ -14,6 +14,14 @@ abstract interface class NotificationPresenter {
   /// returns whether the app may post them.
   Future<bool> requestPermission();
 
+  /// Whether the app may post notifications, as the system says now.
+  Future<bool> canNotify();
+
+  /// Opens the system page of the app's notifications, where refused
+  /// notifications are allowed again; the answer is read back with
+  /// [canNotify] once the app is resumed.
+  Future<void> openSystemSettings();
+
   /// Shows a card with its "Again", "Reveal" and "Correct" buttons, or
   /// "Again", "Reveal" and "Answer" for a typed answer. A revealed card shows
   /// the answer with "Again", "Hide" and "Correct".

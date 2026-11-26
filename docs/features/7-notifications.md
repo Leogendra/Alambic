@@ -120,9 +120,11 @@ What the reminder offers is set with the mode:
 
 Exact alarms need a permission that Android 14 refuses by default. Without it, wake-ups are scheduled as inexact alarms, which Android may deliver a few minutes late, and the "Reminders on the dot" row, under "Permissions" in Settings › Notifications, offers an "Allow" button opening the system page. Once allowed, the row only says so, with a check mark: the permission is asked once and never offered back. Back in the app, the permission is read again and, when it changed, every wake-up is scheduled again with the new precision.
 
+The notification permission has its own row above it, "Notifications". Refused, no reminder shows, and the row offers an "Allow" button opening the system page of the app's notifications: after two refusals, Android 13 no longer shows its dialog, so the system page is the only way back. Once allowed, the row only says so, with a check mark. Back in the app, the permission is read again; wake-ups go on while it is refused, so nothing is scheduled again.
+
 Wake-ups survive a restart of the phone: the alarm plugin restores them at boot, and a wake-up whose moment passed while the phone was off fires right away, showing everything late. A missed 4am wake-up of a distillation fires the same way, so the day's batch comes out at restart ([Feature 8](8-distillation.md#rhythm)). Every launch of the app also schedules all wake-ups again, since a force-stop loses them.
 
-The notification permission of Android 13 and exact alarms are both asked on the third welcome screen ([Feature 10](10-onboarding.md)), which also shows a test notification on demand: "What is the capital of Peru?" from the sample group, with the buttons of a card notification and tied to no card. The last row of Settings › Notifications, "Test notification", shows the same one at any time, under a single line saying that answering it records nothing. It sits under "Permissions" with the exact alarms, since it checks that the permissions let a notification show. Both ask for the notification permission first, since without it nothing would show. "Reveal" shows "Lima" and "Hide" asks again, as on a card; "Correct" and "Again" record nothing and show what they would do to a card at its first step, with the delays of the welcome screen ("Correct, next in 2 d", "To review, next in 1 d"), above "Lima". A user who refused can still allow exact alarms from Settings, and notifications from the system settings of the app.
+The notification permission of Android 13 and exact alarms are both asked on the third welcome screen ([Feature 10](10-onboarding.md)), which also shows a test notification on demand: "What is the capital of Peru?" from the sample group, with the buttons of a card notification and tied to no card. The last row of Settings › Notifications, "Test notification", shows the same one at any time, under a single line saying that answering it records nothing. It sits under "Permissions" with the notifications and the exact alarms, since it checks that the permissions let a notification show. Both ask for the notification permission first, since without it nothing would show. "Reveal" shows "Lima" and "Hide" asks again, as on a card; "Correct" and "Again" record nothing and show what they would do to a card at its first step, with the delays of the welcome screen ("Correct, next in 2 d", "To review, next in 1 d"), above "Lima". A user who refused can still allow both from Settings.
 
 ## Acceptance criteria
 
@@ -135,6 +137,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] A notification that could not be shown at its moment is shown when the phone is back on, whatever the delay, outside the quiet hours.
 - [x] A notification ignored or swiped is sent again the next day at the [daily slot](../lexicon.md#daily-slot), without any effect on the step.
 - [x] Without the exact alarm permission, reminders are still planned as inexact alarms, and Settings offers to allow exact alarms.
+- [x] Without the notification permission, Settings says so and opens the system page of the app's notifications.
 - [x] Wake-ups are planned again after a phone restart and at each launch.
 - [x] With the typed answer option, the card is answered in a field of the notification; the buttons are "Again", "Reveal" and "Answer"; the comparison ignores case, accents and spaces and forgives one typo, then the verdict is shown ("Correct, next in 1 d", "To review (Lima), next in 1 d") above the expected answer, and closes by itself.
 - [x] The test notification, from the onboarding or from Settings, has the buttons of a card notification; they record nothing.
@@ -157,7 +160,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - Each button is tested through the action handler: "Correct" and "Again" record and leave the answer and the next review, a bonus review closes; "Reveal" and "Hide" show and hide the answer silently and record nothing, then "Correct" or "Again"; the typed answer with its verdict, "Again", "Reveal" and "Hide"; "Reveal", "Hide" and "Again" on a chained card; the buttons of the test notification, which record nothing.
 - The notification texts and the payload carried by a notification, including what a touched notification opens, are tested without a device.
 - The content of the session opened by each kind of notification is tested on an in-memory database with a fixed clock: its card or group first, then every due card, earliest first, without repeating the touched card.
-- The exact alarm row is tested on screen, with a capture of the refused state, and so is the test notification row, allowed and refused; the schedule and notification mode screens have captures too, and their changes, the quiet hours and the auto grouping included, are checked in the database.
+- The notification and exact alarm rows are tested on screen, each with a capture of the refused state, and so is the test notification row, allowed and refused; the schedule and notification mode screens have captures too, and their changes, the quiet hours and the auto grouping included, are checked in the database.
 - Moving the due dates to a new slot is tested as pure domain logic, then through the settings service on an in-memory database.
 - The Android implementation itself (alarm plugin, notification plugin, background isolates) is not covered by automated tests: it is checked on a phone.
 
@@ -168,7 +171,7 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - `lib/application/notifications/` — the platform interfaces, the planner, the dispatcher, the grouped reminders, the action handler and their providers.
 - `lib/notifications/` — notification texts and the store of planned wake-ups.
 - `lib/notifications/android/` — Android implementations, wiring and background entry points.
-- `lib/features/settings/` — the Notifications screen, with the exact alarm and test notification rows, the schedule and notification mode screens, with the quiet hours and the auto grouping.
+- `lib/features/settings/` — the Notifications screen, with the notification, exact alarm and test notification rows, the schedule and notification mode screens, with the quiet hours and the auto grouping.
 - `lib/data/repositories/notification_settings_repository.dart` — the schedule, the mode and the safeguards.
 - `lib/app/shell/main_shell.dart` — opens the session of a touched notification.
 - `lib/main.dart` — initialisation and planning at launch.

@@ -1,16 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../app/theme/alambic_colors.dart';
-import '../../app/widgets/panel_row.dart';
 import '../../application/notifications/notification_providers.dart';
 import '../../l10n/generated/app_localizations.dart';
+import 'permission_row.dart';
 
 /// Whether reminders fire at the exact minute. Without the permission they
-/// still fire, a few minutes late at most, and the row offers to allow it with
-/// a button opening the system settings page. Once allowed, the row only says
-/// so: there is nothing to turn off. Back in the app, the permission is read
-/// again and every wake-up is rescheduled when it changed.
+/// still fire, a few minutes late at most, and the row offers to allow it
+/// with a button opening the system settings page. Back in the app, the
+/// permission is read again and every wake-up is rescheduled when it changed.
 class ExactAlarmsRow extends ConsumerStatefulWidget {
   const ExactAlarmsRow({super.key});
 
@@ -48,25 +46,12 @@ class _ExactAlarmsRowState extends ConsumerState<ExactAlarmsRow> {
     if (allowed == null) {
       return const SizedBox.shrink();
     }
-    if (allowed) {
-      return PanelRow(
-        title: strings.settingsExactAlarms,
-        subtitle: strings.settingsExactAlarmsOn,
-        trailing: Icon(
-          Icons.check_circle,
-          color: AlambicColors.of(context).accent,
-        ),
-      );
-    }
-    return PanelRow(
+    return PermissionRow(
       title: strings.settingsExactAlarms,
-      subtitle: strings.settingsExactAlarmsOff,
-      trailing: FilledButton.tonal(
-        style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
-        onPressed: () =>
-            ref.read(alarmSchedulerProvider).requestExactPermission(),
-        child: Text(strings.settingsExactAlarmsAllow),
-      ),
+      allowed: allowed,
+      allowedHint: strings.settingsExactAlarmsOn,
+      refusedHint: strings.settingsExactAlarmsOff,
+      onAllow: () => ref.read(alarmSchedulerProvider).requestExactPermission(),
     );
   }
 }

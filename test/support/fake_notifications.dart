@@ -70,15 +70,23 @@ class FakePresenter implements NotificationPresenter {
   ({ReviewOutcome outcome, DateTime dueAt, DateTime answeredAt})?
   testConfirmation;
 
-  /// What the user answers when asked for notifications.
+  /// What the user answers when asked for notifications, and what the
+  /// system says afterwards.
   bool notificationsAllowed = true;
   int notificationPermissionRequests = 0;
+  int systemSettingsOpenings = 0;
 
   @override
   Future<bool> requestPermission() async {
     notificationPermissionRequests++;
     return notificationsAllowed;
   }
+
+  @override
+  Future<bool> canNotify() async => notificationsAllowed;
+
+  @override
+  Future<void> openSystemSettings() async => systemSettingsOpenings++;
 
   @override
   Future<void> showPrompt(ReviewPrompt prompt) async {

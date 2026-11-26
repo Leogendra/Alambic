@@ -106,6 +106,11 @@ final notificationSessionProvider = Provider(
   ),
 );
 
+/// Whether the app may post notifications; refreshed when the app resumes.
+final notificationsAllowedProvider = FutureProvider.autoDispose<bool>(
+  (ref) => ref.watch(notificationPresenterProvider).canNotify(),
+);
+
 /// Whether alarms fire at the exact minute; refreshed when the app resumes.
 final exactAlarmsAllowedProvider = FutureProvider.autoDispose<bool>(
   (ref) => ref.watch(alarmSchedulerProvider).canScheduleExact(),

@@ -15,13 +15,15 @@ import '../../l10n/generated/app_localizations.dart';
 import '../pauses/global_pause_dialog.dart';
 import 'exact_alarms_row.dart';
 import 'notification_mode_screen.dart';
+import 'notifications_permission_row.dart';
 import 'open_settings_screen.dart';
 import 'reminder_schedule_screen.dart';
 import 'settings_page.dart';
 
 /// Everything that decides when and how the app notifies: the schedule, the
 /// notification mode and the global pause of the distillations, then under
-/// "Permissions" the exact alarms and a test notification.
+/// "Permissions" the notifications themselves, the exact alarms and a test
+/// notification.
 class NotificationSettingsScreen extends StatelessWidget {
   const NotificationSettingsScreen({super.key});
 
@@ -40,6 +42,8 @@ class _NotificationsPanel extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final reminders = ref.watch(reminderSettingsProvider).value;
     final pausedAt = ref.watch(globalPauseProvider).value;
+    final notificationsKnown =
+        ref.watch(notificationsAllowedProvider).value != null;
     final exactAlarmsKnown =
         ref.watch(exactAlarmsAllowedProvider).value != null;
     return Column(
@@ -81,6 +85,7 @@ class _NotificationsPanel extends ConsumerWidget {
         SectionLabel(strings.settingsPermissionsSection),
         SettingsGroup(
           children: [
+            if (notificationsKnown) const NotificationsPermissionRow(),
             if (exactAlarmsKnown) const ExactAlarmsRow(),
             PanelRow(
               title: strings.testNotification,

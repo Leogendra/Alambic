@@ -27,6 +27,7 @@ void main() {
     overrides: [
       ...screenOverrides(database, sampleNow),
       alarmSchedulerProvider.overrideWithValue(alarms),
+      notificationPresenterProvider.overrideWithValue(FakePresenter()),
     ],
   );
 
@@ -41,15 +42,16 @@ void main() {
       'settings_exact_alarms_off',
     );
     await expectNoOverflow(tester);
-    expect(find.byIcon(Icons.check_circle), findsNothing);
-    await tester.tap(find.text(l10n.settingsExactAlarmsAllow));
+    // The check mark of the notifications, allowed.
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    await tester.tap(find.text(l10n.settingsPermissionAllow));
     expect(alarms.permissionRequests, 1);
   });
 
   testScreen('only says so once exact alarms are allowed', (tester) async {
     await pumpSettings(tester);
     expect(find.text(l10n.settingsExactAlarmsOn), findsOneWidget);
-    expect(find.byIcon(Icons.check_circle), findsOneWidget);
-    expect(find.text(l10n.settingsExactAlarmsAllow), findsNothing);
+    expect(find.byIcon(Icons.check_circle), findsNWidgets(2));
+    expect(find.text(l10n.settingsPermissionAllow), findsNothing);
   });
 }

@@ -66,13 +66,13 @@ A pause, of a distillation or global, only holds back new cards ([Feature 8](8-d
 
 When the app wakes up, `NotificationDispatcher` first runs the daily pass of the distillations, which may introduce cards, then shows one notification per card whose notification moment has come and that was not notified yet for this due date, then marks it notified and plans again. A notification that could not be shown at its moment, the phone being off or the alarm held back, is shown as soon as the app wakes up, whatever the delay. During the quiet hours it waits for their end; when that end falls on the next day, the card comes back at the slot of that day, like an ignored one.
 
-The notification shows the name of the group in its header, beside the name of the app, the asked face as its title ("What does this image show?" for a face that is an image alone), and three buttons, "Again", "Reveal" and "Correct": "Again" and "Correct" in the order of the answer buttons of a session, "Reveal" between them. It shows nothing else: neither the step, nor the asked side. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
+The notification shows the name of the group in its header, beside the name of the app, the asked face as its title (no title for a face that is an image alone), and three buttons, "Again", "Reveal" and "Correct": "Again" and "Correct" in the order of the answer buttons of a session, "Reveal" between them. It shows nothing else: neither the step, nor the asked side. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
 
 With the [back option](../lexicon.md#back-option) of the group, the asked face is drawn when the notification is shown, one chance in two, and each chained card of a grouped reminder draws its own. The face drawn travels in the payload, so that the answer revealed and the typed answer are read against the other face.
 
 ### Showing a card's image
 
-When the asked face has an image, the expanded notification shows it in the Android *BigPicture* style, with the face above; the collapsed notification shows the text only. Once revealed, or after a typed answer, an answer face with an image shows it the same way, under the answer ("Answer in the image" when it has no text). The presenter reads the file from the image store; a file gone shows the text alone.
+When the asked face has an image, the expanded notification shows it in the Android *BigPicture* style, with the face above; the collapsed notification shows the text only. Once revealed, or after a typed answer, an answer face with an image shows it the same way, under the answer, or alone when the face has no text. A face that is an image alone adds no text: no title for the asked face, no text for the answer. The presenter reads the file from the image store; a file gone shows the text alone, and nothing for a face that is an image alone.
 
 ### Answering from the notification
 

@@ -594,8 +594,6 @@
   },
   "notificationChannelName": "Reviews",
   "notificationChannelDescription": "The cards to review, with their answer buttons.",
-  "notificationImagePrompt": "What does this image show?",
-  "notificationAnswerImage": "Answer in the image",
   "typedAnswerBonus": "Bonus review · no effect",
   "notificationAnswerButton": "Answer",
   "typedAnswerField": "Your answer",

@@ -91,14 +91,6 @@ void main() {
     );
   });
 
-  test('shows the answer alone, a face that is an image alone is named as '
-      'such', () {
-    expect(texts.promptTitle('Peru'), 'Peru');
-    expect(texts.promptTitle(''), 'What does this image show?');
-    expect(texts.answerLine('Lima'), 'Lima');
-    expect(texts.answerLine(''), 'Answer in the image');
-  });
-
   test('after an answer, tells the answer and when the card comes back', () {
     AnswerConfirmation confirmation(
       DateTime? dueAt, {

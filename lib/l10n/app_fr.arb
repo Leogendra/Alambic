@@ -234,8 +234,6 @@
   "homeDuration": "Environ {minutes} min",
   "notificationChannelName": "Révisions",
   "notificationChannelDescription": "Les cartes à réviser, avec leurs boutons de réponse.",
-  "notificationImagePrompt": "Que montre cette image ?",
-  "notificationAnswerImage": "Réponse en image",
   "typedAnswerBonus": "Révision bonus · sans effet",
   "notificationAnswerButton": "Répondre",
   "typedAnswerField": "Ta réponse",

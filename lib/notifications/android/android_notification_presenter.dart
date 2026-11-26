@@ -46,8 +46,8 @@ class AndroidNotificationPresenter implements NotificationPresenter {
 
   @override
   Future<void> showPrompt(ReviewPrompt prompt) {
-    final title = _texts.promptTitle(prompt.prompt);
-    final answer = _texts.answerLine(prompt.answer);
+    final title = _textOf(prompt.prompt);
+    final answer = _textOf(prompt.answer);
     return _plugin.show(
       id: _idOf(prompt.key),
       title: title,
@@ -128,7 +128,7 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   Future<void> showVerdict(TypedAnswerVerdict verdict) {
     final chained = verdict.key.chain != null;
     final title = _texts.verdict(verdict);
-    final answer = _texts.answerLine(verdict.answer);
+    final answer = _textOf(verdict.answer);
     return _plugin.show(
       id: _idOf(verdict.key),
       title: title,
@@ -161,7 +161,7 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   @override
   Future<void> showConfirmation(AnswerConfirmation confirmation) {
     final title = _texts.confirmation(confirmation);
-    final answer = _texts.answerLine(confirmation.answer);
+    final answer = _textOf(confirmation.answer);
     return _plugin.show(
       id: _idOf(confirmation.key),
       title: title,
@@ -308,22 +308,26 @@ class AndroidNotificationPresenter implements NotificationPresenter {
   /// Grouped reminders use negative ids, which no card uses.
   static int _groupIdOf(GroupReminderKey key) => -1 - key.groupId;
 
+  /// The text of a face, `null` for a face that is an image alone: the image
+  /// speaks for itself.
+  static String? _textOf(String face) => face.isEmpty ? null : face;
+
   /// The answer in the expanded notification: its image under [title] when
   /// it has one, else [answer] as long text.
   StyleInformation _answerStyle(
-    String answer,
+    String? answer,
     String? image, {
-    required String title,
+    required String? title,
   }) =>
       _picture(image, title: title, summary: answer) ??
-      BigTextStyleInformation(answer);
+      BigTextStyleInformation(answer ?? '');
 
   /// The image named [image] in the expanded notification, with [title] and
   /// [summary] in place of the title and text; `null` without an image, or
   /// when its file is gone.
   StyleInformation? _picture(
     String? image, {
-    required String title,
+    required String? title,
     String? summary,
   }) {
     final path = image == null ? null : _images.pathOf(image);

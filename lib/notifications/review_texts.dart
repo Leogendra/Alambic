@@ -17,11 +17,6 @@ class ReviewTexts {
   final AppLocalizations strings;
   final SchedulingCalendar calendar;
 
-  /// Title of a card notification: the asked face, or a mention of its image
-  /// when it has no text.
-  String promptTitle(String prompt) =>
-      prompt.isEmpty ? strings.notificationImagePrompt : prompt;
-
   /// Header of a card notification, beside the name of the app: its group,
   /// and the cards left when the card is chained in a grouped reminder
   /// ("Capitals · 3 to review").
@@ -50,11 +45,6 @@ class ReviewTexts {
     final groups = digest.groupNames.join(', ');
     return '$groups · ${strings.reviewDuration(digest.count)}';
   }
-
-  /// The text of the answer face, or a mention of its image when it has no
-  /// text.
-  String answerLine(String answer) =>
-      answer.isEmpty ? strings.notificationAnswerImage : answer;
 
   /// Whether the typed answer was accepted, with the expected answer when
   /// it was not, then what the answer did: "Correct, next in 3 d", "To

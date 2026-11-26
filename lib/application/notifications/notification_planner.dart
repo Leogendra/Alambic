@@ -26,6 +26,10 @@ import 'planned_alarm_store.dart';
 ///
 /// A running distillation also wakes the app up at the start of the next day
 /// it has to process, so that its cards are introduced with the app closed.
+///
+/// During the global pause, no notification is planned and those on screen
+/// are withdrawn; the app only wakes up at the start of each day, to move
+/// the due dates forward.
 class NotificationPlanner implements ScheduleChangeListener {
   const NotificationPlanner({
     required this._cards,
@@ -73,6 +77,45 @@ class NotificationPlanner implements ScheduleChangeListener {
   Future<void> replan({bool force = false}) async {
     final now = _clock();
     final cards = await _cards.getAll();
+    final paused = await _pauses.loadGlobalPause() != null;
+    final moments = paused
+        ? [_rhythm.calendar.endOf(_rhythm.calendar.dayOf(now))]
+        : await _reminderMoments(cards, now);
+    final wanted = {
+      for (final wakeUp in NotificationTiming.wakeUps(
+        moments,
+        now: now,
+        limit: wakeUpLimit,
+      ))
+        alarmId(wakeUp): wakeUp,
+    };
+    final planned = await _store.load();
+    for (final id in planned.keys) {
+      if (!wanted.containsKey(id)) {
+        await _alarms.cancel(id);
+      }
+    }
+    final exact = await _alarms.canScheduleExact();
+    for (final MapEntry(key: id, value: wakeUp) in wanted.entries) {
+      if (force || planned[id] != wakeUp) {
+        await _alarms.schedule(id, wakeUp, exact: exact);
+      }
+    }
+    await _store.save(wanted);
+    if (paused) {
+      await _withdrawAll();
+    } else {
+      await _withdrawAnswered(cards, now);
+      await _refreshDigest(cards, now);
+    }
+  }
+
+  /// The moments at which the reminders are due, and the distillations
+  /// owe their next pass.
+  Future<List<DateTime>> _reminderMoments(
+    List<Flashcard> cards,
+    DateTime now,
+  ) async {
     final guards = await _settings.loadGuards();
     final reminderSettings = await _settings.loadReminderSettings();
     final deliveries = _deliveryPlanner.plan(
@@ -81,7 +124,7 @@ class NotificationPlanner implements ScheduleChangeListener {
       reminders: reminderSettings,
       guards: guards,
     );
-    final moments = [
+    return [
       ...deliveries.values,
       for (final deliverAt in deliveries.values)
         if (!deliverAt.isAfter(now))
@@ -106,37 +149,11 @@ class NotificationPlanner implements ScheduleChangeListener {
       ))
         now.add(const Duration(seconds: 1)),
     ];
-    final wanted = {
-      for (final wakeUp in NotificationTiming.wakeUps(
-        moments,
-        now: now,
-        limit: wakeUpLimit,
-      ))
-        alarmId(wakeUp): wakeUp,
-    };
-    final planned = await _store.load();
-    for (final id in planned.keys) {
-      if (!wanted.containsKey(id)) {
-        await _alarms.cancel(id);
-      }
-    }
-    final exact = await _alarms.canScheduleExact();
-    for (final MapEntry(key: id, value: wakeUp) in wanted.entries) {
-      if (force || planned[id] != wakeUp) {
-        await _alarms.schedule(id, wakeUp, exact: exact);
-      }
-    }
-    await _store.save(wanted);
-    await _withdrawAnswered(cards, now);
-    await _refreshDigest(cards, now);
   }
 
   /// Start of the day on which each running distillation owes its next
-  /// batch; none during the global pause.
+  /// batch.
   Future<List<DateTime>> _distillationPasses(DateTime now) async {
-    if (await _pauses.loadGlobalPause() != null) {
-      return const [];
-    }
     final calendar = _rhythm.calendar;
     final today = calendar.dayOf(now);
     return [
@@ -171,6 +188,20 @@ class NotificationPlanner implements ScheduleChangeListener {
             group.id: group.name,
         }, alert: false),
       );
+    }
+  }
+
+  /// Withdraws every review notification on screen, at the start of the
+  /// global pause.
+  Future<void> _withdrawAll() async {
+    for (final key in await _presenter.shownPrompts()) {
+      await _presenter.dismiss(key);
+    }
+    for (final key in (await _presenter.shownGroupReminders()).keys) {
+      await _presenter.dismissGroupReminder(key);
+    }
+    if (await _presenter.shownDigestCount() != null) {
+      await _presenter.dismissDigest();
     }
   }
 

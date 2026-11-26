@@ -41,4 +41,11 @@ void main() {
   test('endOf is the next day start', () {
     expect(calendar.endOf(DateTime(2026, 11, 10)), DateTime(2026, 11, 11, 4));
   });
+
+  test('addDaysTo keeps the clock time across months and a time change', () {
+    expect(
+      calendar.addDaysTo(DateTime(2026, 10, 20, 12, 30), 15),
+      DateTime(2026, 11, 4, 12, 30),
+    );
+  });
 }

@@ -15,12 +15,14 @@ import '../scheduling/schedule_change_listener.dart';
 
 /// Activates, adjusts and pauses the distillation of a group, and introduces
 /// its pending cards day after day. Also holds the global pause, which holds
-/// back every distillation.
+/// back every distillation and moves every due date forward by the days it
+/// lasts, as if they had not passed.
 ///
 /// The daily pass ([advance]) runs whenever the app or a wake-up starts, at
 /// most once per scheduling day and distillation: a new day is processed by
-/// the first pass that sees it. A pause never touches the reminders: the
-/// cards already introduced keep their due dates and their notifications.
+/// the first pass that sees it. The pause of a distillation never touches
+/// the reminders: the cards already introduced keep their due dates and
+/// their notifications.
 class DistillationService {
   DistillationService({
     required this._distillations,
@@ -82,27 +84,35 @@ class DistillationService {
     await _advanceAndReplan();
   }
 
-  /// Holds back every distillation, leaving their own pause untouched.
+  /// Holds back every distillation, leaving their own pause untouched, and
+  /// every notification. From the next day on, the due dates move forward
+  /// one day for each day of pause.
   Future<void> pauseAll() async {
     if (await _pauses.loadGlobalPause() == null) {
-      await _pauses.setGlobalPausedAt(_clock());
+      final now = _clock();
+      await _pauses.startGlobalPause(now, shiftedDay: _calendar.dayOf(now));
       await _scheduleChangeListener.onSchedulesChanged();
     }
   }
 
-  /// Ends the global pause; a distillation paused on its own stays paused.
+  /// Ends the global pause, after moving the due dates past the days not
+  /// moved yet; a distillation paused on its own stays paused.
   Future<void> resumeAll() async {
-    await _pauses.setGlobalPausedAt(null);
+    await _cards.transaction(() async {
+      await _skipPausedDays();
+      await _pauses.endGlobalPause();
+    });
     await _advanceAndReplan();
   }
 
   /// Runs the pass of the current day for every running distillation that
   /// has not had it yet: at most one batch comes out, when the rhythm owes
-  /// one. Nothing runs during the global pause.
+  /// one. During the global pause, no distillation runs: the pass moves the
+  /// due dates forward instead.
   /// Returns whether a schedule moved.
   Future<bool> advance() async {
     if (await _pauses.loadGlobalPause() != null) {
-      return false;
+      return _cards.transaction(_skipPausedDays);
     }
     var changed = false;
     for (final distillation in await _distillations.getAll()) {
@@ -111,6 +121,31 @@ class DistillationService {
       }
     }
     return changed;
+  }
+
+  /// Moves every due date forward by the days of global pause not skipped
+  /// yet, keeping its clock time: a card late by two days when the pause
+  /// started is still late by two days when it ends. Runs inside a
+  /// transaction: the app and a wake-up may skip the same days at the same
+  /// time, from two isolates. Returns whether a due date moved.
+  Future<bool> _skipPausedDays() async {
+    final shiftedDay = await _pauses.loadShiftedDay();
+    if (shiftedDay == null) {
+      return false;
+    }
+    final today = _calendar.dayOf(_clock());
+    final days = _calendar.daysBetween(shiftedDay, today);
+    if (days <= 0) {
+      return false;
+    }
+    final dueDates = {
+      for (final card in await _cards.getAll())
+        if (card.dueAt case final dueAt? when card.isScheduled)
+          card.id: _calendar.addDaysTo(dueAt, days),
+    };
+    await _cards.moveDueDates(dueDates);
+    await _pauses.saveShiftedDay(today);
+    return dueDates.isNotEmpty;
   }
 
   Future<void> _advanceAndReplan() async {

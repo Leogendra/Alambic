@@ -569,12 +569,12 @@
       }
     }
   },
-  "pausedHint": "No new distillation card. Reminders go on.",
+  "pausedHint": "No notifications and no new cards. Due dates move forward one day for each day of pause.",
   "pauseResume": "Resume",
   "pauseGlobal": "Global pause",
-  "pauseGlobalHint": "Stops the distillations, not the reminders",
-  "pauseAllConfirmTitle": "Pause the distillations?",
-  "pauseAllConfirmBody": "No group receives a new card until you resume. Reminders and their notifications go on.",
+  "pauseGlobalHint": "Stops notifications and distillations, due dates wait for you",
+  "pauseAllConfirmTitle": "Pause everything?",
+  "pauseAllConfirmBody": "No notifications and no new cards until you resume. Due dates move forward one day for each day of pause, so nothing piles up. You can still review in the app.",
   "pauseAllConfirm": "Pause",
   "groupLinePaused": "{cards} · Paused",
   "@groupLinePaused": {

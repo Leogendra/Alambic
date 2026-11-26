@@ -74,7 +74,10 @@ A card is due today when its due date has passed, or when it falls today and the
 
 ### Pause
 
-A period during which a [distillation](#distillation) introduces no card (`Distillation.pausedAt`): the pause of one distillation, or the global pause, which holds back every distillation. A pause never stops the notifications nor moves a [due date](#due-date); a group has no pause of its own.
+A period during which a [distillation](#distillation) introduces no card. There are two kinds, and a group has no pause of its own:
+
+- the pause of one distillation (`Distillation.pausedAt`), which stops nothing else: the notifications go on and no [due date](#due-date) moves;
+- the global pause (`app_settings.paused_at`), which holds back every distillation and every notification, and moves every due date forward one day for each day it lasts, as if those days had not passed.
 
 ### Notification moment
 

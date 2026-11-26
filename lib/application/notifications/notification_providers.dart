@@ -69,6 +69,7 @@ final notificationDispatcherProvider = Provider(
     cards: ref.watch(cardRepositoryProvider),
     groups: ref.watch(groupRepositoryProvider),
     settings: ref.watch(notificationSettingsRepositoryProvider),
+    pauses: ref.watch(pauseRepositoryProvider),
     distillations: ref.watch(distillationServiceProvider),
     groupedReminders: ref.watch(groupedRemindersProvider),
     presenter: ref.watch(notificationPresenterProvider),

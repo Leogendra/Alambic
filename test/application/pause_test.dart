@@ -1,20 +1,26 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/application/distillation/distillation_providers.dart';
 import 'package:alambic/application/notifications/notification_providers.dart';
+import 'package:alambic/application/reviews/review_providers.dart';
 import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
+import 'package:alambic/domain/reviews/review_outcome.dart';
+import 'package:alambic/domain/reviews/review_source.dart';
+import 'package:alambic/domain/scheduling/scheduling_calendar.dart';
 
 import '../support/fake_notifications.dart';
 import '../support/fixed_clock.dart';
 import '../support/sample_data.dart';
 import '../support/test_database.dart';
 
-/// A pause, of a distillation or global, holds back the new cards only: the
-/// reminders go on, no due date moves, and a missed batch is not caught up.
+/// The pause of a distillation holds back its new cards only: the reminders
+/// go on, no due date moves, and a missed batch is not caught up. The global
+/// pause also stops the notifications and moves the due dates forward by
+/// the days it lasts.
 void main() {
   late AlambicDatabase database;
   late NotificationHarness harness;
@@ -102,23 +108,69 @@ void main() {
   });
 
   group('the global pause', () {
-    test('holds every distillation back, never the reminders', () async {
+    Future<DateTime?> dueAt(String front) async => (await dueDates())[front];
+
+    test('withdraws the notifications and shows none until it ends', () async {
       await activate();
-      await harness.read(distillationServiceProvider).pauseAll();
       await dispatchAt(DateTime(2026, 11, 10, 12));
       expect(harness.presenter.prompts, hasLength(8));
-      await moveTo(DateTime(2026, 11, 11, 9));
-      await advance();
-      expect(await introduced(), ['be']);
-      expect(
-        harness.alarms.scheduled.values.where((wakeUp) => wakeUp.hour == 4),
-        isEmpty,
-        reason: 'no wake-up for a distillation during the pause',
-      );
+      await harness.read(distillationServiceProvider).pauseAll();
+      expect(harness.presenter.prompts, isEmpty);
+      expect(harness.alarms.scheduled.values, [
+        DateTime(2026, 11, 11, 4),
+      ], reason: 'a single wake-up, to move the due dates the next day');
+      await dispatchAt(DateTime(2026, 11, 11, 4));
+      await dispatchAt(DateTime(2026, 11, 11, 12));
+      expect(harness.presenter.prompts, isEmpty);
+      expect(harness.alarms.scheduled.values, [DateTime(2026, 11, 12, 4)]);
+    });
+
+    test('moves the due dates forward one day per day of pause', () async {
+      await activate();
+      await harness.read(distillationServiceProvider).pauseAll();
       await moveTo(DateTime(2026, 11, 13, 9));
+      await advance();
+      expect(await dueAt('Laos'), DateTime(2026, 11, 13, 12));
+      expect(await dueAt('be'), DateTime(2026, 11, 13, 12));
+      expect(await introduced(), ['be']);
+      await moveTo(DateTime(2026, 11, 15, 9));
       await harness.read(distillationServiceProvider).resumeAll();
+      expect(await dueAt('Laos'), DateTime(2026, 11, 15, 12));
       expect(await introduced(), ['be', 'have']);
-      expect((await dueDates())['Laos'], DateTime(2026, 11, 10, 12));
+      expect(await dueAt('go'), isNull);
+      await dispatchAt(DateTime(2026, 11, 15, 12));
+      expect(
+        harness.presenter.prompts.values.map((prompt) => prompt.prompt),
+        containsAll(['Laos', 'be', 'have']),
+      );
+    });
+
+    test('moves no due date when it ends on the day it started', () async {
+      await harness.read(distillationServiceProvider).pauseAll();
+      await moveTo(DateTime(2026, 11, 11, 3));
+      await advance();
+      await harness.read(distillationServiceProvider).resumeAll();
+      expect(await dueAt('Laos'), DateTime(2026, 11, 10, 12));
+    });
+
+    test('moves a card reviewed during the pause with the others', () async {
+      await harness.read(distillationServiceProvider).pauseAll();
+      await moveTo(DateTime(2026, 11, 12, 9));
+      await advance();
+      final laos = (await CardRepository(
+        database,
+      ).getAll()).firstWhere((card) => card.frontText == 'Laos');
+      await harness
+          .read(reviewServiceProvider)
+          .answer(laos.id, ReviewOutcome.correct, source: ReviewSource.session);
+      final reviewedDue = (await dueAt('Laos'))!;
+      expect(reviewedDue.isAfter(DateTime(2026, 11, 12, 12)), isTrue);
+      await moveTo(DateTime(2026, 11, 14, 9));
+      await harness.read(distillationServiceProvider).resumeAll();
+      expect(
+        await dueAt('Laos'),
+        const SchedulingCalendar().addDaysTo(reviewedDue, 2),
+      );
     });
 
     test('leaves a distillation paused on its own paused', () async {

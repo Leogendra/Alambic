@@ -93,6 +93,19 @@ class CardRepository {
         ),
       );
 
+  /// Moves the due date of each card of [dueDates], keyed by card id,
+  /// leaving the rest of its progression alone.
+  Future<void> moveDueDates(Map<int, DateTime> dueDates) =>
+      _database.batch((batch) {
+        for (final MapEntry(key: cardId, value: dueAt) in dueDates.entries) {
+          batch.update(
+            _database.flashcards,
+            FlashcardsCompanion(dueAt: Value(dueAt)),
+            where: (card) => card.id.equals(cardId),
+          );
+        }
+      });
+
   /// Puts a card back in the queue of its group at [position], forgetting its
   /// progression. Its history is kept.
   Future<void> enqueue(int cardId, int position) =>

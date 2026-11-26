@@ -85,7 +85,9 @@ void main() {
   testScreen('home during the global pause', (tester) async {
     await seed(tester);
     await tester.runAsync(
-      () => PauseRepository(database).setGlobalPausedAt(sampleNow),
+      () =>
+          PauseRepository(database)
+              .startGlobalPause(sampleNow, shiftedDay: DateTime(2026, 11, 10)),
     );
     await pumpScreen(
       tester,

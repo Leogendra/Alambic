@@ -31,6 +31,18 @@ class SchedulingCalendar {
   DateTime addDays(DateTime day, int days) =>
       DateTime(day.year, day.month, day.day + days);
 
+  /// [moment] shifted by [days] calendar days at the same clock time, robust
+  /// to daylight saving changes.
+  DateTime addDaysTo(DateTime moment, int days) => DateTime(
+    moment.year,
+    moment.month,
+    moment.day + days,
+    moment.hour,
+    moment.minute,
+    moment.second,
+    moment.millisecond,
+  );
+
   /// Scheduling days from the day of [from] to the day of [to].
   int daysBetween(DateTime from, DateTime to) =>
       (dayOf(to).difference(dayOf(from)).inHours / 24).round();

@@ -1,10 +1,10 @@
 # Feature 7 — Notifications
 
-Status: in progress (2026-11-25)
+Status: in progress (2026-11-26)
 
 ## Goal
 
-Make the notification the main way to review: a card arrives at the [daily slot](../lexicon.md#daily-slot), is answered with "Correct" or "Again", after revealing its answer or not, or with a typed answer, without opening the app, and the next review is planned at once. The app can instead gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the notifications outside quiet hours, gather those of a busy moment into one, and can spread the long intervals over the days around their due day. A group, or everything, can be paused.
+Make the notification the main way to review: a card arrives at the [daily slot](../lexicon.md#daily-slot), is answered with "Correct" or "Again", after revealing its answer or not, or with a typed answer, without opening the app, and the next review is planned at once. The app can instead gather the due cards of a group in a single grouped reminder, or spread its notifications over a time range. Safeguards set in Settings keep the notifications outside quiet hours, gather those of a busy moment into one, and can spread the long intervals over the days around their due day. A distillation, or everything, can be paused.
 
 ## Implementation overview
 
@@ -60,7 +60,9 @@ Each of these screens saves a change of a safeguard at once and plans the wake-u
 
 ### Pauses
 
-A pause, of a distillation or global, only holds back new cards ([Feature 8](8-distillation.md#pause)): every introduced card keeps being notified, and no due date moves. The global pause only removes the wake-ups planned for the distillations.
+The pause of a distillation only holds back its new cards ([Feature 8](8-distillation.md#pause)): every introduced card keeps being notified, and no due date moves.
+
+The global pause stops the notifications. Starting it withdraws every notification on screen, card notifications, grouped reminders and the notification of a busy moment alike. While it lasts, the planner keeps a single wake-up, at the start of the next day, and a wake-up shows nothing. That wake-up only runs the daily pass, which moves the due dates forward ([Feature 8](8-distillation.md#pause)), so that the dates stay true even with the app closed. A card answered in the app during the pause gets its new due date, and no notification comes for it until the pause ends. At the end, the reminders are planned again from the moved due dates.
 
 ### Showing a card
 
@@ -151,7 +153,8 @@ The notification permission of Android 13 and exact alarms are both asked on the
 - [x] Touching a notification opens a session: its card, or the due cards of its group, first, then every due card.
 - [x] The safeguards are set in Settings, the quiet hours with the schedule, the auto grouping with the notification mode and the smoothing of the due dates with the presets; the smoothing is off by default.
 - [x] The schedule and the notification mode are set once in Settings and apply to every group; a new daily slot moves the due dates set at the old one.
-- [x] A pause, of a distillation or global, changes no notification and moves no due date.
+- [x] The pause of a distillation changes no notification and moves no due date.
+- [x] The global pause withdraws the notifications on screen and shows none until it ends.
 
 ## Test strategy
 

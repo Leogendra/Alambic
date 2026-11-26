@@ -1,6 +1,6 @@
 # Feature 0 — Technical foundation
 
-Status: in progress (2026-11-25)
+Status: in progress (2026-11-26)
 
 ## Goal
 
@@ -46,7 +46,7 @@ The app draws edge to edge, under transparent status and navigation bars whose i
 
 The Settings tab is a short list with no subtitle and no value, so that it reads at a glance. Its first group holds one row per category, each with an icon and a chevron, and each opening a screen of its own that groups the settings of the category in a single group, one rounded block per setting with a thin gap between two blocks:
 
-- **Notifications**: the schedule with the quiet hours, the notification mode with the auto grouping, the global pause of the distillations, then, under "Permissions", the exact alarms and a test notification ([Feature 7](7-notifications.md)).
+- **Notifications**: the schedule with the quiet hours, the notification mode with the auto grouping, the global pause, then, under "Permissions", the exact alarms and a test notification ([Feature 7](7-notifications.md)).
 - **Presets**: opens the Presets screen directly ([Feature 2](2-presets.md)).
 - **Display**: the language and the theme, see below.
 - **Backup & restore**: the export and the import ([Feature 9](9-backup.md)).
@@ -70,7 +70,7 @@ Flutter caches the locale it derives from the phone and only derives it again wh
 
 All data lives in a local SQLite database managed by drift, `AlambicDatabase`. Tables use the domain classes directly as rows (`@UseRowClass`): a `Preset` or a `Flashcard` read from the database is the very object the business rules manipulate, with no conversion layer. Enums are stored by name, a preset sequence as JSON and times of day as minutes since midnight.
 
-The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset, the notification safeguards and the start of the global pause), `card_groups` (with the back option), `distillations` (one row per group whose distillation was activated, keyed by the group), `flashcards` (the faces, the group, and the single progression: state, step, due date, last answer, last notification and rank in the queue) and `review_records` (the history). Foreign keys are enabled at each opening, which gives these deletion rules:
+The tables follow the model of the [lexicon](../lexicon.md): `presets`, `app_settings` (a single row, which holds the global preset, the notification safeguards, the start of the global pause and the last day whose due dates it moved), `card_groups` (with the back option), `distillations` (one row per group whose distillation was activated, keyed by the group), `flashcards` (the faces, the group, and the single progression: state, step, due date, last answer, last notification and rank in the queue) and `review_records` (the history). Foreign keys are enabled at each opening, which gives these deletion rules:
 
 - deleting a card deletes its history and its reminders;
 - deleting a group deletes its cards, with their history, and its distillation.

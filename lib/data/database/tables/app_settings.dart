@@ -51,8 +51,12 @@ class AppSettings extends Table {
       integer().withDefault(const Constant(5))();
 
   /// Start of the global pause, `null` when it is off. It holds every
-  /// distillation back; the reminders go on.
+  /// distillation and every notification back.
   DateTimeColumn get pausedAt => dateTime().nullable()();
+
+  /// Last scheduling day whose due dates the global pause moved forward,
+  /// `null` when it is off.
+  DateTimeColumn get pauseShiftedDay => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

@@ -422,6 +422,18 @@ class $AppSettingsTable extends AppSettings
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _pauseShiftedDayMeta = const VerificationMeta(
+    'pauseShiftedDay',
+  );
+  @override
+  late final GeneratedColumn<DateTime> pauseShiftedDay =
+      GeneratedColumn<DateTime>(
+        'pause_shifted_day',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -439,6 +451,7 @@ class $AppSettingsTable extends AppSettings
     autoGroupEnabled,
     autoGroupThreshold,
     pausedAt,
+    pauseShiftedDay,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -506,6 +519,15 @@ class $AppSettingsTable extends AppSettings
       context.handle(
         _pausedAtMeta,
         pausedAt.isAcceptableOrUnknown(data['paused_at']!, _pausedAtMeta),
+      );
+    }
+    if (data.containsKey('pause_shifted_day')) {
+      context.handle(
+        _pauseShiftedDayMeta,
+        pauseShiftedDay.isAcceptableOrUnknown(
+          data['pause_shifted_day']!,
+          _pauseShiftedDayMeta,
+        ),
       );
     }
     return context;
@@ -593,6 +615,10 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.dateTime,
         data['${effectivePrefix}paused_at'],
       ),
+      pauseShiftedDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}pause_shifted_day'],
+      ),
     );
   }
 
@@ -647,8 +673,12 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
   final int autoGroupThreshold;
 
   /// Start of the global pause, `null` when it is off. It holds every
-  /// distillation back; the reminders go on.
+  /// distillation and every notification back.
   final DateTime? pausedAt;
+
+  /// Last scheduling day whose due dates the global pause moved forward,
+  /// `null` when it is off.
+  final DateTime? pauseShiftedDay;
   const AppSettingsRow({
     required this.id,
     required this.globalPresetId,
@@ -665,6 +695,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     required this.autoGroupEnabled,
     required this.autoGroupThreshold,
     this.pausedAt,
+    this.pauseShiftedDay,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -718,6 +749,9 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     if (!nullToAbsent || pausedAt != null) {
       map['paused_at'] = Variable<DateTime>(pausedAt);
     }
+    if (!nullToAbsent || pauseShiftedDay != null) {
+      map['pause_shifted_day'] = Variable<DateTime>(pauseShiftedDay);
+    }
     return map;
   }
 
@@ -740,6 +774,9 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       pausedAt: pausedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(pausedAt),
+      pauseShiftedDay: pauseShiftedDay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pauseShiftedDay),
     );
   }
 
@@ -770,6 +807,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       autoGroupEnabled: serializer.fromJson<bool>(json['autoGroupEnabled']),
       autoGroupThreshold: serializer.fromJson<int>(json['autoGroupThreshold']),
       pausedAt: serializer.fromJson<DateTime?>(json['pausedAt']),
+      pauseShiftedDay: serializer.fromJson<DateTime?>(json['pauseShiftedDay']),
     );
   }
   @override
@@ -797,6 +835,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
       'autoGroupEnabled': serializer.toJson<bool>(autoGroupEnabled),
       'autoGroupThreshold': serializer.toJson<int>(autoGroupThreshold),
       'pausedAt': serializer.toJson<DateTime?>(pausedAt),
+      'pauseShiftedDay': serializer.toJson<DateTime?>(pauseShiftedDay),
     };
   }
 
@@ -816,6 +855,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     bool? autoGroupEnabled,
     int? autoGroupThreshold,
     Value<DateTime?> pausedAt = const Value.absent(),
+    Value<DateTime?> pauseShiftedDay = const Value.absent(),
   }) => AppSettingsRow(
     id: id ?? this.id,
     globalPresetId: globalPresetId ?? this.globalPresetId,
@@ -832,6 +872,9 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     autoGroupEnabled: autoGroupEnabled ?? this.autoGroupEnabled,
     autoGroupThreshold: autoGroupThreshold ?? this.autoGroupThreshold,
     pausedAt: pausedAt.present ? pausedAt.value : this.pausedAt,
+    pauseShiftedDay: pauseShiftedDay.present
+        ? pauseShiftedDay.value
+        : this.pauseShiftedDay,
   );
   AppSettingsRow copyWithCompanion(AppSettingsCompanion data) {
     return AppSettingsRow(
@@ -870,6 +913,9 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
           ? data.autoGroupThreshold.value
           : this.autoGroupThreshold,
       pausedAt: data.pausedAt.present ? data.pausedAt.value : this.pausedAt,
+      pauseShiftedDay: data.pauseShiftedDay.present
+          ? data.pauseShiftedDay.value
+          : this.pauseShiftedDay,
     );
   }
 
@@ -890,7 +936,8 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
           ..write('quietEnd: $quietEnd, ')
           ..write('autoGroupEnabled: $autoGroupEnabled, ')
           ..write('autoGroupThreshold: $autoGroupThreshold, ')
-          ..write('pausedAt: $pausedAt')
+          ..write('pausedAt: $pausedAt, ')
+          ..write('pauseShiftedDay: $pauseShiftedDay')
           ..write(')'))
         .toString();
   }
@@ -912,6 +959,7 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
     autoGroupEnabled,
     autoGroupThreshold,
     pausedAt,
+    pauseShiftedDay,
   );
   @override
   bool operator ==(Object other) =>
@@ -931,7 +979,8 @@ class AppSettingsRow extends DataClass implements Insertable<AppSettingsRow> {
           other.quietEnd == this.quietEnd &&
           other.autoGroupEnabled == this.autoGroupEnabled &&
           other.autoGroupThreshold == this.autoGroupThreshold &&
-          other.pausedAt == this.pausedAt);
+          other.pausedAt == this.pausedAt &&
+          other.pauseShiftedDay == this.pauseShiftedDay);
 }
 
 class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
@@ -950,6 +999,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
   final Value<bool> autoGroupEnabled;
   final Value<int> autoGroupThreshold;
   final Value<DateTime?> pausedAt;
+  final Value<DateTime?> pauseShiftedDay;
   const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.globalPresetId = const Value.absent(),
@@ -966,6 +1016,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     this.autoGroupEnabled = const Value.absent(),
     this.autoGroupThreshold = const Value.absent(),
     this.pausedAt = const Value.absent(),
+    this.pauseShiftedDay = const Value.absent(),
   });
   AppSettingsCompanion.insert({
     this.id = const Value.absent(),
@@ -983,6 +1034,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     this.autoGroupEnabled = const Value.absent(),
     this.autoGroupThreshold = const Value.absent(),
     this.pausedAt = const Value.absent(),
+    this.pauseShiftedDay = const Value.absent(),
   }) : globalPresetId = Value(globalPresetId);
   static Insertable<AppSettingsRow> custom({
     Expression<int>? id,
@@ -1000,6 +1052,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     Expression<bool>? autoGroupEnabled,
     Expression<int>? autoGroupThreshold,
     Expression<DateTime>? pausedAt,
+    Expression<DateTime>? pauseShiftedDay,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1018,6 +1071,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
       if (autoGroupThreshold != null)
         'auto_group_threshold': autoGroupThreshold,
       if (pausedAt != null) 'paused_at': pausedAt,
+      if (pauseShiftedDay != null) 'pause_shifted_day': pauseShiftedDay,
     });
   }
 
@@ -1037,6 +1091,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     Value<bool>? autoGroupEnabled,
     Value<int>? autoGroupThreshold,
     Value<DateTime?>? pausedAt,
+    Value<DateTime?>? pauseShiftedDay,
   }) {
     return AppSettingsCompanion(
       id: id ?? this.id,
@@ -1054,6 +1109,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
       autoGroupEnabled: autoGroupEnabled ?? this.autoGroupEnabled,
       autoGroupThreshold: autoGroupThreshold ?? this.autoGroupThreshold,
       pausedAt: pausedAt ?? this.pausedAt,
+      pauseShiftedDay: pauseShiftedDay ?? this.pauseShiftedDay,
     );
   }
 
@@ -1123,6 +1179,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
     if (pausedAt.present) {
       map['paused_at'] = Variable<DateTime>(pausedAt.value);
     }
+    if (pauseShiftedDay.present) {
+      map['pause_shifted_day'] = Variable<DateTime>(pauseShiftedDay.value);
+    }
     return map;
   }
 
@@ -1143,7 +1202,8 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingsRow> {
           ..write('quietEnd: $quietEnd, ')
           ..write('autoGroupEnabled: $autoGroupEnabled, ')
           ..write('autoGroupThreshold: $autoGroupThreshold, ')
-          ..write('pausedAt: $pausedAt')
+          ..write('pausedAt: $pausedAt, ')
+          ..write('pauseShiftedDay: $pauseShiftedDay')
           ..write(')'))
         .toString();
   }
@@ -3280,6 +3340,7 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
       Value<bool> autoGroupEnabled,
       Value<int> autoGroupThreshold,
       Value<DateTime?> pausedAt,
+      Value<DateTime?> pauseShiftedDay,
     });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
     AppSettingsCompanion Function({
@@ -3298,6 +3359,7 @@ typedef $$AppSettingsTableUpdateCompanionBuilder =
       Value<bool> autoGroupEnabled,
       Value<int> autoGroupThreshold,
       Value<DateTime?> pausedAt,
+      Value<DateTime?> pauseShiftedDay,
     });
 
 final class $$AppSettingsTableReferences
@@ -3414,6 +3476,11 @@ class $$AppSettingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<DateTime> get pauseShiftedDay => $composableBuilder(
+    column: $table.pauseShiftedDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$PresetsTableFilterComposer get globalPresetId {
     final $$PresetsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -3517,6 +3584,11 @@ class $$AppSettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get pauseShiftedDay => $composableBuilder(
+    column: $table.pauseShiftedDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$PresetsTableOrderingComposer get globalPresetId {
     final $$PresetsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3615,6 +3687,11 @@ class $$AppSettingsTableAnnotationComposer
   GeneratedColumn<DateTime> get pausedAt =>
       $composableBuilder(column: $table.pausedAt, builder: (column) => column);
 
+  GeneratedColumn<DateTime> get pauseShiftedDay => $composableBuilder(
+    column: $table.pauseShiftedDay,
+    builder: (column) => column,
+  );
+
   $$PresetsTableAnnotationComposer get globalPresetId {
     final $$PresetsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -3683,6 +3760,7 @@ class $$AppSettingsTableTableManager
                 Value<bool> autoGroupEnabled = const Value.absent(),
                 Value<int> autoGroupThreshold = const Value.absent(),
                 Value<DateTime?> pausedAt = const Value.absent(),
+                Value<DateTime?> pauseShiftedDay = const Value.absent(),
               }) => AppSettingsCompanion(
                 id: id,
                 globalPresetId: globalPresetId,
@@ -3699,6 +3777,7 @@ class $$AppSettingsTableTableManager
                 autoGroupEnabled: autoGroupEnabled,
                 autoGroupThreshold: autoGroupThreshold,
                 pausedAt: pausedAt,
+                pauseShiftedDay: pauseShiftedDay,
               ),
           createCompanionCallback:
               ({
@@ -3718,6 +3797,7 @@ class $$AppSettingsTableTableManager
                 Value<bool> autoGroupEnabled = const Value.absent(),
                 Value<int> autoGroupThreshold = const Value.absent(),
                 Value<DateTime?> pausedAt = const Value.absent(),
+                Value<DateTime?> pauseShiftedDay = const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 id: id,
                 globalPresetId: globalPresetId,
@@ -3734,6 +3814,7 @@ class $$AppSettingsTableTableManager
                 autoGroupEnabled: autoGroupEnabled,
                 autoGroupThreshold: autoGroupThreshold,
                 pausedAt: pausedAt,
+                pauseShiftedDay: pauseShiftedDay,
               ),
           withReferenceMapper: (p0) => p0
               .map(

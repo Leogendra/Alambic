@@ -3,6 +3,7 @@ import 'dart:math';
 import '../../data/repositories/card_repository.dart';
 import '../../data/repositories/group_repository.dart';
 import '../../data/repositories/notification_settings_repository.dart';
+import '../../data/repositories/pause_repository.dart';
 import '../../domain/cards/asked_side_draw.dart';
 import '../../domain/cards/flashcard.dart';
 import '../../domain/groups/card_group.dart';
@@ -26,11 +27,13 @@ import 'review_prompt.dart';
 /// replaces all of them. The cards notified count against the daily cap. The
 /// content is read from the database at that moment, never fixed when the
 /// wake-up was planned, and the asked face is drawn for each notification.
+/// Nothing is shown during the global pause.
 class NotificationDispatcher {
   const NotificationDispatcher({
     required this._cards,
     required this._groups,
     required this._settings,
+    required this._pauses,
     required this._distillations,
     required this._groupedReminders,
     required this._presenter,
@@ -43,6 +46,7 @@ class NotificationDispatcher {
   final CardRepository _cards;
   final GroupRepository _groups;
   final NotificationSettingsRepository _settings;
+  final PauseRepository _pauses;
   final DistillationService _distillations;
   final GroupedReminders _groupedReminders;
   final NotificationPresenter _presenter;
@@ -53,6 +57,10 @@ class NotificationDispatcher {
 
   Future<void> dispatchDue() async {
     await _distillations.advance();
+    if (await _pauses.loadGlobalPause() != null) {
+      await _planner.replan();
+      return;
+    }
     final now = _clock();
     final groups = {
       for (final group in await _groups.watchAll().first) group.id: group,

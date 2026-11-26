@@ -1,6 +1,6 @@
 # Feature 6 — Home
 
-Status: implemented (2026-11-24)
+Status: implemented (2026-11-26)
 
 ## Goal
 
@@ -31,7 +31,7 @@ New cards are never named. A day with new cards gets one line under its reminder
 
 The distillation arrivals have no delay.
 
-A paused distillation announces no future arrival, and neither does any distillation during the global pause. The reminders of their cards stay on the timeline: a pause does not stop them.
+A paused distillation announces no future arrival, and neither does any distillation during the global pause. The reminders of their cards stay on the timeline. During the global pause, their due dates move forward each day, so the cards that were due keep showing under today, without a notification.
 
 ### Further ahead
 
@@ -39,7 +39,7 @@ After the detailed days, under a dashed rule titled "Further ahead", two figures
 
 ### Header
 
-The title "Coming up" sits alone at the top. The global pause is started from Settings ([Feature 8](8-distillation.md#pause)), not from Home. During the pause, Home starts with "Paused since …", a line saying that no new card arrives and that the reminders go on, and a "Resume" button.
+The title "Coming up" sits alone at the top. The global pause is started from Settings ([Feature 8](8-distillation.md#pause)), not from Home. During the pause, Home starts with "Paused since …", a line saying that neither notification nor new card arrives and that the due dates move forward one day for each day of pause, and a "Resume" button. The cards stay reviewable from the app.
 
 There is no count of due cards and no "Review all" on Home: reviewing happens from the notifications, a group page or a card sheet.
 

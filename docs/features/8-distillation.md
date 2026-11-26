@@ -1,6 +1,6 @@
 # Feature 8 — Distillation
 
-Status: implemented (2026-11-24)
+Status: implemented (2026-11-26)
 
 ## Goal
 
@@ -42,7 +42,13 @@ Without the option, the N new cards of a day arrive whatever is due.
 
 A distillation is paused and resumed from its "Distill" screen, opened from its group page; the button applies at once, without "Save". A paused distillation introduces nothing. Its introduced cards follow their preset and keep being notified: no due date moves, during the pause or at its end. There is no stop and no end.
 
-The global pause, started from the Notifications category of Settings after a confirmation and ended from Home's banner or from Settings, holds back every distillation the same way, and only them: the reminders go on. It leaves each distillation's own pause alone: a distillation paused before it is still paused after it.
+The global pause is started from the Notifications category of Settings after a confirmation, and ended from Home's banner or from Settings. It is meant for time away from the app: coming back after a month brings back the cards as they stood when the pause started, not a month of late reviews. While it lasts:
+
+- every distillation is held back the same way as by its own pause;
+- no notification is shown ([Feature 7](7-notifications.md#pauses));
+- every card with a [due date](../lexicon.md#due-date) has it moved forward one day for each day of pause, at the same clock time. A card late by two days when the pause started is still late by two days when it ends.
+
+The cards stay reviewable from the app: a card answered during the pause gets its due date from the answer, and then moves forward with the others. A pause started and ended on the same scheduling day moves nothing. The global pause leaves each distillation's own pause alone: a distillation paused before it is still paused after it.
 
 Resuming, from either pause, processes the current day if it was not processed yet: a single batch comes out if one is owed, as after days with the phone off. A distillation resumed on a day already processed waits for the next one.
 
@@ -83,7 +89,8 @@ The sheet of a pending card gives its own arrival from the same forecast: the da
 - [x] The "Distill" screen shows the preset of the group with its reminders, and edits it, swaps it or creates another at once.
 - [x] The "Distill" screen sets what comes after the last step at once, remanence with its interval or learned, and says what the choice does.
 - [x] The group page follows the distillation (pause, waiting cards, rhythm) with a single settings button.
-- [x] A paused distillation, and every distillation during the global pause, introduces nothing; the reminders go on and no due date moves. Resuming brings a single batch at most; the global pause leaves each distillation's own pause alone.
+- [x] A paused distillation, and every distillation during the global pause, introduces nothing. Resuming brings a single batch at most; the global pause leaves each distillation's own pause alone.
+- [x] The pause of a distillation moves no due date. The global pause moves every due date forward one day per day of pause, including the cards answered during it.
 - [x] A missed 4am wake-up runs the pass at restart, or at the opening of the app.
 - [x] The sheet of a pending card estimates its own arrival with the same rules, or says why it has none.
 
@@ -96,7 +103,7 @@ The sheet of a pending card gives its own arrival from the same forecast: the da
 - The two examples of "Prioritize reviews" are replayed on an in-memory database, with late and unanswered cards counted and reminders left in place.
 - The service is tested on an in-memory database filled through the services, moving a fixed clock across days: activation, first batch, next days, 4am boundary, a week without pass (one batch, then one a day), an empty queue, a change of cards per day before and after the day's pass, pause.
 - The "Distill" screen, the group page and Home are covered by screen tests with a capture; widget tests activate a distillation and adjust it from their screens, and check the waiting cards shown instead of the estimate during the global pause.
-- The pauses are tested with the notification fakes: a paused distillation keeps its cards notified and their due dates, a pause of a week brings one batch on resume, the global pause holds every distillation and plans no wake-up for them, and leaves alone a distillation paused on its own.
+- The pauses are tested with the notification fakes: a paused distillation keeps its cards notified and their due dates, a pause of a week brings one batch on resume, the global pause holds every distillation, withdraws the notifications and plans only the next day's wake-up, moves the due dates by the days it lasted (none when it ends the same day, the days after the answer for a card answered during it), and leaves alone a distillation paused on its own.
 - The wake-up at the start of the day is tested with the fake alarm scheduler: the planned moment, the introduction done by the wake-up, and a wake-up firing late at restart, which notifies the batch at once.
 - The preset section of the "Distill" screen is covered by screen tests: the default preset and its reminders, "Edit", the picker opened from the name and "New preset" with the choice read back from the database. Its end of sequence section is driven to change the remanence interval, then to learned, read back from the database with the line under it.
 - The group page and the "Distill" screen of a paused distillation have captures; resuming from the screen is checked in the database.
@@ -108,7 +115,7 @@ The sheet of a pending card gives its own arrival from the same forecast: the da
 - `lib/features/distillation/` — the "Distill" screen, its preset and end of sequence sections, the tile and the section of a group page.
 - `lib/features/pauses/` — the global pause: its confirmation and Home's banner.
 - `lib/data/repositories/distillation_repository.dart` — storage of the distillations; the queue itself is stored on the cards (`CardRepository`).
-- `lib/data/repositories/pause_repository.dart` — the start of the global pause (`app_settings.paused_at`).
+- `lib/data/repositories/pause_repository.dart` — the global pause: its start and the last day whose due dates it moved (`app_settings.paused_at`, `pause_shifted_day`).
 
 ## Technical details
 
@@ -118,7 +125,9 @@ A distillation is paused by the start of its pause (`pausedAt`), shown on its pa
 
 The estimates replay the rhythm without touching the database (`DistillationRhythm.forecast`): it walks the days until the queue is empty or the end of the period asked for (two years by default). With "Prioritize reviews", a `ReviewLoad` holds the reviews of the group by day: it starts with the cards already introduced, and takes in the reviews of each batch as it comes out. It walks each card through `SequenceEngine` with "Correct" answers, so the estimate follows the same sequence and remanence rules as a real answer. It needs the preset and the end of sequence of the group, which the screens read from the preset catalog.
 
-A pause records nothing about the days it covers: the pass simply skips a paused distillation, so the day of the last batch decides alone what the first pass after the pause owes: a single batch.
+A pause records nothing about the days it covers for the distillations: the pass simply skips a paused distillation, so the day of the last batch decides alone what the first pass after the pause owes: a single batch.
+
+The global pause moves the due dates day by day rather than all at once when it ends. During the pause, the daily pass moves every due date by the days elapsed since the last day it moved them (`pause_shifted_day`), then records today. Ending the pause catches up on the days left in the same transaction. Moving them every day keeps Home, the group badges and the card sheets true while the pause lasts, instead of a pile of late cards growing until the end. It also needs no rule per card: a card answered during the pause simply moves with the others from the next day. A due date moves by calendar days at the same clock time, which keeps the daily slot across a daylight saving change. The pass runs at launch and at the daily wake-up the planner keeps during the pause, in a transaction, like the distillation pass.
 
 The restart relies on `android_alarm_manager_plus`: it keeps every alarm it scheduled and schedules them again at boot, and Android fires at once an alarm whose moment has passed. The 4am wake-up missed while the phone was off is one of them.
 

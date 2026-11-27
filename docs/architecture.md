@@ -46,4 +46,4 @@ V1 targets Android only. Flutter was chosen so that iOS can follow without a rew
 
 ### The asked side is drawn at display time, never stored
 
-The [back option](lexicon.md#back-option) changes what a display asks, not what is tracked: a card has one progression whichever face was asked. The face is drawn when a session opens or a notification is shown (`AskedSideDraw`), and travels with the notification so that the revealed and the typed answer read the right face. Nothing about it is stored, so turning the option on or off rewrites nothing.
+The [asked sides](lexicon.md#asked-sides) of a group change what a display asks, not what is tracked: a card has one progression whichever face was asked. The face is drawn when a session opens or a notification is shown (`AskedSideDraw`), and travels with the notification so that the revealed and the typed answer read the right face. Nothing about it is stored, so changing the option rewrites nothing.

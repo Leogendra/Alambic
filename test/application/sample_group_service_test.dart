@@ -8,6 +8,7 @@ import 'package:alambic/data/repositories/distillation_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/preset_repository.dart';
 import 'package:alambic/data/samples/sample_group.dart';
+import 'package:alambic/domain/groups/asked_sides.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/sample_data.dart';
@@ -68,7 +69,7 @@ void main() {
       group.presetId,
       (await PresetRepository(database).loadCatalog()).globalPresetId,
     );
-    expect(group.reverseEnabled, isFalse);
+    expect(group.askedSides, AskedSides.front);
     expect(await DistillationRepository(database).getAll(), isEmpty);
     final cards = await CardRepository(database).getCardsOfGroup(groupId)
       ..sort((a, b) => a.queuePosition!.compareTo(b.queuePosition!));

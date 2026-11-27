@@ -1262,21 +1262,16 @@ class $CardGroupsTable extends CardGroups
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _reverseEnabledMeta = const VerificationMeta(
-    'reverseEnabled',
-  );
   @override
-  late final GeneratedColumn<bool> reverseEnabled = GeneratedColumn<bool>(
-    'reverse_enabled',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("reverse_enabled" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
+  late final GeneratedColumnWithTypeConverter<AskedSides, String> askedSides =
+      GeneratedColumn<String>(
+        'asked_sides',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: Constant(AskedSides.front.name),
+      ).withConverter<AskedSides>($CardGroupsTable.$converteraskedSides);
   @override
   late final GeneratedColumnWithTypeConverter<AfterLastStep, String>
   afterLastStep = GeneratedColumn<String>(
@@ -1336,7 +1331,7 @@ class $CardGroupsTable extends CardGroups
     name,
     presetId,
     createdAt,
-    reverseEnabled,
+    askedSides,
     afterLastStep,
     remanenceInterval,
     typedAnswer,
@@ -1381,15 +1376,6 @@ class $CardGroupsTable extends CardGroups
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
-    if (data.containsKey('reverse_enabled')) {
-      context.handle(
-        _reverseEnabledMeta,
-        reverseEnabled.isAcceptableOrUnknown(
-          data['reverse_enabled']!,
-          _reverseEnabledMeta,
-        ),
-      );
-    }
     if (data.containsKey('typed_answer')) {
       context.handle(
         _typedAnswerMeta,
@@ -1430,10 +1416,12 @@ class $CardGroupsTable extends CardGroups
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
-      reverseEnabled: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}reverse_enabled'],
-      )!,
+      askedSides: $CardGroupsTable.$converteraskedSides.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}asked_sides'],
+        )!,
+      ),
       afterLastStep: $CardGroupsTable.$converterafterLastStep.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -1462,6 +1450,8 @@ class $CardGroupsTable extends CardGroups
     return $CardGroupsTable(attachedDatabase, alias);
   }
 
+  static JsonTypeConverter2<AskedSides, String, String> $converteraskedSides =
+      const EnumNameConverter<AskedSides>(AskedSides.values);
   static JsonTypeConverter2<AfterLastStep, String, String>
   $converterafterLastStep = const EnumNameConverter<AfterLastStep>(
     AfterLastStep.values,
@@ -1477,7 +1467,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
   final Value<String> name;
   final Value<int> presetId;
   final Value<DateTime> createdAt;
-  final Value<bool> reverseEnabled;
+  final Value<AskedSides> askedSides;
   final Value<AfterLastStep> afterLastStep;
   final Value<RemanenceInterval> remanenceInterval;
   final Value<bool> typedAnswer;
@@ -1487,7 +1477,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     this.name = const Value.absent(),
     this.presetId = const Value.absent(),
     this.createdAt = const Value.absent(),
-    this.reverseEnabled = const Value.absent(),
+    this.askedSides = const Value.absent(),
     this.afterLastStep = const Value.absent(),
     this.remanenceInterval = const Value.absent(),
     this.typedAnswer = const Value.absent(),
@@ -1498,7 +1488,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     required String name,
     required int presetId,
     required DateTime createdAt,
-    this.reverseEnabled = const Value.absent(),
+    this.askedSides = const Value.absent(),
     this.afterLastStep = const Value.absent(),
     this.remanenceInterval = const Value.absent(),
     this.typedAnswer = const Value.absent(),
@@ -1511,7 +1501,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Expression<String>? name,
     Expression<int>? presetId,
     Expression<DateTime>? createdAt,
-    Expression<bool>? reverseEnabled,
+    Expression<String>? askedSides,
     Expression<String>? afterLastStep,
     Expression<String>? remanenceInterval,
     Expression<bool>? typedAnswer,
@@ -1522,7 +1512,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
       if (name != null) 'name': name,
       if (presetId != null) 'preset_id': presetId,
       if (createdAt != null) 'created_at': createdAt,
-      if (reverseEnabled != null) 'reverse_enabled': reverseEnabled,
+      if (askedSides != null) 'asked_sides': askedSides,
       if (afterLastStep != null) 'after_last_step': afterLastStep,
       if (remanenceInterval != null) 'remanence_interval': remanenceInterval,
       if (typedAnswer != null) 'typed_answer': typedAnswer,
@@ -1535,7 +1525,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     Value<String>? name,
     Value<int>? presetId,
     Value<DateTime>? createdAt,
-    Value<bool>? reverseEnabled,
+    Value<AskedSides>? askedSides,
     Value<AfterLastStep>? afterLastStep,
     Value<RemanenceInterval>? remanenceInterval,
     Value<bool>? typedAnswer,
@@ -1546,7 +1536,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
       name: name ?? this.name,
       presetId: presetId ?? this.presetId,
       createdAt: createdAt ?? this.createdAt,
-      reverseEnabled: reverseEnabled ?? this.reverseEnabled,
+      askedSides: askedSides ?? this.askedSides,
       afterLastStep: afterLastStep ?? this.afterLastStep,
       remanenceInterval: remanenceInterval ?? this.remanenceInterval,
       typedAnswer: typedAnswer ?? this.typedAnswer,
@@ -1569,8 +1559,10 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
-    if (reverseEnabled.present) {
-      map['reverse_enabled'] = Variable<bool>(reverseEnabled.value);
+    if (askedSides.present) {
+      map['asked_sides'] = Variable<String>(
+        $CardGroupsTable.$converteraskedSides.toSql(askedSides.value),
+      );
     }
     if (afterLastStep.present) {
       map['after_last_step'] = Variable<String>(
@@ -1600,7 +1592,7 @@ class CardGroupsCompanion extends UpdateCompanion<CardGroup> {
           ..write('name: $name, ')
           ..write('presetId: $presetId, ')
           ..write('createdAt: $createdAt, ')
-          ..write('reverseEnabled: $reverseEnabled, ')
+          ..write('askedSides: $askedSides, ')
           ..write('afterLastStep: $afterLastStep, ')
           ..write('remanenceInterval: $remanenceInterval, ')
           ..write('typedAnswer: $typedAnswer, ')
@@ -3886,7 +3878,7 @@ typedef $$CardGroupsTableCreateCompanionBuilder = CardGroupsCompanion Function({
   required String name,
   required int presetId,
   required DateTime createdAt,
-  Value<bool> reverseEnabled,
+  Value<AskedSides> askedSides,
   Value<AfterLastStep> afterLastStep,
   Value<RemanenceInterval> remanenceInterval,
   Value<bool> typedAnswer,
@@ -3897,7 +3889,7 @@ typedef $$CardGroupsTableUpdateCompanionBuilder = CardGroupsCompanion Function({
   Value<String> name,
   Value<int> presetId,
   Value<DateTime> createdAt,
-  Value<bool> reverseEnabled,
+  Value<AskedSides> askedSides,
   Value<AfterLastStep> afterLastStep,
   Value<RemanenceInterval> remanenceInterval,
   Value<bool> typedAnswer,
@@ -3987,9 +3979,10 @@ class $$CardGroupsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<bool> get reverseEnabled => $composableBuilder(
-    column: $table.reverseEnabled,
-    builder: (column) => ColumnFilters(column),
+  ColumnWithTypeConverterFilters<AskedSides, AskedSides, String>
+  get askedSides => $composableBuilder(
+    column: $table.askedSides,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnWithTypeConverterFilters<AfterLastStep, AfterLastStep, String>
@@ -4112,8 +4105,8 @@ class $$CardGroupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get reverseEnabled => $composableBuilder(
-    column: $table.reverseEnabled,
+  ColumnOrderings<String> get askedSides => $composableBuilder(
+    column: $table.askedSides,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4179,10 +4172,11 @@ class $$CardGroupsTableAnnotationComposer
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
-  GeneratedColumn<bool> get reverseEnabled => $composableBuilder(
-    column: $table.reverseEnabled,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<AskedSides, String> get askedSides =>
+      $composableBuilder(
+        column: $table.askedSides,
+        builder: (column) => column,
+      );
 
   GeneratedColumnWithTypeConverter<AfterLastStep, String> get afterLastStep =>
       $composableBuilder(
@@ -4316,7 +4310,7 @@ class $$CardGroupsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<int> presetId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
-                Value<bool> reverseEnabled = const Value.absent(),
+                Value<AskedSides> askedSides = const Value.absent(),
                 Value<AfterLastStep> afterLastStep = const Value.absent(),
                 Value<RemanenceInterval> remanenceInterval =
                     const Value.absent(),
@@ -4327,7 +4321,7 @@ class $$CardGroupsTableTableManager
                 name: name,
                 presetId: presetId,
                 createdAt: createdAt,
-                reverseEnabled: reverseEnabled,
+                askedSides: askedSides,
                 afterLastStep: afterLastStep,
                 remanenceInterval: remanenceInterval,
                 typedAnswer: typedAnswer,
@@ -4339,7 +4333,7 @@ class $$CardGroupsTableTableManager
                 required String name,
                 required int presetId,
                 required DateTime createdAt,
-                Value<bool> reverseEnabled = const Value.absent(),
+                Value<AskedSides> askedSides = const Value.absent(),
                 Value<AfterLastStep> afterLastStep = const Value.absent(),
                 Value<RemanenceInterval> remanenceInterval =
                     const Value.absent(),
@@ -4350,7 +4344,7 @@ class $$CardGroupsTableTableManager
                 name: name,
                 presetId: presetId,
                 createdAt: createdAt,
-                reverseEnabled: reverseEnabled,
+                askedSides: askedSides,
                 afterLastStep: afterLastStep,
                 remanenceInterval: remanenceInterval,
                 typedAnswer: typedAnswer,

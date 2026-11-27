@@ -4,6 +4,7 @@ import 'package:alambic/data/database/alambic_database.dart';
 import 'package:alambic/data/repositories/card_repository.dart';
 import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/domain/cards/card_side.dart';
+import 'package:alambic/domain/groups/asked_sides.dart';
 
 import '../support/fixed_clock.dart';
 import '../support/fixed_random.dart';
@@ -29,16 +30,24 @@ void main() {
 
   tearDown(() => database.close());
 
-  test('asks the front of the cards of a group without the back', () async {
+  test('asks the front of the cards of a group by default', () async {
     final groupId = await samples.groups.create('Capitals');
     final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
     final items = await factory.itemsFor([cardId]);
     expect(items.single.askedSide, CardSide.front);
   });
 
-  test('draws the asked face of a group with the back, each time', () async {
+  test('asks the back of the cards of a group set to the back', () async {
     final groupId = await samples.groups.create('Capitals');
-    await samples.groups.setReverseEnabled(groupId, enabled: true);
+    await samples.groups.setAskedSides(groupId, AskedSides.back);
+    final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
+    random.coin = false;
+    expect((await factory.itemsFor([cardId])).single.askedSide, CardSide.back);
+  });
+
+  test('draws the asked face of a group set to random, each time', () async {
+    final groupId = await samples.groups.create('Capitals');
+    await samples.groups.setAskedSides(groupId, AskedSides.random);
     final cardId = await samples.card('Peru', 'Lima', groupId: groupId);
     expect((await factory.itemsFor([cardId])).single.askedSide, CardSide.back);
     random.coin = false;

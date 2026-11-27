@@ -1,6 +1,6 @@
 # Feature 7 — Notifications
 
-Status: in progress (2026-11-26)
+Status: in progress (2026-11-27)
 
 ## Goal
 
@@ -70,7 +70,7 @@ When the app wakes up, `NotificationDispatcher` first runs the daily pass of the
 
 The notification shows the name of the group in its header, beside the name of the app, the asked face as its title (no title for a face that is an image alone), and three buttons, "Again", "Reveal" and "Correct": "Again" and "Correct" in the order of the answer buttons of a session, "Reveal" between them. It shows nothing else: neither the step, nor the asked side. The texts are in the language of the app ([Feature 0](0-foundation.md#language-and-theme)), read from the interface preferences by each background task.
 
-With the [back option](../lexicon.md#back-option) of the group, the asked face is drawn when the notification is shown, one chance in two, and each chained card of a grouped reminder draws its own. The face drawn travels in the payload, so that the answer revealed and the typed answer are read against the other face.
+The asked face follows the [asked sides](../lexicon.md#asked-sides) of the group. When they are random, it is drawn when the notification is shown, one chance in two, and each chained card of a grouped reminder draws its own. The face drawn travels in the payload, so that the answer revealed and the typed answer are read against the other face.
 
 ### Showing a card's image
 

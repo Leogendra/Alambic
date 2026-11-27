@@ -22,15 +22,15 @@ A permanent setting of a group that introduces its [pending](#pending) cards a f
 
 ### Asked side
 
-The face shown as the question of a display (`CardSide`). It is the front, unless the group has [the back](#back-option) enabled, in which case every display draws front or back at random. It changes nothing to the progression of the card.
+The face shown as the question of a display (`CardSide`). The [asked sides](#asked-sides) of its group decide it: always the front, always the back, or one of the two drawn at random at every display. It changes nothing to the progression of the card.
 
-### Back option
+### Asked sides
 
-Option of a group (`CardGroup.reverseEnabled`; "Back") that makes each display of its cards ask the front or the back, one chance in two.
+Option of a group (`CardGroup.askedSides`; "Asked side") that decides the [asked side](#asked-side) of each display of its cards: "Front" (the default), "Back", or "Random", the front or the back, one chance in two.
 
 ### Group
 
-A flat list of cards sharing a [preset](#preset) (`CardGroup`), with its [distillation](#distillation), its [back option](#back-option), its end of sequence ([remanence](#remanence) or [acquired](#acquired)) and its [typed answer](#typed-answer) option. Every card is in a group.
+A flat list of cards sharing a [preset](#preset) (`CardGroup`), with its [distillation](#distillation), its [asked sides](#asked-sides), its end of sequence ([remanence](#remanence) or [acquired](#acquired)) and its [typed answer](#typed-answer) option. Every card is in a group.
 
 ### Preset
 

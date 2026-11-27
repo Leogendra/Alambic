@@ -1,6 +1,6 @@
 # Feature 5 — In-app review session
 
-Status: in progress (2026-11-20)
+Status: in progress (2026-11-27)
 
 ## Goal
 
@@ -10,9 +10,9 @@ Review [due](../lexicon.md#due) cards in the app, one by one, with the same two 
 
 ### Flow
 
-A session starts from a list of cards. A group page starts it on all its cards ("Review all", [Feature 4](4-groups.md#review-all)); the card sheet starts it on a single card; a touched notification starts it on its card or the due cards of its group, then every due card ([Feature 7](7-notifications.md#touching-a-notification)), the touched card asking the face of its notification. Each card's [asked side](../lexicon.md#asked-side) is drawn when the session opens: the front, or one chance in two the back when its group has the [back option](../lexicon.md#back-option).
+A session starts from a list of cards. A group page starts it on all its cards ("Review all", [Feature 4](4-groups.md#review-all)); the card sheet starts it on a single card; a touched notification starts it on its card or the due cards of its group, then every due card ([Feature 7](7-notifications.md#touching-a-notification)), the touched card asking the face of its notification. Each card's [asked side](../lexicon.md#asked-side) is drawn when the session opens, following the [asked sides](../lexicon.md#asked-sides) of its group: the front, the back, or one of the two at random.
 
-For each card, the screen shows a card in two halves of fixed height, split by a line shown from the question on. The top half holds a context line (the group and the preset, the mention "back → front" when the back is asked) and the asked face, its image above its text, the image shrinking to leave room for the text. The bottom half is empty until the reveal, then shows the other face. The top half does not change at the reveal: same position, same text size, same colour.
+For each card, the screen shows a card in two halves of fixed height, split by a line shown from the question on. The top half holds a context line (the group and the preset) and the asked face, its image above its text, the image shrinking to leave room for the text. The bottom half is empty until the reveal, then shows the other face. The top half does not change at the reveal: same position, same text size, same colour.
 
 The text of a face is 28 at most, a single word included, so that a word does not fill the card; a text longer than 60 characters is 22. It runs 400 wide at most, centered, so that its lines stay readable on a wide screen. The system text size applies on top of these sizes, 1.5 times at most since they are already large; without an image, a text that still does not fit its half shrinks to fit it. The labels of the answer buttons shrink the same way to the height of the buttons.
 
@@ -60,7 +60,7 @@ The one-card session of the card sheet has no end screen: its answer closes the 
 - [x] The end screen counts the answers and offers to review the missed cards as a bonus review.
 - [x] A group page starts a session on all its cards with "Review all".
 - [x] Touching a notification starts a session on its card or group, then every due card.
-- [x] With the back option, each card of the session asks its front or its back, drawn at the opening.
+- [x] Each card of the session asks the face set by its group's asked sides, drawn at the opening when they are random.
 - [x] With the typed answer option, a field replaces "Show answer", with "Reveal"; the typed answer is compared like in the notifications, recorded at once, shown with its verdict and the answer, then "Next" moves on.
 
 ## Test strategy

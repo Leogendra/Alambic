@@ -8,6 +8,7 @@ import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/application/randomness.dart';
 import 'package:alambic/domain/distillation/distillation_queue.dart';
 import 'package:alambic/domain/distillation/distillation_settings.dart';
+import 'package:alambic/domain/groups/asked_sides.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
 import 'package:alambic/domain/reviews/review_source.dart';
 import 'package:alambic/domain/scheduling/card_schedule.dart';
@@ -455,6 +456,24 @@ void main() {
     expect(group!.typedAnswer, isTrue);
   });
 
+  testScreen('the group settings set the asked side', (tester) async {
+    await seed(tester);
+    await pumpScreen(
+      tester,
+      GroupSettingsScreen(groupId: capitalsId),
+      overrides: screenOverrides(database, sampleNow),
+    );
+    await tester.runAsync(() async {
+      await tester.tap(find.text(l10n.groupAskedBack));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pumpAndSettle();
+    final group = await tester.runAsync(
+      () => GroupRepository(database).find(capitalsId),
+    );
+    expect(group!.askedSides, AskedSides.back);
+  });
+
   testScreen('"Hide the back" hides the backs of the list and "Show" brings '
       'them back', (tester) async {
     await seed(tester);
@@ -473,7 +492,7 @@ void main() {
       () => GroupRepository(database).find(capitalsId),
     );
     expect(group!.backHidden, isTrue);
-    expect(group.reverseEnabled, isFalse);
+    expect(group.askedSides, AskedSides.front);
     expect(find.text('Peru'), findsOneWidget);
     expect(find.text('Lima'), findsNothing);
     expect(find.text('Show the back'), findsOneWidget);

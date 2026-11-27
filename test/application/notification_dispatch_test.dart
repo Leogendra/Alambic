@@ -9,6 +9,7 @@ import 'package:alambic/data/repositories/group_repository.dart';
 import 'package:alambic/data/repositories/notification_settings_repository.dart';
 import 'package:alambic/data/repositories/review_repository.dart';
 import 'package:alambic/domain/cards/card_side.dart';
+import 'package:alambic/domain/groups/asked_sides.dart';
 import 'package:alambic/domain/notifications/notification_guards.dart';
 import 'package:alambic/domain/notifications/schedule_kind.dart';
 import 'package:alambic/domain/reviews/review_outcome.dart';
@@ -299,12 +300,12 @@ void main() {
     });
   });
 
-  group('with the back enabled on the group', () {
+  group('with the back asked at random on the group', () {
     late ReviewNotificationKey key;
 
     setUp(() async {
       await GroupRepository(database)
-          .setReverseEnabled(capitals, enabled: true);
+          .setAskedSides(capitals, AskedSides.random);
       key = ReviewNotificationKey(cardId: await mongoliaId());
     });
 

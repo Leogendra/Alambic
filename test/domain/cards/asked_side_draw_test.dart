@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alambic/domain/cards/asked_side_draw.dart';
 import 'package:alambic/domain/cards/card_side.dart';
+import 'package:alambic/domain/groups/asked_sides.dart';
 import 'package:alambic/domain/groups/card_group.dart';
 
 import '../test_groups.dart';
 
 void main() {
-  CardGroup group({required bool reverseEnabled}) =>
-      testGroup(reverseEnabled: reverseEnabled);
+  CardGroup group(AskedSides askedSides) => testGroup(askedSides: askedSides);
 
   List<CardSide> draws(CardGroup group) {
     final random = Random(7);
@@ -19,12 +19,16 @@ void main() {
     ];
   }
 
-  test('without the back, the front is always asked', () {
-    expect(draws(group(reverseEnabled: false)), everyElement(CardSide.front));
+  test('set to the front, the front is always asked', () {
+    expect(draws(group(AskedSides.front)), everyElement(CardSide.front));
   });
 
-  test('with the back, each display draws the front or the back', () {
-    final sides = draws(group(reverseEnabled: true));
+  test('set to the back, the back is always asked', () {
+    expect(draws(group(AskedSides.back)), everyElement(CardSide.back));
+  });
+
+  test('set to random, each display draws the front or the back', () {
+    final sides = draws(group(AskedSides.random));
     expect(sides, contains(CardSide.front));
     expect(sides, contains(CardSide.back));
   });

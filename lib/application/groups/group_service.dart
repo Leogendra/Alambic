@@ -5,6 +5,7 @@ import '../../data/repositories/notification_settings_repository.dart';
 import '../../data/repositories/preset_repository.dart';
 import '../../domain/cards/card_state.dart';
 import '../../domain/groups/after_last_step.dart';
+import '../../domain/groups/asked_sides.dart';
 import '../../domain/groups/remanence_interval.dart';
 import '../../domain/scheduling/card_schedule.dart';
 import '../../domain/scheduling/review_scheduler.dart';
@@ -55,10 +56,10 @@ class GroupService {
     await _scheduleChangeListener.onSchedulesChanged();
   }
 
-  /// With the back enabled, each display of a card of the group asks the
-  /// front or the back, drawn one chance in two. Progressions are untouched.
-  Future<void> setReverseEnabled(int groupId, {required bool enabled}) =>
-      _groups.setReverseEnabled(groupId, enabled: enabled);
+  /// The face each display of a card of the group asks: front, back, or
+  /// one of the two drawn at random. Progressions are untouched.
+  Future<void> setAskedSides(int groupId, AskedSides askedSides) =>
+      _groups.setAskedSides(groupId, askedSides);
 
   /// The lists of the group show the front of its cards alone; sessions and
   /// notifications are unchanged.

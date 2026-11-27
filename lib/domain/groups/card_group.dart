@@ -1,6 +1,7 @@
 import '../cards/card_side.dart';
 import '../cards/flashcard.dart';
 import 'after_last_step.dart';
+import 'asked_sides.dart';
 import 'remanence_interval.dart';
 import 'sequence_end.dart';
 
@@ -11,7 +12,7 @@ class CardGroup {
     required this.name,
     required this.presetId,
     required this.createdAt,
-    required this.reverseEnabled,
+    required this.askedSides,
     required this.afterLastStep,
     required this.remanenceInterval,
     required this.typedAnswer,
@@ -25,9 +26,9 @@ class CardGroup {
   final int presetId;
   final DateTime createdAt;
 
-  /// With the back enabled, each display of a card draws the asked face:
-  /// the front or the back, one chance in two. The draw is visual only.
-  final bool reverseEnabled;
+  /// The face each display of a card asks. Visual only: the progression of
+  /// a card is the same whichever face is asked.
+  final AskedSides askedSides;
 
   /// Read at each answer: changing it moves no due date.
   final AfterLastStep afterLastStep;

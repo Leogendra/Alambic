@@ -115,7 +115,6 @@ class SessionCardView extends ConsumerWidget {
         '';
     final labels = [
       '$groupName · $presetName',
-      if (askedSide == CardSide.back) strings.sessionReverseBadge,
       if (isBonus) strings.sessionBonusBadge,
     ];
     return Text(

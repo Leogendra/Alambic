@@ -1,6 +1,6 @@
 # Feature 1 — Review scheduling
 
-Status: implemented (2026-11-25)
+Status: implemented (2026-11-27)
 
 ## Goal
 
@@ -15,7 +15,7 @@ Scheduling lives entirely in the domain and works in two stages.
 1. The sequence engine (`SequenceEngine`) computes the interval to wait: from where the card stands (`CardProgress`) and the answer, it reaches a [step](../lexicon.md#step) or the remanence, or reports that the card is acquired.
 2. The scheduler (`ReviewScheduler`) turns that interval into a [due date](../lexicon.md#due-date), depending on whether the interval counts in days or in minutes. When the smoothing is on, it may move the due day of a long interval to a less busy day nearby.
 
-A card has a single progression, whichever face is asked: the [back option](../lexicon.md#back-option) of a group changes what a display asks, never what the scheduler reads.
+A card has a single progression, whichever face is asked: the [asked sides](../lexicon.md#asked-sides) of a group change what a display asks, never what the scheduler reads.
 
 The [day](../lexicon.md#day) starts at 4am, through `SchedulingCalendar`. An answer given at 1am counts for the previous day, and every "same day" comparison goes through this calendar. Days are added as calendar days rather than 24-hour slices, so that a daylight saving change does not shift the slot by an hour.
 

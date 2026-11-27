@@ -8,6 +8,7 @@ import '../../domain/notifications/grouped_reminder_action.dart';
 import '../../domain/notifications/notification_mode.dart';
 import '../../domain/notifications/schedule_kind.dart';
 import '../../domain/groups/after_last_step.dart';
+import '../../domain/groups/asked_sides.dart';
 import '../../domain/groups/card_group.dart';
 import '../../domain/groups/remanence_interval.dart';
 import '../../domain/presets/built_in_preset_key.dart';
@@ -57,7 +58,7 @@ class AlambicDatabase extends _$AlambicDatabase {
 
   /// Raised at every schema change.
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

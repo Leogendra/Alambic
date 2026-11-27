@@ -2,14 +2,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/layout/scroll_padding.dart';
+import '../../app/theme/alambic_colors.dart';
 import '../../app/widgets/panel_row.dart';
+import '../../app/widgets/segment_option.dart';
+import '../../app/widgets/segmented_choice.dart';
 import '../../app/widgets/surface_panel.dart';
 import '../../app/widgets/text_input_dialog.dart';
 import '../../application/groups/group_providers.dart';
+import '../../domain/groups/asked_sides.dart';
 import '../../domain/groups/card_group.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// Name, typed answer, back and deletion of a group. The preset and what
+/// Name, asked side, typed answer and deletion of a group. The preset and what
 /// comes after its last step are set from the "Distill" screen.
 class GroupSettingsScreen extends ConsumerWidget {
   const GroupSettingsScreen({required this.groupId, super.key});
@@ -34,8 +38,8 @@ class GroupSettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 SurfacePanel(
                   children: [
+                    _askedSidesRow(context, ref, group),
                     _typedAnswerRow(context, ref, group),
-                    _reverseRow(context, ref, group),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -78,16 +82,45 @@ class GroupSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _reverseRow(BuildContext context, WidgetRef ref, CardGroup group) {
+  /// Title, then the choice at full width: three segments do not fit beside
+  /// the title.
+  Widget _askedSidesRow(BuildContext context, WidgetRef ref, CardGroup group) {
     final strings = AppLocalizations.of(context);
-    return PanelRow(
-      title: strings.groupReverse,
-      subtitle: strings.groupReverseHint,
-      trailing: Switch(
-        value: group.reverseEnabled,
-        onChanged: (enabled) => ref
-            .read(groupServiceProvider)
-            .setReverseEnabled(group.id, enabled: enabled),
+    final colors = AlambicColors.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 10,
+        children: [
+          Text(
+            strings.groupAskedSides,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: colors.textPrimary,
+            ),
+          ),
+          SegmentedChoice<AskedSides>(
+            options: [
+              SegmentOption(AskedSides.front, strings.groupAskedFront),
+              SegmentOption(AskedSides.back, strings.groupAskedBack),
+              SegmentOption(AskedSides.random, strings.groupAskedRandom),
+            ],
+            selected: group.askedSides,
+            onSelected: (askedSides) => ref
+                .read(groupServiceProvider)
+                .setAskedSides(group.id, askedSides),
+          ),
+          Text(
+            strings.groupAskedSidesHint,
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.35,
+              color: colors.textSecondary,
+            ),
+          ),
+        ],
       ),
     );
   }

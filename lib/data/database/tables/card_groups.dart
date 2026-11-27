@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../domain/groups/after_last_step.dart';
+import '../../../domain/groups/asked_sides.dart';
 import '../../../domain/groups/card_group.dart';
 import '../../../domain/groups/remanence_interval.dart';
 import 'presets.dart';
@@ -11,8 +12,8 @@ class CardGroups extends Table {
   TextColumn get name => text()();
   IntColumn get presetId => integer().references(Presets, #id)();
   DateTimeColumn get createdAt => dateTime()();
-  BoolColumn get reverseEnabled =>
-      boolean().withDefault(const Constant(false))();
+  TextColumn get askedSides =>
+      textEnum<AskedSides>().withDefault(Constant(AskedSides.front.name))();
   TextColumn get afterLastStep => textEnum<AfterLastStep>().withDefault(
     Constant(AfterLastStep.remanence.name),
   )();

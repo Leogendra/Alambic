@@ -427,7 +427,7 @@ void main() {
       overrides: screenOverrides(database, sampleNow),
     );
     expect(find.text('Ulaanbaatar'), findsOneWidget);
-    expect(find.textContaining('back → front'), findsOneWidget);
+    expect(find.textContaining('back → front'), findsNothing);
     await tester.tap(find.text(l10n.sessionShowAnswer));
     await tester.pumpAndSettle();
     expect(find.text('Mongolia'), findsOneWidget);

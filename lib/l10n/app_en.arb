@@ -259,8 +259,11 @@
   "groupSettingsTitle": "Group settings",
   "groupBackHide": "Hide the back",
   "groupBackShow": "Show the back",
-  "groupReverse": "Back",
-  "groupReverseHint": "Each card can be asked at random, either front or back.",
+  "groupAskedSides": "Asked side",
+  "groupAskedSidesHint": "The face shown in sessions and notifications",
+  "groupAskedFront": "Front",
+  "groupAskedBack": "Back",
+  "groupAskedRandom": "Random",
   "groupTypedAnswer": "Typed answer",
   "groupTypedAnswerHint": "Type the answer before seeing it",
   "groupAfterLastStep": "After the last step",
@@ -402,7 +405,6 @@
       }
     }
   },
-  "sessionReverseBadge": "back → front",
   "reviewAcquired": "learned",
   "sessionFinished": "Session finished",
   "sessionSummary": "{count, plural, =1{1 card in {duration}} other{{count} cards in {duration}}}",

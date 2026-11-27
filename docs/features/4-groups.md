@@ -1,10 +1,10 @@
 # Feature 4 — Groups
 
-Status: in progress (2026-11-25)
+Status: in progress (2026-11-27)
 
 ## Goal
 
-Sort cards into flat [groups](../lexicon.md#group), find a card by search, see at a glance what is due in each group, distill a group, review it all, and set a group's name, [typed answer](../lexicon.md#typed-answer) and [back option](../lexicon.md#back-option). Its preset and end of sequence are set from its distillation ([Feature 8](8-distillation.md#screens)).
+Sort cards into flat [groups](../lexicon.md#group), find a card by search, see at a glance what is due in each group, distill a group, review it all, and set a group's name, [asked sides](../lexicon.md#asked-sides) and [typed answer](../lexicon.md#typed-answer). Its preset and end of sequence are set from its distillation ([Feature 8](8-distillation.md#screens)).
 
 ## Implementation overview
 
@@ -49,13 +49,13 @@ Each move is written at once; the list shows the new order before the database c
 
 The session is also a pre-test of the [queue](../lexicon.md#queue): a pending card answered "Again" goes to the head of the queue, and will be the next card the distillation introduces; "Correct" leaves it in place. Each missed card goes to the very top in turn, so the last one missed comes out first, ahead of the other missed ones and of the rest of the queue, unchanged. The move is made at each answer: leaving the session halfway keeps the cards already raised. The history records these answers as bonus reviews, without the move. "Review the missed cards now", at the end of the session, raises nothing.
 
-### Back option
+### Asked sides
 
-With the back enabled, each display of a card of the group (session, notification, typed answer) asks its front or its back, one chance in two, drawn again at every display. The progression of the card is the same whichever face is asked. The option is a "Back" switch in the group settings.
+The asked sides of a group decide which face each display of its cards asks (session, notification, typed answer): "Front", the default; "Back", answered with the front; or "Random", the front or the back, one chance in two, drawn again at every display. The progression of the card is the same whichever face is asked. The option is set in the group settings.
 
 ### Hiding the backs
 
-The group page has a "Hide the back" button, which becomes "Show the back" once pressed (`CardGroup.backHidden`, stored with the group). While the backs are hidden, the card lists of the group page show the front of each card alone. Nothing else changes: the card sheet, the search results, sessions and notifications still show the backs, the stored cards are untouched, and the [back option](#back-option) is independent.
+The group page has a "Hide the back" button, which becomes "Show the back" once pressed (`CardGroup.backHidden`, stored with the group). While the backs are hidden, the card lists of the group page show the front of each card alone. Nothing else changes: the card sheet, the search results, sessions and notifications still show the backs, the stored cards are untouched, and the [asked sides](#asked-sides) are independent.
 
 ### Sequence end and typed answer
 
@@ -66,7 +66,7 @@ A group carries two more options:
 
 ### Group settings
 
-A group's settings are, from top to bottom: its name; the typed answer and the back option, as two switches; its deletion. They hold neither the preset nor the end of sequence: both are set from the "Distill" screen, next to the estimate they change ([Feature 8](8-distillation.md#screens)). A group has no pause of its own: only its distillation is paused ([Feature 8](8-distillation.md#pause)).
+A group's settings are, from top to bottom: its name; its asked sides and its typed answer, in one panel; its deletion. The asked sides take three segments, "Front", "Back" and "Random", under their title and at full width, since three segments do not fit beside it; a line under them says they are the face shown in sessions and notifications. The typed answer is a switch. They hold neither the preset nor the end of sequence: both are set from the "Distill" screen, next to the estimate they change ([Feature 8](8-distillation.md#screens)). A group has no pause of its own: only its distillation is paused ([Feature 8](8-distillation.md#pause)).
 
 Deleting a group asks for confirmation, announcing how many cards go with it, then deletes the group with its cards, their history and its distillation.
 
@@ -89,7 +89,7 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - [x] A group that does not distill shows a large "Distill" button; once activated, its tracking replaces it. A band of light glides once across the button on arrival.
 - [x] "Review all" asks the due cards first, then the other introduced cards, then the pending ones, all but the due ones as bonus reviews, and leaves acquired cards out.
 - [x] In "Review all", a pending card answered "Again" goes to the head of the queue at once, the last one missed first.
-- [x] The back option is switched from the group settings.
+- [x] The asked sides are chosen from the group settings: front, back or random.
 - [x] "Hide the back" on a group page hides the back line of every card of its lists, and "Show the back" brings it back; the card sheet, the search and the sessions are unchanged.
 - [x] A group is created, renamed, changes preset; a new group follows the global preset of the moment.
 - [x] "New" creates an empty group named by the user, or a sample group in any of its languages, whatever the language of the app, then opens it; a sample group whose name is already taken opens that group unchanged.
@@ -104,8 +104,8 @@ The sections of a group page are split by `GroupSections` from the cards of the 
 - Counts are tested on an in-memory database filled through the services, at chosen moments: before and after the [daily slot](../lexicon.md#daily-slot).
 - The order of "Review all" is tested as pure logic (due, introduced, pending, acquired), then on the group page, down to the session it opens.
 - Raising a missed pending card is tested on an in-memory database with the queue as the distillation reads it: one card, several, a correct answer, a forced bonus, a card added afterwards, the next introduction; and through a session left after one answer.
-- The group service is tested for creation, renaming, refusal of an empty name, the back option, the hiding of the backs, the end of sequence (the cards past their last step, switched in both directions) and deletion with its cards.
-- The tab (list with a distilled group, with a paused distillation, and search), the group page and its settings are covered by screen tests with a capture on a sample data set, with a fixed clock; the group page (all three sections) and its settings in light and dark theme. The section titles and the "next" mark are checked on the page, and the acquired section is unfolded and folded again by touch. The queue is driven by touch, read back from the database each time: a long press dragged to the head, the head and end buttons of the reordering mode (captured in light and dark theme), a shuffle cancelled then confirmed with a seeded random generator, the "next" mark after each move, and the place of the title buttons on a group without card in progress. The settings screen is driven to change the typed answer, read back from the database. "New" is driven on the tab, read back from the database: the choices offered (captured), an empty group named, a sample group in another language than the app created and opened, and a sample group whose name is taken opened unchanged.
+- The group service is tested for creation, renaming, refusal of an empty name, the asked sides, the hiding of the backs, the end of sequence (the cards past their last step, switched in both directions) and deletion with its cards.
+- The tab (list with a distilled group, with a paused distillation, and search), the group page and its settings are covered by screen tests with a capture on a sample data set, with a fixed clock; the group page (all three sections) and its settings in light and dark theme. The section titles and the "next" mark are checked on the page, and the acquired section is unfolded and folded again by touch. The queue is driven by touch, read back from the database each time: a long press dragged to the head, the head and end buttons of the reordering mode (captured in light and dark theme), a shuffle cancelled then confirmed with a seeded random generator, the "next" mark after each move, and the place of the title buttons on a group without card in progress. The settings screen is driven to change the asked sides and the typed answer, read back from the database. "New" is driven on the tab, read back from the database: the choices offered (captured), an empty group named, a sample group in another language than the app created and opened, and a sample group whose name is taken opened unchanged.
 
 ## File mapping
 

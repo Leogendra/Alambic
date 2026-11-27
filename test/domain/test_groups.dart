@@ -1,4 +1,5 @@
 import 'package:alambic/domain/groups/after_last_step.dart';
+import 'package:alambic/domain/groups/asked_sides.dart';
 import 'package:alambic/domain/groups/card_group.dart';
 import 'package:alambic/domain/groups/remanence_interval.dart';
 import 'package:alambic/domain/groups/sequence_end.dart';
@@ -21,7 +22,7 @@ const SequenceEnd acquiredEnd = SequenceEnd(
 CardGroup testGroup({
   int id = 1,
   String name = 'Capitals',
-  bool reverseEnabled = false,
+  AskedSides askedSides = AskedSides.front,
   AfterLastStep afterLastStep = AfterLastStep.remanence,
   RemanenceInterval remanenceInterval = RemanenceInterval.sixMonths,
   bool typedAnswer = false,
@@ -31,7 +32,7 @@ CardGroup testGroup({
   name: name,
   presetId: 1,
   createdAt: DateTime(2026, 11, 1),
-  reverseEnabled: reverseEnabled,
+  askedSides: askedSides,
   afterLastStep: afterLastStep,
   remanenceInterval: remanenceInterval,
   typedAnswer: typedAnswer,

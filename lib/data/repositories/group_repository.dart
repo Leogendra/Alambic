@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../domain/groups/after_last_step.dart';
+import '../../domain/groups/asked_sides.dart';
 import '../../domain/groups/card_group.dart';
 import '../../domain/groups/remanence_interval.dart';
 import '../database/alambic_database.dart';
@@ -65,12 +66,12 @@ class GroupRepository {
             ..where((group) => group.presetId.equals(fromPresetId)))
           .write(CardGroupsCompanion(presetId: Value(toPresetId)));
 
-  /// Draws the asked face of each display of its cards, or always asks the
-  /// front. Changes nothing to their progression.
-  Future<void> setReverseEnabled(int groupId, {required bool enabled}) =>
+  /// The face each display of its cards asks. Changes nothing to their
+  /// progression.
+  Future<void> setAskedSides(int groupId, AskedSides askedSides) =>
       (_database.update(_database.cardGroups)
             ..where((group) => group.id.equals(groupId)))
-          .write(CardGroupsCompanion(reverseEnabled: Value(enabled)));
+          .write(CardGroupsCompanion(askedSides: Value(askedSides)));
 
   Future<void> setAfterLastStep(int groupId, AfterLastStep afterLastStep) =>
       (_database.update(_database.cardGroups)

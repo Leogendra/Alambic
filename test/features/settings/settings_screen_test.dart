@@ -68,7 +68,7 @@ void main() {
         strings.settingsBackup,
         strings.settingsAboutSection.toUpperCase(),
         strings.settingsGithub,
-        strings.settingsVersion('0.2.0'),
+        strings.settingsVersion('1.0.0'),
       ]) {
         expect(find.text(title), findsOneWidget);
       }

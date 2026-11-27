@@ -51,7 +51,7 @@ The Settings tab is a short list with no subtitle and no value, so that it reads
 - **Display**: the language and the theme, see below.
 - **Backup & restore**: the export and the import ([Feature 9](9-backup.md)).
 
-Below, an "About" panel holds a link to the GitHub repository of the app, which opens in the browser, and the tab ends on the version of the installed app ("Alambic v0.2.0"). A debug build adds a "Development" panel, absent from a release build, whose "Replay the onboarding" row shows the welcome screens again ([Feature 10](10-onboarding.md#replay)).
+Below, an "About" panel holds a link to the GitHub repository of the app, which opens in the browser, and the tab ends on the version of the installed app ("Alambic v1.0.0"). A debug build adds a "Development" panel, absent from a release build, whose "Replay the onboarding" row shows the welcome screens again ([Feature 10](10-onboarding.md#replay)).
 
 A category screen is a page with an app bar, where the explanations and the current values that would crowd the tab belong.
 

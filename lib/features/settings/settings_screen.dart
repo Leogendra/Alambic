@@ -108,7 +108,7 @@ class SettingsScreen extends ConsumerWidget {
   );
 }
 
-/// "Alambic v0.2.0", at the foot of the tab.
+/// "Alambic v1.0.0", at the foot of the tab.
 class _Version extends ConsumerWidget {
   const _Version();
 

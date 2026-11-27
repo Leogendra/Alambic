@@ -2,7 +2,7 @@
 /// platform plugins are behind this interface so that the screens showing
 /// them are tested without a phone.
 abstract interface class AppAbout {
-  /// The version of the installed app, without its build number ("0.2.0").
+  /// The version of the installed app, without its build number ("1.0.0").
   Future<String> version();
 
   /// Opens the GitHub repository of the app in the browser.

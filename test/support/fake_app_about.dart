@@ -6,7 +6,7 @@ class FakeAppAbout implements AppAbout {
   int repositoryOpened = 0;
 
   @override
-  Future<String> version() async => '0.2.0';
+  Future<String> version() async => '1.0.0';
 
   @override
   Future<void> openRepository() async => repositoryOpened++;

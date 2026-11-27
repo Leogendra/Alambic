@@ -39,7 +39,7 @@ The database goes first and in one transaction because it is the part that can f
 
 ## Constraints
 
-- A backup is only imported into the same schema version it was written with. The schema has no migration, so a backup of another version is refused rather than guessed at.
+- A backup is only imported into the same schema version it was written with: a backup of another version is refused rather than guessed at.
 - The list of tables is written once, in insertion order (a table after the tables its foreign keys point at). A table added to the database must be added to it; a test fails otherwise.
 - An image name inside the file never contains a path, so that a crafted file cannot write outside the image folder.
 

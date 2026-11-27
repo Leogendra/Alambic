@@ -4,3 +4,7 @@ targets:
       drift_dev:
         options:
           store_date_time_values_as_text: false
+          databases:
+            alambic: lib/data/database/alambic_database.dart
+          schema_dir: drift_schemas/
+          test_dir: test/drift/

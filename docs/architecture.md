@@ -2,7 +2,7 @@
 
 ## Role
 
-Alambic is an Android spaced-repetition app where the notification is the main interface. Each card lives in a [group](lexicon.md#group) and has a single progression; a [preset](lexicon.md#preset) decides when it comes back. A new card waits in the [queue](lexicon.md#queue) of its group until the group's [distillation](lexicon.md#distillation) introduces it, a few cards at a time. `docs/features/` describes the product as it is built; `SPECS.md` (not versioned) only holds the work left before V1.0.
+Alambic is an Android spaced-repetition app where the notification is the main interface. Each card lives in a [group](lexicon.md#group) and has a single progression; a [preset](lexicon.md#preset) decides when it comes back. A new card waits in the [queue](lexicon.md#queue) of its group until the group's [distillation](lexicon.md#distillation) introduces it, a few cards at a time. `docs/features/` describes the product as it is built.
 
 It is not a classic flashcard app, and three principles follow from that:
 

@@ -12,8 +12,6 @@ A notification-first spaced repetition app for Android: distill your knowledge b
     <img src="docs/images/group_detail_dark.png" alt="Group detail" width="30%" />
 </div> -->
 
-> **Alpha:** under active development. Features may change or break, and data may be reset between versions.
-
 ## Installation
 
 Requirements: 
@@ -64,7 +62,7 @@ Then, while it runs:
 - `R`: hot restart, restarts the app without rebuilding. Needed for changes to `static final` values, `main()` or app initialization.
 - `q`: quit.
 
-After a drift schema change, run `dart run build_runner build`, then hot restart.
+After a drift schema change, raise `schemaVersion`, run `dart run build_runner build` then `dart run drift_dev make-migrations`, write the migration step, then hot restart.
 
 ### More
 

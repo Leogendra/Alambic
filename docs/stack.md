@@ -28,6 +28,7 @@ Versions are pinned exactly in `pubspec.yaml` (no `^`) and in `pubspec.lock`, so
 
 - Dependencies: `flutter pub get`. Translations are regenerated at the same time into `lib/l10n/generated/`, which is not versioned.
 - drift generated code: `dart run build_runner build`. The `*.g.dart` files are versioned so that a fresh clone compiles without this step.
+- Schema change: raise `schemaVersion`, run `dart run build_runner build`, then `dart run drift_dev make-migrations`. It saves the new schema in `drift_schemas/`, writes the steps file next to the database and the generated tests in `test/drift/`. Write the step in `onUpgrade` with `stepByStep`, then run the tests. The paths are set in `build.yaml`.
 - Analysis: `flutter analyze`. Formatting: `dart format lib test`.
 - Tests: `flutter test`; for a local pass, `flutter test --fail-fast` stops at the first failure.
 - Screen captures: `flutter test --dart-define=shots=true test/app test/features` writes one PNG per screen state to `build/shots/` (not versioned, about 15 s). Without the flag, `captureShot` (`test/support/screen_harness.dart`) does nothing. The three images of the README, in `docs/images/`, are copies of captures of the same name, refreshed by hand: copy them from `build/shots/` after a visible change to their screens.

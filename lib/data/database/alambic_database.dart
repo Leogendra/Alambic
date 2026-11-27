@@ -56,17 +56,15 @@ class AlambicDatabase extends _$AlambicDatabase {
     ),
   );
 
-  /// Raised at every schema change.
+  /// Raised at every schema change, with a migration from the previous
+  /// version (`dart run drift_dev make-migrations`). Without one, drift
+  /// refuses to open an older file rather than lose its data.
   @override
   int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: _create,
-    onUpgrade: (migrator, from, to) async {
-      await _dropAllTables();
-      await _create(migrator);
-    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
@@ -75,19 +73,6 @@ class AlambicDatabase extends _$AlambicDatabase {
   Future<void> _create(Migrator migrator) async {
     await migrator.createAll();
     await _seedBuiltInPresets();
-  }
-
-  /// Drops every table found in the file, including those of an older
-  /// schema that this one no longer declares.
-  Future<void> _dropAllTables() async {
-    final tables = await customSelect(
-      "SELECT name FROM sqlite_master WHERE type = 'table' "
-      "AND name NOT LIKE 'sqlite_%' AND name != 'android_metadata'",
-    ).get();
-    await customStatement('PRAGMA foreign_keys = OFF');
-    for (final table in tables) {
-      await customStatement('DROP TABLE "${table.read<String>('name')}"');
-    }
   }
 
   /// Creates the shipped presets and makes Standard the global preset.

@@ -3,7 +3,7 @@
 ## Languages and environments
 
 - Dart 3.14 and Flutter 3.50 (stable channel). The V1 target is Android only: the project contains only the `android/` folder.
-- Android: AGP 9.3, Gradle 9.5, Kotlin 2.4, `compileSdk` 37, Java 17 with core library desugaring (`coreLibraryDesugaring`).
+- Android: AGP 9.3, Gradle 9.5, Kotlin 2.4, `compileSdk` 37, Java 17 target with core library desugaring (`coreLibraryDesugaring`). The release workflow builds with JDK 21: the lint bundled with AGP 9.3 crashes on JDK 17 (`NoSuchMethodError` on `List.removeLast()`).
 
 ## Key libraries
 
